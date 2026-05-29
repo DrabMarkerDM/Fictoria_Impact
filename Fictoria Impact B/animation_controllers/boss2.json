@@ -1,0 +1,23 @@
+{"format_version":"1.8.0",
+"animation_controllers":{
+"controller.animation.boss2":{
+"states":{
+"default":{"transitions":[
+{"attack":"query.is_delayed_attacking"}
+
+]
+
+},
+"attack": {
+					"transitions": [
+						{
+							"default": "!query.is_delayed_attacking"
+						}
+					],
+"on_entry": ["/execute positioned ^ ^ ^2 run effect @e[type=!demon:boss2,r=2,c=2,family=!monster] slowness 5 2 "
+]
+}
+}
+}
+}
+}

@@ -1,0 +1,25 @@
+{
+	"format_version" : "1.10.0",
+	"animation_controllers" : {
+		"controller.animation.att" : {
+			"initial_state" : "default",
+			"states" : {
+				"attacking" : {
+					"animations" : [ "attack.rotations" ],
+					"transitions" : [
+						{
+							"default" : "variable.attack_time < 0.0"
+						}
+					]
+				},
+				"default" : {
+					"transitions" : [
+						{
+							"attacking" : "variable.attack_time >= 0.0"
+						}
+          ]
+        }
+      }
+    }
+  }
+}

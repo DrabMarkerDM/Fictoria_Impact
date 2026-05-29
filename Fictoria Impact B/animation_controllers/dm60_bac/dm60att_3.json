@@ -1,0 +1,33 @@
+{"format_version":"1.8.0",
+	"animation_controllers": {
+		"controller.animation.dm60att_3": {
+			"states": {
+				"default": {
+					"transitions": [
+						{ "attack": "query.is_delayed_attacking && query.variant == 3 " }
+
+					]
+
+				},
+				"attack": {
+					"transitions": [
+						{
+							"default": "!query.is_delayed_attacking || query.variant != 3 "
+						}
+					],
+					"on_entry": [
+						"/particle dm:dm60_att_3 ^ ^2 ^2",
+						"/damage @e[tag=!dm,family=monster,r=12] 143 magic entity @s",
+						"/function dm60_1",
+						"/scoreboard players add @s dm60s 1",
+						"/event entity @e[scores={dm60s=1..}] back",
+						"/scoreboard players set @e[scores={dm60s=1..}] dm60s 0",
+						"/scoreboard players set @e[scores={dm60_2=..-5}] dm60_2 -4",
+						"/scoreboard players set @e[scores={dm60s=..-7}] dm60s -6",
+						"/scoreboard players add @e[type=player:dm33,r=16] dm33 1"
+					]
+				}
+			}
+		}
+	}
+}

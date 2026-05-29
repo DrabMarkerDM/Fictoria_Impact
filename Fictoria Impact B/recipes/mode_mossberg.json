@@ -1,0 +1,33 @@
+{
+  "format_version": "1.12",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "item:mode_mossberg"
+    },
+
+
+    "tags": [ "crafting_table" ],
+    "pattern": [
+      "  Y",
+      "X#Y",
+      "ZZZ"
+    ],
+    "key": {
+      "#": {
+        "item": "minecraft:redstone_block"
+      },
+      "X": {
+        "item": "minecraft:blaze_rod"
+      },
+      "Y": {
+        "item": "minecraft:tnt"
+      },
+      "Z": {
+        "item": "minecraft:obsidian"
+      }
+    },
+    "result": {
+      "item": "item:mode_mossberg"
+    }
+  }
+}

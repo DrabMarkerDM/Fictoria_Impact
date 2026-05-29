@@ -1,0 +1,31 @@
+{"format_version":"1.8.0",
+"animation_controllers":{
+"controller.animation.dm0sword_1":{
+"states":{
+"default":{"transitions":[
+{"attack":"query.is_delayed_attacking && query.variant == 2 "}
+
+]
+
+},
+"attack": {
+					"transitions": [
+						{
+							"default": "!query.is_delayed_attacking || query.variant != 2 "
+						}
+					],
+"on_entry": [
+"/particle dm:dm0_att_1 ^ ^2 ^2",
+"/execute positioned ^ ^ ^2 run execute at @e[type=!player:dm0,tag=!dm,family=monster,r=5] run summon bullet:dm0_sweep ~~0.3~",
+"/scoreboard players add @s dm0att_1 1",
+"/event entity @e[scores={dm0att_1=5..}] sword_e",
+"/scoreboard players set @e[scores={dm0att_1=5..}] dm0att_1 0",
+"/effect @e[tag=!dm,type=!player:dm0,family=monster,family=!undead,r=5] instant_damage 2 2 true",
+"/effect @s absorption 5 25 true",
+"/execute positioned ^ ^ ^2 run execute at @e[type=!player:dm0,tag=!dm,family=monster,r=5] run particle minecraft:redstone_wire_dust_particle ~~2~"
+]
+}
+}
+}
+}
+}

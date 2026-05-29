@@ -1,0 +1,24 @@
+{
+	"format_version": "1.12.0",
+	"minecraft:geometry": [
+		{
+			"description": {
+				"identifier": "geometry.dm61_bullet_1",
+				"texture_width": 512,
+				"texture_height": 512,
+				"visible_bounds_width": 193,
+				"visible_bounds_height": 21,
+				"visible_bounds_offset": [0, 0.5, 0]
+			},
+			"bones": [
+				{
+					"name": "body",
+					"pivot": [0, 0, 0],
+					"cubes": [
+						{"origin": [0, 4, -979], "size": [1, 1, 1007], "inflate": 1, "uv": [-757, -674]}
+					]
+				}
+			]
+		}
+	]
+}

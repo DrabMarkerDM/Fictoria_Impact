@@ -1,0 +1,26 @@
+{
+  "format_version": "1.10.0",
+  "minecraft:client_entity": {
+    "description": {
+      "identifier": "bullet:dm61_bullet_1",
+      "materials": {
+        "default": "wither_boss_armor"
+      },
+      "textures": {
+        "default": "textures/bullet/dm61_bullet_1"
+      },
+      "geometry": {
+        "default": "geometry.dm61_bullet_1"
+      },
+      "animations": {
+        "general": "animation.bullet.general"
+      },
+      "scripts": {
+        "animate": [
+          "general"
+        ]
+      },
+      "render_controllers": [ "controller.render.arrow" ]
+    }
+  }
+}

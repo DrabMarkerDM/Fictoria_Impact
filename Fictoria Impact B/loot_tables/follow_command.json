@@ -1,0 +1,14 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "item",
+          "name": "item:follow_command",
+          "weight": 1
+         }
+      ]
+    }
+  ]
+}

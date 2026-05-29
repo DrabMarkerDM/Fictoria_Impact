@@ -1,0 +1,15 @@
+{
+  "format_version": "1.8.0",
+  "animations": {
+		"animation.dm25.air" : {
+			"loop" : true,
+			"bones" : {							       "leftarm": {
+				"rotation": ["-15 - this", "0 - this", "0 - this"]
+				}
+			}
+         }
+        }
+         }
+
+  
+

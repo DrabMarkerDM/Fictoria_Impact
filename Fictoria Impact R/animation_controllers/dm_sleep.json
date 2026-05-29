@@ -1,0 +1,25 @@
+{
+	"format_version" : "1.10.0",
+	"animation_controllers" : {
+		"controller.animation.dm_sleep" : {
+		             			"initial_state" : "default",
+			"states" : {
+				"ratt" : {
+					"animations": [ "sleeping" ],
+					"transitions" : [
+						{
+							"default": "!query.is_sleeping"
+						}
+					]
+				},
+				"default" : {
+					"transitions" : [
+						{
+							"ratt": "query.is_sleeping"
+						}
+          ]
+        }
+      }
+    }
+  }
+}

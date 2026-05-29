@@ -1,0 +1,31 @@
+{"format_version":"1.8.0",
+"animation_controllers":{
+"controller.animation.dm4hit_1":{
+"states":{
+"default":{"transitions":[
+{"att":"query.mark_variant == 1"}
+
+]
+
+},
+"att": {
+					"transitions": [
+						{
+							"default": "query.mark_variant == 1"
+						}
+					],
+"on_entry": ["/effect @e[type=!player:dm4,tag=!dm,family=monster,family=!undead,r=8,c=5] instant_damage 40 0 true",
+"/effect @e[type=!player:dm4,tag=!dm,family=monster,r=8,c=5] fatal_poison 5 255 true",
+"/execute at @e[type=!player:dm4,tag=!dm,family=monster,r=8,c=5] run summon bullet:dm4_bom_1 ~~0.3~",
+"/particle minecraft:lava_particle ~~~",
+"/particle minecraft:lava_particle ~~~",
+"/particle minecraft:lava_particle ~~~",
+"/execute at @e[type=!player:dm4,tag=!dm,family=monster,r=8,c=5] run particle minecraft:lava_particle ~~~",
+"/execute at @e[type=!player:dm4,tag=!dm,family=monster,r=8,c=5] run particle minecraft:lava_particle ~~~",
+"/execute at @e[type=!player:dm4,tag=!dm,family=monster,r=8,c=5] run particle minecraft:lava_particle ~~~"
+]
+}
+}
+}
+}
+}

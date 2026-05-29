@@ -1,0 +1,25 @@
+{
+	"format_version" : "1.10.0",
+	"animation_controllers": {
+		"controller.animation.dm61_satt_target": {
+			"initial_state": "default",
+			"states": {
+				"ratt": {
+					"animations": [ "satt_target" ],
+					"transitions": [
+						{
+							"default": "!query.has_target || query.variant != 2"
+						}
+					]
+				},
+				"default": {
+					"transitions": [
+						{
+							"ratt": "query.has_target && query.variant == 2"
+						}
+					]
+				}
+			}
+		}
+	}
+}

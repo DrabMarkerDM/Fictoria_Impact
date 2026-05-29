@@ -1,0 +1,36 @@
+{
+	"format_version": "1.8.0",
+	"animations": {
+		"animation.dm44": {
+			"animation_length": 0.24,
+			"bones": {
+				"rightArm": {
+					"rotation": {
+						"0.0": ["-45 - this", "0 - this", "5 - this"],
+						"0.04": ["-53.75 - this", "-47.5 - this", "5 - this"],
+						"0.08": ["-62.5 - this", "-50 - this", "12.5 - this"],
+						"0.16": ["-55 - this", "-70 - this", "5 - this"],
+						"0.24": ["-55 - this", "-32.5 - this", "17.5 - this"]
+					}
+				},
+				"shield": {
+					"rotation": {
+						"0.04": ["80 - this", "0 - this", "0 - this"],
+						"0.08": ["100 - this", "0 - this", "0 - this"],
+						"0.16": ["137.5 - this", "0 - this", "0 - this"],
+						"0.2": ["107.5 - this", "0 - this", "0 - this"],
+						"0.24": ["87.5 - this", "0 - this", "0 - this"]
+					},
+					"position": {
+						"0.0": ["-1 - this", "0 - this", "-5 - this"],
+						"0.04": ["-1.5 - this", "-5.5 - this", "-4 - this"],
+						"0.08": ["-2 - this", "-11 - this", "-7 - this"],
+						"0.16": ["-4 - this", "-10 - this", "-11 - this"],
+						"0.2": ["-2 - this", "-7 - this", "-8.5 - this"],
+						"0.24": ["0 - this", "0 - this", "0 - this"]
+					}
+				}
+			}
+		}
+	}
+}

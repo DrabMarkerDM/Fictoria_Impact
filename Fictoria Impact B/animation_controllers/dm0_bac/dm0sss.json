@@ -1,0 +1,25 @@
+{"format_version":"1.8.0",
+"animation_controllers":{
+"controller.animation.dm0sss":{
+"states":{
+"default":{"transitions":[
+{"attack":"query.variant == 5"}
+
+]
+
+},
+"attack": {
+					"transitions": [
+						{
+							"default": "query.variant == 5"
+						}
+					],
+	"on_entry": [
+		"/execute at @e[type=!player:dm0,family=monster,tag=!dm,r=40,c=1] run tp @e[type=player:dm0] ^0.5^0.5^0.5",
+		"/execute positioned ^ ^ ^1 run execute at @e[type=!player:dm0,tag=!dm,family=monster,r=5,c=5] run summon bullet:dm0_sss ~~0.3~"
+	]
+}
+}
+}
+}
+}

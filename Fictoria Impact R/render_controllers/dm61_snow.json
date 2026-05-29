@@ -1,0 +1,16 @@
+{
+  "format_version": "1.8.0",
+  "render_controllers": {
+    "controller.render.dm61_snow": {
+      "geometry": "Geometry.snow",
+      "materials": [
+        { "*": "Material.sss" }
+
+      ],
+      "part_visibility": [
+        { "*": "query.variant == 2" }
+      ],
+      "textures": [ "Texture.snow" ]
+    }
+  }
+}

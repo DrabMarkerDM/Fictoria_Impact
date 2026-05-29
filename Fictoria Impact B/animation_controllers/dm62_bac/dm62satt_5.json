@@ -1,0 +1,26 @@
+{"format_version":"1.8.0",
+"animation_controllers":{
+"controller.animation.dm62satt_5":{
+"states":{
+"default":{"transitions":[
+	{ "attack": "query.health <= 45 && query.health > 36 && query.variant == 2" }
+
+]
+
+},
+"attack": {
+					"transitions": [
+						{
+							"default": "query.health > 45 || query.health <= 36 || query.variant != 2"
+						}
+					],
+	"on_entry": [
+		"@s sa5",
+		"/effect @s absorption 0",
+		"/effect @s resistance 0"
+	]
+}
+}
+}
+}
+}

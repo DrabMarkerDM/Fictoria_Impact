@@ -1,0 +1,25 @@
+{
+	"format_version": "1.10.0",
+	"animation_controllers": {
+		"controller.animation.dm34_hold": {
+			"initial_state": "default",
+			"states": {
+				"ratt": {
+					"animations": [ "holding_1" ],
+					"transitions": [
+						{
+							"default": "query.variant != 4"
+						}
+					]
+				},
+				"default": {
+					"transitions": [
+						{
+							"ratt": "query.variant == 4"
+						}
+					]
+				}
+			}
+		}
+	}
+}

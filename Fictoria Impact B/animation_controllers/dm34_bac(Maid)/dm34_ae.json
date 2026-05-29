@@ -1,0 +1,24 @@
+{"format_version":"1.8.0",
+"animation_controllers":{
+"controller.animation.dm34_ae":{
+"states":{
+"default":{"transitions":[
+{"att":"query.variant == 4"}
+
+]
+
+},
+"att": {
+					"transitions": [
+						{
+							"default": "query.variant != 4"
+						}
+					],
+	"on_entry": [
+		"/particle minecraft:cauldron_explosion_emitter ^ ^1.3 ^1"
+	]
+}
+}
+}
+}
+}

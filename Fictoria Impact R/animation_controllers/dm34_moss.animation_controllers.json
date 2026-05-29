@@ -1,0 +1,25 @@
+{
+	"format_version": "1.10.0",
+	"animation_controllers": {
+		"controller.animation.dm34_moss": {
+			"initial_state": "default",
+			"states": {
+				"ratt": {
+					"animations": [ "moss" ],
+					"transitions": [
+						{
+							"default": "query.variant != 2"
+						}
+					]
+				},
+				"default": {
+					"transitions": [
+						{
+							"ratt": "query.variant == 2"
+						}
+					]
+				}
+			}
+		}
+	}
+}

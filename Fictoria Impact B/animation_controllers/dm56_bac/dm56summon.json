@@ -1,0 +1,28 @@
+{"format_version":"1.8.0",
+"animation_controllers":{
+"controller.animation.dm56summon":{
+"states":{
+"default":{"transitions":[
+{"att":"query.is_powered"}
+
+]
+
+},
+"att": {
+					"transitions": [
+						{
+							"default": "!query.is_powered"
+						}
+					],
+"on_entry": [
+"/event entity @e[type=mob:dm56att] sss",
+"/execute positioned ^ ^ ^2 run summon mob:dm56att ~~~",
+"/execute positioned ^ ^ ^2 run summon mob:dm56att ~~~",
+"/event entity @e[type=player:dm56] summon_end",
+"/playsound dm56att @a[r=50] ~~~ 3.0 1.0"
+]
+}
+}
+}
+}
+}

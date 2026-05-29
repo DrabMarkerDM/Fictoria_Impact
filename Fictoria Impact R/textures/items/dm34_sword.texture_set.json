@@ -1,0 +1,8 @@
+{
+	"format_version": "1.16.100",
+	"minecraft:texture_set": {
+		"color": "dm34_sword",
+		"metalness_emissive_roughness": "dm34_sword_mer",
+		"normal": "dm34_sword_normal"
+	}
+}

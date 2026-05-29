@@ -1,0 +1,25 @@
+{
+	"format_version": "1.10.0",
+	"animation_controllers": {
+		"controller.animation.dm34_m4a1": {
+			"initial_state": "default",
+			"states": {
+				"ratt": {
+					"animations": [ "m4a1" ],
+					"transitions": [
+						{
+							"default": "query.variant != 1"
+						}
+					]
+				},
+				"default": {
+					"transitions": [
+						{
+							"ratt": "query.variant == 1"
+						}
+					]
+				}
+			}
+		}
+	}
+}

@@ -1,0 +1,24 @@
+{"format_version":"1.8.0",
+"animation_controllers":{
+"controller.animation.dm52target_1":{
+"states":{
+"default":{"transitions":[
+	{ "att": "query.mark_variant == 3 && !variable.has_target" }
+
+]
+
+},
+"att": {
+					"transitions": [
+						{
+							"default": "query.mark_variant != 3 || variable.has_target"
+						}
+					],
+	"on_entry": [
+		"/event entity @e[type=player:dm52] end_1"
+	]
+}
+}
+}
+}
+}

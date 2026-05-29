@@ -1,0 +1,16 @@
+{
+	"format_version": "1.8.0",
+	"animations": {
+		"animation.dm45ratt": {
+			"loop": true,
+			"bones": {
+				"leftArm": {
+					"rotation": ["-92.5 - this", "45 - this", "5 - this"]
+				},
+				"rightArm": {
+					"rotation": ["-95 - this", "0 - this", "72.5 - this"]
+				}
+			}
+		}
+	}
+}

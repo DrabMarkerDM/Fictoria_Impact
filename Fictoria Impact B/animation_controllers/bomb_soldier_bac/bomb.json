@@ -1,0 +1,24 @@
+{"format_version":"1.8.0",
+"animation_controllers":{
+"controller.animation.bomb":{
+"states":{
+"default":{"transitions":[
+	{ "att": "query.is_delayed_attacking" }
+
+]
+
+},
+"att": {
+					"transitions": [
+						{
+							"default": "!query.is_delayed_attacking"
+						}
+					],
+	"on_entry": [
+		"/damage @e[r=3,c=3,family=!demon,tag=!demon,type=!demon:bomb_soldier] 14 entity_attack entity @s"
+	]
+}
+}
+}
+}
+}

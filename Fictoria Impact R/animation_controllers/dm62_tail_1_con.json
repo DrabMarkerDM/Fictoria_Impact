@@ -1,0 +1,25 @@
+{
+	"format_version" : "1.10.0",
+	"animation_controllers": {
+		"controller.animation.dm62_tail_1": {
+			"initial_state": "default",
+			"states": {
+				"attacking": {
+					"animations": [ "tail_1" ],
+					"transitions": [
+						{
+							"default": "query.variant == 2"
+						}
+					]
+				},
+				"default": {
+					"transitions": [
+						{
+							"attacking": "query.variant != 2"
+						}
+					]
+				}
+			}
+		}
+	}
+}

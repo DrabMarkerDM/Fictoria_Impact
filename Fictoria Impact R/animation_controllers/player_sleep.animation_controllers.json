@@ -1,0 +1,31 @@
+{
+  "format_version": "1.8.0",
+  "animation_controllers": {
+    "controller.animation.player_base.move": {
+      "states": {
+        "default": {
+          "parameters": [ "query.modified_move_speed" ],
+          "animations": [
+            {
+              "move": [
+                {
+                  "0.0": 0.0,
+                  "1.0": 1.0
+                }
+              ]
+            }
+          ],
+          "transitions": [
+            { "get_in_bed": "query.is_sleeping" }
+          ]
+        },
+        "get_in_bed": {
+          "animations": [ { "get_in_bed": [] } ],
+          "transitions": [
+            { "default": "!query.is_sleeping" }
+          ]
+        }
+      }
+    }
+  }
+} 

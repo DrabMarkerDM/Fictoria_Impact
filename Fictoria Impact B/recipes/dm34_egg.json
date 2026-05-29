@@ -1,0 +1,27 @@
+{
+  "format_version": "1.12",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "player:dm34_spawn_egg"
+    },
+
+
+    "tags": [ "crafting_table" ],
+    "pattern": [
+      " X ",
+      "X#X",
+      " X "
+    ],
+    "key": {
+      "#": {
+        "item": "minecraft:redstone"
+      },
+      "X": {
+        "item": "minecraft:gold_ingot"
+      }
+    },
+    "result": {
+      "item": "player:dm34_spawn_egg"
+    }
+  }
+}

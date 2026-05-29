@@ -1,0 +1,24 @@
+{
+	"format_version": "1.10.0",
+	"geometry.dm63_ps": {
+		"texturewidth": 500,
+		"textureheight": 577,
+		"visible_bounds_width": 4,
+		"visible_bounds_height": 3.5,
+		"visible_bounds_offset": [0, 1.25, 0],
+		"bones": [
+			{
+				"name": "root",
+				"pivot": [0, 0, 0]
+			},
+			{
+				"name": "power_shield",
+				"parent": "root",
+				"pivot": [0, 0, 0],
+				"cubes": [
+					{"origin": [-10, 10, -6], "size": [20, 20, 20], "uv": [14, 132], "inflate": 9}
+				]
+			}
+		]
+	}
+}

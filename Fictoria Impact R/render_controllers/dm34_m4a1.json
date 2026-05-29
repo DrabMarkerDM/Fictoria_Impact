@@ -1,0 +1,13 @@
+{
+  "format_version": "1.8.0",
+  "render_controllers": {
+    "controller.render.dm34_m4a1": {
+      "geometry": "Geometry.m4a1",
+      "materials": [ { "*": "Material.gun" } ],
+      "part_visibility": [
+        { "*": "query.variant == 1" }
+      ],
+      "textures": [ "Texture.m4a1" ]
+    }
+  }
+}

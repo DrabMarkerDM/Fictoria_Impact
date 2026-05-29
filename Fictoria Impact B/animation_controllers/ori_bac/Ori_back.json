@@ -1,0 +1,25 @@
+{
+	"format_version": "1.10.0",
+	"animation_controllers": {
+		"controller.animation.Ori_back": {
+		  "initial_state": "default",
+		  "states": {
+			"default": {
+			  "transitions": [
+					{ "ori": "query.get_equipped_item_name == 'Original_sword'" }
+			  ],
+			  "on_entry": [
+				"@s js:no_gun"
+			  ]
+			},
+			"ori": {
+			  "transitions": [
+					{ "default": "query.get_equipped_item_name != 'Original_sword'" }
+			  ],
+			  "on_entry": [
+			  ]
+			}
+		  }
+		}
+	}
+}

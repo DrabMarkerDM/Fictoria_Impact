@@ -1,0 +1,647 @@
+{
+  "format_version": "1.8.0",
+  "minecraft:entity": {
+    "description": {
+      "identifier": "player:dm4",
+      "is_spawnable": true,
+      "is_summonable": true,
+      "is_experimental": false,
+      "scripts": {
+        "animate": [
+          "tag",
+          "ect"
+        ]
+      },
+      "animations": {
+        "tag": "controller.animation.tag_9",
+        "ect": "controller.animation.ect_4"
+      }
+    },
+    "component_groups": {
+      "sword": {
+        "minecraft:equipment": {
+          "table": "loot_tables/dm4.json"
+        },
+        "minecraft:behavior.ranged_attack": {
+          "priority": 3,
+          "speed_multiplier": 0.84,
+          "attack_interval_min": 0.8,
+          "attack_interval_max": 0.9,
+          "burst_shots": 15,
+          "burst_interval": 0.9,
+          "charge_charged_trigger": 0.0,
+          "charge_shoot_trigger": 0.2,
+          "attack_radius": 34
+        },
+        "minecraft:shooter": {
+          "def": "bullet:dm4_1_bullet"
+        }
+      },
+      "run": {
+        "minecraft:behavior.panic": {
+          "priority": 1,
+          "speed_multiplier": 1.8
+        },
+        "minecraft:timer": {
+          "looping": false,
+          "randomInterval": false,
+          "time": 4.0,
+          "time_down_event": {
+            "event": "back"
+          }
+        }
+      },
+      "bow": {
+        "minecraft:behavior.ranged_attack": {
+          "priority": 2,
+          "speed_multiplier": 0.84,
+          "attack_interval_min": 1.0,
+          "attack_interval_max": 1.6,
+          "burst_shots": 25,
+          "burst_interval": 1.5,
+          "charge_charged_trigger": 0.0,
+          "charge_shoot_trigger": 1.5,
+          "attack_radius": 36
+        },
+        "minecraft:equipment": {
+          "table": "loot_tables/dm4.json"
+        },
+        "minecraft:shooter": {
+          "def": "bullet:dm4_bullet"
+        }
+      },
+      "ta": {
+        "minecraft:tameable": {
+          "probability": 1.0,
+          "tame_items": [
+            "items:card_3"
+          ],
+          "tame_event": {
+            "event": "on_tame",
+            "target": "self"
+          }
+        },
+        "minecraft:behavior.panic": {
+          "priority": 1,
+          "speed_multiplier": 1.4
+        },
+        "minecraft:behavior.avoid_mob_type": {
+          "priority": 3,
+          "entity_types": [
+            {
+              "filters": {
+                "test": "is_family",
+                "subject": "other",
+                "value": "monster"
+              },
+              "max_dist": 26,
+              "walk_speed_multiplier": 1.2,
+              "sprint_speed_multiplier": 1.4
+            }
+          ]
+        }
+      },
+      "on_ta": {
+        "minecraft:is_tamed": {
+        },
+        "minecraft:health": {
+          "value": 28,
+          "max": 28
+        },
+        "minecraft:leashable": {
+          "soft_distance": 4.5,
+          "hard_distance": 6.0,
+          "max_distance": 34.0
+        },
+        "minecraft:sittable": {
+        },
+        "minecraft:behavior.stay_while_sitting": {
+          "priority": 1
+        },
+        "minecraft:target_nearby_sensor": {
+          "inside_range": 6.0,
+          "outside_range": 6.5,
+          "on_inside_range": {
+            "event": "start",
+            "target": "self"
+          },
+          "on_outside_range": {
+            "event": "stop",
+            "target": "self"
+          }
+        },
+        "minecraft:behavior.owner_hurt_by_target": {
+          "priority": 2,
+          "entity_types": {
+            "filters": {
+              "test": "is_family",
+              "subject": "other",
+              "operator": "!=",
+              "value": "dm"
+            },
+            "max_dist": 44,
+            "must_see": false
+          }
+        },
+        "minecraft:behavior.hurt_by_target": {
+          "priority": 2,
+          "entity_types": {
+            "filters": {
+              "test": "is_family",
+              "subject": "other",
+              "operator": "!=",
+              "value": "dm"
+            },
+            "max_dist": 44
+          }
+        },
+        "minecraft:behavior.nearest_attackable_target": {
+          "priority": 2,
+          "walk_speed_multiplier": 0.82,
+          "sprint_speed_multiplier": 0.84,
+          "reselect_targets": true,
+          "entity_types": [
+            {
+              "filters": {
+                "any_of": [
+                  {
+                    "test": "is_family",
+                    "subject": "other",
+                    "value": "monster"
+                  }
+                ]
+              },
+              "max_dist": 44
+            }
+          ],
+          "must_see": false,
+          "must_see_forget_duration": 6.0
+        },
+        "minecraft:follow_range": {
+          "value": 46
+        }
+      },
+      "charge": {
+        "minecraft:spell_effects": {
+          "add_effects": [
+            {
+              "effect": "invisibility",
+              "amplifier": 255,
+              "visible": false,
+              "ambient": false,
+              "duration": 1
+            }
+          ]
+        }
+      },
+      "sss": {
+        "minecraft:damage_sensor": {
+          "triggers": [
+            {
+              "cause": "projectile",
+              "damage_multiplier": 0.72,
+              "on_damage": {
+                "filters": {
+                  "test": "is_family",
+                  "subject": "other",
+                  "operator": "!=",
+                  "value": "dm"
+                }
+              },
+              "deals_damage": true
+            },
+            {
+              "cause": "entity_attack",
+              "damage_multiplier": 0.72,
+              "on_damage": {
+                "filters": {
+                  "test": "is_family",
+                  "subject": "other",
+                  "operator": "!=",
+                  "value": "dm"
+                }
+              },
+              "deals_damage": true
+            },
+            {
+              "cause": "entity_explosion",
+              "damage_multiplier": 0.72,
+              "on_damage": {
+                "filters": {
+                  "test": "is_family",
+                  "subject": "other",
+                  "operator": "!=",
+                  "value": "dm"
+                }
+              },
+              "deals_damage": true
+            },
+            {
+              "cause": "block_explosion",
+              "damage_multiplier": 0.72,
+              "on_damage": {
+                "filters": {
+                  "test": "is_family",
+                  "subject": "other",
+                  "operator": "!=",
+                  "value": "dm"
+                }
+              },
+              "deals_damage": true
+            },
+            {
+              "cause": "override",
+              "damage_multiplier": 0.72,
+              "on_damage": {
+                "filters": {
+                  "test": "is_family",
+                  "subject": "other",
+                  "operator": "!=",
+                  "value": "dm"
+                }
+              },
+              "deals_damage": true
+            },
+            {
+              "cause": "magic",
+              "damage_multiplier": 0.85,
+              "on_damage": {
+                "filters": {
+                  "test": "is_family",
+                  "subject": "other",
+                  "operator": "!=",
+                  "value": "dm"
+                }
+              },
+              "deals_damage": true
+            },
+            {
+              "on_damage": {
+                "filters": {
+                  "test": "is_family",
+                  "subject": "other",
+                  "value": "dm"
+                }
+              },
+              "deals_damage": false
+            }
+          ]
+      },
+        "minecraft:spawn_entity": [
+          {
+            "min_wait_time": 0,
+            "max_wait_time": 0,
+            "single_use": true,
+            "spawn_entity": "null:null",
+            "spawn_sound": "fire",
+            "num_to_spawn": 1
+          }
+        ],
+        "minecraft:timer": {
+          "looping": false,
+          "randomInterval": false,
+          "time": 3.0,
+          "time_down_event": {
+            "event": "explode"
+          }
+        }
+      },
+      "senor": {
+        "minecraft:damage_sensor": {
+          "triggers": [
+            {
+              "cause": "projectile",
+              "on_damage": {
+                "event": "charge",
+                "filters": {
+                  "test": "is_family",
+                  "subject": "other",
+                  "operator": "!=",
+                  "value": "dm"
+                }
+              },
+              "deals_damage": false
+            },
+            {
+              "cause": "entity_attack",
+              "damage_multiplier": 0.72,
+              "on_damage": {
+                "event": "attrun",
+                "filters": {
+                  "test": "is_family",
+                  "subject": "other",
+                  "operator": "!=",
+                  "value": "dm"
+                }
+              },
+              "deals_damage": true
+            },
+            {
+              "cause": "entity_explosion",
+              "damage_multiplier": 0.72,
+              "on_damage": {
+                "filters": {
+                  "test": "is_family",
+                  "subject": "other",
+                  "operator": "!=",
+                  "value": "dm"
+                }
+              },
+              "deals_damage": true
+            },
+            {
+              "cause": "block_explosion",
+              "damage_multiplier": 0.72,
+              "on_damage": {
+                "filters": {
+                  "test": "is_family",
+                  "subject": "other",
+                  "operator": "!=",
+                  "value": "dm"
+                }
+              },
+              "deals_damage": true
+            },
+            {
+              "cause": "override",
+              "damage_multiplier": 0.72,
+              "on_damage": {
+                "filters": {
+                  "test": "is_family",
+                  "subject": "other",
+                  "operator": "!=",
+                  "value": "dm"
+                }
+              },
+              "deals_damage": true
+            },
+            {
+              "cause": "magic",
+              "damage_multiplier": 0.85,
+              "on_damage": {
+                "filters": {
+                  "test": "is_family",
+                  "subject": "other",
+                  "operator": "!=",
+                  "value": "dm"
+                }
+              },
+              "deals_damage": true
+            },
+            {
+              "on_damage": {
+                "filters": {
+                  "test": "is_family",
+                  "subject": "other",
+                  "value": "dm"
+                }
+              },
+              "deals_damage": false
+            }
+          ]
+        }
+      }
+      },
+    "components": {
+      "minecraft:type_family": {
+        "family": [ "player", "dm" ]
+
+      },
+      "minecraft:collision_box": {
+        "width": 0.6,
+        "height": 1.78
+      },
+      "minecraft:health": {
+        "value": 20,
+        "max": 20
+      },
+      "minecraft:behavior.sleep": {
+        "priority": 4,
+        "goal_radius": 2,
+        "speed_multiplier": 1.0,
+        "sleep_collider_height": 0.3,
+        "sleep_collider_width": 1.0,
+        "sleep_y_offset": 0.6,
+        "timeout_cooldown": 10.0
+      },
+      "minecraft:hurt_on_condition": {
+        "damage_conditions": [
+          {
+            "filters": {
+              "test": "in_lava",
+              "subject": "self",
+              "operator": "==",
+              "value": true
+            },
+            "cause": "lava",
+            "damage_per_tick": 4
+          }
+        ]
+      },
+      "minecraft:can_climb": {
+      },
+      "minecraft:movement": {
+        "value": 0.32
+      },
+      "minecraft:underwater_movement": {
+        "value": 0.03
+      },
+      "minecraft:annotation.open_door": {
+      },
+      "minecraft:navigation.walk": {
+        "can_path_over_water": true,
+        "can_pass_doors": true,
+        "can_open_doors": true,
+        "can_walk": true,
+        "avoid_water": true,
+        "avoid_damage_blocks": true
+      },
+      "minecraft:behavior.open_door": {
+      },
+      "minecraft:movement.basic": {
+      },
+      "minecraft:jump.static": {
+      },
+      "minecraft:inventory": {
+        "inventory_size": 16,
+        "private": true
+      },
+      "minecraft:behavior.move_to_land": {
+        "priority": 5,
+        "speed_multiplier": 1.0,
+        "search_range": 35,
+        "search_height": 15,
+        "goal_radius": 1.0
+      },
+      "minecraft:behavior.float": {
+        "priority": 0
+      },
+      "minecraft:breathable": {
+        "totalSupply": 38,
+        "suffocateTime": -1,
+        "inhaleTime": 3.75,
+        "generatesBubbles": true
+      },
+      "minecraft:nameable": {
+        "alwaysShow": true
+      },
+      "minecraft:behavior.move_to_village": {
+        "priority": 6,
+        "speed_multiplier": 0.99,
+        "goal_radius": 0.8
+      },
+      "minecraft:behavior.pickup_items": {
+        "priority": 8,
+        "max_dist": 3,
+        "goal_radius": 2,
+        "speed_multiplier": 0.5
+      },
+      "minecraft:behavior.random_stroll": {
+        "priority": 5,
+        "speed_multiplier": 0.8,
+        "xz_dist": 12,
+        "y_dist": 8
+      },
+      "minecraft:pushable": {
+        "is_pushable": true,
+        "is_pushable_by_piston": true
+      },
+      "minecraft:behavior.look_at_player": {
+        "priority": 6,
+        "look_distance": 6,
+        "probability": 0.04
+      },
+      "minecraft:behavior.look_at_target": {
+        "priority": 5,
+        "look_distance": 34,
+        "probability": 0.06
+      },
+      "minecraft:behavior.look_at_entity": {
+        "priority": 7,
+        "look_distance": 6.0,
+        "probability": 0.02,
+        "filters": {
+          "test": "is_family",
+          "subject": "other",
+          "value": "mob"
+        }
+      },
+      "minecraft:behavior.random_look_around": {
+        "priority": 7
+      },
+      "minecraft:physics": {
+      },
+      "minecraft:scaffolding_climber": {}
+    },
+    "events": {
+       "minecraft:entity_spawned": {
+                          "add": {
+          "component_groups": [
+            "ta"
+          ]
+        }  
+       },
+      "on_tame": {
+        "remove": {
+          "component_groups": [
+            "ta"
+          ]
+        },
+        "add": {
+          "component_groups": [
+            "on_ta","senor"
+          ]
+        }
+       },
+      "start": {
+        "remove": {
+          "component_groups": [
+            "bow"
+          ]
+        },
+        "add": {
+          "component_groups": [
+            "sword"
+          ]
+        }
+      },
+      "stop": {
+        "add": {
+          "component_groups": [
+            "bow"
+          ]
+        },
+        "remove": {
+          "component_groups": [
+            "sword"
+          ]
+        }
+      },
+      "attrun": {
+        "add": {
+          "component_groups": [
+            "run"
+                        ]
+        },
+        "queue_command": {
+        "command": [
+            "function dm4_run"
+          ]
+       }
+      },
+      "back": {
+        "remove": {
+          "component_groups": [
+            "run"
+          ]
+       }
+      },
+      "sss": {
+        "add": {
+          "component_groups": [
+            "sss"
+                      ]
+        },
+        "remove": {
+          "component_groups": [
+            "run","senor"
+                        ]
+        },
+        "queue_command": {
+        "command": [
+            "function dm4_sss"
+          ]
+       }
+      },
+      "explode": {
+          "remove": {
+          "component_groups": [
+            "sss"
+                      ]
+        },
+        "add": {
+          "component_groups": [
+            "senor"
+                        ]
+        },
+        "queue_command": {
+        "command": [
+            "function dm4_ex"
+          ]
+       }
+      },
+      "charge": {
+          "add": {
+          "component_groups": [
+            "charge"
+                      ]
+        },
+        "remove": {
+          "component_groups": [
+            "charge"
+          ]
+       }
+      }
+    }
+  }
+}

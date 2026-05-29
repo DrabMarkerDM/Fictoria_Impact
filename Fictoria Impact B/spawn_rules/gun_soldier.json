@@ -1,0 +1,63 @@
+{
+  "format_version": "1.8.0",
+  "minecraft:spawn_rules": {
+    "description": {
+      "identifier": "demon:gun_soldier",
+      "population_control": "monster"
+    },
+    "conditions": [
+      {
+        "minecraft:spawns_on_surface": {},
+        "minecraft:brightness_filter": {
+          "min": 3,
+          "max": 6,
+          "adjust_for_weather": true
+        },
+        "minecraft:difficulty_filter": {
+          "min": "easy",
+          "max": "hard"
+        },
+        "minecraft:weight": {
+          "default": 18
+        },
+        "minecraft:herd": {
+          "min_size": 3,
+          "max_size": 7
+        },
+        "minecraft:permute_type": [
+          {
+            "weight": 65
+          },
+          {
+            "weight": 35,
+            "entity_type": "demon:soldier_7"
+          }
+        ],
+        "minecraft:biome_filter": {
+          "all_of": [
+            {
+              "test": "has_biome_tag",
+              "operator": "!=",
+              "value": "mooshroom_island"
+            },
+            {
+              "test": "has_biome_tag",
+              "operator": "!=",
+              "value": "cherry_grove"
+            },
+            {
+              "test": "has_biome_tag",
+              "operator": "!=",
+              "value": "the_end"
+            },
+            {
+              "test": "has_biome_tag",
+              "operator": "==",
+              "value": "monster"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

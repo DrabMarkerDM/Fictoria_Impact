@@ -1,0 +1,39 @@
+{
+  "format_version": "1.12",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "item:mode_awp"
+    },
+
+
+    "tags": [ "crafting_table" ],
+    "pattern": [
+      " CY",
+      "X#Y",
+      " DZ"
+    ],
+    "key": {
+      "#": {
+        "item": "minecraft:redstone_block"
+      },
+      "X": {
+        "item": "minecraft:blaze_rod"
+      },
+      "Y": {
+        "item": "minecraft:amethyst_shard"
+      },
+      "Z": {
+        "item": "minecraft:obsidian"
+         },
+      "C": {
+        "item": "minecraft:spyglass"
+         },
+      "D": {
+        "item": "minecraft:iron_block"
+      }
+    },
+    "result": {
+      "item": "item:mode_awp"
+    }
+  }
+}

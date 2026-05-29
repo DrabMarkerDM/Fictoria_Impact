@@ -1,0 +1,27 @@
+{
+	"format_version": "1.8.0",
+	"animations": {
+		"animation.dm.riding": {
+			"loop": true,
+			"bones": {
+				"leftArm": {
+					"rotation": [-36, 0, 0]
+				},
+				"rightArm": {
+					"rotation": [-36, 0, 0]
+				},
+				"leftLeg": {
+					"rotation": [-72, -18, 0],
+					"position": [0, -7, 0]
+				},
+				"rightLeg": {
+					"rotation": [-72, 18, 0],
+					"position": [0, -7, 0]
+				},
+				"waist": {
+					"position": [0, -7, 0]
+				}
+			}
+		}
+	}
+}

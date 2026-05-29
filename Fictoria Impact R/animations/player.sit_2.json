@@ -1,0 +1,17 @@
+  {	
+        "format_version": "1.8.0",
+        "animations": {
+		"animation.player.sit_2" : {			"loop" : true,
+			"bones" : {
+				"leftarm" : {
+		"rotation" : [ "- 26.0 - this", "38.0 - this", " 14.0 - this" ]
+				},
+				"rightarm" : {
+					"rotation" : [ "- 26.0 - this", "- 38.0 - this", "- 14.0 - this" ]
+				}
+        }
+      }
+        }    
+        }
+
+

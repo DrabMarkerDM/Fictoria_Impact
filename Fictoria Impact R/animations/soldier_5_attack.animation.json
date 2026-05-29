@@ -1,0 +1,20 @@
+ {
+  "format_version": "1.8.0",
+  "animations": {
+		"animation.soldier_5_attack" : {
+			"loop" : true,
+						"bones" : {
+				"leftarm" : {
+					"rotation" : [ 5.0, 20.0, -20.0 ]
+		
+				},
+				"rightarm" : {
+										"rotation" : [ 30.0, 20.0, 20.0 ]
+			
+				}
+        }
+      }
+        }    
+        }
+
+

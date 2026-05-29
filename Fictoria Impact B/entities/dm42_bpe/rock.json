@@ -1,0 +1,102 @@
+{
+	"format_version": "1.12.0",
+	"minecraft:entity": {
+		"description": {
+	"identifier": "bullet:rock",
+			"runtime_identifier": "minecraft:snowball",
+			"is_spawnable": false,
+			"is_summonable": true,
+			"is_experimental": false
+		},
+		"component_groups": {
+			"minecraft:exploding": {
+				"minecraft:explode": {
+					"fuseLength": 0,
+					"fuseLit": true,
+					"power": 0.5,
+					"causesFire": false,
+					"destroyAffectedByGriefing": true
+				}
+            },
+            "despawning": {
+                "minecraft:type_family": {
+                    "family": ["despawer", "despawer_despawning", "dm"
+                    ]
+                }
+            }
+		},
+		"components": {
+			"minecraft:type_family": {
+				"family": ["bullet","inanimate", "dm" ]
+			},
+			"minecraft:collision_box": {
+				"width": 0.4,
+				"height": 0.4
+			},
+		"minecraft:timer": {
+		  "looping": true,
+		  "randomInterval": false,
+		  "time": 0.2,
+		  "time_down_event": {
+		    "event": "minecraft:start_despawn"
+		  }
+},
+            "minecraft:despawn": {
+                "filters": {
+                    "all_of": [{
+                            "any_of": [{
+                                    "test":
+                                    "is_family",
+                                    "subject": "self",
+                                    "value": "despawer_despawning"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            },
+			"minecraft:projectile": {
+				"onHit": {
+					"impact_damage": {
+						"damage": 132,
+						"knockback": true,
+						"semirandomdiffdamage": false,
+						"destroyonhit": true
+					},
+					"definition_event": {
+						"affectProjectile": true,
+						"eventTrigger": {
+							"event": "minecraft:explode",
+							"target": "self"
+						}
+					}
+				},
+				"power": 2.4,
+				"gravity": 0.04,
+				"inertia": 2,
+				"liquid_inertia": 1,
+				"anchor": 1,
+				"catchFire": false
+			},
+			"minecraft:pushable": {
+				"is_pushable": false,
+				"is_pushable_by_piston": false
+			},
+			"minecraft:physics": {}
+		},
+		"events": {
+			"minecraft:explode": {
+				"add": {
+					"component_groups": [
+						"minecraft:exploding"
+						]
+			     	}
+            },
+            "minecraft:start_despawn": {
+                "add": {
+                    "component_groups": ["despawning"]
+                }
+            }
+        }
+    }
+}

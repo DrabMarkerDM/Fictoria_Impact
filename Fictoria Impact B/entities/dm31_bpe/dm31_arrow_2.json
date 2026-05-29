@@ -1,0 +1,124 @@
+{
+  "format_version": "1.16.0",
+  "minecraft:entity": {
+    "description": {
+      "identifier": "bullet:dm31_arrow_2",
+      "is_spawnable": false,
+      "is_summonable": true,
+      "is_experimental": false,
+      "scripts": {
+        "animate": [
+          "att"
+        ]
+      },
+      "animations": {
+        "att": "controller.animation.dm31_arrow_2"
+      }
+    },
+    "component_groups": {
+      "despawning": {
+        "minecraft:type_family": {
+          "family": [
+            "despawer",
+            "despawer_despawning"
+          ]
+        }
+      }
+    },
+    "components": {
+      "minecraft:type_family": {
+        "family": [ "dm", "inanimate", "dm31_arrow" ]
+      },
+      "minecraft:breathable": {
+        "total_supply": 58,
+        "suffocate_time": 0,
+        "breathes_air": true,
+        "breathes_water": true
+      },
+
+      "minecraft:despawn": {
+        "filters": {
+          "all_of": [
+            {
+              "any_of": [
+                {
+                  "test": "is_family",
+                  "subject": "self",
+                  "value": "despawer_despawning"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "minecraft:nameable": {
+      },
+      "minecraft:collision_box": {
+        "width": 0.001,
+        "height": 0.001
+      },
+      "minecraft:health": {
+        "value": 5000,
+        "max": 5000
+      },
+      "minecraft:variant": {
+        "value": 1
+      },
+      "minecraft:movement": {
+        "value": 0
+      },
+      "minecraft:fire_immune": {
+      },
+      "minecraft:knockback_resistance": {
+        "value": 2.0
+      },
+      "minecraft:timer": {
+        "looping": true,
+        "randomInterval": false,
+        "time": 6,
+        "time_down_event": {
+          "event": "die"
+        }
+      },
+      "minecraft:damage_sensor": {
+        "triggers": {
+          "cause": "all",
+          "deals_damage": false
+        }
+      },
+      "minecraft:spell_effects": {
+        "add_effects": [
+          {
+            "effect": "instant_health",
+            "amplifier": 255,
+            "visible": false,
+            "ambient": false,
+            "duration": 999999
+          },
+          {
+            "effect": "resistance",
+            "amplifier": 255,
+            "visible": false,
+            "ambient": false,
+            "duration": 999999
+          }
+        ]
+      },
+      "minecraft:physics": {
+        "has_gravity": false,
+        "has_collision": false
+      },
+      "minecraft:pushable": {
+        "is_pushable": false,
+        "is_pushable_by_piston": false
+      }
+    },
+    "events": {
+      "die": {
+        "add": {
+          "component_groups": [ "despawning" ]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,26 @@
+{"format_version":"1.8.0",
+"animation_controllers":{
+"controller.animation.dm25_2":{
+"states":{
+"default":{"transitions":[
+{"att":"query.mark_variant == 1"}
+
+]
+
+},
+"att": {
+					"transitions": [
+						{
+							"default": "!query.mark_variant == 1"
+						}
+					],
+"on_entry": [
+    "/execute positioned ~~~ run execute at @e[type=!player:dm25,tag=!dm,family=monster,r=25] run summon bullet:dm25_bullet ~~1~",
+"/event entity @e[scores={dm25att=5..}] zero",
+"/execute as @s run scoreboard players set @s dm25att 0"
+]
+}
+}
+}
+}
+}

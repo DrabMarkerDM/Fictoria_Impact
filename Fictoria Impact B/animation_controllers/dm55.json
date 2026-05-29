@@ -1,0 +1,24 @@
+{"format_version":"1.8.0",
+"animation_controllers":{
+"controller.animation.dm55":{
+"states":{
+"default":{"transitions":[
+{"att":"query.variant == 0"}
+
+]
+
+},
+"att": {
+					"transitions": [
+						{
+							"default": "query.variant == 0"
+						}
+					],
+	"on_entry": [
+		"/effect @e[tag=dm,r=24,c=8,family=!monster] instant_health 2 0 true"
+	]
+}
+}
+}
+}
+}

@@ -1,0 +1,91 @@
+{
+	"format_version": "1.12.0",
+	"minecraft:entity": {
+		"description": {
+			"identifier": "bullet:boss1_bullet",
+			"runtime_identifier": "minecraft:snowball",
+			"is_spawnable": false,
+			"is_summonable": true,
+			"is_experimental": false
+		},
+		"component_groups": {
+			"minecraft:exploding": {
+				"minecraft:explode": {
+					"fuseLength": 0,
+					"fuseLit": true,
+					"power": 2.1,
+					"causesFire": true,
+					"destroyAffectedByGriefing": true
+				}
+			},
+			"despawning": {
+					"minecraft:instant_despawn": {
+						"remove_child_entities": false
+				}
+			}
+		},
+		"components": {
+			"minecraft:type_family": {
+				"family": [ "bullet", "inanimate", "demon" ]
+			},
+			"minecraft:collision_box": {
+				"width": 0.41,
+				"height": 0.41
+			},
+			"minecraft:despawn": {
+				"despawn_from_distance": {
+					"max_distance": 38,
+					"min_distance": 38
+				}
+			},
+			"minecraft:spawn_entity": [
+				{
+					"min_wait_time": 0,
+					"max_wait_time": 0,
+					"single_use": true,
+					"spawn_entity": "null:null",
+					"spawn_sound": "fire",
+					"num_to_spawn": 1
+				}
+			],
+			"minecraft:projectile": {
+				"onHit": {
+					"impact_damage": {
+						"damage": 20,
+						"knockback": true,
+						"semirandomdiffdamage": false,
+						"destroyonhit": false
+					},
+					"definition_event": {
+						"affectProjectile": true,
+						"eventTrigger": {
+							"event": "minecraft:explode",
+							"target": "self"
+						}
+					}
+				},
+				"power": 2.0,
+				"gravity": 0.01,
+				"inertia": 1.8,
+				"liquid_inertia": 0.8,
+				"anchor": 1,
+				"catchFire": true
+			},
+			"minecraft:physics": {}
+		},
+		"events": {
+			"minecraft:explode": {
+				"add": {
+					"component_groups": [
+						"minecraft:exploding"
+					]
+				}
+			},
+			"minecraft:start_despawn": {
+				"add": {
+					"component_groups": [ "despawning" ]
+				}
+			}
+		}
+	}
+}

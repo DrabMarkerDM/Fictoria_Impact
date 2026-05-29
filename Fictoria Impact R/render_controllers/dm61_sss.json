@@ -1,0 +1,68 @@
+{
+  "format_version": "1.8.0",
+  "render_controllers": {
+    "controller.render.dm61_sss": {
+      "geometry": "Geometry.sss",
+      "materials": [
+        { "*": "Material.sss" },
+        { "gun": "Material.sss" },
+        { "star": "Material.default" },
+        { "1": "Material.sss" },
+        { "2": "Material.sss" },
+        { "3": "Material.sss" },
+        { "4": "Material.sss" },
+        { "5": "Material.sss" },
+        { "6": "Material.sss" },
+        { "i1": "Material.default" },
+        { "i2": "Material.default" },
+        { "i3": "Material.default" },
+        { "i4": "Material.default" },
+        { "i5": "Material.default" },
+        { "i6": "Material.default" },
+        { "i7": "Material.default" },
+        { "i8": "Material.default" },
+        { "i9": "Material.default" },
+        { "i1_1": "Material.sss" },
+        { "i1_2": "Material.sss" },
+        { "i1_3": "Material.sss" },
+        { "i1_4": "Material.sss" },
+        { "i1_5": "Material.sss" },
+        { "i1_6": "Material.sss" },
+        { "i1_7": "Material.sss" },
+        { "i1_8": "Material.sss" },
+        { "i1_9": "Material.sss" }
+
+      ],
+      "part_visibility": [
+        { "*": false },
+        { "gun": "query.variant == 2" },
+        { "star": "query.has_target && query.variant == 2" },
+        { "1": "query.variant == 2" },
+        { "2": "query.variant == 2" },
+        { "3": "query.variant == 2" },
+        { "4": "query.variant == 2" },
+        { "5": "query.variant == 2" },
+        { "6": "query.variant == 2" },
+        { "i1": "query.variant == 2" },
+        { "i2": "query.variant == 2" },
+        { "i3": "query.variant == 2" },
+        { "i4": "query.variant == 2" },
+        { "i5": "query.variant == 2" },
+        { "i6": "query.variant == 2" },
+        { "i7": "query.variant == 2" },
+        { "i8": "query.variant == 2" },
+        { "i9": "query.variant == 2" },
+        { "i1_1": "query.variant == 2" },
+        { "i2_1": "query.variant == 2" },
+        { "i3_1": "query.variant == 2" },
+        { "i4_1": "query.variant == 2" },
+        { "i5_1": "query.variant == 2" },
+        { "i6_1": "query.variant == 2" },
+        { "i7_1": "query.variant == 2" },
+        { "i8_1": "query.variant == 2" },
+        { "i9_1": "query.variant == 2" }
+      ],
+      "textures": [ "Texture.sss" ]
+    }
+  }
+}

@@ -1,0 +1,23 @@
+{"format_version":"1.8.0",
+"animation_controllers":{
+"controller.animation.dm46sss":{
+"states":{
+"default":{"transitions":[
+{"att":"query.is_powered"}
+
+]
+
+},
+"att": {
+					"transitions": [
+						{
+							"default": "!query.is_powered"
+						}
+					],
+"on_entry": [ "/execute as @e[scores={dm46att=30..}] run scoreboard players set @s dm46att 0"
+]
+}
+}
+}
+}
+}

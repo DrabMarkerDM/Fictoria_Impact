@@ -1,0 +1,25 @@
+{"format_version":"1.8.0",
+"animation_controllers":{
+"controller.animation.dm56ae_1":{
+"states":{
+"default":{"transitions":[
+{"attack":"variable.attack_time >= 0.001"}
+
+]
+
+},
+"attack": {
+					"transitions": [
+						{
+							"default": "variable.attack_time < 0.001"
+						}
+					],
+"on_entry": [
+"/execute at @e[type=!mob:dm56satt,tag=!dm,family=monster,r=4] run particle dm:dm56att_1 ~~1~",
+"/function dm56_tp"
+]
+}
+}
+}
+}
+}

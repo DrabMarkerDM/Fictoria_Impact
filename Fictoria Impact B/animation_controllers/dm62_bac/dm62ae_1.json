@@ -1,0 +1,30 @@
+{"format_version":"1.8.0",
+"animation_controllers":{
+"controller.animation.dm62ae_1":{
+"states":{
+"default":{"transitions":[
+	{ "attack": "variable.attack_time >= 0.001 && query.variant == 1 " }
+
+]
+
+},
+"attack": {
+					"transitions": [
+						{
+							"default": "variable.attack_time < 0.001 || query.variant != 1 "
+						}
+					],
+	"on_entry": [
+		"/effect @s instant_health 1 0 true",
+		"/particle dm:dm62_att_1a ^ ^1.5 ^1.1",
+		"/particle dm:dm62_att_1a ^ ^1.7 ^1.1",
+		"/particle dm:dm62_att_1b ^ ^1.9 ^1.1",
+		"/particle dm:dm62_att_2a ^ ^2.1 ^1.5",
+		"/particle dm:dm62_att_2a ^ ^2.3 ^1.5",
+		"/particle dm:dm62_att_2b ^ ^2.5 ^1.5"
+	]
+}
+}
+}
+}
+}

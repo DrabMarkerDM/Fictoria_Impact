@@ -1,0 +1,26 @@
+{"format_version":"1.8.0",
+"animation_controllers":{
+"controller.animation.bow":{
+"states":{
+"default":{"transitions":[
+{"att":"query.variant == 2"}
+
+]
+
+},
+"att": {
+					"transitions": [
+						{
+							"default": "query.variant != 2"
+						}
+					],
+"on_entry": ["/replaceitem entity @s slot.weapon.mainhand 1 bow",
+"/enchant @s flame 1",
+"/enchant @s unbreaking 3",
+"/enchant @s power 5"
+]
+}
+}
+}
+}
+}

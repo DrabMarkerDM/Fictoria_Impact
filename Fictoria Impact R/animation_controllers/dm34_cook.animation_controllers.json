@@ -1,0 +1,25 @@
+{
+	"format_version" : "1.10.0",
+	"animation_controllers": {
+		"controller.animation.dm34_cook": {
+			"initial_state": "default",
+			"states": {
+				"attacking": {
+					"animations": [ "cook" ],
+					"transitions": [
+						{
+							"default": "query.variant != 4"
+						}
+					]
+				},
+				"default": {
+					"transitions": [
+						{
+							"attack": "query.variant == 4"
+						}
+					]
+				}
+			}
+		}
+	}
+}

@@ -1,0 +1,8 @@
+{
+  "animation_controllers": {
+    "controller.animation.firearrow": {
+      "states": { "default": { "on_entry": [ "/particle minecraft:mobflame_single ~~~" ] } }
+    }
+  },
+  "format_version": "1.8.0"
+}

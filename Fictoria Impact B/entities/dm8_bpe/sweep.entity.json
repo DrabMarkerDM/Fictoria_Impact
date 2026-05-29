@@ -1,0 +1,93 @@
+{
+  "format_version": "1.12.0",
+  "minecraft:entity": {
+    "description": {
+     "identifier": "bullet:sweep",
+      "runtime_identifier": "minecraft:snowball",
+      "is_spawnable": false,
+      "is_summonable": true,
+      "is_experimental": false,
+              "scripts":{"animate":[
+"buff"
+]},"animations":{
+"buff":"controller.animation.dm8ratt"
+}
+    },
+		"component_groups": {
+			"minecraft:exploding": {
+				"minecraft:explode": {
+					"fuseLength": 0,
+					"fuseLit": true,
+					"power": 0.1,
+					"causesFire": false,
+					"destroyAffectedByGriefing": true
+				}
+			}
+    },
+    "components": {
+      "minecraft:type_family": {
+        "family": [ "bullet", "inanimate", "dm" ]
+      },
+      "minecraft:collision_box": {
+        "width": 2.0,
+        "height": 0.1
+      },
+      "minecraft:variant": {
+        "value": 0
+      },
+      "minecraft:timer": {
+        "looping": true,
+        "randomInterval": false,
+        "time": 0.3,
+        "time_down_event": {
+          "event": "die"
+        }
+      },
+      "minecraft:projectile": {
+        "onHit": {
+          "impact_damage": {
+            "damage": 15,
+            "knockback": true,
+            "semirandomdiffdamage": false,
+            "destroyonhit": false
+          }
+        },
+        "liquid_inertia": 0.8,
+        "power": 1,
+        "gravity": 0,
+        "stop_on_hurt": false,
+        "multiple_targets": true,
+        "angleoffset": 0.0,
+        "reflect_on_hurt": true,
+        "anchor": 1,
+        "uncertaintyBase": 10,
+        "uncertaintyMultiplier": 5,
+        "offset": [ 0, -1.4, 2 ],
+        "inertia": 1.8
+      },
+      "minecraft:physics": {
+      }
+    },
+    "events": {
+      "minecraft:entity_spawned": {
+      "queue_command": {
+        "command": [
+          "playsound dm8ratt @a[r=33] ~~~ 2.0 1.0",
+          "event entity @e[type=player:dm8,c=1] dm8_ratt",
+          "playanimation @e[type=player:dm8,c=1] animation.dm8_att2",
+          "scoreboard players add @e[type=player:dm8,c=1] dm8 2",
+          "execute as @e[scores={dm8=45..}] run event entity @s sss",
+          "execute as @e[scores={dm8=45..}] run scoreboard players set @s dm8 0"
+        ]
+      }
+    },
+      "die": {
+        "add": {
+          "component_groups": [
+            "minecraft:exploding"
+          ]
+        }
+      }
+    }
+    }
+}

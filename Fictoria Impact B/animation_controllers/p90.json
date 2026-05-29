@@ -1,0 +1,33 @@
+{
+	"format_version": "1.10.0",
+	"animation_controllers": {
+		"controller.animation.p90": {
+		  "initial_state": "default",
+		  "states": {
+			"default": {
+			  "transitions": [
+				{ "p90": "query.get_equipped_item_name == 'p90'" },
+				{ "p90_empty": "query.get_equipped_item_name == 'p90_empty'" }
+			  ],
+			  "on_entry": [
+				"@s js:no_gun"
+			  ]
+			},
+			"p90": {
+			  "transitions": [
+				{ "default": "query.get_equipped_item_name != 'p90'" }
+			  ],
+			  "on_entry": [
+			  ]
+			},
+			"p90_empty": {
+			  "transitions": [
+				{ "default": "query.get_equipped_item_name != 'p90_empty'" }
+			  ],
+			  "on_entry": [
+			  ]
+			}
+		  }
+		}
+	}
+}

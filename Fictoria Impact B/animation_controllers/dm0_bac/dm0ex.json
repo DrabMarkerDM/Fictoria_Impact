@@ -1,0 +1,24 @@
+{"format_version":"1.8.0",
+"animation_controllers":{
+"controller.animation.dm0ex":{
+"states":{
+"default":{"transitions":[
+{"attack":"query.variant == 5"}
+
+]
+
+},
+"attack": {
+					"transitions": [
+						{
+							"default": "query.variant != 5"
+						}
+					],
+"on_entry": [
+   "/execute positioned ^ ^ ^2 run execute at @e[type=!player:dm0,tag=!dm,family=monster,r=10] run summon bullet:dm0_ex ~~0.3~"
+]
+}
+}
+}
+}
+}

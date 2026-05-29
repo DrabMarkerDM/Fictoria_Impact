@@ -1,0 +1,56 @@
+{
+    "format_version": "1.10.0",
+    "animation_controllers": {
+        "controller.animation.robot.general": {
+            "states": {
+                "default": {
+                    "animations": [
+                        "hid_turret_general"
+                    ],
+					"transitions": [{
+                            "pre": "query.is_casting"
+                        }
+                    ],
+                    "blend_transition": 0.2
+                },
+                "pre": {
+                    "animations": [
+                        "preing"
+                    ],
+					"particle_effects" : [
+						{
+							"effect" : "spell",
+							"locator" : "tur2"
+						}
+					],
+                    "transitions": [{
+                            "default": "!query.is_casting"
+                        }
+                    ],
+                    "blend_transition": 0.2
+				}
+            }
+        },
+		"controller.animation.robot.shoot": {
+			"states": {
+				"default": {
+					"transitions": [{
+                            "shoot": "query.has_target"
+                        }
+                    ],
+                    "blend_transition": 0.2
+                },
+                "shoot": {
+                    "animations": [
+                        "shooting"
+                    ],
+                    "transitions": [{
+                            "default": "!query.has_target"
+                        }
+                    ],
+                    "blend_transition": 0.2
+                }
+			}
+		}
+    }
+}

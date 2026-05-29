@@ -1,0 +1,27 @@
+{
+  "format_version": "1.10.0",
+  "minecraft:client_entity": {
+    "description": {
+      "identifier": "bullet:dm53_bullet_1",
+      "materials": {
+        "default": "spider"
+      },
+      "textures": {
+        "default": "textures/bullet/dm53_bullet"
+      },
+      "geometry": {
+        "default": "geometry.dm42_bullet"
+      },
+      "animations": {
+        "general": "animation.bullet.general"
+      },
+      "scripts": {
+        "animate": [
+          "general"
+                ],
+        "scale": "6.8"
+      },
+      "render_controllers": [ "controller.render.arrow" ]
+    }
+  }
+}

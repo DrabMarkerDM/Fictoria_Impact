@@ -1,0 +1,68 @@
+{
+  "format_version": "1.8.0",
+  "minecraft:client_entity": {
+    "description": {
+      "identifier": "demon:gun_soldier",
+      "materials": { "default": "skeleton" },
+      "textures": {
+        "default": "textures/entity/demon/gun_soldier"
+      },
+      "geometry": {
+        "default": "geometry.boy_new"
+      },
+      "scripts": {
+        "pre_animation": [
+                   "variable.tcos0 = (Math.cos(query.modified_distance_moved * 38.17) * query.modified_move_speed / variable.gliding_speed_value) * 57.3;",
+          "variable.tcos1 = -variable.tcos0;",
+          "variable.attack_body_rot_y = Math.sin(360*Math.sqrt(variable.attack_time)) * 5.0;",
+          "variable.internal_swim_pos = Math.mod(query.modified_distance_moved, 26.0);",
+          "variable.z_bob = Math.cos(query.life_time * 103.13244) * 2.865 + 2.865;",
+          "variable.x_bob = Math.sin(query.life_time * 76.776372) * 2.865;"
+         ],
+          "scale": "0.942"
+      },
+      "animations": {
+        "root": "controller.animation.player.root",
+        "humanoid_big_head": "animation.humanoid.big_head",
+        "humanoid_base_pose": "animation.humanoid.base_pose",
+        "look_at_target_default": "animation.humanoid.look_at_target.default",
+        "bow_and_arrow": "animation.humanoid.ratt",
+         "brandish_spear": "animation.humanoid.brandish_spear",
+        "charging": "animation.humanoid.charging",
+        "look_at_target_gliding": "animation.humanoid.look_at_target.gliding",
+        "look_at_target_swimming": "animation.humanoid.look_at_target.swimming",
+        "riding": "animation.dm.riding",
+        "holding": "animation.humanoid.holding",
+        "move": "animation.humanoid.move",
+        "attack.rotations": "animation.humanoid.att.rotations",
+        "damage_nearby_mobs": "animation.humanoid.damage_nearby_mobs",
+        "swimming": "animation.humanoid.swimming",
+        "use_item_progress": "animation.humanoid.use_item_progress",
+        "get_in_bed": "animation.get_in_bed",
+        "bob": "animation.humanoid.bob"
+      },
+      "animation_controllers": [
+       { "humanoid_baby_big_head": "controller.animation.humanoid.baby_big_head" },
+       { "humanoid_base_pose": "controller.animation.humanoid.base_pose" },
+        { "look_at_target": "controller.animation.humanoid.look_at_target" },
+        { "move": "controller.animation.humanoid.move" },
+         { "brandish_spear": "controller.animation.humanoid.brandish_spear" },
+        { "charging": "controller.animation.humanoid.charging" },
+        { "holding": "controller.animation.humanoid.holding" },
+      { "riding": "controller.animation.dm_riding" },
+        { "attack": "controller.animation.att" },
+        { "bow_and_arrow": "controller.animation.gunsoldier.ranged_att" },
+        { "damage_nearby_mobs": "controller.animation.humanoid.damage_nearby_mobs" },
+        { "swimming": "controller.animation.humanoid.swimming" },
+        { "use_item_progress": "controller.animation.humanoid.use_item_progress" },
+        { "bob": "controller.animation.humanoid.bob" }
+      ],
+      "render_controllers": [ "controller.render.skeleton" ],
+      "enable_attachables": true,
+            "spawn_egg": {
+        "texture": "eggs",
+        "texture_index": 82
+      }
+    }
+  }
+}

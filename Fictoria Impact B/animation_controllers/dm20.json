@@ -1,0 +1,24 @@
+{"format_version":"1.8.0",
+"animation_controllers":{
+"controller.animation.dm20":{
+"states":{
+"default":{"transitions":[
+{"att":"variable.has_target"}
+
+]
+
+},
+"att": {
+					"transitions": [
+						{
+							"default": "!variable.has_target"
+						}
+					],
+"on_entry": ["/replaceitem entity @s slot.weapon.mainhand 1 netherite_sword",
+"/enchant @s sharpness 5"
+]
+}
+}
+}
+}
+}

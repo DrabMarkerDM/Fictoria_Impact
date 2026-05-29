@@ -1,0 +1,31 @@
+{"format_version":"1.8.0",
+"animation_controllers":{
+"controller.animation.dm44_att_2":{
+"states":{
+"default":{"transitions":[
+	{ "attack": "variable.attack_time >= 0.7 && query.variant == 3" }
+
+]
+
+},
+"attack": {
+					"transitions": [
+						{
+							"default": "variable.attack_time < 0.7 || !query.variant == 3"
+						}
+					],
+	"on_entry": [
+		"/scoreboard players add @s dm44_1 1",
+		"/damage @e[tag=!dm,family=monster,r=5,c=6] 124 entity_attack entity @s",
+		"/event entity @e[scores={dm44_1=1..}] back",
+		"/execute as @e[scores={dm44_1=1..}] run scoreboard players set @s dm44_1 0",
+		"/playsound dm44_sss @a[r=45] ~~~ 1.8 1.0",
+		"/execute at @e[tag=!dm,family=monster,r=5,c=6] run particle dm:dm44_sss ~~2~",
+		"/effect @s instant_health 2 255",
+		"/effect @s slowness 2 255 true"
+	]
+}
+}
+}
+}
+}

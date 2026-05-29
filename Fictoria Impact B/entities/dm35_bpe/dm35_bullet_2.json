@@ -1,0 +1,169 @@
+{
+  "format_version": "1.12.0",
+ "minecraft:entity": {
+  "description": {
+    "identifier": "bullet:dm35_bullet_2",
+    "is_spawnable": false,
+    "is_summonable": true,
+    "runtime_identifier": "minecraft:arrow",
+    "is_experimental": false,
+          "scripts":{"animate":[
+"light"
+]},"animations":{
+"light":"controller.animation.light_2"
+  }
+  },
+        "component_groups": {
+            "t1": {
+        "minecraft:variant": {
+		  "value": 1 
+                 }
+            },
+           "t2": {
+        "minecraft:variant": {
+		  "value": 2 
+                 }
+            },
+            "minecraft:exploding": {
+                "minecraft:explode": {
+                    "fuseLength": 0,
+                    "fuseLit": true,
+                    "power": 0.3,
+                    "causesFire": false,
+                    "fire_affected_by_griefing": true,
+                    "destroy_affected_by_griefing": true
+                }
+            },
+            "despawning": {
+                "minecraft:type_family": {
+                    "family": ["despawer", "despawer_despawning", "dm"
+                    ]
+                }
+            }
+  },
+  "components": {
+  "minecraft:type_family": {
+ "family": [ "bullet", "inanimate", "dm" ]
+  },
+   "minecraft:collision_box": {
+    "width": 0.32,
+    "height": 0.32
+   },
+		"minecraft:timer": {
+		  "looping": true,
+		  "randomInterval": false,
+		  "time": 0.5,
+		  "time_down_event": {
+		    "event": "minecraft:start_despawn"
+		  }
+            },
+			"minecraft:spawn_entity": [
+              {
+                "min_wait_time": 0,
+                "max_wait_time": 0,
+                "single_use": true,
+                "spawn_entity": "null:null",
+                "spawn_sound": "fire",
+                "num_to_spawn": 1
+              }
+            ],
+            "minecraft:despawn": {
+                "filters": {
+                    "all_of": [{
+                            "any_of": [{
+                                    "test":
+                                    "is_family",
+                                    "subject": "self",
+                                    "value": "despawer_despawning"
+                                }
+                            ]
+                        }
+                    ]
+                }
+   },
+   "minecraft:projectile": {
+
+    "on_hit": {
+      "impact_damage": {
+        "damage": 55,
+        "knockback": true,
+        "catch_fire": true,
+        "semi_random_diff_damage": false
+      },
+      "catch_fire": {
+        "fire_affected_by_griefing": true
+      },
+        "stick_in_ground": {
+             "shake_time" : 0.35
+      },
+       "arrow_effect": {
+       },
+        "mob_effect": {
+          "effect": "slowness",
+          "durationeasy": 45,
+          "durationnormal": 45,
+          "durationhard": 45,
+          "amplifier": 5
+       },
+          "remove_on_hit": { 
+          "particle_on_hit": {
+          "particle_type": "lava",
+          "num_particles": 5,
+          "on_entity_hit": true,
+          "on_other_hit": true
+          }
+       }
+    },
+    "power": 2.1,
+    "hit_sound": "bow.hit",
+    "gravity": 0.08,
+    "inertia": 4,
+     "should_bounce": true,
+    "liquid_inertia": 2,
+    "anchor": 1,
+    "uncertainty_base": 1,
+    "uncertainty_multiplier": 0,
+          "offset": [ 0, -0.1, 0 ],
+    "semi_random_diff_damage": false,
+    "reflect_on_hurt": true
+   },
+   "minecraft:physics": {
+   },
+   "minecraft:pushable": {
+    "is_pushable": true,
+    "is_pushable_by_piston": true
+   }
+  },
+    "events": {
+       "minecraft:entity_spawned": {
+         "add": {
+          "component_groups": [
+            "t1"
+          ]
+        }  
+       },
+            "minecraft:explode": {
+                "add": {
+                    "component_groups": ["minecraft:exploding"]
+                }
+            },
+            "minecraft:start_despawn": {
+                "add": {
+                    "component_groups": ["despawning"]
+                }
+            },
+      "r1": {
+        "remove": {
+          "component_groups": [
+            "t1"
+          ]
+        },
+        "add": {
+          "component_groups": [
+           "t2"
+          ]
+        }
+            }
+        }
+    }
+}

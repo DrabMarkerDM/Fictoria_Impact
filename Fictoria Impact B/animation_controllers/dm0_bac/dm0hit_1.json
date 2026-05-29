@@ -1,0 +1,25 @@
+{"format_version":"1.8.0",
+"animation_controllers":{
+"controller.animation.dm0hit_1":{
+"states":{
+"default":{"transitions":[
+{"att":"query.mark_variant == 1"}
+
+]
+
+},
+"att": {
+					"transitions": [
+						{
+							"default": "query.mark_variant == 1"
+						}
+					],
+"on_entry": ["/execute positioned ^ ^ ^2 run execute at @e[type=!player:dm0,tag=!dm,family=monster,r=5] run summon bullet:dm0_bom ~~0.3~",
+"/effect @e[tag=!dm,type=!player:dm0,family=monster,family=!undead,r=5] instant_damage 2 2 true",
+"/execute at @e[type=!player:dm0,tag=!dm,family=monster,r=10] run particle minecraft:redstone_wire_dust_particle ~~2~"
+]
+}
+}
+}
+}
+}

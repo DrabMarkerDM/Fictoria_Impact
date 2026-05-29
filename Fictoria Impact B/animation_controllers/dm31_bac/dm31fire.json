@@ -1,0 +1,28 @@
+{"format_version":"1.8.0",
+"animation_controllers":{
+"controller.animation.dm31fire":{
+"states":{
+"default":{"transitions":[
+{"att":"query.variant == 1"}
+
+]
+
+},
+"att": {
+					"transitions": [
+						{
+							"default": "query.variant == 1"
+						}
+					],
+	"on_entry": [
+		"/execute positioned ~~~ run execute at @e[type=!player:dm31,tag=!dm,family=monster,r=4] run summon bullet:dm31_bom ~~0.3~",
+		"/execute positioned ~~~ run execute at @e[type=!player:dm31,tag=!dm,family=monster,r=4,c=1] run particle dm:dm31_1 ~~~",
+		"/particle dm:dm31_3 ^^^",
+		"/particle dm:dm31_3 ^^^",
+		"/particle dm:dm31_3 ^^^"
+	]
+}
+}
+}
+}
+}

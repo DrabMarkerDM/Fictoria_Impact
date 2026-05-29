@@ -1,0 +1,67 @@
+{
+	"format_version": "1.10.0",
+	"geometry.dm0_sss": {
+		"texturewidth": 128,
+		"textureheight": 128,
+		"visible_bounds_width": 4,
+		"visible_bounds_height": 2,
+		"visible_bounds_offset": [0, 1, 0],
+		"bones": [
+			{
+				"name": "root",
+				"pivot": [0, 0, 0]
+			},
+			{
+				"name": "waist",
+				"parent": "root",
+				"pivot": [0, 12, 0]
+			},
+			{
+				"name": "body",
+				"parent": "waist",
+				"pivot": [0, 24, 0]
+			},
+			{
+				"name": "rightArm",
+				"parent": "body",
+				"pivot": [-5, 21.5, 0]
+			},
+			{
+				"name": "sword_s",
+				"parent": "rightArm",
+				"pivot": [1, -1, -30],
+				"cubes": [
+					{"origin": [-6.2, 11.6, -6], "size": [1, 1, 10], "uv": [0, 73], "inflate": 0.1},
+					{"origin": [-6.1, 11.4, -29], "size": [0.8, 1.2, 21], "uv": [0, 73], "inflate": 0.1},
+					{"origin": [-6.7, 11.4, -8], "size": [2, 1.2, 3], "uv": [0, 85], "inflate": 0.1},
+					{"origin": [-6.3, 14, -12], "size": [1.2, 1, 7], "uv": [0, 90], "inflate": 0.1},
+					{"origin": [-6.2, 13, -32], "size": [1, 1.5, 25], "uv": [0, 73], "inflate": 0.1},
+					{"origin": [-6.2, 9.5, -26], "size": [1, 1.5, 19], "uv": [0, 76], "inflate": 0.1},
+					{"origin": [-6.3, 9, -12], "size": [1.2, 1, 7], "uv": [0, 82], "inflate": 0.1},
+					{"origin": [-6.3, 11.5, 4], "size": [1.2, 1.2, 1.2], "uv": [0, 88], "inflate": 0.1},
+					{"origin": [-6.3, 11.5, -3], "size": [1.2, 1.2, 1.2], "uv": [0, 88], "inflate": 0.1},
+					{"origin": [-6.4, 10, -8], "size": [1.4, 4, 5], "uv": [0, 84], "inflate": 0.1},
+					{"origin": [-6.5, 8, -7], "size": [1.6, 8, 2], "uv": [0, 83], "inflate": 0.1},
+					{"origin": [-6.6, 11, -10], "size": [1.8, 2, 7], "uv": [0, 85], "inflate": 0.1}
+			  ]
+			},
+			{
+				"name": "head",
+				"parent": "body",
+				"pivot": [0, 24, 0],
+				"cubes": [
+					{"origin": [-4, 24, -4], "size": [8, 8, 8], "uv": [0, 0]}
+				]
+			},
+			{
+				"name": "circle_s",
+				"parent": "sword_s",
+				"pivot": [-5.7, 12, -28],
+				"rotation": [148.5, 0, 0],
+				"cubes": [
+					{"origin": [-6.2, 11.7, -31], "size": [1, 1.5, 7], "uv": [0, 84], "inflate": 0.1}
+				]
+			}
+		]
+	}
+}

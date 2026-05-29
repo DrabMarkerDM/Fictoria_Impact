@@ -1,0 +1,26 @@
+{
+  "format_version": "1.8.0",
+  "render_controllers": {
+    "controller.render.dm63_ps": {
+      "geometry": "Geometry.ps",
+      "part_visibility": [
+        { "*": "query.variant == 2" }
+      ],
+      "materials": [ { "*": "Material.ps" } ],
+      "textures": [ "Texture.ps" ],
+      "overlay_color": {
+          "r": 1.0,
+          "g": 1.0,
+          "b": 1.0,
+          "a": 1.0
+      },
+      "uv_anim": {
+          "offset": [ "(query.variant == 2) ? (Math.floor(query.life_time * 20.0) + query.frame_alpha) * 0.01 : 0.0", 
+                      "(query.variant == 2) ? (Math.floor(query.life_time * 20.0) + query.frame_alpha) * 0.01 : 0.0" ],
+          "scale": [ 11.0, 11.0 ]
+      },
+      "light_color_multiplier": 0.8,
+      "ignore_lighting" : true
+    }
+  }
+}

@@ -1,0 +1,254 @@
+{
+  "format_version": "1.8.0",
+  "minecraft:entity": {
+    "description": {
+      "identifier": "mob:dm56satt",
+      "is_spawnable": false,
+      "is_summonable": true,
+      "is_experimental": false,
+      "scripts": {
+        "animate": [
+          "tag",
+          "effect",
+          "air",
+          "die",
+          "target",
+          "ae",
+          "heal"
+        ]
+      },
+      "animations": {
+        "tag": "controller.animation.tag",
+        "effect": "controller.animation.effect_24",
+        "air": "controller.animation.dm56satt_air",
+        "die": "controller.animation.dm56satt_die",
+        "target": "controller.animation.dm56satt_target",
+        "ae": "controller.animation.dm56ae",
+        "heal": "controller.animation.dm56satt_heal"
+      }
+    },
+    "component_groups": {
+     "s_time": {
+         "minecraft:timer": {
+		  "looping": false,
+		  "randomInterval": false,
+		  "time": 5.0,
+		  "time_down_event": {
+		    "event": "air"
+		  }
+         }
+     },
+     "air": {
+     "minecraft:is_charged": {
+     },
+      "minecraft:type_family": {
+        "family": ["despawer",
+        "despawer_despawning"
+                    ]
+      }
+     },
+     "sss": {
+      "minecraft:type_family": {
+        "family": ["despawer",
+        "despawer_despawning"
+                    ]
+      }
+     },
+     "die": {
+      "minecraft:mark_variant": {
+       "value": 1
+      }
+        }
+    },
+    "components": {
+      "minecraft:attack": {
+        "damage": 44
+      },
+      "minecraft:behavior.delayed_attack": {
+        "priority": 1,
+        "reach_multiplier": 12.0,
+        "attack_duration": 0.01,
+        "hit_delay_pct": 0.0,
+        "track_target": true,
+        "sound_event": "attack.strong"
+      },
+      "minecraft:behavior.nearest_attackable_target": {
+        "priority": 0,
+        "walk_speed_multiplier": 1.8,
+        "sprint_speed_multiplier": 2.0,
+        "reselect_targets": true,
+        "entity_types": [
+          {
+            "filters": {
+              "any_of": [
+                {
+                  "test": "is_family",
+                  "subject": "other",
+                  "value": "null"
+                }
+              ]
+            },
+            "max_dist": 300
+          }
+        ],
+        "must_see": false,
+        "must_see_forget_duration": 4.0
+      },
+      "minecraft:follow_range": {
+        "value": 300
+      },
+      "minecraft:spell_effects": {
+        "add_effects": [
+          {
+            "effect": "levitation",
+            "amplifier": 1,
+            "visible": true,
+            "ambient": false,
+            "duration": 9999999
+          },
+          {
+            "effect": "resistance",
+            "amplifier": 255,
+            "visible": false,
+            "ambient": false,
+            "duration": 999999
+          }
+        ]
+      },
+      "minecraft:despawn": {
+        "filters": {
+          "all_of": [
+            {
+              "any_of": [
+                {
+                  "test": "is_family",
+                  "subject": "self",
+                  "value": "despawer_despawning"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "minecraft:breathable": {
+        "total_supply": 53,
+        "suffocate_time": 0,
+        "breathes_air": true,
+        "breathes_water": true
+      },
+      "minecraft:damage_sensor": {
+        "triggers": {
+          "cause": "all",
+          "deals_damage": false
+        }
+      },
+      "minecraft:health": {
+        "value": 5000,
+        "max": 5000
+      },
+      "minecraft:on_death": {
+        "event": "die",
+        "target": "self"
+      },
+      "minecraft:type_family": {
+        "family": [ "dm56satt" ]
+      },
+      "minecraft:collision_box": {
+        "width": 0.05,
+        "height": 0.05
+      },
+      "minecraft:knockback_resistance": {
+        "value": 1.0
+      },
+      "minecraft:variant": {
+        "value": 1
+      },
+      "minecraft:fire_immune": {
+      },
+      "minecraft:nameable": {
+      },
+      "minecraft:movement": {
+        "value": 15.0
+      },
+      "minecraft:navigation.fly": {
+        "can_path_over_water": false,
+        "can_path_from_air": true
+      },
+      "minecraft:movement.fly": {
+      },
+      "minecraft:jump.static": {
+      },
+      "minecraft:can_climb": {
+      },
+      "minecraft:can_fly": {
+      },
+      "minecraft:behavior.look_at_target": {
+        "priority": 2
+      },
+      "minecraft:persistent": {
+      },
+      "minecraft:on_target_acquired": {
+        "event": "attack",
+        "target": "self"
+      },
+      "minecraft:on_target_escape": {
+        "event": "silent",
+        "target": "self"
+      },
+      "minecraft:physics": {
+        "has_gravity": true,
+        "has_collision": false
+      },
+      "minecraft:pushable": {
+        "is_pushable": false,
+        "is_pushablton": false
+      },
+      "minecraft:scaffolding_climber": {
+      }
+    },
+    "events": {
+      "attack": {
+        "remove": {
+          "component_groups": [
+            "s_time"
+          ]
+        }
+      },
+      "silent": {
+        "add": {
+          "component_groups": [
+            "s_time"
+          ]
+        }
+      },
+      "hurt_by": {
+        "queue_command": {
+        "command": [
+            "function dm56_1"
+          ]
+        }
+      },
+      "air": {
+        "add": {
+          "component_groups": [
+            "air"
+          ]
+    }
+      },
+      "sss": {
+        "add": {
+          "component_groups": [
+            "sss"
+          ]
+    }
+      },
+      "die": {
+        "add": {
+          "component_groups": [
+            "die"
+          ]
+    }
+}
+}
+}
+}

@@ -1,0 +1,24 @@
+{"format_version":"1.8.0",
+"animation_controllers":{
+"controller.animation.air_2":{
+"states":{
+"default":{"transitions":[
+{"att":"query.variant == 1"}
+
+]
+
+},
+"att": {
+					"transitions": [
+						{
+							"default": "!query.variant == 1"
+						}
+					],
+"on_entry": ["/replaceitem entity @s slot.weapon.mainhand 1 air",
+"/execute as @s run scoreboard players set @s dm46att 0"
+]
+}
+}
+}
+}
+}

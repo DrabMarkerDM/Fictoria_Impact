@@ -1,0 +1,28 @@
+{
+  "format_version": "1.8.0",
+  "render_controllers": {
+    "controller.render.dm60sss": {
+      "geometry": "Geometry.sss",
+      "materials": [
+        {
+          "*": "Material.attack"
+        }
+      ],
+      "part_visibility": [
+        { "*": false },
+        { "s1": "query.variant == 3" },
+        { "s2": "query.variant == 3" },
+        { "s3": "query.variant == 3" },
+        { "s4": "query.variant == 3" },
+        { "s5": "query.variant == 3" },
+        { "s6": "query.variant == 3" },
+        { "s7": "query.variant == 3" },
+        { "s8": "query.variant == 3" },
+        { "s9": "query.variant == 3" },
+        { "effect": "query.variant == 3 && query.is_delayed_attacking"
+        }
+      ],
+      "textures": [ "Texture.sss" ]
+    }
+  }
+}

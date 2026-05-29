@@ -1,0 +1,23 @@
+{
+  "format_version": "1.8.0",
+  "render_controllers": {
+    "controller.render.dm8_light": {
+      "geometry": "Geometry.light",
+      "materials": [ { "*": "Material.light" } ],
+      "part_visibility": [
+        { "*": true },
+        { "Leftsword_light": "query.variant == 3" },
+        { "s7": "query.variant == 3" },
+        { "s8": "query.variant == 3" },
+        { "Rightsword_light": "query.variant == 3" },
+        { "s11": "query.variant == 3" },
+        { "s12": "query.variant == 3" },
+        { "wolf_L_light": "query.variant == 3 && q.property('dm8:test') == 'satt'" },
+        { "w3": "query.variant == 3 && q.property('dm8:test') == 'satt'" },
+        { "wolf_R_light": "query.variant == 3 && q.property('dm8:test') == 'satt'" },
+        { "w4": "query.variant == 3 && q.property('dm8:test') == 'satt'" }
+      ],
+      "textures": [ "Texture.light" ]
+    }
+  }
+}

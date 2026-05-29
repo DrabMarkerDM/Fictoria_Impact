@@ -1,0 +1,25 @@
+{"format_version":"1.8.0",
+"animation_controllers":{
+"controller.animation.dm7att":{
+"states":{
+"default":{"transitions":[
+{"attack":"variable.attack_time >= 0.001"}
+
+]
+
+},
+"attack": {
+					"transitions": [
+						{
+							"default": "variable.attack_time < 0.001"
+						}
+					],
+"on_entry": [
+"/effect @e[tag=!dm,type=!player:dm7,family=monster,r=3,c=3] weakness 3 3 true"
+
+]
+}
+}
+}
+}
+}

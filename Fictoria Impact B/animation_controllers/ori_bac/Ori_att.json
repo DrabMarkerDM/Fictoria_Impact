@@ -1,0 +1,31 @@
+{"format_version":"1.8.0",
+"animation_controllers":{
+"controller.animation.Ori_att":{
+"states":{
+"default":{"transitions":[
+	{ "attack": "query.get_equipped_item_name == 'Original_sword' && variable.attack_time > 0.00000" }
+
+]
+
+},
+"attack": {
+					"transitions": [
+						{
+							"default": "query.get_equipped_item_name != 'Original_sword' || variable.attack_time <= 0.00000"
+						}
+					],
+	"on_entry": [
+		"/particle dm:Ori_att ^ ^2 ^2",
+		"/playsound sweep @a[r=12] ~~~ 2.4 1.0",
+		"/damage @e[tag=!dm,family=monster,r=12] 18 entity_attack entity @s",
+		"/effect @e[tag=dm,r=12,family=!monster] absorption 5 50 true",
+		"/effect @e[tag=dm,r=12,family=!monster] instant_health 5 1 true",
+		"/effect @s strength 6 2 true",
+		"/effect @e[tag=dm,r=12,family=!monster,family=!inanimate,family=!mon3tr] strength 5 1 true",
+		"/summon xp_orb ~~~"
+	]
+}
+}
+}
+}
+}

@@ -1,0 +1,24 @@
+{"format_version":"1.8.0",
+"animation_controllers":{
+"controller.animation.dm62add":{
+"states":{
+"default":{"transitions":[
+	{ "att": "query.health >= 21 && query.health < 41 && query.variant == 2" }
+
+]
+
+},
+"att": {
+					"transitions": [
+						{
+							"default": "query.health < 21 || query.health >= 41 || query.variant != 2"
+						}
+					],
+	"on_entry": [
+		"/scoreboard players remove @s dm62_1 30"
+	]
+}
+}
+}
+}
+}

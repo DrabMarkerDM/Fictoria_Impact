@@ -1,0 +1,13 @@
+{
+  "format_version": "1.8.0",
+  "render_controllers": {
+    "controller.render.dm25_1": {
+      "geometry": "Geometry.sss",
+      "part_visibility": [
+        { "*": "query.is_powered" }
+      ],
+      "materials": [ { "*": "Material.default" } ],
+      "textures": [ "Texture.sss" ]
+    }
+  }
+}

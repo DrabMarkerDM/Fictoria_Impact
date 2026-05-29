@@ -1,0 +1,8 @@
+{
+  "format_version": "1.8.0",
+  "animation_controllers": {
+    "controller.animation.eff_1": {
+      "states": { "default": { "on_entry": [ "/effect @s resistance 9999999 0 true" ] } }
+    }
+  }
+}

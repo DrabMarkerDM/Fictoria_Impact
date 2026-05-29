@@ -1,0 +1,98 @@
+{
+  "format_version": "1.8.0",
+  "minecraft:client_entity": {
+    "description": {
+      "identifier": "player:dm61",
+      "materials": {
+        "default": "spider",
+        "skill": "wither_boss_armor",
+        "sss": "wither_boss_armor"
+      },
+      "textures": {
+        "default": "textures/entity/player/dm61_rpp/dm61",
+        "sss": "textures/entity/player/dm61_rpp/dm61_sss",
+        "snow": "textures/entity/player/dm61_rpp/dm61_sss"
+      },
+      "geometry": {
+        "default": "geometry.dm61",
+        "skill": "geometry.dm61_1",
+        "sss": "geometry.dm61_sss",
+        "snow": "geometry.dm61_snow"
+      },
+      "scripts": {
+        "pre_animation": [
+                   "variable.tcos0 = (Math.cos(query.modified_distance_moved * 38.17) * query.modified_move_speed / variable.gliding_speed_value) * 57.3;",
+          "variable.tcos1 = -variable.tcos0;",
+          "variable.attack_body_rot_y = Math.sin(360*Math.sqrt(variable.attack_time)) * 5.0;",
+          "variable.internal_swim_pos = Math.mod(query.modified_distance_moved, 26.0);",
+          "variable.z_bob = Math.cos(query.life_time * 103.13244) * 2.865 + 2.865;",
+          "variable.x_bob = Math.sin(query.life_time * 76.776372) * 2.865;"
+        ],
+          "scale": "0.94"
+      },
+      "animations": {
+        "root": "controller.animation.player.root",
+        "cape": "animation.dm61.cape",
+        "ear": "animation.dm61_ear",
+        "sitting": "animation.player.sneaking",
+        "humanoid_big_head": "animation.humanoid.big_head",
+        "humanoid_base_pose": "animation.humanoid.base_pose",
+        "look_at_target_default": "animation.humanoid.look_at_target.default",
+        "look_at_target_gliding": "animation.humanoid.look_at_target.gliding",
+        "look_at_target_swimming": "animation.humanoid.look_at_target.swimming",
+        "move": "animation.humanoid.move",
+        "riding": "animation.dm.riding",
+        "holding": "animation.humanoid.holding",
+        "brandish_spear": "animation.humanoid.brandish_spear",
+        "charging": "animation.humanoid.charging",
+        "attack.rotations": "animation.dm61_att_1",
+        "sneaking": "animation.humanoid.sneaking",
+        "bob": "animation.humanoid.bob",
+        "bow_and_arrow": "animation.dm61_ratt",
+        "damage_nearby_mobs": "animation.humanoid.damage_nearby_mobs",
+        "swimming": "animation.humanoid.swimming",
+        "use_item_progress": "animation.humanoid.use_item_progress",
+        "get_in_bed": "animation.get_in_bed",
+        "sss": "animation.dm61_sss",
+        "satt": "animation.dm61_satt",
+        "snow": "animation.dm61_snow",
+        "satt_target": "animation.dm61_satt_target"
+      },
+      "animation_controllers": [
+        { "humanoid_baby_big_head": "controller.animation.humanoid.baby_big_head" },
+        { "cape": "controller.animation.dm.cape" },
+        { "ear": "controller.animation.dm61ear" },
+        { "humanoid_base_pose": "controller.animation.humanoid.base_pose" },
+        { "look_at_target": "controller.animation.humanoid.look_at_target" },
+        { "move": "controller.animation.humanoid.move" },
+        { "riding": "controller.animation.dm_riding" },
+        { "sitting": "controller.animation.player.sit" },
+        { "holding": "controller.animation.humanoid.holding" },
+        { "brandish_spear": "controller.animation.humanoid.brandish_spear" },
+        { "charging": "controller.animation.humanoid.charging" },
+        { "attack": "controller.animation.dm61_att_1" },
+        { "sneaking": "controller.animation.humanoid.sneaking" },
+        { "bob": "controller.animation.humanoid.bob" },
+        { "bow_and_arrow": "controller.animation.dm61_ratt" },
+        { "damage_nearby_mobs": "controller.animation.humanoid.damage_nearby_mobs" },
+        { "swimming": "controller.animation.humanoid.swimming" },
+        { "use_item_progress": "controller.animation.humanoid.use_item_progress" },
+        { "sss": "controller.animation.dm61_sss" },
+        { "satt": "controller.animation.dm61_satt" },
+        { "snow": "controller.animation.dm61_snow" },
+        { "satt_target": "controller.animation.dm61_satt_target" }
+      ],
+      "spawn_egg": {
+        "texture": "eggs",
+        "texture_index": 71
+      },
+      "render_controllers": [
+        "controller.render.dm61",
+        "controller.render.dm61_1",
+        "controller.render.dm61_sss",
+        "controller.render.dm61_snow"
+      ],
+       "enable_attachables": true
+    }
+  }
+}

@@ -1,0 +1,27 @@
+{"format_version":"1.8.0",
+"animation_controllers":{
+"controller.animation.sword":{
+"states":{
+"default":{"transitions":[
+{"att":"query.variant == 1"}
+
+]
+
+},
+"att": {
+					"transitions": [
+						{
+							"default": "query.variant != 1"
+						}
+					],
+"on_entry": ["/replaceitem entity @s slot.weapon.mainhand 1 iron_sword",
+"/enchant @s sharpness 5",
+"/enchant @s unbreaking 3",
+"/enchant @s fire_aspect 2",
+"/enchant @s knockback 2"
+]
+}
+}
+}
+}
+}

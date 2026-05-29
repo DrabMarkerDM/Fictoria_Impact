@@ -1,0 +1,23 @@
+{"format_version":"1.8.0",
+"animation_controllers":{
+"controller.animation.tp":{
+"states":{
+"default":{"transitions":[
+{"att":"query.variant == 1"}
+
+]
+
+},
+"att": {
+					"transitions": [
+						{
+							"default": "!query.variant == 1"
+						}
+					],
+"on_entry": ["/spreadplayers ~~ 1 5 @s"
+]
+}
+}
+}
+}
+}

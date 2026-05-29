@@ -1,0 +1,26 @@
+{"format_version":"1.8.0",
+"animation_controllers":{
+"controller.animation.dm25_1":{
+"states":{
+"default":{"transitions":[
+{"attack":"query.is_delayed_attacking"}
+
+]
+
+},
+"attack": {
+					"transitions": [
+						{
+							"default": "!query.is_delayed_attacking"
+						}
+					],
+"on_entry": ["/scoreboard players add @s dm25att 1",
+"/particle dm:dm25 ^ ^2 ^2",
+"/execute positioned ^ ^ ^3 run execute at @e[type=!player:dm25,tag=!dm,family=monster,r=8] run summon bullet:dm25_sweep ~~0.3~",
+"/event entity @e[scores={dm25att=5..}] sword"
+]
+}
+}
+}
+}
+}

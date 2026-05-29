@@ -1,0 +1,27 @@
+{
+  "format_version": "1.12",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "item:trans_mossberg"
+    },
+
+
+    "tags": [ "crafting_table" ],
+    "pattern": [
+      "   ",
+      " #X",
+      "   "
+    ],
+    "key": {
+      "#": {
+        "item": "item:mode_mossberg"
+      },
+      "X": {
+        "item": "minecraft:netherite_ingot"
+      }
+    },
+    "result": {
+      "item": "gabrielaplok:mossberg"
+    }
+  }
+}

@@ -1,0 +1,27 @@
+{"format_version":"1.8.0",
+"animation_controllers":{
+"controller.animation.dm35bow_1":{
+"states":{
+"default":{"transitions":[
+{"attack":"query.variant == 2 "}
+
+]
+
+},
+"attack": {
+					"transitions": [
+						{
+							"default": "!query.variant == 2 "
+						}
+					],
+	"on_entry": [
+		"/scoreboard players add @e[type=player:dm35] dm35sss 1",
+		"/event entity @e[scores={dm35sss=70..}] back",
+		"/scoreboard players set @e[scores={dm35sss=70..}] dm35sss 0",
+		"/execute at @e[r=25,c=15,tag=!dm,type=!player:dm35,family=monster] run summon bullet:dm35_bullet_3 ~~6~"
+	]
+}
+}
+}
+}
+}

@@ -1,0 +1,740 @@
+{
+  "individual_event_sounds": {
+    "events": {
+      "gun.shoot": {
+        "sound": "gun_shoot",
+        "volume": 0.5,
+        "pitch": 1.0
+      },
+      "gun.hit": {
+        "sound": "gun_hit",
+        "volume": 0.4,
+        "pitch": 1.0
+      }
+    }
+  },
+  "entity_sounds": {
+    "entities": {
+      "mob:doctor": {
+        "volume": 1.8,
+        "pitch": [ 0.8, 1.2 ],
+        "events": {
+          "ambient": "mob.villager.idle",
+          "hurt": "mob.villager.hit",
+          "death": "mob.villager.death",
+          "death.to.zombie": "mob.villager.death",
+          "haggle": "mob.villager.haggle",
+          "haggle.yes": "mob.villager.yes",
+          "haggle.no": "mob.villager.no"
+        }
+      },
+      "mob:protecter": {
+        "volume": 1.8,
+        "pitch": [ 0.8, 1.2 ],
+        "events": {
+          "ambient": "mob.villager.idle",
+          "hurt": "mob.villager.hit",
+          "death": "mob.villager.death",
+          "death.to.zombie": "mob.villager.death",
+          "haggle": "mob.villager.haggle",
+          "haggle.yes": "mob.villager.yes",
+          "haggle.no": "mob.villager.no"
+        }
+      },
+      "bullet:ak_bullet": {
+        "volume": 2.5,
+        "pitch": [ 1, 1 ],
+        "events": {
+          "fire": "dm.ak_shoot",
+          "gun.shoot": "gun_shoot",
+          "gun.hit": "gun_hit"
+        }
+      },
+      "bullet:small_bullet": {
+        "volume": 2.0,
+        "pitch": [ 1, 1 ],
+        "events": {
+          "fire": "dm.hand_shoot",
+          "gun.shoot": "gun_shoot",
+          "gun.hit": "gun_hit"
+        }
+      },
+      "bullet:large_bullet": {
+        "volume": 3.0,
+        "pitch": [ 1, 1 ],
+        "events": {
+          "fire": "dm.m1871_shoot",
+          "gun.shoot": "gun_shoot",
+          "gun.hit": "gun_hit"
+        }
+      },
+      "bullet:fast_bullet": {
+        "volume": 2.5,
+        "pitch": [ 1, 1 ],
+        "events": {
+          "fire": "dm.p90_shoot",
+          "gun.shoot": "gun_shoot",
+          "gun.hit": "gun_hit"
+        }
+      },
+      "bullet:gun_soldier_bullet": {
+        "volume": 2.7,
+        "pitch": [ 1.1, 1.1 ],
+        "events": {
+          "fire": "dm.p90_shoot",
+          "gun.shoot": "gun_shoot",
+          "gun.hit": "gun_hit"
+        }
+      },
+      "bullet:sg_bullet": {
+        "volume": 3.0,
+        "pitch": [ 1, 1 ],
+        "events": {
+          "fire": "dm.sg_shoot",
+          "gun.shoot": "gun_shoot",
+          "gun.hit": "gun_hit"
+        }
+      },
+      "bullet:dm0_bullet": {
+        "volume": 2.0,
+        "pitch": [ 1.0, 1.0 ],
+        "events": {
+          "fire": "dm0_bullet",
+          "gun.shoot": "gun_shoot",
+          "gun.hit": "gun_hit"
+        }
+      },
+      "bullet:dm0_1_bullet": {
+        "volume": 2.5,
+        "pitch": [ 1.3, 1.3 ],
+        "events": {
+          "fire": "dm0_bullet",
+          "gun.shoot": "gun_shoot",
+          "gun.hit": "gun_hit"
+        }
+      },
+      "bullet:dm4_bullet": {
+        "volume": 3.0,
+        "pitch": [ 0.8, 0.8 ],
+        "events": {
+          "fire": "dm4_shoot",
+          "gun.shoot": "gun_shoot",
+          "gun.hit": "gun_hit"
+        }
+      },
+      "bullet:dm4_ex": {
+        "volume": 2.5,
+        "pitch": [ 0.6, 0.6 ],
+        "events": {
+          "fire": "dm4_shoot"
+        }
+      },
+      "bullet:dm4_bom": {
+        "volume": 2.5,
+        "pitch": [ 0.8, 0.8 ],
+        "events": {
+          "fire": "random.explode"
+        }
+      },
+      "bullet:dm4_bom_1": {
+        "volume": 2.0,
+        "pitch": [ 1.1, 1.1 ],
+        "events": {
+          "fire": "dm4_shoot"
+        }
+      },
+      "bullet:ex_bullet": {
+        "volume": 3.0,
+        "pitch": [ 0.9, 0.9 ],
+        "events": {
+          "fire": "dm.sg_shoot",
+          "gun.shoot": "gun_shoot",
+          "gun.hit": "gun_hit"
+        }
+      },
+      "bullet:dm4_1_bullet": {
+        "volume": 3.0,
+        "pitch": [ 1.0, 1.0 ],
+        "events": {
+          "fire": "dm4_shoot",
+          "gun.shoot": "gun_shoot",
+          "gun.hit": "gun_hit"
+        }
+      },
+      "bullet:fire_bullet": {
+        "volume": 3.0,
+        "pitch": [ 1, 1 ],
+        "events": {
+          "fire": "dm.sg_shoot",
+          "gun.shoot": "gun_shoot",
+          "gun.hit": "gun_hit"
+        }
+      },
+      "bullet:sweep": {
+        "volume": 1.8,
+        "pitch": [ 1, 1 ],
+        "events": {
+          "fire": "sweep"
+        }
+      },
+      "bullet:dm28_bullet": {
+        "volume": 2.0,
+        "pitch": [ 0.8, 0.8 ],
+        "events": {
+          "fire": "dm.hand_shoot",
+          "gun.shoot": "gun_shoot",
+          "gun.hit": "gun_hit"
+        }
+      },
+      "bullet:dm28_bullet_1": {
+        "volume": 3.0,
+        "pitch": [ 0.4, 0.4 ],
+        "events": {
+          "fire": "dm.hand_shoot",
+          "gun.shoot": "gun_shoot",
+          "gun.hit": "gun_hit"
+        }
+      },
+      "bullet:dm31_bullet": {
+        "volume": 2.0,
+        "pitch": [ 1, 1 ],
+        "events": {
+          "fire": "dm.hand_shoot",
+          "gun.shoot": "gun_shoot",
+          "gun.hit": "gun_hit"
+        }
+      },
+      "bullet:dm31_1_bullet": {
+        "volume": 2.5,
+        "pitch": [ 1.3, 1.3 ],
+        "events": {
+          "fire": "dm.hand_shoot",
+          "gun.shoot": "gun_shoot",
+          "gun.hit": "gun_hit"
+        }
+      },
+      "bullet:dm31_2_bullet": {
+        "volume": 3.0,
+        "pitch": [ 0.9, 0.9 ],
+        "events": {
+          "fire": "dm31_shoot",
+          "gun.shoot": "gun_shoot",
+          "gun.hit": "gun_hit"
+        }
+      },
+      "bullet:dm32_bullet": {
+        "volume": 2.5,
+        "pitch": [ 1.2, 1.2 ],
+        "events": {
+          "fire": "dm.p90_shoot",
+          "gun.shoot": "gun_shoot",
+          "gun.hit": "gun_hit"
+        }
+      },
+      "bullet:dm32_bullet_1": {
+        "volume": 3.0,
+        "pitch": [ 1.4, 1.4 ],
+        "events": {
+          "fire": "dm.p90_shoot",
+          "gun.shoot": "gun_shoot",
+          "gun.hit": "gun_hit"
+        }
+      },
+      "player:dm31": {
+        "volume": 2.1,
+        "pitch": [ 1.0, 1.0 ],
+        "events": {
+          "fire": "sss"
+        }
+      },
+      "player:dm32": {
+        "volume": 1.9,
+        "pitch": [ 1.1, 1.1 ],
+        "events": {
+          "fire": "sss"
+        }
+      },
+      "player:dm35": {
+        "volume": 2.2,
+        "pitch": [ 1.2, 1.2 ],
+        "events": {
+          "fire": "sss"
+        }
+      },
+      "player:dm26": {
+        "volume": 1.8,
+        "pitch": [ 1.0, 1.0 ],
+        "events": {
+          "fire": "sss"
+        }
+      },
+      "player:dm28": {
+        "volume": 2.8,
+        "pitch": [ 0.8, 0.8 ],
+        "events": {
+          "fire": "sss"
+        }
+      },
+      "player:dm48": {
+        "volume": 1.8,
+        "pitch": [ 1.0, 1.0 ],
+        "events": {
+          "fire": "sss"
+        }
+      },
+      "player:dm51": {
+        "volume": 1.9,
+        "pitch": [ 0.9, 0.9 ],
+        "events": {
+          "fire": "sss"
+        }
+      },
+      "player:dm22": {
+        "volume": 1.8,
+        "pitch": [ 1.2, 1.2 ],
+        "events": {
+          "fire": "sss"
+        }
+      },
+      "mob:villager_socout": {
+        "volume": 1.8,
+        "pitch": [ 0.8, 1.2 ],
+        "events": {
+          "ambient": "mob.villager.idle",
+          "hurt": "mob.villager.hit",
+          "death": "mob.villager.death",
+          "death.to.zombie": "mob.villager.death",
+          "haggle": "mob.villager.haggle",
+          "haggle.yes": "mob.villager.yes",
+          "haggle.no": "mob.villager.no"
+        }
+      },
+      "player:dm33": {
+        "volume": 1.0,
+        "pitch": [ 1, 1 ],
+        "events": {
+          "attack.strong": "sweep"
+        }
+      },
+      "player:dm24": {
+        "volume": 1.5,
+        "pitch": [ 0.9, 0.9 ],
+        "events": {
+          "attack.strong": "steam",
+          "attack": "dm24_satt",
+          "fire": "sss"
+        }
+      },
+      "bullet:boss1_bullet": {
+        "volume": 3.0,
+        "pitch": [ 0.8, 0.8 ],
+        "events": {
+          "fire": "dm.sg_shoot",
+          "gun.shoot": "gun_shoot",
+          "gun.hit": "gun_hit"
+        }
+      },
+      "bullet:dm35_bullet": {
+        "volume": 1.5,
+        "pitch": [ 1.1, 1.1 ],
+        "events": {
+          "fire": "firearrow"
+        }
+      },
+      "bullet:dm35_bullet_1": {
+        "volume": 1.5,
+        "pitch": [ 1.3, 1.3 ],
+        "events": {
+          "fire": "firearrow"
+        }
+      },
+      "bullet:dm35_bullet_2": {
+        "volume": 2.0,
+        "pitch": [ 1.0, 1.0 ],
+        "events": {
+          "fire": "shoot"
+        }
+      },
+      "bullet:dm35_bullet_3": {
+        "volume": 2.5,
+        "pitch": [ 0.8, 0.8 ],
+        "events": {
+          "fire": "shoot"
+        }
+      },
+      "bullet:dm35_bullet_s": {
+        "volume": 1.7,
+        "pitch": [ 0.9, 0.9 ],
+        "events": {
+          "fire": "firearrow"
+        }
+      },
+      "bullet:fire_attack": {
+        "volume": 1.4,
+        "pitch": [ 0.8, 0.8 ],
+        "events": {
+          "fire": "steam"
+        }
+      },
+      "bullet:fire_attack_1": {
+        "volume": 1.6,
+        "pitch": [ 1.0, 1.0 ],
+        "events": {
+          "fire": "steam"
+        }
+      },
+      "player:dm41": {
+        "volume": 1.4,
+        "pitch": [ 1.0, 1.0 ],
+        "events": {
+          "attack.strong": "wateratt",
+          "fire": "sss"
+        }
+      },
+      "player:dm42": {
+        "volume": 1.4,
+        "pitch": [ 2.0, 2.0 ],
+        "events": {
+          "attack.strong": "sweep",
+          "fire": "sss"
+        }
+      },
+      "player:dm42_1": {
+        "volume": 1.4,
+        "pitch": [ 1.8, 1.8 ],
+        "events": {
+          "attack.strong": "sweep",
+          "fire": "sss"
+        }
+      },
+      "bullet:dm42_bullet": {
+        "volume": 1.6,
+        "pitch": [ 2.4, 2.4 ],
+        "events": {
+          "fire": "sweep"
+        }
+      },
+      "bullet:dm42_1_bullet": {
+        "volume": 1.6,
+        "pitch": [ 2.2, 2.2 ],
+        "events": {
+          "fire": "sweep"
+        }
+      },
+      "mob:robot": {
+        "volume": 1.8,
+        "pitch": [ 1.8, 1.8 ],
+        "events": {
+          "hurt": "robot_hit",
+          "death": "robot_death"
+        }
+      },
+      "player:kirito": {
+        "volume": 1.8,
+        "pitch": [ 1.2, 1.2 ],
+        "events": {
+          "attack.strong": "att",
+          "fire": "sss"
+        }
+      },
+      "player:dm44": {
+        "volume": 1.5,
+        "pitch": [ 1.0, 1.0 ],
+        "events": {
+          "attack.strong": "atthit"
+        }
+      },
+      "bullet:lightball": {
+        "volume": 2.0,
+        "pitch": [ 1.0, 1.0 ],
+        "events": {
+          "fire": "lightatt"
+        }
+      },
+      "bullet:lightball_1": {
+        "volume": 2.2,
+        "pitch": [ 1.2, 1.2 ],
+        "events": {
+          "fire": "lightatt"
+        }
+      },
+      "player:dm46": {
+        "volume": 1.8,
+        "pitch": [ 1, 1 ],
+        "events": {
+          "attack.strong": "dm46att",
+          "fire": "dm46fire"
+        }
+      },
+      "demon:boss3": {
+        "volume": 1.5,
+        "pitch": [ 0.7, 0.7 ],
+        "events": {
+          "attack.strong": "sweep"
+        }
+      },
+      "bullet:soldier7_bullet": {
+        "volume": 2.7,
+        "pitch": [ 0.8, 0.8 ],
+        "events": {
+          "fire": "dm.ak_shoot",
+          "gun.shoot": "gun_shoot",
+          "gun.hit": "gun_hit"
+        }
+      },
+      "player:dm25": {
+        "volume": 1.8,
+        "pitch": [ 1.0, 1.0 ],
+        "events": {
+          "attack.strong": "dm25",
+          "fire": "dm46fire"
+        }
+      },
+      "bullet:dm25_bullet": {
+        "volume": 2.0,
+        "pitch": [ 1.0, 1.0 ],
+        "events": {
+          "fire": "attack"
+        }
+      },
+      "demon:sweep_soldier": {
+        "volume": 1.3,
+        "pitch": [ 0.7, 0.7 ],
+        "events": {
+          "attack.strong": "sweep"
+        }
+      },
+      "bullet:boss4": {
+        "volume": 2.5,
+        "pitch": [ 0.8, 0.8 ],
+        "events": {
+          "fire": "boss4_1"
+        }
+      },
+      "bullet:boss4_2": {
+        "volume": 2.5,
+        "pitch": [ 0.8, 0.8 ],
+        "events": {
+          "fire": "boss4_2"
+        }
+      },
+      "player:dm49": {
+        "volume": 1.8,
+        "pitch": [ 1.0, 1.0 ],
+        "events": {
+          "attack.strong": "dm49",
+          "fire": "sss"
+        }
+      },
+      "player:dm50": {
+        "volume": 2.0,
+        "pitch": [ 1.0, 1.0 ],
+        "events": {
+          "fire": "dm50"
+        }
+      },
+      "bullet:dm50_bullet": {
+        "volume": 3.8,
+        "pitch": [ 0.8, 0.8 ],
+        "events": {
+          "fire": "dm.m1871_shoot",
+          "gun.shoot": "gun_shoot",
+          "gun.hit": "gun_hit"
+        }
+      },
+      "bullet:dm51_bullet": {
+        "volume": 3.3,
+        "pitch": [ 0.8, 0.8 ],
+        "events": {
+          "fire": "dm.sg_shoot",
+          "gun.shoot": "gun_shoot",
+          "gun.hit": "gun_hit"
+        }
+      },
+      "bullet:dm51_s_bullet": {
+        "volume": 3.5,
+        "pitch": [ 0.5, 0.5 ],
+        "events": {
+          "fire": "dm.sg_shoot",
+          "gun.shoot": "gun_shoot",
+          "gun.hit": "gun_hit"
+        }
+      },
+      "player:dm53": {
+        "volume": 1.8,
+        "pitch": [ 1.0, 1.0 ],
+        "events": {
+          "attack.strong": "dm53",
+          "fire": "sss"
+        }
+      },
+      "bullet:dm53_bullet": {
+        "volume": 3.5,
+        "pitch": [ 1.0, 1.0 ],
+        "events": {
+          "fire": "dm53"
+        }
+      },
+      "bullet:dm53_bullet_1": {
+        "volume": 4.0,
+        "pitch": [ 0.8, 0.8 ],
+        "events": {
+          "fire": "dm53"
+        }
+      },
+      "player:asuna": {
+        "volume": 1.8,
+        "pitch": [ 1.4, 1.4 ],
+        "events": {
+          "attack.strong": "att",
+          "fire": "sss"
+        }
+      },
+      "player:dm0": {
+        "volume": 1.8,
+        "pitch": [ 0.8, 0.8 ],
+        "events": {
+          "attack.strong": "dm0",
+          "fire": "dm46fire"
+        }
+      },
+      "player:dm4": {
+        "volume": 2.5,
+        "pitch": [ 1.0, 1.0 ],
+        "events": {
+          "fire": "dm4_ex"
+        }
+      },
+      "bullet:dm52_bullet": {
+        "volume": 1.5,
+        "pitch": [ 1.0, 1.0 ],
+        "events": {
+          "fire": "dm52",
+          "gun.shoot": "gun_shoot",
+          "gun.hit": "gun_hit"
+        }
+      },
+      "mob:mon3tr": {
+        "volume": 2.5,
+        "pitch": [ 0.5, 0.5 ],
+        "events": {
+          "fire": "mon3tr_att1",
+          "attack.strong": "mon3tr_att2",
+          "hurt": "mob.enderdragon.hit"
+        }
+      },
+      "bullet:dm55_bullet": {
+        "volume": 1.5,
+        "pitch": [ 1.0, 1.0 ],
+        "events": {
+          "fire": "dm55",
+          "gun.shoot": "gun_shoot",
+          "gun.hit": "gun_hit"
+        }
+      },
+      "mob:dm56att": {
+        "volume": 2.0,
+        "pitch": [ 1.0, 1.0 ],
+        "events": {
+          "attack.strong": "wind"
+        }
+      },
+      "mob:dm56satt": {
+        "volume": 2.5,
+        "pitch": [ 1.3, 1.3 ],
+        "events": {
+          "attack.strong": "wind"
+        }
+      },
+      "player:dm56": {
+        "volume": 2.0,
+        "pitch": [ 1.1, 1.1 ],
+        "events": {
+          "fire": "sss"
+        }
+      },
+      "player:dm59": {
+        "volume": 1.1,
+        "pitch": [ 1.3, 1.3 ],
+        "events": {
+          "fire": "sss"
+        }
+      },
+      "bullet:dm58_bullet": {
+        "volume": 2.8,
+        "pitch": [ 1.1, 1.1 ],
+        "events": {
+          "fire": "dm.ak_shoot",
+          "gun.shoot": "gun_shoot",
+          "gun.hit": "gun_hit"
+        }
+      },
+      "bullet:bomb": {
+        "volume": 3.0,
+        "pitch": [ 1.0, 1.0 ],
+        "events": {
+          "fire": "cannon",
+          "gun.shoot": "gun_shoot",
+          "gun.hit": "gun_hit"
+        }
+      },
+      "player:dm60": {
+        "volume": 1.8,
+        "pitch": [ 1.0, 1.1 ],
+        "events": {
+          "attack.strong": "dm60",
+          "sss": "dm60s"
+        }
+      },
+      "demon:soldier_8": {
+        "volume": 1.8,
+        "pitch": [ 1.0, 1.1 ],
+        "events": {
+          "attack.strong": "soldier_8"
+        }
+      },
+      "player:dm61": {
+        "volume": 2.6,
+        "pitch": [ 1.0, 1.1 ],
+        "events": {
+          "fire": "sss_1",
+          "attack.strong": "dm61_att"
+        }
+      },
+      "player:dm62": {
+        "volume": 1.8,
+        "pitch": [ 1.0, 1.2 ],
+        "events": {
+          "attack": "dm62a1",
+          "attack.strong": "dm62a2",
+          "fire": "sss"
+        }
+      },
+      "player:dm34": {
+        "volume": 1.2,
+        "pitch": [ 1.0, 1.1 ],
+        "events": {
+          "ambient": "dm34_default",
+          "hurt": "dm34_hurt",
+          "boost": "dm34_boost",
+          "death": "dm34_death",
+          "fall.big": "dm34_fall.big",
+          "fall.small": "dm34_fall.small"
+        }
+      },
+      "player:dm34_1": {
+        "volume": 1.2,
+        "pitch": [ 1.0, 1.1 ],
+        "events": {
+          "ambient": "dm34_default",
+          "hurt": "dm34_hurt",
+          "boost": "dm34_boost",
+          "death": "dm34_death",
+          "fall.big": "dm34_fall.big",
+          "fall.small": "dm34_fall.small"
+
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "format_version": "1.8.0",
+  "render_controllers": {
+    "controller.render.dm0": {
+      "geometry": "Geometry.default",
+      "materials": [ { "*": "Material.default" } ],
+      "part_visibility": [
+{ "*": true },
+{ "sword": "query.get_equipped_item_name =='dm0_sword'" },
+{ "head": "query.variant != 5" },
+{ "circle": "query.get_equipped_item_name =='dm0_sword'" },
+{ "gun": "query.get_equipped_item_name =='dm0_gun'" },
+{ "circle2": "query.get_equipped_item_name =='dm0_gun'" },
+{ "sword2": "query.get_equipped_item_name !='dm0_sword' && query.get_equipped_item_name !='dm0_gun'" },
+{ "circle3": "query.get_equipped_item_name !='dm0_sword' && query.get_equipped_item_name !='dm0_gun'" }
+      ],
+      "textures": [ "Texture.default" ]
+    }
+  }
+}

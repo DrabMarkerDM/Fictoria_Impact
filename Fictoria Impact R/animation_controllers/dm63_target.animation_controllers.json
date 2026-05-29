@@ -1,0 +1,25 @@
+{
+	"format_version" : "1.10.0",
+	"animation_controllers": {
+		"controller.animation.dm63_target": {
+			"initial_state": "default",
+			"states": {
+				"ratt": {
+					"animations": [ "target" ],
+					"transitions": [
+						{
+							"default": "!query.has_target"
+						}
+					]
+				},
+				"default": {
+					"transitions": [
+						{
+							"ratt": "query.has_target"
+						}
+					]
+				}
+			}
+		}
+	}
+}

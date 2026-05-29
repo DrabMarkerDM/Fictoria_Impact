@@ -1,0 +1,25 @@
+{"format_version":"1.8.0",
+"animation_controllers":{
+"controller.animation.asunatt":{
+"states":{
+"default":{"transitions":[
+{"attack":"variable.attack_time >= 0.001 && query.mark_variant == 1 "}
+
+]
+
+},
+"attack": {
+					"transitions": [
+						{
+							"default": "variable.attack_time < 0.001 || query.mark_variant != 1 "
+						}
+					],
+"on_entry": [
+"/particle dm:asuna_att ^ ^2 ^2",
+"/effect @e[tag=!dm,type=!player:asuna,family=monster,r=3,c=3] wither 2 25 true"
+]
+}
+}
+}
+}
+}

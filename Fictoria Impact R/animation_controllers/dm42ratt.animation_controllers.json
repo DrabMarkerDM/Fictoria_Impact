@@ -1,0 +1,25 @@
+{
+	"format_version" : "1.10.0",
+	"animation_controllers" : {
+		"controller.animation.dm42ratt" : {
+		             			"initial_state" : "default",
+			"states" : {
+				"ratt" : {
+					"animations" : [ "bow_and_arrow" ],
+					"transitions" : [
+						{
+							"default" : "query.variant != 6 || !query.has_target"
+						}
+					]
+				},
+				"default" : {
+					"transitions" : [
+						{
+							"ratt" : "query.variant == 6 && query.has_target"
+						}
+          ]
+        }
+      }
+    }
+  }
+}

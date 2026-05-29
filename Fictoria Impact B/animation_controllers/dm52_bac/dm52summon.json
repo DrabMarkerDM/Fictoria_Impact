@@ -1,0 +1,26 @@
+{"format_version":"1.8.0",
+"animation_controllers":{
+"controller.animation.dm52summon":{
+"states":{
+"default":{"transitions":[
+{"att":"query.is_powered"}
+
+]
+
+},
+"att": {
+					"transitions": [
+						{
+							"default": "!query.is_powered"
+						}
+					],
+"on_entry": [
+"/execute positioned ^ ^ ^2 run summon mob:mon3tr ~~~",
+"/event entity @e[type=player:dm52] summon_end",
+"/playsound mon3tr @a[r=50] ~~~ 3.0 1.0"
+]
+}
+}
+}
+}
+}

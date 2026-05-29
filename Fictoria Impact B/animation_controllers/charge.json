@@ -1,0 +1,23 @@
+{"format_version":"1.8.0",
+"animation_controllers":{
+"controller.animation.charge":{
+"states":{
+"default":{"transitions":[
+{"att":"query.is_powered"}
+
+]
+
+},
+"att": {
+					"transitions": [
+						{
+							"default": "!query.is_powered"
+						}
+					],
+"on_entry": ["/replaceitem entity @s slot.weapon.mainhand 1 air"
+]
+}
+}
+}
+}
+}

@@ -1,0 +1,10 @@
+execute at @e[type=!mob:dm56att,tag=!dm,family=monster,r=8] run tp @s ~~~
+execute at @e[type=!mob:dm56att,tag=!dm,family=monster,r=8] run tp @s ~~~
+execute at @e[type=!mob:dm56att,tag=!dm,family=monster,r=8] run tp @s ~~~
+execute at @e[type=!mob:dm56att,tag=!dm,family=monster,r=8] run tp @s ~~~
+execute at @e[type=!mob:dm56att,tag=!dm,family=monster,r=8] run tp @s ~~~
+execute at @e[type=!mob:dm56att,tag=!dm,family=monster,r=8] run tp @s ~~~
+execute at @e[type=!mob:dm56att,tag=!dm,family=monster,r=8] run tp @s ~~~
+execute at @e[type=!mob:dm56att,tag=!dm,family=monster,r=8] run tp @s ~~~
+execute at @e[type=!mob:dm56att,tag=!dm,family=monster,r=8] run tp @s ~~~
+execute at @e[type=!mob:dm56att,tag=!dm,family=monster,r=8] run tp @s ~~~

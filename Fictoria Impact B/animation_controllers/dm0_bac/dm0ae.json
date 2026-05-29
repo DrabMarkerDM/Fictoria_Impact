@@ -1,0 +1,36 @@
+{"format_version":"1.8.0",
+"animation_controllers":{
+"controller.animation.dm0ae":{
+"states":{
+"default":{"transitions":[
+	{ "attack": "query.variant == 5 && variable.has_target" }
+
+]
+
+},
+"attack": {
+					"transitions": [
+						{
+							"default": "query.variant == 5 && variable.has_target"
+						}
+					],
+	"on_entry": [
+		"/effect @s instant_health 1 255 true",
+		"/particle dm:dm0_att_2 ^ ^ ^-2",
+		"/particle dm:dm0_att_3 ^1 ^1 ^-3",
+		"/particle dm:dm0_att_2 ^ ^ ^-3",
+		"/particle dm:dm0_att_3 ^1 ^1 ^-3",
+		"/particle dm:dm0_att_2 ^ ^ ^-3",
+		"/particle dm:dm0_att_3 ^1 ^1 ^-2",
+		"/playsound dm0_hit @a[r=45] ~~~ 1.8 1.0",
+		"/effect @s absorption 1 255 true",
+		"/effect @s resistance 1 255 true",
+		"/damage @e[tag=!dm,family=monster,r=5,c=5] 84 entity_attack entity @s",
+		"/effect @e[tag=!dm,type=!player:dm0,family=monster,r=5,c=5] wither 3 255 true",
+		"/effect @e[tag=!dm,type=!player:dm0,family=monster,family=!undead,r=5,c=5] instant_damage 3 2 true"
+	]
+}
+}
+}
+}
+}

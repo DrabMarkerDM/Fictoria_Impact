@@ -1,0 +1,37 @@
+  {	
+        "format_version": "1.8.0",
+        "animations": {
+		"animation.player.sit" : {
+										"bones" : {
+				"body" : {
+					"rotation" : [ 30.0, 0.0, 0.0  ],
+										"position" : [  0.0, -3.2, -0.6  ]
+				},
+				"head" : {
+					"position" : [  0.0, -4.0, 0.0  ]
+				},
+				"leftarm" : {
+					"rotation" : [ 25.0, -0.0, 0.1 ],
+					"position" : [  0.0, -2.8, 0.6 ]
+				},
+				"leftleg" : {
+					"position" : [ 0.0, -0.1, 4.4 ]
+				},
+				"rightarm" : {
+					"rotation" : [ 25.0, -0.0, 0.1 ],
+					"position" : [  0.0, -2.8, 0.6  ]
+				},
+				"rightleg" : {
+					"position" : [ 0.0, -0.1, 4.4 ]
+				},
+									"root" : {
+					"position" : [ 0.0, 0.0, 4.3 ],
+					"rotation" : [ "29.0 - this", 0.0, 0.0 ]
+				}
+			},
+			"loop" : true
+		}
+     }
+}
+  
+

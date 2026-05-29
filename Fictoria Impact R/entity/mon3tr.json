@@ -1,0 +1,31 @@
+{"format_version":"1.10.0",
+"minecraft:client_entity":{
+"description":{
+    "animations":{"attack":"controller.animation.mon3tr.attack",
+    "attacking":"animation.mon3tr.attack",
+    "s_attack":"controller.animation.mon3tr.s_attack",
+    "s_attacking":"animation.mon3tr.s_attack",
+    "default":"controller.animation.mon3tr.default",
+    "defaulting":"animation.mon3tr.default",
+    "look_at_target":"animation.spider.look_at_target"
+    },
+    "geometry":{"default":"geometry.mon3tr",
+        "sss":"geometry.mon3tr",
+        "satt":"geometry.mon3tr_sss"
+    },
+    "identifier":"mob:mon3tr",
+    "materials":{"default":"npc",
+            "sss":"spider",
+            "satt":"wither_boss_armor"
+    },
+    "render_controllers":[
+    "controller.render.mon3tr",
+    "controller.render.mon3tr_1",
+    "controller.render.mon3tr_2"],
+    "scripts":{"animate":["attack","look_at_target","default","s_attack"],
+    "pre_animation":["variable.attack = Math.sin(variable.attack_time * 30.0);"]
+    },
+    "textures":{"default":"textures/entity/mob/mon3tr",
+    "sss":"textures/entity/mob/mon3tr_sss",
+    "satt":"textures/entity/mob/mon3tr_satt"
+    }}}}

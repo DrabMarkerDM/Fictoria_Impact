@@ -1,0 +1,26 @@
+{"format_version":"1.8.0",
+"animation_controllers":{
+"controller.animation.dm56sss":{
+"states":{
+"default":{"transitions":[
+{"att":"query.mark_variant == 2"}
+
+]
+
+},
+"att": {
+					"transitions": [
+						{
+							"default": "query.mark_variant != 2"
+						}
+					],
+"on_entry": [
+    "/event entity @e[type=mob:dm56satt] sss",
+    "/execute at @e[type=mob:dm56att,c=1] run summon mob:dm56satt ~~~",
+    "/event entity @e[type=mob:dm56att] sss"
+]
+}
+}
+}
+}
+}

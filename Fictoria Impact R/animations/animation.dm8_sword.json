@@ -1,0 +1,20 @@
+{
+	"format_version": "1.8.0",
+	"animations": {
+		"animation.dm8_sword": {
+			"loop": true,
+			"bones": {
+				"Rightsword": {
+					"rotation": [ -87.5, -10, -90 ],
+					"position": [ 12, -37, -2 ],
+					"scale": 0.5
+				},
+				"Leftsword": {
+					"rotation": [ -87.5, 10, 90 ],
+					"position": [ -12, -37, -2 ],
+					"scale": 0.5
+				}
+			}
+		}
+	}
+}

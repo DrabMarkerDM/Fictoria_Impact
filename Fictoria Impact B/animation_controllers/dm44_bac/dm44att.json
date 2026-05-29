@@ -1,0 +1,26 @@
+{"format_version":"1.8.0",
+"animation_controllers":{
+"controller.animation.dm44_att":{
+"states":{
+"default":{"transitions":[
+{"attack":"query.is_delayed_attacking && query.variant == 1"}
+
+]
+
+},
+"attack": {
+					"transitions": [
+						{
+							"default": "!query.is_delayed_attacking || !query.variant == 1"
+						}
+					],
+"on_entry": [
+"/scoreboard players add @s dm44att 1",
+"/event entity @e[scores={dm44att=5..}] d2",
+"/execute as @e[scores={dm44att=5..}] run scoreboard players set @s dm44att 0"
+]
+}
+}
+}
+}
+}

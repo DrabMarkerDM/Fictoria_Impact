@@ -1,0 +1,17 @@
+{
+  "animation_controllers": {
+    "controller.animation.tag_26": {
+      "states": {
+        "default": {
+          "on_entry": [
+            "/tag @s add dm",
+            "/scoreboard objectives add dm62 dummy",
+            "/scoreboard objectives add dm62_1 dummy",
+            "/scoreboard objectives add dm62_2 dummy"
+          ]
+        }
+      }
+    }
+  },
+  "format_version": "1.8.0"
+}

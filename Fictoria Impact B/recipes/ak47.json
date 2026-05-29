@@ -1,0 +1,33 @@
+{
+  "format_version": "1.12",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "gun:ak47_empty"
+    },
+
+
+    "tags": [ "crafting_table" ],
+    "pattern": [
+      "P#Y",
+      "X X",
+      "   "
+    ],
+    "key": {
+      "#": {
+        "item": "minecraft:redstone_torch"
+      },
+      "X": {
+        "item": "minecraft:obsidian"
+      },
+      "P": {
+        "item": "minecraft:blaze_rod"
+      },
+      "Y": {
+        "item": "minecraft:redstone_block"
+      }
+    },
+    "result": {
+      "item": "gun:ak47_empty"
+    }
+  }
+}

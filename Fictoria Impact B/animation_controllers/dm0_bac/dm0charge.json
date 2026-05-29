@@ -1,0 +1,54 @@
+{"format_version":"1.8.0",
+"animation_controllers":{
+"controller.animation.dm0charge":{
+"states":{
+"default":{"transitions":[
+{"att":"query.is_powered"}
+
+]
+
+},
+"att": {
+					"transitions": [
+						{
+							"default": "!query.is_powered"
+						}
+					],
+	"on_entry": [
+		"/scoreboard players add @s dm0skill 10",
+		"/event entity @e[scores={dm0skill=55..}] sss",
+		"/scoreboard players set @e[scores={dm0skill=55..}] dm0skill 0",
+		"/scoreboard players add @e[type=player:dm46,r=40] dm46att 10",
+		"/scoreboard players add @e[type=player:dm49,r=40] dm49skill 10",
+		"/scoreboard players add @e[type=player:dm4,r=40] dm4att 10",
+		"/scoreboard players add @e[type=player:dm35,r=40] dm35att 10",
+		"/scoreboard players add @e[type=player:kirito,r=40] kirito 100",
+		"/scoreboard players add @e[type=player:dm59,r=40] dm59 100",
+		"/scoreboard players add @e[type=player:dm53,r=40] dm53 100",
+		"/scoreboard players add @e[type=player:dm51,r=40] dm51 100",
+		"/scoreboard players add @e[type=player:dm50,r=40] dm50 100",
+		"/scoreboard players add @e[type=player:dm48,r=40] dm48 100",
+		"/scoreboard players add @e[type=player:dm45,r=40] dm45 100",
+		"/scoreboard players add @e[type=player:dm41,r=40] dm41 100",
+		"/scoreboard players add @e[type=player:dm32,r=40] dm32 100",
+		"/scoreboard players add @e[type=player:dm28,r=40] dm28 100",
+		"/scoreboard players add @e[type=player:dm26,r=40] dm26 100",
+		"/scoreboard players add @e[type=player:dm25,r=40] dm25 100",
+		"/scoreboard players add @e[type=player:dm22,r=40] dm22 100",
+		"/scoreboard players add @e[type=player:asuna,r=40] asuna 100",
+		"/scoreboard players add @e[type=player:dm60,r=40] dm60 10",
+		"/scoreboard players add @e[type=player:dm31,r=40] dm31_1 100",
+		"/scoreboard players add @e[type=player:dm61,r=40] dm61 100",
+		"/scoreboard players add @e[type=player:dm62,r=40] dm62 100",
+		"/scoreboard players add @e[type=player:dm33,r=40] dm33 10",
+		"/scoreboard players add @e[type=player:dm24,r=40] dm24 10",
+		"/scoreboard players add @e[type=player:dm44,r=40] dm44 10",
+		"/scoreboard players add @e[type=player:dm63,r=40] dm63 10",
+		"/scoreboard players add @e[type=player:dm8,r=40] dm8 10"
+
+	]
+}
+}
+}
+}
+}

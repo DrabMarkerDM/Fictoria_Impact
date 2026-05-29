@@ -1,0 +1,26 @@
+{"format_version":"1.8.0",
+	"animation_controllers": {
+		"controller.animation.dm62score_test2": {
+			"states": {
+				"default": {
+					"transitions": [
+						{ "att": "query.health > 41 && query.variant == 1 && variable.has_target" }
+
+					]
+
+				},
+				"att": {
+					"transitions": [
+						{
+							"default": "query.health <= 41 || query.variant != 1 || !variable.has_target"
+						}
+					],
+					"on_entry": [
+						"/event entity @s high_health",
+						"/scoreboard players add @s dm62 10"
+					]
+				}
+			}
+		}
+	}
+}

@@ -1,0 +1,25 @@
+{
+	"format_version" : "1.10.0",
+	"animation_controllers" : {
+		"controller.animation.dm25_move_1" : {
+		             			"initial_state" : "default",
+			"states" : {
+				"ratt" : {
+					"animations" : [ "brandish_spear" ],
+					"transitions" : [
+						{
+							"default" : "query.has_target && query.get_equipped_item_name == 'dm25'"
+						}
+					]
+				},
+				"default" : {
+					"transitions" : [
+						{
+							"ratt" : "!query.has_target && query.get_equipped_item_name != 'dm25'"
+						}
+          ]
+        }
+      }
+    }
+  }
+}

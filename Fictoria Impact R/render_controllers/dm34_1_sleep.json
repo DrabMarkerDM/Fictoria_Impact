@@ -1,0 +1,40 @@
+{
+  "format_version": "1.8.0",
+  "render_controllers": {
+    "controller.render.dm34_1_sleep": {
+      "arrays": {
+        "textures": {
+          "Array.skins": [
+            "Texture.v1s",
+            "Texture.v2s",
+            "Texture.v3s",
+            "Texture.v4s",
+            "Texture.v5s",
+            "Texture.v6s",
+            "Texture.v7s",
+            "Texture.v8s",
+            "Texture.v9s",
+            "Texture.v10s",
+            "Texture.v11s",
+            "Texture.v12s",
+            "Texture.v13s",
+            "Texture.v14s",
+            "Texture.v15s",
+            "Texture.v16s",
+            "Texture.v17s",
+            "Texture.v18s",
+            "Texture.v19s",
+            "Texture.v20s"
+          ]
+        }
+      },
+      "geometry": "Geometry.default",
+      "materials": [ { "*": "Material.default" } ],
+      "part_visibility": [
+        { "*": "query.is_sleeping" },
+        { "pot": false }
+      ],
+      "textures": [ "Array.skins[query.skin_id]" ]
+    }
+  }
+}

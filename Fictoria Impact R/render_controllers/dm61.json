@@ -1,0 +1,23 @@
+{
+  "format_version": "1.8.0",
+  "render_controllers": {
+    "controller.render.dm61": {
+      "geometry": "Geometry.default",
+      "materials": [ { "*": "Material.default" } ],
+      "part_visibility": [
+        { "*": true },
+        { "shoot": "query.is_delayed_attacking && query.variant == 1" },
+        { "bone4": "query.is_delayed_attacking && query.variant == 1" },
+        { "bone6": "query.is_delayed_attacking && query.variant == 1" },
+        { "bone": "query.is_delayed_attacking && query.variant == 1" },
+        { "bone2": "query.is_delayed_attacking && query.variant == 1" },
+        { "bone3": "query.is_delayed_attacking && query.variant == 1" },
+        { "gun2": "query.is_delayed_attacking && query.variant == 1" },
+        { "bone7": "query.is_delayed_attacking && query.variant == 1" },
+        { "bone8": "query.is_delayed_attacking && query.variant == 1" },
+        { "gun": "query.variant == 1 || query.variant == 2" }
+      ],
+      "textures": [ "Texture.default" ]
+    }
+  }
+}

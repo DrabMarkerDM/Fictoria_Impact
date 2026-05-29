@@ -1,0 +1,24 @@
+{"format_version":"1.8.0",
+"animation_controllers":{
+"controller.animation.sweep_soldier":{
+"states":{
+"default":{"transitions":[
+{"attack":"query.is_delayed_attacking"}
+
+]
+
+},
+"attack": {
+					"transitions": [
+						{
+							"default": "!query.is_delayed_attacking"
+						}
+					],
+"on_entry": ["/execute positioned ^ ^ ^3 run execute at @e[type=!demon:sweep_soldier,family=!monster,tag=!demon,r=5,c=5,family=!inanimate] run summon bullet:sweep_soldier_attack ~~0.3~",
+"/particle dm:sweep_soldier ^ ^2 ^2"
+]
+}
+}
+}
+}
+}

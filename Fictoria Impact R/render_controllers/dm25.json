@@ -1,0 +1,15 @@
+{
+  "format_version": "1.8.0",
+  "render_controllers": {
+    "controller.render.dm25": {
+      "geometry": "Geometry.default",
+      "materials": [ { "*": "Material.default" } ],
+      "part_visibility": [
+        { "*": "!query.is_powered" },
+        { "sword": "query.get_equipped_item_name =='dm25' && !query.is_powered" },
+        { "sword2": "query.get_equipped_item_name !='dm25' && !query.is_powered" }
+      ],
+      "textures": [ "Texture.default" ]
+    }
+  }
+}

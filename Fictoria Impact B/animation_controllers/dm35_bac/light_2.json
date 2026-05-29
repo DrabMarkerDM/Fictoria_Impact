@@ -1,0 +1,67 @@
+{"format_version":"1.8.0",
+"animation_controllers":{
+"controller.animation.light_2":{
+"states":{
+"default":{"transitions":[
+{"att":"query.variant == 1"}
+
+]
+
+},
+"att": {
+					"transitions": [
+						{
+							"default": "query.variant == 1"
+						}
+					],
+"on_entry": [
+        "/particle minecraft:basic_flame_particle ~~~",
+        "/particle minecraft:mobflame_single ~~~",
+            "/particle minecraft:mobflame_single ~~~",
+                    "/particle minecraft:mobflame_single ~~~",
+                              "/particle minecraft:basic_flame_particle ~~-1~",
+        "/particle minecraft:mobflame_single ~~-1~",
+            "/particle minecraft:mobflame_single ~~-1~",
+                    "/particle minecraft:mobflame_single ~~-1~",
+                        "/particle minecraft:basic_flame_particle ~~-1~",
+      "/particle minecraft:basic_flame_particle ~~-2~",
+        "/particle minecraft:mobflame_single ~~-2~",
+            "/particle minecraft:mobflame_single ~~-2~",
+                    "/particle minecraft:mobflame_single ~~-2~",
+                        "/particle minecraft:basic_flame_particle ~~-3~",
+                                "/particle minecraft:mobflame_single ~~-3~",
+            "/particle minecraft:mobflame_single ~~-3~",
+                    "/particle minecraft:mobflame_single ~~-3~",
+                        "/particle minecraft:basic_flame_particle ~~-4~",
+                                "/particle minecraft:mobflame_single ~~-4~",
+            "/particle minecraft:mobflame_single ~~-4~",
+                    "/particle minecraft:mobflame_single ~~-4~",
+                        "/particle minecraft:basic_flame_particle ~~-5~",
+                                "/particle minecraft:mobflame_single ~~-5~",
+            "/particle minecraft:mobflame_single ~~-5~",
+                    "/particle minecraft:mobflame_single ~~-5~",
+                        "/particle minecraft:basic_flame_particle ~~-6~",
+                                "/particle minecraft:mobflame_single ~~-6~",
+            "/particle minecraft:mobflame_single ~~-6~",
+                    "/particle minecraft:mobflame_single ~~-6~",
+                        "/particle minecraft:basic_flame_particle ~~-6~",
+                                                "/particle minecraft:basic_flame_particle ~~-7~",
+                                "/particle minecraft:mobflame_single ~~-7~",
+            "/particle minecraft:mobflame_single ~~-7~",
+                    "/particle minecraft:mobflame_single ~~-7~",
+                        "/particle minecraft:basic_flame_particle ~~-7~"
+                        
+                        
+
+
+
+
+
+
+
+]
+}
+}
+}
+}
+}

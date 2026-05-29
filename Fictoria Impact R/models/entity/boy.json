@@ -1,0 +1,116 @@
+{
+	"geometry.boy": {
+		"texturewidth": 64,
+		"textureheight": 64,
+		"bones": [{
+				"name": "body",
+				"pivot": [0, 24, 0],
+				"cubes": [{
+						"origin": [-4, 12, -2],
+						"size": [8, 12, 4],
+						"uv": [16, 16]
+					},
+					{
+						"origin": [-4, 12, -2],
+						"size": [8, 12, 4],
+						"uv": [16, 32],
+						"inflate": 0.25
+					}
+				]
+			},
+			{
+				"name": "head",
+				"pivot": [0, 24, 0],
+				"cubes": [{
+						"origin": [-4, 24, -4],
+						"size": [8, 8, 8],
+						"uv": [0, 0]
+					},
+					{
+						"origin": [-4, 24, -4],
+						"size": [8, 8, 8],
+						"uv": [32, 0],
+						"inflate": 0.5
+					}
+				]
+			},
+			{
+				"name": "leftArm",
+				"pivot": [5, 21.5, 0],
+				"cubes": [{
+						"origin": [4, 12, -2],
+						"size": [4, 12, 4],
+						"uv": [32, 48]
+					},
+					{
+						"origin": [4, 12, -2],
+						"size": [4, 12, 4],
+						"uv": [48, 48],
+						"inflate": 0.25
+					}
+				]
+			},
+			{
+				"name": "rightArm",
+				"pivot": [-5, 21.5, 0],
+				"cubes": [{
+						"origin": [-8, 12, -2],
+						"size": [4, 12, 4],
+						"uv": [40, 16]
+					},
+					{
+						"origin": [-8, 12, -2],
+						"size": [4, 12, 4],
+						"uv": [40, 32],
+						"inflate": 0.25
+					}
+				]
+			},
+			{
+				"name": "leftItem",
+				"parent": "leftArm",
+				"pivot": [1, 17.0, 1]
+			},
+			{
+				"name": "rightItem",
+				"parent": "rightArm",
+				"pivot": [-1, 17.0, 1],
+				"locators": {
+					"lead_hold": [-1, 17.0, 1]
+				}
+			},
+			{
+				"name": "leftLeg",
+				"pivot": [1.9, 12, 0],
+				"cubes": [{
+						"origin": [0, 0, -2],
+						"size": [4, 12, 4],
+						"uv": [16, 48]
+					},
+					{
+						"origin": [0, 0, -2],
+						"size": [4, 12, 4],
+						"uv": [0, 48],
+						"inflate": 0.25
+					}
+				]
+			},
+			{
+				"name": "rightLeg",
+				"pivot": [-1.9, 12, 0],
+				"cubes": [{
+						"origin": [-4, 0, -2],
+						"size": [4, 12, 4],
+						"uv": [0, 16]
+					},
+					{
+						"origin": [-4, 0, -2],
+						"size": [4, 12, 4],
+						"uv": [0, 32],
+						"inflate": 0.25
+					}
+				]
+			}
+		]
+	}
+}

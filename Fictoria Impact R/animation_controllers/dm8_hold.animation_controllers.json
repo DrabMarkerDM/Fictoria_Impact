@@ -1,0 +1,25 @@
+{
+	"format_version": "1.10.0",
+	"animation_controllers": {
+		"controller.animation.dm8_hold": {
+			"initial_state": "default",
+			"states": {
+				"ratt": {
+					"animations": [ "holding_1" ],
+					"transitions": [
+						{
+							"default": "query.variant == 0 || variable.attack_time > 0.0 || q.property('dm8:test') == 'ratt' || query.property('dm8:test') == 'satt'"
+						}
+					]
+				},
+				"default": {
+					"transitions": [
+						{
+							"ratt": "query.variant != 0 && variable.attack_time <= 0.0 && q.property('dm8:test') != 'ratt' && query.property('dm8:test') != 'satt'"
+						}
+					]
+				}
+			}
+		}
+	}
+}

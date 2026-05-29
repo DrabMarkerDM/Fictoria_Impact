@@ -1,0 +1,370 @@
+{
+  "format_version": "1.8.0",
+  "minecraft:entity": {
+    "description": {
+      "identifier": "demon:soldier_4",
+      "is_spawnable": true,
+      "is_summonable": true,
+      "is_experimental": false,
+      "scripts": {
+        "animate": [
+          "tag",
+          "ect"
+        ]
+      },
+      "animations": {
+        "tag": "controller.animation.tag_1",
+        "ect": "controller.animation.ect_1"
+      }
+    },
+    "component_groups": {
+     "sword":{
+      "minecraft:equipment": {
+        "table": "loot_tables/crossbow.json"
+      },
+      "minecraft:behavior.ranged_attack": {
+          "priority": 3,
+          "attack_interval_min": 0.6,
+          "attack_interval_max": 0.8,
+          "attack_radius": 28,
+          "speed_multiplier": 0.91,
+          "target_in_sight_time": 0.1
+        },
+        "minecraft:shooter": {
+          "def": "minecraft:arrow"
+        },
+        "minecraft:behavior.charge_held_item": {
+          "priority": 2,
+          "items": [
+            "minecraft:arrow"
+          ]
+      }
+        }
+    },
+    "components": {
+      "minecraft:type_family": {
+        "family": [ "monster", "demon" ]
+      },
+      "minecraft:collision_box": {
+        "width": 0.6,
+        "height": 1.8
+      },
+      "minecraft:health": {
+        "value": 33,
+        "max": 33
+      },
+      "minecraft:equipment": {
+        "table": "loot_tables/crossbow.json"
+      },
+      "minecraft:hurt_on_condition": {
+        "damage_conditions": [
+          {
+            "filters": {
+              "test": "in_lava",
+              "subject": "self",
+              "operator": "==",
+              "value": true
+            },
+            "cause": "lava",
+            "damage_per_tick": 5
+          }
+        ]
+      },
+      "minecraft:can_climb": {
+      },
+      "minecraft:movement": {
+        "value": 0.31
+      },
+      "minecraft:underwater_movement": {
+        "value": 0.04
+      },
+      "minecraft:damage_sensor": {
+        "triggers": [
+          {
+            "cause": "projectile",
+            "damage_multiplier": 0.78,
+            "on_damage": {
+              "filters": {
+                "test": "is_family",
+                "subject": "other",
+                "operator": "!=",
+                "value": "demon"
+              }
+            },
+            "deals_damage": true
+          },
+          {
+            "cause": "entity_attack",
+            "damage_multiplier": 0.78,
+            "on_damage": {
+              "filters": {
+                "test": "is_family",
+                "subject": "other",
+                "operator": "!=",
+                "value": "demon"
+              }
+            },
+            "deals_damage": true
+          },
+          {
+            "cause": "entity_explosion",
+            "damage_multiplier": 0.78,
+            "on_damage": {
+              "filters": {
+                "test": "is_family",
+                "subject": "other",
+                "operator": "!=",
+                "value": "demon"
+              }
+            },
+            "deals_damage": true
+          },
+          {
+            "cause": "block_explosion",
+            "damage_multiplier": 0.78,
+            "on_damage": {
+              "filters": {
+                "test": "is_family",
+                "subject": "other",
+                "operator": "!=",
+                "value": "demon"
+              }
+            },
+            "deals_damage": true
+          },
+          {
+            "cause": "override",
+            "damage_multiplier": 0.78,
+            "on_damage": {
+              "filters": {
+                "test": "is_family",
+                "subject": "other",
+                "operator": "!=",
+                "value": "demon"
+              }
+            },
+            "deals_damage": true
+          },
+          {
+            "cause": "magic",
+            "damage_multiplier": 0.95,
+            "on_damage": {
+              "filters": {
+                "test": "is_family",
+                "subject": "other",
+                "operator": "!=",
+                "value": "demon"
+              }
+            },
+            "deals_damage": true
+          },
+          {
+            "on_damage": {
+              "filters": {
+                "test": "is_family",
+                "subject": "other",
+                "value": "demon"
+              }
+            },
+            "deals_damage": false
+          }
+        ]
+      },
+      "minecraft:knockback_resistance": {
+        "value": 0.1
+      },
+      "minecraft:attack": {
+        "damage": 1
+      },
+      "minecraft:annotation.open_door": {
+      },
+      "minecraft:navigation.walk": {
+        "is_amphibious": true,
+        "can_path_over_water": true,
+        "can_pass_doors": true,
+        "can_open_doors": true,
+        "avoid_damage_blocks": true
+      },
+      "minecraft:behavior.open_door": {
+      },
+      "minecraft:movement.basic": {
+
+      },
+      "minecraft:jump.static": {
+      },
+      "minecraft:inventory": {
+        "inventory_size": 16,
+        "private": true
+      },
+      "minecraft:behavior.float": {
+        "priority": 0
+      },
+      "minecraft:breathable": {
+        "totalSupply": 28,
+        "suffocateTime": -1,
+        "inhaleTime": 3.75,
+        "generatesBubbles": true
+      },
+      "minecraft:nameable": {
+        "alwaysShow": true
+      },
+      "minecraft:behavior.move_to_village": {
+        "priority": 6,
+        "speed_multiplier": 0.98,
+        "goal_radius": 0.6
+      },
+      "minecraft:behavior.pickup_items": {
+        "priority": 8,
+        "max_dist": 3,
+        "goal_radius": 2,
+        "speed_multiplier": 0.5
+      },
+      "minecraft:behavior.random_stroll": {
+        "priority": 5,
+        "speed_multiplier": 0.72,
+        "xz_dist": 9,
+        "y_dist": 6
+      },
+      "minecraft:pushable": {
+        "is_pushable": true,
+        "is_pushable_by_piston": true
+      },
+      "minecraft:behavior.look_at_player": {
+        "priority": 6,
+        "look_distance": 6,
+        "probability": 0.04
+      },
+      "minecraft:behavior.look_at_target": {
+        "priority": 5,
+        "look_distance": 34,
+        "probability": 0.06
+      },
+      "minecraft:behavior.look_at_entity": {
+        "priority": 7,
+        "look_distance": 6.0,
+        "probability": 0.02,
+        "filters": {
+          "test": "is_family",
+          "subject": "other",
+          "value": "mob"
+        }
+      },
+      "minecraft:behavior.random_look_around": {
+        "priority": 7
+      },
+      "minecraft:behavior.hurt_by_target": {
+        "priority": 2,
+        "entity_types": {
+          "filters": {
+            "test": "is_family",
+            "subject": "other",
+            "operator": "!=",
+            "value": "demon"
+          },
+          "max_dist": 34
+        }
+      },
+      "minecraft:behavior.nearest_attackable_target": {
+        "priority": 2,
+        "walk_speed_multiplier": 1.0,
+        "sprint_speed_multiplier": 1.2,
+        "reselect_targets": true,
+        "entity_types": [
+          {
+            "filters": {
+              "any_of": [
+                {
+                  "test": "is_family",
+                  "subject": "other",
+                  "value": "player"
+                },
+                {
+                  "test": "is_family",
+                  "subject": "other",
+                  "value": "snowgolem"
+                },
+                {
+                  "test": "is_family",
+                  "subject": "other",
+                  "value": "irongolem"
+                }
+              ]
+            },
+            "max_dist": 34
+          },
+          {
+            "filters": {
+              "any_of": [
+                {
+                  "test": "is_family",
+                  "subject": "other",
+                  "value": "villager"
+                },
+                {
+                  "test": "is_family",
+                  "subject": "other",
+                  "value": "wandering_trader"
+                }
+              ]
+            },
+            "max_dist": 34,
+            "must_see": true
+          },
+          {
+            "filters": {
+              "all_of": [
+                {
+                  "test": "is_family",
+                  "subject": "other",
+                  "value": "baby_turtle"
+                },
+                {
+                  "test": "in_water",
+                  "subject": "other",
+                  "operator": "!=",
+                  "value": true
+                }
+              ]
+            },
+            "max_dist": 34
+          }
+        ],
+        "must_see": true,
+        "must_see_forget_duration": 10.0
+      },
+      "minecraft:follow_range": {
+        "value": 34
+      },
+      "minecraft:physics": {
+      },
+      "minecraft:scaffolding_climber": {
+      },
+      "minecraft:on_target_acquired": {
+        "event": "attack",
+        "target": "self"
+      },
+      "minecraft:on_target_escape": {
+        "event": "silent",
+        "target": "self"
+      }
+    },
+    "events": {
+       "minecraft:entity_spawned": {
+       },
+      "attack": {
+        "add": {
+          "component_groups": [
+            "sword"
+          ]
+        }
+      },
+      "silent": {
+        "remove": {
+          "component_groups": [
+            "sword"
+          ]
+        }
+      }
+    }
+    }
+  }

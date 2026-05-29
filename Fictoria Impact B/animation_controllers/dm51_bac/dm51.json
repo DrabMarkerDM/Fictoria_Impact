@@ -1,0 +1,28 @@
+{"format_version":"1.8.0",
+"animation_controllers":{
+"controller.animation.dm51":{
+"states":{
+"default":{"transitions":[
+{"att":"query.variant == 0"}
+
+]
+
+},
+"att": {
+					"transitions": [
+						{
+							"default": "query.variant == 0"
+						}
+					],
+	"on_entry": [
+		"/damage @e[tag=!dm,family=monster,r=8,c=6] 88 override entity @s",
+		"/particle minecraft:water_evaporation_actor_emitter ^ ^ ^",
+		"/execute positioned ^ ^ ^2 run execute at @e[tag=!dm,type=!player:dm51,family=monster,family=!undead,r=7,c=6] run particle minecraft:white_smoke_particle ~~2~",
+		"/execute positioned ^ ^ ^2 run execute at @e[tag=!dm,type=!player:dm51,family=monster,family=!undead,r=7,c=6] run particle minecraft:white_smoke_particle ~~2~",
+		"/execute positioned ^ ^ ^2 run execute at @e[tag=!dm,type=!player:dm51,family=monster,family=!undead,r=7,c=6] run particle minecraft:white_smoke_particle ~~2~"
+	]
+}
+}
+}
+}
+}

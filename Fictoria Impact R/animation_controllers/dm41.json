@@ -1,0 +1,41 @@
+{
+	"format_version": "1.10.0",
+	"animation_controllers": {
+		"controller.animation.dm41": {
+			"initial_state": "default",
+			"states": {
+				"bow": {
+					"animations": [
+						"bow_and_arrow"
+					],
+					"transitions": [
+						{
+							"default": "!query.has_target"
+						},
+						{
+							"att": "query.is_delayed_attacking"
+						}
+					]
+				},
+				"att": {
+					"animations": [
+						"attack.rotations"
+					],
+					"transitions": [
+						{
+							"bow": "query.has_target && !query.is_delayed_attacking"
+						}
+					]
+				},
+				"default" : {
+					"transitions" : [
+						{
+							"bow" : "query.has_target && !query.is_delayed_attacking"
+						}
+          ]
+
+				}
+			}    
+		}
+	}
+}

@@ -1,0 +1,14 @@
+{
+  "format_version": "1.12.0",
+  "minecraft:item": {
+    "description": {
+      "identifier": "sword:sweep_sword",
+      "category": "Equipment"
+    },
+
+    "components": {
+      "minecraft:icon": "sweep_sword",
+      "minecraft:render_offsets": "tools"
+    }
+  }
+}

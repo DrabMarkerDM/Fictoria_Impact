@@ -1,0 +1,48 @@
+{
+  "format_version": "1.8.0",
+  "minecraft:spawn_rules": {
+    "description": {
+      "identifier": "player:dm34",
+      "population_control": "animal"
+    },
+    "conditions": [
+      {
+        "minecraft:spawns_on_surface": {},
+        "minecraft:brightness_filter": {
+          "min": 8,
+          "max": 15,
+          "adjust_for_weather": false
+        },
+        "minecraft:difficulty_filter": {
+          "min": "easy",
+          "max": "hard"
+        },
+        "minecraft:density_limit": {
+          "surface": 3
+        },
+        "minecraft:weight": {
+          "default": 3
+        },
+        "minecraft:biome_filter": {
+          "all_of": [
+            {
+              "test": "has_biome_tag",
+              "operator": "!=",
+              "value": "the_nether"
+            },
+            {
+              "test": "has_biome_tag",
+              "operator": "!=",
+              "value": "the_end"
+            },
+            {
+              "test": "has_biome_tag",
+              "operator": "==",
+              "value": "animal"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

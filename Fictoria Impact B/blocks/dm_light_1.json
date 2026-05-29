@@ -1,0 +1,35 @@
+{
+  "format_version": "1.20.80",
+  "minecraft:block": {
+    "description": {
+      "identifier": "block:dm_light_1"
+    },
+    "components": {
+      "minecraft:collision_box": false,
+      "minecraft:destructible_by_explosion": {
+        "explosion_resistance": 999999
+      },
+      "minecraft:display_name": "DM_Light_1",
+      "minecraft:flammable": false,
+      "minecraft:geometry": "geometry.none",
+      "minecraft:light_dampening": 0,
+      "minecraft:light_emission": 14,
+      "minecraft:material_instances": {
+        "*": {
+          "ambient_occlusion": false,
+          "face_dimming": false,
+          "render_method": "opaque",
+          "texture": "none"
+        }
+      },
+      "minecraft:tick": {
+        "interval_range": [
+          1,
+          1
+        ],
+        "looping": true
+      },
+      "minecraft:selection_box": false
+    }
+  }
+}

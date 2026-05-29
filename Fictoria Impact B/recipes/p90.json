@@ -1,0 +1,33 @@
+{
+  "format_version": "1.12",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "gun:p90_empty"
+    },
+
+
+    "tags": [ "crafting_table" ],
+    "pattern": [
+      "P#Y",
+      "  X",
+      "   "
+    ],
+    "key": {
+      "#": {
+        "item": "minecraft:redstone_torch"
+      },
+      "X": {
+        "item": "minecraft:stone"
+      },
+      "P": {
+        "item": "minecraft:blaze_rod"
+      },
+      "Y": {
+        "item": "minecraft:iron_block"
+      }
+    },
+    "result": {
+      "item": "gun:p90_empty"
+    }
+  }
+}

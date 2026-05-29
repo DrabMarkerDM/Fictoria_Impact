@@ -1,0 +1,30 @@
+{"format_version":"1.8.0",
+"animation_controllers":{
+"controller.animation.dm0bow":{
+"states":{
+"default":{"transitions":[
+{"attack":"query.variant == 1 "}
+
+]
+
+},
+"attack": {
+					"transitions": [
+						{
+							"default": "!query.variant == 1 "
+						}
+					],
+"on_entry": [
+"/scoreboard players add @e[type=player:dm0] dm0ratt 1",
+"/event entity @e[scores={dm0ratt=5..}] bow",
+"/scoreboard players set @e[scores={dm0ratt=5..}] dm0ratt 0",
+"/scoreboard players add @e[type=player:dm0] dm0skill 1",
+"/event entity @e[scores={dm0skill=55..}] sss",
+"/scoreboard players set @e[scores={dm0skill=55..}] dm0skill 0",
+"/effect @s absorption 5 25 true"
+]
+}
+}
+}
+}
+}

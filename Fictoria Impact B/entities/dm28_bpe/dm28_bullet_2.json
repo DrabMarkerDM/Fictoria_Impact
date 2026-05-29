@@ -1,0 +1,111 @@
+{
+  "format_version": "1.12.0",
+  "minecraft:entity": {
+    "description": {
+    "identifier": "bullet:dm28_bullet_2",
+      "runtime_identifier": "minecraft:snowball",
+      "is_spawnable": false,
+      "is_summonable": true,
+      "is_experimental": false
+    },
+        "component_groups": {
+            "minecraft:exploding": {
+                "minecraft:explode": {
+                    "fuseLength": 0,
+                    "fuseLit": true,
+                    "power": 0.1,
+                    "causesFire": true,
+                    "fire_affected_by_griefing": true,
+                    "destroy_affected_by_griefing": true
+                }
+            },
+        "summon": {
+        "minecraft:variant": {
+          "value": 0
+        }
+            },
+            "despawning": {
+                "minecraft:type_family": {
+                    "family": ["despawer", "despawer_despawning", "dm"
+                    ]
+                }
+            }
+    },
+    "components": {
+    "minecraft:type_family": {
+        "family": [ "bullet", "inanimate", "dm" ]
+      },
+      "minecraft:collision_box": {
+        "width": 0.18,
+        "height": 0.18
+      },
+		"minecraft:timer": {
+		  "looping": true,
+		  "randomInterval": false,
+		  "time": 0.25,
+		  "time_down_event": {
+		    "event": "minecraft:start_despawn"
+		  }
+            },
+
+            "minecraft:despawn": {
+                "filters": {
+                    "all_of": [{
+                            "any_of": [{
+                                    "test":
+                                    "is_family",
+                                    "subject": "self",
+                                    "value": "despawer_despawning"
+                                }
+                            ]
+                        }
+                    ]
+                }
+      },
+    "minecraft:projectile": {
+	"onHit": {
+	"impact_damage": {
+	 "damage": 100,
+	"knockback": true,
+	"semirandomdiffdamage": true,
+	"destroyonhit": true
+	},
+        "mob_effect": {
+          "effect": "slowness",
+          "durationeasy": 40,
+          "durationnormal": 40,
+          "durationhard": 40,
+          "amplifier": 4
+          },
+          "remove_on_hit": { 
+          }
+        },
+        "liquid_inertia": 1.8,
+        "power": 1,
+        "gravity": 0,
+     "uncertaintyBase": 18,
+     "uncertaintyMultiplier": 9,
+        "angleoffset": 0.0,
+        "reflect_on_hurt": true,
+        "anchor": 1,
+        "offset": [ 0, -0.1, 0 ],
+        "inertia": 1.8,
+        "catch_fire": false
+      },
+	    "minecraft:physics": {
+	    }
+        },
+        "events": {
+            "minecraft:explode": {
+                "add": {
+                    "component_groups": ["minecraft:exploding"]
+                }
+            },
+            "minecraft:start_despawn": {
+                "add": {
+                    "component_groups": ["despawning","summon"]
+                }
+            }
+        }
+    }
+}

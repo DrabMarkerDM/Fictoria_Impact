@@ -1,0 +1,27 @@
+	{
+	"format_version" : "1.10.0",
+   	"animation_controllers" : {
+		"controller.animation.dm34.sit" : {
+			"initial_state" : "default",
+			"states" : {
+				"default" : {
+					"animations" : [ "stand" ],
+					"transitions" : [
+						{
+							"sitting": "query.is_powered"
+						}
+					]
+				},
+				"sitting" : {
+					"animations" : [ "sitting" ],
+					"transitions" : [
+						{
+							"default": "!query.is_powered"
+						}
+					]
+				}
+			}
+		}
+   	}
+}
+	

@@ -1,0 +1,93 @@
+{
+  "format_version": "1.12.0",
+  "minecraft:entity": {
+    "description": {
+     "identifier": "bullet:boss3",
+      "runtime_identifier": "minecraft:snowball",
+      "is_spawnable": false,
+      "is_summonable": true,
+      "is_experimental": false
+    },
+		"component_groups": {
+			"minecraft:exploding": {
+				"minecraft:explode": {
+					"fuseLength": 0,
+					"fuseLit": true,
+					"power": 0.1,
+					"causesFire": false,
+					"destroyAffectedByGriefing": true
+                }
+            },
+            "despawning": {
+                "minecraft:type_family": {
+                    "family": ["despawer", "despawer_despawning", "demon"
+                    ]
+                }
+            }
+    },
+    "components": {
+    "minecraft:type_family": {
+        "family": [ "bullet", "inanimate", "demon" ]
+      },
+      "minecraft:collision_box": {
+        "width": 0.01,
+        "height": 0.01
+    },
+		"minecraft:timer": {
+		  "looping": true,
+		  "randomInterval": false,
+		  "time": 0.25,
+		  "time_down_event": {
+		    "event": "minecraft:start_despawn"
+		  }
+		},
+            "minecraft:despawn": {
+                "filters": {
+                    "all_of": [{
+                            "any_of": [{
+                                    "test":
+                                    "is_family",
+                                    "subject": "self",
+                                    "value": "despawer_despawning"
+                                }
+                            ]
+                        }
+                    ]
+                }
+      },
+    "minecraft:projectile": {
+	"onHit": {
+	"impact_damage": {
+	"damage": 27,
+	"knockback": true,
+	"semirandomdiffdamage": false,
+    "destroyonhit": false
+          }
+        },
+        "liquid_inertia": 1.8,
+        "power": 1,
+        "gravity": 0,
+        "stop_on_hurt": false,
+        "multiple_targets": true,
+        "angleoffset": 0.0,
+        "reflect_on_hurt": true,
+        "anchor": 1,
+        "uncertaintyBase": 10,
+        "uncertaintyMultiplier": 5,
+      "offset": [ 0, -0.1, 0 ],
+        "inertia": 1.8
+      },
+	    "minecraft:physics": {
+	    }
+	    },
+		"events": {
+			"minecraft:start_despawn": {
+				"add": {
+					"component_groups": [
+						"despawning"
+					]
+				}
+			}
+		}
+	}
+}

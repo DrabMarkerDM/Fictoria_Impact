@@ -1,0 +1,28 @@
+{
+  "format_version": "1.10.0",
+  "minecraft:client_entity": {
+    "description": {
+      "identifier": "player:dm61_1",
+      "materials": {
+        "default": "spider",
+        "sss": "wither_boss_armor"
+      },
+      "textures": {
+        "default": "textures/entity/player/dm61_rpp/dm61_sss"
+      },
+      "geometry": {
+        "default": "geometry.dm61_block"
+      },
+      "animations": {
+        "general": "null"
+      },
+      "scripts": {
+        "animate": [
+          "null"
+        ],
+        "scale": "2.0"
+      },
+      "render_controllers": [ "controller.render.dm61_block" ]
+    }
+  }
+}

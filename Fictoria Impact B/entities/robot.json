@@ -1,0 +1,213 @@
+{
+  "format_version": "1.8.0",
+  "minecraft:entity": {
+    "description": {
+      "identifier": "mob:robot",
+      "is_spawnable": true,
+      "is_summonable": true,
+      "is_experimental": false,
+                         "scripts":{"animate":[
+"tag"
+]},"animations":{
+"tag":"controller.animation.tag"
+  }
+    },
+        "component_groups": {
+            "despawning": {
+                "minecraft:type_family": {
+                    "family": ["despawer", "despawer_despawning"
+                    ]
+                }
+            }
+    },
+    "components": {
+      "minecraft:type_family": {
+        "family": [ "robot", "dm", "inanimate", "mp" ]
+      },
+      "minecraft:breathable": {
+        "total_supply": 58,
+        "suffocate_time": 0,
+        "breathes_air": true,
+        "breathes_water": true
+      },
+      "minecraft:interact": [
+        {
+          "on_interact": {
+            "filters": {
+              "all_of": [
+                {
+                  "test": "is_family",
+                  "subject": "other",
+                  "value": "player"
+                },
+                {
+                  "test": "has_equipment",
+                  "subject": "other",
+                  "domain": "hand",
+                  "value": "items:remove"
+                }
+              ]
+            },
+            "event": "die"
+          },
+          "interact_text": "remove",
+          "use_item": false,
+          "spawn_items": {
+            "table": "loot_tables/remove.json"
+          }
+        }
+      ],
+      "minecraft:collision_box": {
+        "width": 1.2,
+        "height": 1.2
+      },
+      "minecraft:despawn": {
+        "filters": {
+          "all_of": [
+            {
+              "any_of": [
+                {
+                  "test": "is_family",
+                  "subject": "self",
+                  "value": "despawer_despawning"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "minecraft:fire_immune": {
+      },
+      "minecraft:damage_sensor": {
+        "triggers": [
+          {
+            "cause": "magic",
+            "deals_damage": false,
+            "on_damage": {
+              "event": "null"
+            }
+          },
+          {
+            "cause": "fall",
+            "deals_damage": false,
+            "on_damage": {
+              "event": "null"
+            }
+          },
+          {
+            "on_damage": {
+              "filters": {
+                "test": "is_family",
+                "subject": "other",
+                "value": "dm"
+              }
+            },
+            "deals_damage": false
+          }
+        ]
+      },
+      "minecraft:health": {
+        "value": 50,
+        "max": 50
+      },
+      "minecraft:loot": {
+        "table": "loot_tables/remove.json"
+      },
+      "minecraft:movement": {
+        "value": 0.0000000000000000001
+      },
+      "minecraft:navigation.walk": {
+        "can_float": false,
+        "avoid_water": false,
+        "is_amphibious": false,
+        "avoid_damage_blocks": false
+      },
+      "minecraft:movement.basic": {
+      },
+      "minecraft:attack": {
+        "damage": 1
+      },
+      "minecraft:knockback_resistance": {
+        "value": 2.0
+
+
+      },
+      "minecraft:behavior.ranged_attack": {
+        "priority": 1,
+        "speed_multiplier": 0.94,
+        "attack_interval_min": 0.04,
+        "attack_interval_max": 0.06,
+        "burst_shots": 100,
+        "burst_interval": 0.05,
+        "charge_charged_trigger": 0.0,
+        "charge_shoot_trigger": 0.6,
+        "attack_radius": 44
+      },
+      "minecraft:shooter": {
+        "def": "bullet:fast_bullet"
+      },
+      "minecraft:behavior.nearest_attackable_target": {
+        "priority": 0,
+        "reselect_targets": true,
+        "entity_types": [
+          {
+            "filters": {
+              "any_of": [
+                {
+                  "test": "is_family",
+                  "subject": "other",
+                  "value": "demon"
+                },
+                {
+                  "test": "is_family",
+                  "subject": "other",
+                  "value": "monster"
+                },
+                {
+                  "test": "is_family",
+                  "subject": "other",
+                  "value": "dragon"
+                },
+                {
+                  "test": "is_family",
+                  "subject": "other",
+                  "value": "zoglin"
+                },
+                {
+                  "test": "is_family",
+                  "subject": "other",
+                  "value": "hoglin"
+                }
+              ]
+            },
+            "max_dist": 44
+          }
+        ],
+        "must_see": true,
+        "must_see_forget_duration": 11.0
+      },
+      "minecraft:follow_range": {
+        "value": 44
+      },
+      "minecraft:behavior.look_at_target": {
+        "priority": 2,
+        "look_distance": 44,
+        "probability": 0.06
+
+      },
+      "minecraft:physics": {
+      },
+      "minecraft:pushable": {
+        "is_pushable": false,
+        "is_pushable_by_piston": true
+      }
+    },
+        "events": {
+          "die": {
+                "add": {
+                    "component_groups": ["despawning"]
+                }
+            }
+        }
+    }
+}

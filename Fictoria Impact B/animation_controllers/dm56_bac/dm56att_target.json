@@ -1,0 +1,27 @@
+{"format_version":"1.8.0",
+"animation_controllers":{
+"controller.animation.dm56att_target":{
+"states":{
+"default":{"transitions":[
+{"att":"variable.has_target"}
+
+]
+
+},
+"att": {
+					"transitions": [
+						{
+							"default": "variable.has_target"
+						}
+					],
+	"on_entry": [
+		"/effect @e[tag=!dm,type=!mob:dm56att,family=monster,r=4] wither 6 25 true",
+		"/effect @e[tag=!dm,type=!mob:dm56att,family=monster,r=4] slowness 6 4 true",
+		"/execute at @e[type=!mob:dm56att,tag=!dm,family=monster,r=4] run summon bullet:dm56att_roar ~~0.3~",
+		"/effect @e[tag=dm,r=6,c=6,family=!monster,family=!dm56,family=!inanimate,family=!mon3tr] strength 5 0 true"
+	]
+}
+}
+}
+}
+}

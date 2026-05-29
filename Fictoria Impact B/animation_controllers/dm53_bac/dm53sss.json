@@ -1,0 +1,27 @@
+{"format_version":"1.8.0",
+"animation_controllers":{
+"controller.animation.dm53sss":{
+"states":{
+"default":{"transitions":[
+{"att":"query.variant == 2"}
+
+]
+
+},
+"att": {
+					"transitions": [
+						{
+							"default": "query.variant == 2"
+						}
+					],
+"on_entry": [ "/effect @e[tag=!dm,type=!player:dm53,family=monster,r=48] weakness 5 255 true",
+"/effect @e[tag=!dm,type=!player:dm53,family=monster,r=48] slowness 5 255 true",
+"/effect @e[tag=!dm,type=!player:dm53,family=monster,r=48] wither 5 255 true",
+"/effect @e[tag=!dm,type=!player:dm53,family=monster,r=48] fatal_poison 5 255 true",
+"/effect @e[tag=dm,r=48,family=!monster] instant_health 1 0 true"
+]
+}
+}
+}
+}
+}

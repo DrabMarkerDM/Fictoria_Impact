@@ -1,0 +1,27 @@
+{"format_version":"1.8.0",
+"animation_controllers":{
+"controller.animation.sweep":{
+"states":{
+"default":{"transitions":[
+{"attack":"query.is_delayed_attacking"}
+
+]
+
+},
+"attack": {
+					"transitions": [
+						{
+							"default": "!query.is_delayed_attacking"
+						}
+					],
+	"on_entry": [
+		"/execute positioned ^ ^ ^3 run execute at @e[type=!player:dm33,r=6,family=monster] run summon bullet:dark_attack ~~0.3~",
+		"/particle dm:sweep_sword ^ ^2 ^2",
+		"/scoreboard players add @e[type=player:dm33] dm33 1",
+		"/event entity @e[scores={dm33=15..}] sss"
+	]
+}
+}
+}
+}
+}

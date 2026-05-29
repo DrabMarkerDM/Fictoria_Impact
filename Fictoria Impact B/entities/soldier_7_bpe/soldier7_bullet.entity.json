@@ -1,0 +1,89 @@
+{
+  "format_version": "1.12.0",
+  "minecraft:entity": {
+    "description": {
+      "identifier": "bullet:soldier7_bullet",
+      "runtime_identifier": "minecraft:snowball",
+      "is_spawnable": false,
+      "is_summonable": true,
+      "is_experimental": false
+    },
+    "component_groups": {
+      "minecraft:exploding": {
+        "minecraft:explode": {
+          "fuseLength": 0,
+          "fuseLit": true,
+          "power": 0.2,
+          "causesFire": false,
+          "fire_affected_by_griefing": true,
+          "destroy_affected_by_griefing": true
+        }
+      },
+      "despawning": {
+        "minecraft:instant_despawn": {
+          "remove_child_entities": false
+        }
+      }
+    },
+    "components": {
+      "minecraft:type_family": {
+        "family": [ "bullet", "inanimate", "demon" ]
+      },
+      "minecraft:collision_box": {
+        "width": 0.28,
+        "height": 0.28
+      },
+      "minecraft:despawn": {
+        "despawn_from_distance": {
+          "max_distance": 38,
+          "min_distance": 38
+        }
+      },
+      "minecraft:spawn_entity": [
+        {
+          "min_wait_time": 0,
+          "max_wait_time": 0,
+          "single_use": true,
+          "spawn_entity": "null:null",
+          "spawn_sound": "fire",
+          "num_to_spawn": 1
+        }
+      ],
+      "minecraft:projectile": {
+        "onHit": {
+          "impact_damage": {
+            "damage": [ 16, 17 ],
+            "knockback": true,
+            "semirandomdiffdamage": false,
+            "destroyonhit": false
+          }
+        },
+        "hit_sound": "gun.hit",
+        "liquid_inertia": 1,
+        "power": 1.5,
+        "gravity": 0,
+        "uncertaintyBase": 18,
+        "uncertaintyMultiplier": 8,
+        "angleoffset": 0.0,
+        "reflect_on_hurt": true,
+        "anchor": 1,
+        "offset": [ 0, -0.1, 0 ],
+        "inertia": 2
+      },
+      "minecraft:physics": {
+      }
+    },
+    "events": {
+      "minecraft:explode": {
+        "add": {
+          "component_groups": [ "minecraft:exploding" ]
+        }
+      },
+      "minecraft:start_despawn": {
+        "add": {
+          "component_groups": [ "despawning" ]
+        }
+      }
+    }
+  }
+}

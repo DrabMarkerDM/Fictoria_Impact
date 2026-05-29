@@ -1,0 +1,36 @@
+{
+	"format_version": "1.8.0",
+	"animations": {
+		"animation.dm_sleep": {
+			"loop": true,
+			"override_previous_animation": true,
+			"bones": {
+				"head": {
+					"rotation": [
+						"30.0 - this",
+						"-this",
+						"-this"
+					]
+				},
+				"root": {
+					"rotation": [
+						-90,
+						0,
+						0
+					],
+					"position": [
+						0,
+						0,
+						-13.5
+					]
+				},
+				"rightItem": {
+					"scale": 0
+				},
+				"leftItem": {
+					"scale": 0
+				}
+			}
+		}
+	}
+}

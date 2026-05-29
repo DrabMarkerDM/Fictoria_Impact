@@ -1,0 +1,25 @@
+{
+	"format_version": "1.10.0",
+	"animation_controllers": {
+		"controller.animation.dm8_sword": {
+			"initial_state": "default",
+			"states": {
+				"ratt": {
+					"animations": [ "sword" ],
+					"transitions": [
+						{
+							"default": "query.variant == 3 && query.property('dm8:test') == 'satt'"
+						}
+					]
+				},
+				"default": {
+					"transitions": [
+						{
+							"ratt": "query.variant != 3 || query.property('dm8:test') != 'satt'"
+						}
+					]
+				}
+			}
+		}
+	}
+}

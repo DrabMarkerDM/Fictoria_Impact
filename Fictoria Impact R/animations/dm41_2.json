@@ -1,0 +1,18 @@
+{
+  "format_version": "1.8.0",
+  "animations": {
+    "animation.dm41_2": {
+      "loop": true,
+      "bones": {
+    	"body" : {
+			"rotation" : [  0.0, "math.sin(math.sqrt(variable.attack_time) * 360) * 11.46 - this", 0.0  ]
+				},
+			"leftarm" : {
+				"rotation" : [ "-(math.sin((1 - math.pow((1 - variable.attack_time), 4)) * 180) * 1.2 + math.sin(variable.attack_time * 180)) * 10.0", 0.0, 0.0 ]
+				},
+			"rightarm" : {							"rotation" :  [ "-(math.sin((1 - math.pow((1 - variable.attack_time), 4)) * 280) * 1.2 + math.sin(variable.attack_time * 120)) * 30.0", "-(math.sin((1 - math.pow((1 - variable.attack_time), 4)) * 90) ? (-90.0 * math.sin((1 - math.pow((1 - variable.attack_time), 4)) * 180)) + 30.0 : 0.0)", 0.0 ]
+				}
+			}
+         }
+        }
+      }

@@ -1,0 +1,16 @@
+{
+	"format_version": "1.8.0",
+	"animations": {
+		"animation.bomb_soldier": {
+			"loop": "hold_on_last_frame",
+			"bones": {
+				"leftArm": {
+					"rotation": [ "-75.13666 +query.target_x_rotation - this", "53.70187 +query.target_y_rotation - this", "14.27508 - this" ]
+				},
+				"rightArm": {
+					"rotation": [ "-92.50954 +query.target_x_rotation - this", "-4.99523 +query.target_y_rotation - this", "0.21865 - this" ]
+				}
+			}
+		}
+	}
+}

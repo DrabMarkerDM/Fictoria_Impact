@@ -1,0 +1,27 @@
+	{
+	"format_version" : "1.10.0",
+   	"animation_controllers" : {
+		"controller.animation.player.sit" : {
+			"initial_state" : "default",
+			"states" : {
+				"default" : {
+					"animations" : [ "stand" ],
+					"transitions" : [
+						{
+							"sitting" : "query.is_sitting"
+						}
+					]
+				},
+				"sitting" : {
+					"animations" : [ "sitting" ],
+					"transitions" : [
+						{
+							"default" : "!query.is_sitting"
+						}
+					]
+				}
+			}
+		}
+   	}
+}
+	

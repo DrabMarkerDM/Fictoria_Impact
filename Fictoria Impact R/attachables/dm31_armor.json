@@ -1,0 +1,26 @@
+{
+	"format_version": "1.10.0",
+	"minecraft:attachable": {
+		"description": {
+			"identifier": "armor:dm31_armor",
+			"item": {
+				"armor:dm31_armor": "query.owner_identifier == 'player:dm31'"
+			},
+			"materials": {
+				"default": "wither_boss_armor"
+			},
+			"textures": {
+				"default": "textures/entity/player/dm31_rpp/dm31_1"
+			},
+			"geometry": {
+				"default": "geometry.dm31"
+			},
+			"scripts": {
+				"parent_setup": "variable.chest_layer_visible = 0.0;"
+			},
+			"render_controllers": [
+				"controller.render.player_dusted"
+			]
+		}
+	}
+}

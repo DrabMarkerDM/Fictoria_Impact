@@ -1,0 +1,24 @@
+{"format_version":"1.8.0",
+"animation_controllers":{
+"controller.animation.dm52die":{
+"states":{
+"default":{"transitions":[
+{"att":"query.variant == 2"}
+
+]
+
+},
+"att": {
+					"transitions": [
+						{
+							"default": "query.variant != 2"
+						}
+					],
+"on_entry": [
+"/kill @e[type=mob:mon3tr]"
+]
+}
+}
+}
+}
+}

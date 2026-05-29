@@ -1,0 +1,26 @@
+{"format_version":"1.8.0",
+"animation_controllers":{
+"controller.animation.dm45sss":{
+"states":{
+"default":{"transitions":[
+{"att":"query.is_powered"}
+
+]
+
+},
+"att": {
+					"transitions": [
+						{
+							"default": "query.is_powered"
+						}
+					],
+	"on_entry": [
+		"/execute at @e[r=38,c=12,family=monster] run summon lightning_bolt ~~~",
+		"/damage @e[tag=!dm,family=monster,r=38,c=12] 64 magic entity @s",
+		"/effect @e[tag=!dm,family=monster,r=38,c=12] slowness 6 5 true"
+	]
+}
+}
+}
+}
+}

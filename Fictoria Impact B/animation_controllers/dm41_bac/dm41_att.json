@@ -1,0 +1,24 @@
+{"format_version":"1.8.0",
+"animation_controllers":{
+"controller.animation.dm41_att":{
+"states":{
+"default":{"transitions":[
+{"attack":"query.is_delayed_attacking && query.variant == 1"}
+
+]
+
+},
+"attack": {
+					"transitions": [
+						{
+							"default": "!query.is_delayed_attacking || query.variant != 1"
+						}
+					],
+"on_entry": ["/scoreboard players add @s dm41att 1",
+"/event entity @e[scores={dm41att=6..}] a2"
+]
+}
+}
+}
+}
+}

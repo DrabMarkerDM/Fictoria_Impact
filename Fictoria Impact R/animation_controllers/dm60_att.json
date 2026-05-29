@@ -1,0 +1,94 @@
+{
+	"format_version": "1.10.0",
+	"animation_controllers": {
+		"controller.animation.dm60att": {
+			"initial_state": "default",
+			"states": {
+				"bow": {
+					"animations": [
+						"bow_and_arrow"
+					],
+					"transitions": [
+						{
+							"default": "!query.has_target || query.get_equipped_item_name != 'dm60'"
+						},
+						{
+							"att": "query.is_delayed_attacking"
+						},
+						{
+							"charge": "query.get_equipped_item_name == 'dm60_1'"
+						},
+						{
+							"brand": "query.variant == 3 && query.is_delayed_attacking"
+						}
+					]
+				},
+				"charge": {
+					"animations": [
+						"charging"
+					],
+					"transitions": [
+						{
+							"default": "!query.has_target || query.get_equipped_item_name != 'dm60_1'"
+						},
+						{
+							"att": "query.is_delayed_attacking"
+						},
+						{
+							"bow": "query.get_equipped_item_name == 'dm60'"
+						},
+						{
+							"brand": "query.variant == 3 && query.is_delayed_attacking"
+						}
+					]
+				},
+				"brand": {
+					"animations": [
+						"brandish_spear"
+					],
+					"transitions": [
+						{
+							"default": "query.all_animations_finished"
+						}
+					]
+				},
+				"att": {
+					"animations": [
+						"attack.rotations"
+					],
+					"transitions": [
+						{
+							"bow": "query.has_target && !query.is_delayed_attacking && query.get_equipped_item_name == 'dm60'"
+						},
+						{
+							"default": "!query.is_delayed_attacking"
+						},
+						{
+							"charge": "query.has_target && !query.is_delayed_attacking && query.get_equipped_item_name == 'dm60_1'"
+						},
+						{
+							"brand": "query.variant == 3 && query.is_delayed_attacking"
+						}
+					]
+				},
+				"default": {
+					"transitions": [
+						{
+							"bow": "query.has_target && !query.is_delayed_attacking && query.get_equipped_item_name == 'dm60'"
+						},
+						{
+							"att": "query.is_delayed_attacking"
+						},
+						{
+							"charge": "query.has_target && !query.is_delayed_attacking && query.get_equipped_item_name == 'dm60_1'"
+						},
+						{
+							"brand": "query.variant == 3 && query.is_delayed_attacking"
+
+						}
+					]
+				}
+			}    
+		}
+	}
+}

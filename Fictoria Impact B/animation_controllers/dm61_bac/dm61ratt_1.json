@@ -1,0 +1,27 @@
+{"format_version":"1.8.0",
+	"animation_controllers": {
+		"controller.animation.dm61ratt_1": {
+			"states": {
+				"default": {
+					"transitions": [
+						{ "att": "query.variant == 0" }
+
+					]
+
+				},
+				"att": {
+					"transitions": [
+						{
+							"default": "query.variant == 0"
+						}
+					],
+					"on_entry": [
+						"/damage @e[tag=!dm,family=monster,r=8] 161 magic entity @e[type=player:dm61,c=1]",
+						"/execute at @e[tag=!dm,family=monster,r=8] run particle dm:dm61_hit ~~1~",
+						"/effect @e[tag=!dm,family=monster,r=8] slowness 2 255"
+					]
+				}
+			}
+		}
+	}
+}

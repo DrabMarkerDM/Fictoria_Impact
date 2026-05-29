@@ -1,0 +1,24 @@
+{"format_version":"1.8.0",
+"animation_controllers":{
+"controller.animation.dm62skill_2":{
+"states":{
+"default":{"transitions":[
+	{ "attack": "variable.attack_time >= 0.001 && query.variant == 2 " }
+
+]
+
+},
+"attack": {
+					"transitions": [
+						{
+							"default": "variable.attack_time < 0.001 || query.variant != 2 "
+						}
+					],
+	"on_entry": [
+		"@s skill"
+	]
+}
+}
+}
+}
+}

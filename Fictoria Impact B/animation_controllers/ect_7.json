@@ -1,0 +1,8 @@
+{
+  "format_version": "1.8.0",
+  "animation_controllers": {
+    "controller.animation.ect_7": {
+      "states": { "default": { "on_entry": [ "/effect @s regeneration 9999999 7 true" ] } }
+    }
+  }
+}

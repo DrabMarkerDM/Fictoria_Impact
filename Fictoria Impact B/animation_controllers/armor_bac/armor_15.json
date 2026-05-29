@@ -1,0 +1,14 @@
+{
+  "format_version": "1.8.0",
+  "animation_controllers": {
+    "controller.animation.armor_15": {
+      "states": {
+        "default": {
+          "on_entry": [            
+            "/replaceitem entity @s slot.armor.chest 1 armor:dm_armor_15 1"    
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "format_version": "1.8.0",
+  "animations": {
+		"animation.dm25_move_1" : {
+			"loop" : true,
+			"bones" : {
+			    "rightarm" : {
+					"rotation" : [ "variable.tcos0", 0.0, 0.0 ]
+				}
+			}
+         }
+        }
+         }
+
+  
+

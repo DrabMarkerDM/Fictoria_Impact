@@ -1,0 +1,25 @@
+{
+	"format_version" : "1.10.0",
+	"animation_controllers" : {
+		"controller.animation.dm44" : {
+			"initial_state" : "default",
+			"states" : {
+				"attacking" : {
+					"animations" : [ "charging" ],
+					"transitions" : [
+						{
+							"default" : "!query.is_delayed_attacking || !query.variant == 2"
+						}
+					]
+				},
+				"default" : {
+					"transitions" : [
+						{
+							"attacking" : "query.is_delayed_attacking && query.variant == 2"
+						}
+          ]
+        }
+      }
+    }
+  }
+}

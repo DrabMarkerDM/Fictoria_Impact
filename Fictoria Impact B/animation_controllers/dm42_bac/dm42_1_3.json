@@ -1,0 +1,26 @@
+{"format_version":"1.8.0",
+"animation_controllers":{
+"controller.animation.dm42_1_3":{
+"states":{
+"default":{"transitions":[
+{"attack":"query.is_delayed_attacking && query.variant == 3"}
+
+]
+
+},
+"attack": {
+					"transitions": [
+						{
+							"default": "!query.is_delayed_attacking || query.variant != 3"
+						}
+					],
+"on_entry": [
+"/scoreboard players set @s dm42att2 0",
+"/scoreboard players add @s dm42att3 1",
+"/event entity @e[scores={dm42att3=3..}] d4"
+]
+}
+}
+}
+}
+}

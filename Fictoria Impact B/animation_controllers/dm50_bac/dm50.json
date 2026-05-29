@@ -1,0 +1,23 @@
+{"format_version":"1.8.0",
+"animation_controllers":{
+"controller.animation.dm50":{
+"states":{
+"default":{"transitions":[
+{"att":"query.variant == 1"}
+
+]
+
+},
+"att": {
+					"transitions": [
+						{
+							"default": "query.variant != 1"
+						}
+					],
+"on_entry": ["/execute at @e[type=!player:dm50,tag=!dm,family=monster,r=200,c=4] run summon bullet:dm50_ex ~~0.3~"
+]
+}
+}
+}
+}
+}

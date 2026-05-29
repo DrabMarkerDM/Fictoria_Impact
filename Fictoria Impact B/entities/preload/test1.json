@@ -1,0 +1,40 @@
+{
+  "format_version": "1.16.0",
+  "minecraft:entity": {
+    "description": {
+      "identifier": "player:pre_test1",
+      "runtime_identifier": "minecraft:arrow",
+      "is_spawnable": true,
+      "is_summonable": true,
+      "is_experimental": false
+    },
+    "components": {
+      "minecraft:projectile": {
+        "on_hit": {
+          "definition_event": {
+            "event_trigger": {
+              "event": "a"
+            }
+          }
+        }
+      }
+    },
+    "component_groups": {
+      "a": {
+        "minecraft:transformation": {
+          "into": "player:test1",
+          "keep_owner": true
+        }
+      }
+    },
+    "events": {
+      "a": {
+        "add": {
+          "component_groups": [
+            "a"
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "format_version": "1.8.0",
+  "render_controllers": {
+    "controller.render.dm61_1": {
+      "geometry": "Geometry.skill",
+      "materials": [ { "*": "Material.skill" } ],
+      "part_visibility": [
+        { "*": "query.is_delayed_attacking && query.mark_variant == 2" }
+      ],
+      "textures": [ "Texture.default" ]
+    }
+  }
+}

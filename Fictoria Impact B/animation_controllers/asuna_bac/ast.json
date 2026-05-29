@@ -1,0 +1,26 @@
+{"format_version":"1.8.0",
+"animation_controllers":{
+"controller.animation.ast":{
+"states":{
+"default":{"transitions":[
+{"att":"variable.has_target"}
+
+]
+
+},
+"att": {
+					"transitions": [
+						{
+							"default": "variable.has_target"
+						}
+					],
+"on_entry": [
+"/execute if entity @e[type=player:kirito,r=16] run effect @e[family=sao] strength 4 3 true",
+"/execute if entity @e[type=player:kirito,r=16] run effect @e[family=sao] speed 5 2 true",
+"/execute if entity @e[type=player:kirito,r=16] run effect @e[family=sao] health_boost 5 10 true",
+"/execute if entity @e[type=player:kirito,r=16] run effect @e[family=sao] instant_health 5 1 true" ]
+}
+}
+}
+}
+}

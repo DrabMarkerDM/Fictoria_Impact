@@ -1,0 +1,16 @@
+{
+	"format_version": "1.8.0",
+	"animations": {
+		"animation.dm45sss": {
+			"loop": true,
+			"bones": {
+				"leftArm": {
+					"rotation": ["-20 - this", "-101 - this", "-82.5 - this"]
+				},
+				"rightArm": {
+					"rotation": ["-20 - this", "101 - this", "82.5 - this"]
+				}
+			}
+		}
+	}
+}

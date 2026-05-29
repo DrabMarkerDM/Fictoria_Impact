@@ -1,0 +1,11 @@
+{
+  "resource_pack_name": "Undefined World",
+  "texture_name": "atlas.terrain",
+  "padding": 1,
+  "num_mip_levels": 4,
+  "texture_data": {
+    "none": {
+      "textures": "textures/block/none"
+    }
+  }
+}

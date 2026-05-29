@@ -1,0 +1,192 @@
+{
+  "format_version": "1.16.0",
+  "minecraft:entity": {
+    "description": {
+      "identifier": "mob:hug_maid",
+      "is_spawnable": false,
+      "is_summonable": true,
+      "is_experimental": false,
+      "scripts": {
+        "animate": [
+          "air",
+          "test"
+        ]
+      },
+      "animations": {
+        "air": "controller.animation.hug_maid",
+        "test": "controller.animation.hug_maid_test"
+      }
+    },
+    "component_groups": {
+      "despawning": {
+        "minecraft:type_family": {
+          "family": [
+            "despawer",
+            "despawer_despawning"
+          ]
+        }
+      },
+      "test": {
+        "minecraft:variant": {
+          "value": 1
+        }
+      }
+    },
+    "components": {
+      "minecraft:type_family": {
+        "family": [ "dm", "parrot_tame" ]
+      },
+      "minecraft:breathable": {
+        "total_supply": 58,
+        "suffocate_time": 0,
+        "breathes_air": true,
+        "breathes_water": true
+      },
+
+      "minecraft:despawn": {
+        "filters": {
+          "all_of": [
+            {
+              "any_of": [
+                {
+                  "test": "is_family",
+                  "subject": "self",
+                  "value": "despawer_despawning"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "minecraft:nameable": {
+      },
+      "minecraft:collision_box": {
+        "width": 0.001,
+        "height": 0.001
+      },
+      "minecraft:custom_hit_test": {
+        "hitboxes": [
+          {
+            "width": 2,
+            "height": 2,
+            "pivot": [
+              0,
+              0,
+              0
+            ]
+          }
+        ]
+      },
+      "minecraft:rideable": {
+        "controlling_seat": 0,
+        "crouching_skip_interact": true,
+        "family_types": [ "maid" ],
+        "interact_text": "",
+        "pull_in_entities": false,
+        "rider_can_interact": false,
+        "seat_count": 1,
+        "seats": [
+          {
+            "position": [ -0.4, 0.2, 0.1 ],
+            "lock_rider_rotation": 0,
+            "rotate_rider_by": 0
+          }
+        ]
+      },
+      "minecraft:health": {
+        "value": 5000,
+        "max": 5000
+      },
+      "minecraft:interact": {
+        "interactions": [
+          {
+            "cooldown": 1.5,
+            "use_item": false,
+            "interact_text": "action.interact.maid",
+            "vibration": "none",
+            "on_interact": {
+              "filters": {
+                "all_of": [
+                  {
+                    "test": "has_equipment",
+                    "subject": "other",
+                    "domain": "hand",
+                    "value": "minecraft:saddle"
+                  },
+                  {
+                    "test": "is_family",
+                    "subject": "other",
+                    "value": "player"
+                  }
+                ]
+              },
+              "event": "put_down",
+              "target": "self"
+            }
+          }
+        ]
+      },
+      "minecraft:movement": {
+        "value": 0
+      },
+      "minecraft:fire_immune": {
+      },
+      "minecraft:knockback_resistance": {
+        "value": 2.0
+      },
+      "minecraft:damage_sensor": {
+        "triggers": {
+          "cause": "all",
+          "deals_damage": false
+        }
+      },
+      "minecraft:spell_effects": {
+        "add_effects": [
+          {
+            "effect": "instant_health",
+            "amplifier": 255,
+            "visible": false,
+            "ambient": false,
+            "duration": 999999
+          },
+          {
+            "effect": "resistance",
+            "amplifier": 255,
+            "visible": false,
+            "ambient": false,
+            "duration": 999999
+          }
+        ]
+      },
+      "minecraft:physics": {
+        "has_gravity": false,
+        "has_collision": false
+      },
+      "minecraft:pushable": {
+        "is_pushable": false,
+        "is_pushable_by_piston": false
+      }
+    },
+    "events": {
+      "minecraft:entity_spawned": {
+      },
+      "die": {
+        "add": {
+          "component_groups": [ "despawning" ]
+        }
+      },
+      "test": {
+        "add": {
+          "component_groups": [ "test" ]
+        }
+      },
+      "put_down": {
+        "queue_command": {
+          "command": [
+            "event entity @e[family=maid,tag=dm,c=1] ride_test"
+          ]
+        }
+      }
+    }
+  }
+}

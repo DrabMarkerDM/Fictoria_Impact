@@ -1,0 +1,8 @@
+{
+  "format_version": "1.8.0",
+  "animation_controllers": {
+    "controller.animation.hug_maid": {
+      "states": { "default": { "on_entry": [ "/ride @s start_riding @p" ] } }
+    }
+  }
+}

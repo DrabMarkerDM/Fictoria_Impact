@@ -1,0 +1,64 @@
+{
+  "format_version": "1.10.0",
+  "animation_controllers": {
+   "controller.animation.dm34.light_detector": {
+      "initial_state": "default",
+      "states": {
+        "default": {
+          "transitions": [
+            { "glow_pulse_a": "query.is_item_name_any('slot.inventory', 1, 'minecraft:torch')" }
+          ],
+          "on_entry": [ "/tag @s remove is_lighting" ]
+        },
+        "glow_pulse_a": {
+          "on_entry": [ 
+            "/tag @s add is_lighting",
+            "/function dynamic_light" 
+          ],
+          "transitions": [
+            { "cleanup": "!query.is_item_name_any('slot.inventory', 1, 'minecraft:torch')" },
+            { "glow_pulse_b": "1.0" }
+          ]
+        },
+        "glow_pulse_b": {
+          "on_entry": [ "/function dynamic_light" ],
+          "transitions": [
+            { "cleanup": "!query.is_item_name_any('slot.inventory', 1, 'minecraft:torch')" },
+            { "glow_pulse_a": "1.0" }
+          ]
+        },
+        "cleanup": {
+          "on_entry": [ 
+            "/fill ~-2 ~-1 ~-2 ~2 ~3 ~2 air replace block:dm_light_1",
+            "/tag @s remove is_lighting"
+          ],
+          "transitions": [ { "default": "1.0" } ]
+        }
+      }
+    },
+    "controller.animation.dm34.with_dynamic_light": {
+      "initial_state": "default",
+      "states": {
+        "default": {
+          "transitions": [ { "active": "query.has_tag('has_torch')" } ]
+        },
+        "active": {
+          "transitions": [ { "default": "!query.has_tag('has_torch')" }, { "active": "1.0" } ],
+          "on_entry": [ "/function dynamic_light" ]
+        }
+      }
+    },
+    "controller.animation.dm34.without_dynamic_light": {
+      "initial_state": "default",
+      "states": {
+        "default": {
+          "transitions": [ { "active": "!query.has_tag('has_torch')" } ]
+        },
+        "active": {
+          "transitions": [ { "default": "query.has_tag('has_torch')" } ],
+          "on_entry": [ "/fill ~-1 ~-1 ~-1 ~1 ~2 ~1 air replace block:dm_light_1" ]
+        }
+      }
+    }
+  }
+}

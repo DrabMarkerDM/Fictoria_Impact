@@ -1,0 +1,123 @@
+{
+  "format_version": "1.12.0",
+  "minecraft:entity": {
+    "description": {
+      "identifier": "bullet:dm61_bullet_1",
+      "runtime_identifier": "minecraft:snowball",
+      "is_spawnable": false,
+      "is_summonable": true,
+      "is_experimental": false,
+      "scripts": {
+        "animate": [
+          "buff"
+        ]
+      },
+      "animations": {
+        "buff": "controller.animation.dm61ratt_1"
+      }
+    },
+    "component_groups": {
+      "buff": {
+        "minecraft:variant": {
+          "value": 0
+        }
+      },
+      "despawning": {
+        "minecraft:type_family": {
+          "family": [
+            "despawer",
+            "despawer_despawning",
+            "dm"
+          ]
+        }
+      }
+    },
+    "components": {
+      "minecraft:type_family": {
+        "family": [ "bullet", "inanimate", "dm" ]
+      },
+      "minecraft:collision_box": {
+        "width": 0.1,
+        "height": 0.1
+      },
+      "minecraft:timer": {
+        "looping": true,
+        "randomInterval": false,
+        "time": 0.2,
+        "time_down_event": {
+          "event": "minecraft:start_despawn"
+        }
+      },
+      "minecraft:spawn_entity": [
+        {
+          "min_wait_time": 0,
+          "max_wait_time": 0,
+          "single_use": true,
+          "spawn_entity": "null:null",
+          "spawn_sound": "fire",
+          "num_to_spawn": 1
+        }
+      ],
+      "minecraft:despawn": {
+        "filters": {
+          "all_of": [
+            {
+              "any_of": [
+                {
+                  "test": "is_family",
+                  "subject": "self",
+                  "value": "despawer_despawning"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "minecraft:projectile": {
+        "onHit": {
+          "impact_damage": {
+            "knockback": true,
+            "semirandomdiffdamage": false,
+            "destroyonhit": false
+          },
+          "definition_event": {
+            "affectProjectile": true,
+            "eventTrigger": {
+              "event": "buff",
+              "target": "self"
+            }
+          }
+        },
+        "liquid_inertia": 2.5,
+        "power": 1,
+        "gravity": 0,
+        "stop_on_hurt": false,
+        "multiple_targets": true,
+        "angleoffset": 0.0,
+        "reflect_on_hurt": true,
+        "anchor": 1,
+        "offset": [ 0.45, -1.3, 1.2 ],
+        "inertia": 2.5,
+        "catch_fire": false
+      },
+      "minecraft:physics": {
+        "has_gravity": false,
+        "has_collision": false
+      }
+    },
+    "events": {
+      "minecraft:start_despawn": {
+        "add": {
+          "component_groups": [ "despawning" ]
+        }
+      },
+      "buff": {
+        "add": {
+          "component_groups": [
+            "buff"
+          ]
+        }
+      }
+    }
+  }
+}

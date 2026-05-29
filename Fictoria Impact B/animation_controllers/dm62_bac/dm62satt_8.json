@@ -1,0 +1,25 @@
+{"format_version":"1.8.0",
+"animation_controllers":{
+"controller.animation.dm62satt_8":{
+"states":{
+"default":{"transitions":[
+	{ "attack": "query.health <= 18 && query.health > 9 && query.variant == 2" }
+
+]
+
+},
+"attack": {
+					"transitions": [
+						{
+							"default": "query.health > 18 || query.health <= 9 || query.variant != 2"
+						}
+					],
+	"on_entry": [
+		"@s sa8",
+		"/effect @s absorption 0"
+	]
+}
+}
+}
+}
+}

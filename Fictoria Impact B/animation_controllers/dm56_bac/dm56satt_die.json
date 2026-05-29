@@ -1,0 +1,23 @@
+{"format_version":"1.8.0",
+"animation_controllers":{
+"controller.animation.dm56satt_die":{
+"states":{
+"default":{"transitions":[
+{"att":"query.mark_variant == 1"}
+
+]
+
+},
+"att": {
+					"transitions": [
+						{
+							"default": "query.mark_variant != 1"
+						}
+					],
+"on_entry": [ "/event entity @e[type=player:dm56] m_die"
+]
+}
+}
+}
+}
+}

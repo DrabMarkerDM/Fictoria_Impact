@@ -1,0 +1,22 @@
+{
+  "format_version": "1.18.10",
+  "animation_controllers": {
+    "controller.animation.dm8satt_reset": {
+      "states": {
+        "default": {
+          "transitions": [
+            { "satt": "q.property('dm8:test') == 'satt'" }
+          ]
+        },
+        "satt": {
+          "animations": [
+            "satt_timer"
+          ],
+          "transitions": [
+            { "default": "q.property('dm8:test') != 'satt'" }
+          ]
+        }
+      }
+    }
+  }
+}

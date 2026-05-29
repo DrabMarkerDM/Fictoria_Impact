@@ -1,0 +1,24 @@
+{"format_version":"1.8.0",
+"animation_controllers":{
+"controller.animation.mon3tr_att":{
+"states":{
+"default":{"transitions":[
+	{ "attack": "variable.attack_time >= 0.001 && query.variant == 1" }
+
+]
+
+},
+"attack": {
+					"transitions": [
+						{
+							"default": "variable.attack_time < 0.001 || query.variant != 1"
+						}
+					],
+"on_entry": [ "/summon mob:mon3tr_roar ~~~",
+ "/execute at @e[type=!mob:mon3tr,r=10,family=monster] run particle minecraft:misc_fire_vapor_particle ~~2~"
+]
+}
+}
+}
+}
+}

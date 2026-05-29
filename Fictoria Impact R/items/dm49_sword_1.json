@@ -1,0 +1,14 @@
+{
+  "format_version": "1.12.0",
+  "minecraft:item": {
+    "description": {
+      "identifier": "sword:dm49_sword_1",
+      "category": "Equipment"
+    },
+
+    "components": {
+      "minecraft:icon": "dm49_sword",
+      "minecraft:render_offsets": "tools"
+    }
+  }
+}

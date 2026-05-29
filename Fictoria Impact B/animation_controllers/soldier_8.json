@@ -1,0 +1,26 @@
+{"format_version":"1.8.0",
+"animation_controllers":{
+"controller.animation.soldier_8":{
+"states":{
+"default":{"transitions":[
+{"attack":"query.is_delayed_attacking"}
+
+]
+
+},
+"attack": {
+					"transitions": [
+						{
+							"default": "!query.is_delayed_attacking"
+						}
+					],
+	"on_entry": [
+		"/effect @e[family=!monster,r=5,c=1] wither 4 255 true",
+		"/effect @s absorption 1 1 true",
+		"/damage @e[family=!monster,r=5,c=1] 4 magic entity @s"
+	]
+}
+}
+}
+}
+}

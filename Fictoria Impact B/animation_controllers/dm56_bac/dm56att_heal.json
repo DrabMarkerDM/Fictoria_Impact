@@ -1,0 +1,25 @@
+{"format_version":"1.8.0",
+	"animation_controllers": {
+		"controller.animation.dm56att_heal": {
+			"states": {
+				"default": {
+					"transitions": [
+						{ "attack": "query.variant == 1" }
+
+					]
+
+				},
+				"attack": {
+					"transitions": [
+						{
+							"default": "query.variant == 1"
+						}
+					],
+					"on_entry": [
+						"/effect @s instant_health 5 255 true"
+					]
+				}
+			}
+		}
+	}
+}

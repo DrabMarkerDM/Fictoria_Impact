@@ -1,0 +1,25 @@
+{"format_version":"1.8.0",
+"animation_controllers":{
+"controller.animation.dm53att":{
+"states":{
+"default":{"transitions":[
+{"attack":"query.is_delayed_attacking && query.variant != 2"}
+
+]
+
+},
+"attack": {
+					"transitions": [
+						{
+							"default": "!query.is_delayed_attacking || query.variant == 2"
+						}
+					],
+"on_entry": [
+"/effect @e[tag=!dm,type=!player:dm53,family=monster,r=5,c=5] weakness 4 8 true",
+"/effect @e[tag=!dm,type=!player:dm53,family=monster,r=5,c=5] slowness 4 8 true"
+]
+}
+}
+}
+}
+}

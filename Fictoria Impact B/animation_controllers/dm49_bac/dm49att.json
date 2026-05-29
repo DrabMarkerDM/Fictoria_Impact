@@ -1,0 +1,27 @@
+{"format_version":"1.8.0",
+"animation_controllers":{
+"controller.animation.dm49att":{
+"states":{
+"default":{"transitions":[
+{"attack":"query.is_delayed_attacking && query.mark_variant == 1 "}
+
+]
+
+},
+"attack": {
+					"transitions": [
+						{
+							"default": "!query.is_delayed_attacking || query.mark_variant != 1 "
+						}
+					],
+"on_entry": [
+"/particle dm:dm49 ^ ^2 ^2",
+"/scoreboard players add @s dm49att 1",
+"/event entity @e[scores={dm49att=10..}] sword_1",
+"/scoreboard players set @e[scores={dm49att=10..}] dm49att 0"
+]
+}
+}
+}
+}
+}

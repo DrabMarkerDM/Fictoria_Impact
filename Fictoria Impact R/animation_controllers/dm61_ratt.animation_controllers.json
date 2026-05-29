@@ -1,0 +1,25 @@
+{
+	"format_version" : "1.10.0",
+	"animation_controllers" : {
+		"controller.animation.dm61_ratt" : {
+		             			"initial_state" : "default",
+			"states" : {
+				"ratt" : {
+					"animations" : [ "bow_and_arrow" ],
+					"transitions" : [
+						{
+							"default": "!query.has_target || !query.is_delayed_attacking"
+						}
+					]
+				},
+				"default" : {
+					"transitions" : [
+						{
+							"ratt": "query.has_target && query.is_delayed_attacking"
+						}
+          ]
+        }
+      }
+    }
+  }
+}

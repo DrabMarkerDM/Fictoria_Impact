@@ -1,0 +1,26 @@
+{
+	"format_version" : "1.10.0",
+	"animation_controllers" : {
+		"controller.animation.dm8_att3" : {
+		             			"initial_state" : "default",
+			"states": {
+				"attack": {
+					"animations": [ "satt" ],
+					"transitions": [
+						{
+							"default": "query.property('dm8:test') != 'satt'"
+						}
+					],
+					"blend_transition": 0.1
+				},
+				"default": {
+					"transitions": [
+						{
+							"attack": "query.property('dm8:test') == 'satt'"
+						}
+					]
+				}
+			}
+    }
+  }
+}

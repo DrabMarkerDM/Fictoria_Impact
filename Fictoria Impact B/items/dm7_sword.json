@@ -1,0 +1,17 @@
+{
+	"format_version": "1.20.50",
+	"minecraft:item": {
+		"description": {
+			"identifier": "sword:dm7_sword"
+		},
+		"components": {
+			"minecraft:icon": {
+				"texture": "dm7_sword"
+			},
+			"minecraft:use_duration": 1,
+			"minecraft:max_damage": 3000,
+			"minecraft:hand_equipped": true,
+			"minecraft:max_stack_size": 1
+		}
+	}
+}

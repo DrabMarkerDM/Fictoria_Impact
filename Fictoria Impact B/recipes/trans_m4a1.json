@@ -1,0 +1,27 @@
+{
+  "format_version": "1.12",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "item:trans_m4a1"
+    },
+
+
+    "tags": [ "crafting_table" ],
+    "pattern": [
+      "   ",
+      " #X",
+      "   "
+    ],
+    "key": {
+      "#": {
+        "item": "item:mode_m4a1"
+      },
+      "X": {
+        "item": "minecraft:netherite_ingot"
+      }
+    },
+    "result": {
+      "item": "gabrielaplok:m4a1"
+    }
+  }
+}

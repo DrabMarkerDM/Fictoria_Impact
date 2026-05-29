@@ -1,0 +1,26 @@
+{
+  "format_version": "1.10.0",
+  "minecraft:client_entity": {
+    "description": {
+      "identifier": "bullet:soldier7_bullet",
+      "materials": {
+        "default": "arrow"
+      },
+      "textures": {
+        "default": "textures/bullet/bullet"
+      },
+      "geometry": {
+        "default": "geometry.arrow"
+      },
+      "animations": {
+        "general": "animation.bullet.general"
+      },
+      "scripts": {
+        "animate": [
+          "general"
+        ]
+      },
+      "render_controllers": [ "controller.render.arrow" ]
+    }
+  }
+}

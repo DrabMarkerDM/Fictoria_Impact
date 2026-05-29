@@ -1,0 +1,26 @@
+{"format_version":"1.8.0",
+"animation_controllers":{
+"controller.animation.dm49charge_1":{
+"states":{
+"default":{"transitions":[
+{"attack":"variable.attack_time >= 0.0001 && query.mark_variant == 0 "}
+
+]
+
+},
+"attack": {
+					"transitions": [
+						{
+							"default": "variable.attack_time < 0.0001 || query.mark_variant != 0 "
+						}
+					],
+"on_entry": [
+"/scoreboard players add @s dm49charge 1",
+"/scoreboard players add @s[scores={dm49charge=2..}] dm49skill 1",
+"/scoreboard players set @s[scores={dm49charge=2..}] dm49charge 0"
+]
+}
+}
+}
+}
+}

@@ -1,0 +1,10 @@
+{
+  "format_version": "1.8.0",
+  "render_controllers": {
+    "controller.render.dm34_armor": {
+      "geometry": "Geometry.armor",
+      "materials": [ { "*": "Material.default" } ],
+      "textures": [ "Texture.armor" ]
+    }
+  }
+}

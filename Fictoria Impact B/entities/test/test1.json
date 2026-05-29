@@ -1,0 +1,676 @@
+{
+  "format_version": "1.8.0",
+  "minecraft:entity": {
+    "description": {
+      "identifier": "player:test1",
+      "is_spawnable": false,
+      "is_summonable": true,
+      "is_experimental": false,
+      "scripts": {
+        "animate": [
+
+          "att",
+          "tag",
+          "effect",
+          "equip"
+        ]
+      },
+      "animations": {
+        "att": "controller.animation.air",
+        "tag": "controller.animation.tag_12",
+        "effect": "controller.animation.effect_10",
+        "equip": "controller.animation.test_equip"
+      }
+    },
+    "component_groups": {
+      "sword": {
+        "minecraft:attack": {
+          "damage": 2
+        },
+        "minecraft:movement": {
+          "value": 0.34
+        },
+        "minecraft:equipment": {
+          "table": "loot_tables/iron_sword.json"
+        },
+        "minecraft:spell_effects": {
+          "add_effects": [
+            {
+              "effect": "strength",
+              "amplifier": 1,
+              "visible": false,
+              "ambient": false,
+              "duration": 1
+            },
+            {
+              "effect": "speed",
+              "amplifier": 1,
+              "visible": false,
+              "ambient": false,
+              "duration": 1
+            }
+          ]
+        },
+        "minecraft:timer": {
+          "looping": true,
+          "randomInterval": false,
+          "time": 0.1,
+          "time_down_event": {
+            "event": "scores"
+          }
+        },
+        "minecraft:variant": {
+          "value": 0
+        }
+      },
+      "equip": {
+        "minecraft:is_charged": {
+        },
+        "minecraft:equipment": {
+          "table": "loot_tables/iron_sword.json"
+        }
+      },
+      "att": {
+        "minecraft:spell_effects": {
+          "add_effects": [
+            {
+              "effect": "speed",
+              "amplifier": 1,
+              "visible": false,
+              "ambient": false,
+              "duration": 5
+            },
+            {
+              "effect": "strength",
+              "amplifier": 2,
+              "visible": false,
+              "ambient": false,
+              "duration": 5
+            }
+          ]
+        }
+      },
+      "fly": {
+        "minecraft:movement": {
+          "value": 2.5
+        },
+        "minecraft:navigation.fly": {
+          "can_path_over_water": false,
+          "can_path_from_air": true,
+          "can_pass_doors": true,
+          "can_open_doors": true,
+          "avoid_damage_blocks": true
+        },
+        "minecraft:movement.fly": {
+        },
+        "minecraft:jump.static": {
+          "jump_power": 0.7
+        },
+        "minecraft:can_climb": {
+        },
+        "minecraft:can_fly": {
+        }
+      },
+      "walk": {
+        "minecraft:movement": {
+          "value": 0.37
+        },
+        "minecraft:behavior.random_stroll": {
+          "priority": 5,
+          "speed_multiplier": 0.68,
+          "xz_dist": 8,
+          "y_dist": 4
+        },
+        "minecraft:behavior.float": {
+          "priority": 0
+        },
+        "minecraft:navigation.walk": {
+          "can_path_over_water": true,
+          "can_pass_doors": true,
+          "can_walk_in_lava": true,
+          "can_open_doors": true,
+          "avoid_water": true,
+          "avoid_damage_blocks": true
+        },
+        "minecraft:movement.basic": {
+        },
+        "minecraft:jump.static": {
+        },
+        "minecraft:can_climb": {
+        }
+      },
+      "sss": {
+        "minecraft:attack": {
+          "damage": 18
+        },
+        "minecraft:variant": {
+          "value": 0
+        },
+        "minecraft:equipment": {
+          "table": "loot_tables/iron_sword_1.json"
+        },
+        "minecraft:spawn_entity": [
+          {
+            "min_wait_time": 0,
+            "max_wait_time": 0,
+            "single_use": true,
+            "spawn_entity": "null:null",
+            "spawn_sound": "fire",
+            "num_to_spawn": 1
+          }
+        ],
+        "minecraft:spell_effects": {
+          "add_effects": [
+            {
+              "effect": "speed",
+              "amplifier": 1,
+              "visible": false,
+              "ambient": false,
+              "duration": 5
+            }
+          ]
+        },
+        "minecraft:knockback_resistance": {
+          "value": 0.4
+        },
+        "minecraft:timer": {
+          "looping": false,
+          "randomInterval": false,
+          "time": 5.0,
+          "time_down_event": {
+            "event": "back"
+          }
+        }
+      },
+      "ta": {
+        "minecraft:tameable": {
+          "probability": 1.0,
+          "tame_items": [
+            "items:card_1"
+          ],
+          "tame_event": {
+            "event": "on_tame",
+            "target": "self"
+          }
+        },
+        "minecraft:behavior.panic": {
+          "priority": 1,
+          "speed_multiplier": 1.3
+        },
+        "minecraft:behavior.avoid_mob_type": {
+          "priority": 3,
+          "entity_types": [
+            {
+              "filters": {
+                "test": "is_family",
+                "subject": "other",
+                "value": "monster"
+              },
+              "max_dist": 28,
+              "walk_speed_multiplier": 1.0,
+              "sprint_speed_multiplier": 1.1
+            }
+          ]
+        }
+      },
+      "on_ta": {
+        "minecraft:is_tamed": {
+        },
+        "minecraft:behavior.follow_owner": {
+          "priority": 3,
+          "speed_multiplier": 0.91,
+          "start_distance": 18,
+          "stop_distance": 6
+        },
+        "minecraft:health": {
+          "value": 30,
+          "max": 30
+        },
+        "minecraft:leashable": {
+          "soft_distance": 4.5,
+          "hard_distance": 6.0,
+          "max_distance": 36.0
+        },
+        "minecraft:sittable": {
+        },
+        "minecraft:behavior.stay_while_sitting": {
+          "priority": 1
+        },
+        "minecraft:behavior.owner_hurt_by_target": {
+          "priority": 1
+        },
+        "minecraft:behavior.owner_hurt_target": {
+          "priority": 2
+        },
+        "minecraft:behavior.hurt_by_target": {
+          "priority": 3
+        },
+        "minecraft:behavior.nearest_attackable_target": {
+          "priority": 2,
+          "walk_speed_multiplier": 1.1,
+          "sprint_speed_multiplier": 1.2,
+          "reselect_targets": true,
+          "entity_types": [
+            {
+              "filters": {
+                "any_of": [
+                  {
+                    "test": "is_family",
+                    "subject": "other",
+                    "value": "monster"
+                  }
+                ]
+              },
+              "max_dist": 38
+            }
+          ],
+          "must_see": true,
+          "must_see_forget_duration": 5.0
+        },
+        "minecraft:follow_range": {
+          "value": 38
+        }
+      },
+      "senor": {
+        "minecraft:on_target_acquired": {
+          "event": "attack",
+          "target": "self"
+        },
+        "minecraft:on_target_escape": {
+          "event": "silent",
+          "target": "self"
+        },
+        "minecraft:knockback_resistance": {
+          "value": 0.2
+        }
+      },
+      "play": {
+        "minecraft:behavior.play_dead": {
+          "priority": 0,
+          "duration": 10,
+          "force_below_health": 100,
+          "random_start_chance": 0.33,
+          "random_damage_range": [ 0, 2 ],
+          "damage_sources": [
+            "contact",
+            "entity_attack",
+            "entity_explosion",
+            "magic",
+            "projectile",
+            "thorns",
+            "wither"
+          ],
+          "apply_regeneration": true,
+          "filters": {
+            "test": "in_water",
+            "operator": "!=",
+            "value": true
+          }
+        }
+      },
+      "s_time": {
+        "minecraft:timer": {
+          "looping": false,
+          "randomInterval": false,
+          "time": 10.0,
+          "time_down_event": {
+            "event": "air"
+          }
+        }
+      },
+      "air": {
+        "minecraft:equipment": {
+          "table": "loot_tables/empty.json"
+        },
+        "minecraft:variant": {
+          "value": 1
+        }
+      }
+    },
+    "components": {
+      "minecraft:is_hidden_when_invisible": {
+      },
+      "minecraft:type_family": {
+        "family": [ "player", "dm", "mob" ]
+      },
+      "minecraft:collision_box": {
+        "width": 0.6,
+        "height": 1.8
+      },
+      "minecraft:scale": {
+        "value": 0.94
+      },
+      "minecraft:health": {
+        "value": 20,
+        "max": 20
+      },
+      "minecraft:hurt_on_condition": {
+        "damage_conditions": [
+          {
+            "filters": {
+              "test": "in_lava",
+              "subject": "self",
+              "operator": "==",
+              "value": true
+            },
+            "cause": "lava",
+            "damage_per_tick": 4
+          }
+        ]
+      },
+      "minecraft:can_climb": {
+      },
+      "minecraft:movement": {
+        "value": 0.5
+      },
+      "minecraft:underwater_movement": {
+        "value": 0.02
+      },
+      "minecraft:attack": {
+        "damage": 5
+      },
+      "minecraft:annotation.open_door": {
+      },
+      "minecraft:navigation.walk": {
+        "can_path_over_water": true,
+        "can_pass_doors": true,
+        "can_open_doors": true,
+        "can_walk": true,
+        "avoid_damage_blocks": true
+      },
+      "minecraft:behavior.open_door": {
+      },
+      "minecraft:movement.basic": {
+
+      },
+      "minecraft:jump.static": {
+      },
+      "minecraft:inventory": {
+        "inventory_size": 26,
+        "private": true
+      },
+      "minecraft:behavior.move_to_land": {
+        "priority": 5,
+        "speed_multiplier": 1.0,
+        "search_range": 35,
+        "search_height": 15,
+        "goal_radius": 1.0
+      },
+      "minecraft:behavior.float": {
+        "priority": 0
+      },
+      "minecraft:breathable": {
+        "totalSupply": 32,
+        "suffocateTime": -1,
+        "inhaleTime": 3.75,
+        "generatesBubbles": true
+      },
+      "minecraft:target_nearby_sensor": {
+        "inside_range": 5.0,
+        "outside_range": 5.5,
+        "on_inside_range": {
+          "event": "walk",
+          "target": "self"
+        },
+        "on_outside_range": {
+          "event": "fly",
+          "target": "self"
+        }
+      },
+      "minecraft:nameable": {
+        "alwaysShow": true
+      },
+      "minecraft:behavior.move_to_village": {
+        "priority": 8,
+        "speed_multiplier": 0.9,
+        "goal_radius": 0.8
+      },
+       "minecraft:behavior.ranged_attack": {
+          "priority": 2,
+          "speed_multiplier": 0.94,
+          "attack_interval_min": 0.7,
+          "attack_interval_max": 0.75,
+          "attack_radius": 30.0
+        },
+        "minecraft:shooter": {
+          "def": "bullet:sweep_1"
+      },
+      "minecraft:behavior.pickup_items": {
+        "priority": 8,
+        "max_dist": 3,
+        "goal_radius": 2,
+        "speed_multiplier": 0.5
+      },
+      "minecraft:behavior.random_stroll": {
+        "priority": 5,
+        "speed_multiplier": 0.66,
+        "xz_dist": 16,
+        "y_dist": 8
+      },
+      "minecraft:pushable": {
+        "is_pushable": true,
+        "is_pushable_by_piston": true
+      },
+      "minecraft:damage_sensor": {
+        "triggers": [
+          {
+            "cause": "entity_attack",
+            "deals_damage": true,
+            "on_damage": {
+              "event": "start"
+            }
+          },
+          {
+            "cause": "projectile",
+            "deals_damage": true,
+            "on_damage": {
+              "event": "stop"
+            }
+          },
+          {
+            "cause": "fall",
+            "deals_damage": false,
+            "on_damage": {
+              "event": "null"
+            }
+          }
+        ]
+      },
+      "minecraft:behavior.sleep": {
+        "priority": 4,
+        "goal_radius": 2,
+        "speed_multiplier": 1.2,
+        "sleep_collider_height": 0.3,
+        "sleep_collider_width": 1.0,
+        "sleep_y_offset": 0.6,
+        "timeout_cooldown": 10.0
+      },
+      "minecraft:behavior.look_at_player": {
+        "priority": 6,
+        "look_distance": 6,
+        "probability": 0.04
+      },
+      "minecraft:behavior.look_at_target": {
+        "priority": 5,
+        "look_distance": 29,
+        "probability": 0.06
+      },
+      "minecraft:behavior.look_at_entity": {
+        "priority": 7,
+        "look_distance": 6.0,
+        "probability": 0.02,
+        "filters": {
+          "test": "is_family",
+          "subject": "other",
+          "value": "mob"
+        }
+      },
+      "minecraft:behavior.random_look_around": {
+        "priority": 7
+      },
+      "minecraft:physics": {
+      },
+      "minecraft:scaffolding_climber": {
+      },
+      "minecraft:conditional_bandwidth_optimization": {
+      }
+    },
+    "events": {
+      "minecraft:entity_transformed": {
+        "add": {
+          "component_groups": [
+            "on_ta",
+            "senor"
+          ]
+        },
+        "queue_command": {
+          "command": [
+            "say yyy"
+          ]
+        }
+      },
+      "attack": {
+        "remove": {
+          "component_groups": [
+            "air",
+            "s_time",
+            "equip"
+          ]
+        },
+        "add": {
+          "component_groups": [
+            "sword"
+          ]
+        }
+      },
+      "silent": {
+        "remove": {
+          "component_groups": [
+            "sword",
+            "equip"
+          ]
+        },
+        "add": {
+          "component_groups": [
+            "s_time"
+          ]
+        }
+      },
+      "sss": {
+        "remove": {
+          "component_groups": [
+            "sword",
+            "senor",
+            "air",
+            "s_time",
+            "equip"
+          ]
+        },
+        "add": {
+          "component_groups": [
+            "sss"
+          ]
+        }
+      },
+      "back": {
+        "remove": {
+          "component_groups": [
+            "sss"
+          ]
+        },
+        "add": {
+          "component_groups": [
+            "equip",
+            "senor"
+          ]
+        }
+      },
+      "air": {
+        "add": {
+          "component_groups": [
+            "air"
+          ]
+        }
+      },
+      "walk": {
+        "remove": {
+          "component_groups": [
+            "fly"
+          ]
+        },
+        "add": {
+          "component_groups": [
+            "walk"
+          ]
+        }
+      },
+      "fly": {
+        "remove": {
+          "component_groups": [
+            "walk"
+          ]
+        },
+        "add": {
+          "component_groups": [
+            "fly"
+          ]
+        }
+      },
+      "start": {
+        "sequence": [
+          {
+            "randomize": [
+              {
+                "weight": 80000,
+                "queue_command": {
+                  "command": [
+                    "null"
+                  ]
+                }
+              },
+              {
+                "weight": 15000,
+                "queue_command": {
+                  "command": [
+                    "null"
+                  ]
+                }
+              },
+              {
+                "weight": 5000,
+                "queue_command": {
+                  "command": [
+                    "say 3"
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "stop": {
+        "add": {
+          "component_groups": [
+            "play"
+          ]
+        }
+      },
+      "scores": {
+        "queue_command": {
+          "command": [
+            "scoreboard players add @s test1 1",
+            "execute as @e[scores={test1=100}] run event entity @s sss",
+            "execute as @e[scores={test1=100}] run scoreboard players set @s test1 0"
+          ]
+        }
+      },
+      "hurt_by": {
+        "add": {
+          "component_groups": [
+            "att"
+          ]
+        }
+      }
+    }
+  }
+}

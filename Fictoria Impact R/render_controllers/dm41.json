@@ -1,0 +1,19 @@
+{
+  "format_version": "1.8.0",
+  "render_controllers": {
+    "controller.render.dm41": {
+      "geometry": "Geometry.default",
+      "materials": [ { "*": "Material.default" } ],
+      "part_visibility": [
+        { "*": true },
+        { "sword2": "query.get_equipped_item_name !='dm41_sword_1' && query.get_equipped_item_name !='dm41_sword_2'" },
+        { "sword1": "query.get_equipped_item_name =='dm41_sword_1' || query.get_equipped_item_name =='dm41_sword_2'" },
+          { "sss": "query.get_equipped_item_name =='dm41_sword_2'" },
+          { "s1": "query.get_equipped_item_name =='dm41_sword_2'" },
+          { "s2": "query.get_equipped_item_name =='dm41_sword_2'" },
+          { "rightItem": "query.get_equipped_item_name !='dm41_sword_1' && query.get_equipped_item_name !='dm41_sword_2'" }
+      ],
+      "textures": [ "Texture.default" ]
+    }
+  }
+}

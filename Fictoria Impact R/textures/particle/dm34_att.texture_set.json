@@ -1,0 +1,7 @@
+{
+    "format_version": "1.21.30",
+    "minecraft:texture_set": {
+        "color": "dm34_att",
+        "metalness_emissive_roughness_subsurface": "dm34_att_mer"
+    }
+}

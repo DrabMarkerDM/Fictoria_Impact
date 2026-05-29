@@ -1,0 +1,15 @@
+{
+  "format_version": "1.10",
+  "minecraft:item": {
+    "description": {
+      "identifier": "gun:shotgun",
+      "category": "Equipment"
+    },
+
+    "components": {
+      "minecraft:icon": "shotgun",
+      "minecraft:use_animation": "bow",
+      "minecraft:render_offsets": "miscellaneous"
+    }
+  }
+}

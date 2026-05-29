@@ -1,0 +1,27 @@
+{
+  "format_version": "1.10.0",
+  "minecraft:client_entity": {
+    "description": {
+      "identifier": "bullet:bomb",
+      "materials": {
+        "default": "spider"
+      },
+      "textures": {
+        "default": "textures/bullet/bomb"
+      },
+      "geometry": {
+        "default": "geometry.bomb"
+      },
+      "animations": {
+        "general": "animation.bullet.general"
+      },
+      "scripts": {
+        "animate": [
+          "general"
+        ],
+        "scale": "1.0"
+      },
+      "render_controllers": [ "controller.render.arrow" ]
+    }
+  }
+}

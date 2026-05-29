@@ -1,0 +1,7 @@
+{
+    "format_version": "1.21.30",
+  "minecraft:texture_set": {
+    "color": "dm62_skill_1a",
+    "metalness_emissive_roughness_subsurface": "dm62_skill_1a_mer"
+  }
+}

@@ -1,0 +1,24 @@
+{"format_version":"1.8.0",
+"animation_controllers":{
+"controller.animation.dm53ae":{
+"states":{
+"default":{"transitions":[
+{"attack":"query.is_delayed_attacking && query.variant != 2"}
+
+]
+
+},
+"attack": {
+					"transitions": [
+						{
+							"default": "!query.is_delayed_attacking || query.variant == 2"
+						}
+					],
+"on_entry": [
+"/particle dm:dm53 ^ ^2 ^2"
+]
+}
+}
+}
+}
+}

@@ -1,0 +1,25 @@
+{"format_version":"1.8.0",
+"animation_controllers":{
+"controller.animation.dm53ratt":{
+"states":{
+"default":{"transitions":[
+{"att":"query.variant == 0"}
+
+]
+
+},
+"att": {
+					"transitions": [
+						{
+							"default": "query.variant == 0"
+						}
+					],
+"on_entry": [
+"/effect @e[tag=!dm,type=!player:dm53,family=monster,r=5,c=5] weakness 3 6 true",
+"/effect @e[tag=!dm,type=!player:dm53,family=monster,r=5,c=5] slowness 3 6 true"
+]
+}
+}
+}
+}
+}

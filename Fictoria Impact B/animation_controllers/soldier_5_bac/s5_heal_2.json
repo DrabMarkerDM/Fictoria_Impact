@@ -1,0 +1,25 @@
+{"format_version":"1.8.0",
+	"animation_controllers": {
+		"controller.animation.s5_heal_2": {
+			"states": {
+				"default": {
+					"transitions": [
+						{ "att": "query.health > 36" }
+
+					]
+
+				},
+				"att": {
+					"transitions": [
+						{
+							"default": "query.health <= 36"
+						}
+					],
+					"on_entry": [
+						"/event entity @s attack_1"
+					]
+				}
+			}
+		}
+	}
+}

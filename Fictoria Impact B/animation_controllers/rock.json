@@ -1,0 +1,23 @@
+{"format_version":"1.8.0",
+"animation_controllers":{
+"controller.animation.rock":{
+"states":{
+"default":{"transitions":[
+{"att":"query.mark_variant == 1"}
+
+]
+
+},
+"att": {
+					"transitions": [
+						{
+							"default": "!query.mark_variant == 1"
+						}
+					],
+"on_entry": ["/execute positioned ~~~ run execute at @e[type=!player:dm42,r=10,c=8,family=monster,tag=!dm] run summon bullet:rock ~~0.3~"
+]
+}
+}
+}
+}
+}

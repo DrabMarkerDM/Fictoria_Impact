@@ -1,0 +1,1 @@
+effect @e[type=!player:dm4,tag=!dm,family=monster,r=8] slowness 6 3 true

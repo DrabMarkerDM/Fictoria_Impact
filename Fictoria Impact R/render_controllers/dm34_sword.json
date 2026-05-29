@@ -1,0 +1,13 @@
+{
+  "format_version": "1.8.0",
+  "render_controllers": {
+    "controller.render.dm34_sword": {
+      "geometry": "Geometry.sword",
+      "materials": [ { "*": "Material.gun" } ],
+      "part_visibility": [
+        { "*": "query.variant == 4" }
+      ],
+      "textures": [ "Texture.sword" ]
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+	"format_version": "1.8.0",
+	"animations": {
+		"animation.dm34_hold": {
+			"loop": true,
+			"bones": {
+				"rightArm": {
+					"rotation": [-18, 0, 0]
+				}
+			}
+		}
+	}
+}

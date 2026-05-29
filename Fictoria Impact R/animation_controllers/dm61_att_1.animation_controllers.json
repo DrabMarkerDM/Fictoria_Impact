@@ -1,0 +1,27 @@
+{
+	"format_version" : "1.10.0",
+	"animation_controllers": {
+		"controller.animation.dm61_att_1": {
+			"initial_state": "default",
+			"states": {
+				"attacking": {
+					"animations": [ "attack.rotations" ],
+					"transitions": [
+						{
+							"default": "!query.is_delayed_attacking"
+						}
+					],
+					"blend_transition": 0.5
+				},
+				"default": {
+					"transitions": [
+						{
+							"attack": "query.is_delayed_attacking"
+						}
+					],
+					"blend_transition": 0.0
+				}
+			}
+		}
+	}
+}

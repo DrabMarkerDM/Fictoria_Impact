@@ -1,0 +1,27 @@
+{"format_version":"1.8.0",
+"animation_controllers":{
+"controller.animation.dm0sa":{
+"states":{
+"default":{"transitions":[
+{"attack":"variable.attack_time >= 0.001 && query.variant == 5 "}
+
+]
+
+},
+"attack": {
+					"transitions": [
+						{
+							"default": "variable.attack_time < 0.001 || query.variant != 5 "
+						}
+					],
+	"on_entry": [
+		"/effect @e[tag=!dm,type=!player:dm0,family=monster,r=5,c=5] wither 5 255 true",
+		"/effect @e[tag=!dm,type=!player:dm0,family=monster,family=!undead,r=5,c=5] instant_damage 5 3 true",
+		"/effect @s absorption 5 255 true",
+		"/effect @s instant_health 5 255 true"
+	]
+}
+}
+}
+}
+}

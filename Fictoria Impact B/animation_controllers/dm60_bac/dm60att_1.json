@@ -1,0 +1,32 @@
+{"format_version":"1.8.0",
+	"animation_controllers": {
+		"controller.animation.dm60att_1": {
+			"states": {
+				"default": {
+					"transitions": [
+						{ "attack": "query.is_delayed_attacking && query.variant == 1 " }
+
+					]
+
+				},
+				"attack": {
+					"transitions": [
+						{
+							"default": "!query.is_delayed_attacking || query.variant != 1 "
+						}
+					],
+					"on_entry": [
+						"/particle dm:dm60_att_1 ^ ^2 ^2",
+						"/scoreboard players add @s dm60_1 1",
+						"/scoreboard players add @s dm60 1",
+						"/event entity @e[scores={dm60_1=4..}] switch",
+						"/event entity @e[scores={dm60=21..}] sss",
+						"/scoreboard players set @e[scores={dm60_1=4..}] dm60_1 0",
+						"/scoreboard players set @e[scores={dm60=21..}] dm60 0",
+						"/scoreboard players add @e[type=player:dm33,r=16] dm33 1"
+					]
+				}
+			}
+		}
+	}
+}

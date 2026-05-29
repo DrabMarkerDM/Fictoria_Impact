@@ -1,0 +1,23 @@
+{"format_version":"1.8.0",
+"animation_controllers":{
+"controller.animation.summon":{
+"states":{
+"default":{"transitions":[
+{"att":"query.variant == 0"}
+
+]
+
+},
+"att": {
+					"transitions": [
+						{
+							"default": "query.variant == 0"
+						}
+					],
+"on_entry": ["/execute at @e[type=!player:dm24,r=6,tag=!dm,c=6,family=monster] run summon bullet:fire_attack_1 ~~0.3~"
+]
+}
+}
+}
+}
+}

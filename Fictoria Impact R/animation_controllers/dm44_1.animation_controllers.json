@@ -1,0 +1,25 @@
+{
+	"format_version" : "1.10.0",
+	"animation_controllers" : {
+		"controller.animation.dm44_1" : {
+			"initial_state" : "default",
+			"states" : {
+				"attacking" : {
+					"animations" : [ "sss" ],
+					"transitions" : [
+						{
+							"default": "query.all_animations_finished"
+						}
+					]
+				},
+				"default" : {
+					"transitions" : [
+						{
+							"attacking": "variable.attack_time >= 0.01 && query.variant == 3"
+						}
+          ]
+        }
+      }
+    }
+  }
+}

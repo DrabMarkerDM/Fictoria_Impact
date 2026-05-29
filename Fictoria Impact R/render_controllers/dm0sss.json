@@ -1,0 +1,19 @@
+{
+  "format_version": "1.8.0",
+  "render_controllers": {
+    "controller.render.dm0sss": {
+      "geometry": "Geometry.sss",
+      "materials": [ { 
+          "sword_s": "Material.sss",
+          "circle_s": "Material.sss",
+          "head": "Material.default"
+      } ],
+      "part_visibility": [
+{ "sword_s": "query.variant == 5",
+  "circle_s": "query.variant == 5",
+  "head": "query.variant == 5"}
+      ],
+      "textures": [ "Texture.sss" ]
+    }
+  }
+}

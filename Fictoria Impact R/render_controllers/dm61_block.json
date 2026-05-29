@@ -1,0 +1,19 @@
+{
+  "format_version": "1.8.0",
+  "render_controllers": {
+    "controller.render.dm61_block": {
+      "geometry": "Geometry.default",
+      "materials": [
+        { "*": "Material.default" },
+        { "block_1": "Material.default" },
+        { "block_2": "Material.sss" }
+      ],
+      "part_visibility": [
+        { "*": false },
+        { "block_1": true },
+        { "block_2": true }
+      ],
+      "textures": [ "Texture.default" ]
+    }
+  }
+}

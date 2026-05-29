@@ -1,0 +1,13 @@
+{
+  "format_version": "1.8.0",
+  "render_controllers": {
+    "controller.render.dm46_1": {
+      "geometry": "Geometry.ghost",
+      "part_visibility": [
+        { "*": "query.is_powered" }
+      ],
+      "materials": [ { "*": "Material.default" } ],
+      "textures": [ "Texture.ghost" ]
+    }
+  }
+}

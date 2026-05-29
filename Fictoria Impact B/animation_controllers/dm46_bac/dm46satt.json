@@ -1,0 +1,24 @@
+{"format_version":"1.8.0",
+"animation_controllers":{
+"controller.animation.dm46satt":{
+"states":{
+"default":{"transitions":[
+	{ "att": "query.is_powered && query.is_delayed_attacking" }
+
+]
+
+},
+"att": {
+					"transitions": [
+						{
+							"default": "!query.is_powered || !query.is_delayed_attacking"
+						}
+					],
+	"on_entry": [
+		"/damage @e[tag=!dm,family=monster,r=4,c=4] 40 entity_attack entity @s"
+	]
+}
+}
+}
+}
+}

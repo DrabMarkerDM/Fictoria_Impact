@@ -1,0 +1,36 @@
+{
+  "format_version": "1.12",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "gun:m1871_empty"
+    },
+
+
+    "tags": [ "crafting_table" ],
+    "pattern": [
+      "P#Y",
+      "XZX",
+      "   "
+    ],
+    "key": {
+      "#": {
+        "item": "minecraft:redstone_torch"
+      },
+      "X": {
+        "item": "minecraft:obsidian"
+      },
+      "P": {
+        "item": "minecraft:blaze_rod"
+      },
+      "Y": {
+        "item": "minecraft:spyglass"
+      },
+      "Z": {
+        "item": "minecraft:gold_ingot"
+      }
+    },
+    "result": {
+      "item": "gun:m1871_empty"
+    }
+  }
+}

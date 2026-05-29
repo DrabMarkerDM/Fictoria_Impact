@@ -1,0 +1,33 @@
+{
+  "format_version": "1.12",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "item:mode_glock"
+    },
+
+
+    "tags": [ "crafting_table" ],
+    "pattern": [
+      "   ",
+      "X#Y",
+      "  Z"
+    ],
+    "key": {
+      "#": {
+        "item": "minecraft:redstone"
+      },
+      "X": {
+        "item": "minecraft:stick"
+      },
+      "Y": {
+        "item": "minecraft:stone"
+      },
+      "Z": {
+        "item": "minecraft:iron_ingot"
+      }
+    },
+    "result": {
+      "item": "item:mode_glock"
+    }
+  }
+}

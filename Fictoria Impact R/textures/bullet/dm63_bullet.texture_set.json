@@ -1,0 +1,7 @@
+{
+    "format_version": "1.21.30",
+    "minecraft:texture_set": {
+        "color": "dm63_bullet",
+        "metalness_emissive_roughness_subsurface": "dm63_bullet_mer"
+    }
+}

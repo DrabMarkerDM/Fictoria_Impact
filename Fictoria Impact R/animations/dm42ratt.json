@@ -1,0 +1,16 @@
+{
+	"format_version": "1.8.0",
+	"animations": {
+		"animation.dm42ratt": {
+			"loop": true,
+			"bones": {
+				"leftArm": {
+					"rotation": ["-42.5 - this", "20 - this", "30 - this"]
+				},
+				"rightArm": {
+					"rotation": ["-42.5 - this", "-20 - this", "-30 - this"]
+				}
+			}
+		}
+	}
+}

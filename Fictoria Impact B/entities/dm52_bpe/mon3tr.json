@@ -1,0 +1,382 @@
+{
+  "format_version": "1.8.0",
+  "minecraft:entity": {
+    "description": {
+      "identifier": "mob:mon3tr",
+      "is_spawnable": false,
+      "is_summonable": true,
+      "is_experimental": false,
+      "scripts": {
+        "animate": [
+          "tag",
+          "attack",
+          "air",
+          "die",
+          "s_attack",
+          "half"
+        ]
+      },
+      "animations": {
+        "tag": "controller.animation.tag",
+        "attack": "controller.animation.mon3tr_att",
+        "air": "controller.animation.mon3tr_air",
+        "die": "controller.animation.mon3tr_die",
+        "s_attack": "controller.animation.mon3tr_satt",
+        "half": "controller.animation.mon3tr_half"
+      }
+    },
+    "component_groups": {
+     "sss": {
+     "minecraft:variant": {
+       "value": 1
+     },
+     "minecraft:attack" :{
+       "damage": 182
+     },
+     "minecraft:behavior.delayed_attack": {
+          "priority": 1,
+          "reach_multiplier": 2.5,
+          "attack_duration": 1.0,
+          "hit_delay_pct": 0.0,
+          "track_target": true,
+          "sound_event": "attack.strong"
+     }
+     },
+     "base": {
+      "minecraft:variant": {
+       "value": 0
+      },
+     "minecraft:attack" :{
+       "damage": 55
+     },
+     "minecraft:behavior.delayed_attack": {
+          "priority": 1,
+          "reach_multiplier": 2.0,
+          "attack_duration": 1.0,
+          "hit_delay_pct": 0.0,
+          "track_target": true,
+          "sound_event": "fire"
+     }
+     },
+     "s_time": {
+         "minecraft:timer": {
+		  "looping": false,
+		  "randomInterval": false,
+		  "time": 20.0,
+		  "time_down_event": {
+		    "event": "air"
+		  }
+         }
+     },
+     "air": {
+     "minecraft:is_charged": {
+     },
+      "minecraft:type_family": {
+        "family": ["despawer",
+        "despawer_despawning"
+                    ]
+      }
+     },
+     "die": {
+      "minecraft:mark_variant": {
+       "value": 1
+      }
+        }
+    },
+    "components": {
+      "minecraft:attack": {
+        "damage": 55
+      },
+      "minecraft:behavior.delayed_attack": {
+        "priority": 1,
+        "reach_multiplier": 2.0,
+        "attack_duration": 1.0,
+        "hit_delay_pct": 0.0,
+        "track_target": true,
+        "sound_event": "fire"
+      },
+      "minecraft:behavior.nearest_attackable_target": {
+        "priority": 0,
+        "walk_speed_multiplier": 1.8,
+        "sprint_speed_multiplier": 2.0,
+        "reselect_targets": true,
+        "entity_types": [
+          {
+            "filters": {
+              "any_of": [
+                {
+                  "test": "is_family",
+                  "subject": "other",
+                  "value": "null"
+                }
+              ]
+            },
+            "max_dist": 120
+          }
+        ],
+        "must_see": false,
+        "must_see_forget_duration": 4.0
+      },
+      "minecraft:follow_range": {
+        "value": 120
+      },
+      "minecraft:despawn": {
+        "filters": {
+          "all_of": [
+            {
+              "any_of": [
+                {
+                  "test": "is_family",
+                  "subject": "self",
+                  "value": "despawer_despawning"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "minecraft:breathable": {
+        "total_supply": 53,
+        "suffocate_time": 0,
+        "breathes_air": true,
+        "breathes_water": true
+      },
+      "minecraft:boss": {
+        "should_darken_sky": false,
+        "name": "Mon3tr",
+        "hud_range": 55
+      },
+      "minecraft:damage_sensor": {
+        "triggers": [
+          {
+            "cause": "projectile",
+            "damage_multiplier": 0.54,
+            "on_damage": {
+              "filters": {
+                "test": "is_family",
+                "subject": "other",
+                "operator": "!=",
+                "value": "dm"
+              }
+            },
+            "deals_damage": true
+          },
+          {
+            "cause": "entity_attack",
+            "damage_multiplier": 0.54,
+            "on_damage": {
+              "filters": {
+                "test": "is_family",
+                "subject": "other",
+                "operator": "!=",
+                "value": "dm"
+              }
+            },
+            "deals_damage": true
+          },
+          {
+            "cause": "entity_explosion",
+            "damage_multiplier": 0.54,
+            "on_damage": {
+              "filters": {
+                "test": "is_family",
+                "subject": "other",
+                "operator": "!=",
+                "value": "dm"
+              }
+            },
+            "deals_damage": true
+          },
+          {
+            "cause": "block_explosion",
+            "damage_multiplier": 0.54,
+            "on_damage": {
+              "filters": {
+                "test": "is_family",
+                "subject": "other",
+                "operator": "!=",
+                "value": "dm"
+              }
+            },
+            "deals_damage": true
+          },
+          {
+            "cause": "override",
+            "damage_multiplier": 0.54,
+            "on_damage": {
+              "filters": {
+                "test": "is_family",
+                "subject": "other",
+                "operator": "!=",
+                "value": "dm"
+              }
+            },
+            "deals_damage": true
+          },
+          {
+            "cause": "magic",
+            "damage_multiplier": 1.0,
+            "on_damage": {
+              "filters": {
+                "test": "is_family",
+                "subject": "other",
+                "operator": "!=",
+                "value": "dm"
+              }
+            },
+            "deals_damage": true
+          },
+          {
+            "on_damage": {
+              "filters": {
+                "test": "is_family",
+                "subject": "other",
+                "value": "dm"
+              }
+            },
+            "deals_damage": false
+          },
+          {
+            "cause": "fall",
+            "deals_damage": false
+          }
+        ]
+      },
+      "minecraft:health": {
+        "value": 100,
+        "max": 100
+      },
+      "minecraft:scale": {
+        "value": 1.0
+      },
+      "minecraft:on_death": {
+        "event": "die",
+        "target": "self"
+      },
+      "minecraft:type_family": {
+        "family": [ "mon3tr" ]
+      },
+      "minecraft:collision_box": {
+        "width": 3,
+        "height": 7
+      },
+      "minecraft:knockback_resistance": {
+        "value": 1.0
+      },
+      "minecraft:fire_immune": {
+      },
+      "minecraft:nameable": {
+      },
+      "minecraft:movement": {
+        "value": 10.0
+      },
+      "minecraft:navigation.fly": {
+        "can_path_over_water": false,
+        "can_path_from_air": true
+      },
+      "minecraft:movement.fly": {
+      },
+      "minecraft:jump.static": {
+      },
+      "minecraft:can_climb": {
+      },
+      "minecraft:can_fly": {
+      },
+      "minecraft:behavior.look_at_target": {
+        "priority": 2
+      },
+      "minecraft:persistent": {
+      },
+      "minecraft:on_target_acquired": {
+        "event": "attack",
+        "target": "self"
+      },
+      "minecraft:on_target_escape": {
+        "event": "silent",
+        "target": "self"
+      },
+      "minecraft:physics": {
+      },
+      "minecraft:pushable": {
+        "is_pushable": true,
+        "is_pushable_by_piston": true
+      },
+      "minecraft:scaffolding_climber": {
+      }
+    },
+    "events": {
+      "minecraft:entity_spawned": {
+      "queue_command": {
+        "command": [
+          "tag @s add mon3tr_new"
+        ]
+      }
+    },
+      "attack": {
+        "remove": {
+          "component_groups": [
+            "s_time"
+          ]
+        }
+      },
+      "silent": {
+        "add": {
+          "component_groups": [
+            "s_time"
+          ]
+        }
+      },
+      "sss": {
+        "remove": {
+          "component_groups": [
+            "base"
+          ]
+        },
+        "add": {
+          "component_groups": [
+            "sss"
+          ]
+        }
+      },
+      "back": {
+        "remove": {
+          "component_groups": [
+            "sss"
+          ]
+        },
+        "add": {
+          "component_groups": [
+            "base"
+          ]
+        }
+      },
+      "air": {
+        "add": {
+          "component_groups": [
+            "air"
+          ]
+        }
+      },
+      "die": {
+        "add": {
+          "component_groups": [
+            "die"
+          ]
+        }
+      },
+      "mon3tr_half": {
+        "queue_command": {
+          "command": [
+            "execute at @e[type=!mob:mon3tr,tag=!dm,family=monster,r=11] run particle minecraft:huge_explosion_emitter ~~~",
+            "playsound random.explode @a[r=24] ~~~ 2.2 1.0",
+            "playsound mon3tr_half @a[r=24] ~~~ 2.4 1.0",
+            "damage @e[type=!mob:mon3tr,tag=!dm,family=monster,r=11] 510 suicide entity @s",
+            "effect @s resistance 5 5 true",
+            "effect @e[tag=!dm,type=!mob:mon3tr,family=monster,r=11] weakness 50 255",
+            "effect @e[tag=!dm,type=!mob:mon3tr,family=monster,r=11] slowness 50 255"
+          ]
+        }
+      }
+    }
+}
+}

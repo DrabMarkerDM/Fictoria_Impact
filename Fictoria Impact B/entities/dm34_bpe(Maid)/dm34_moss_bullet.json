@@ -1,0 +1,106 @@
+{
+  "format_version": "1.21.0",
+  "minecraft:entity": {
+    "description": {
+      "identifier": "bullet:dm34_moss",
+      "runtime_identifier": "minecraft:snowball",
+      "spawn_category": "creature",
+      "is_spawnable": false,
+      "is_summonable": true,
+      "scripts": {
+        "animate": [
+          "test"
+        ]
+      },
+      "animations": {
+        "test": "controller.animation.dm34_moss"
+      }
+    },
+    "component_groups": {
+      "despawn": {
+        "minecraft:instant_despawn": {
+        }
+      }
+    },
+    "components": {
+      "minecraft:type_family": {
+        "family": [
+          "dm",
+          "bullet",
+          "inanimate"
+        ]
+      },
+      "minecraft:projectile": {
+        "on_hit": {
+          "definition_event": {
+            "affect_projectile": true,
+            "event_trigger": {
+              "event": "dm34_mossberg"
+            }
+          },
+          "impact_damage": {
+            "knockback": false
+          },
+          "stick_in_ground": {
+            "shake_time": 0.1
+          }
+        },
+        "power": 8,
+        "gravity": 0.02,
+        "inertia": 2,
+        "liquid_inertia": 2,
+        "uncertainty_base": 1.3,
+        "anchor": 1,
+        "offset": [
+          -0.18,
+          -0.2,
+          0.5
+        ],
+        "should_bounce": true,
+        "multiple_targets": false
+      },
+      "minecraft:scale": {
+        "value": 0.4
+      },
+      "minecraft:variant": {
+        "value": 1
+      },
+      "minecraft:collision_box": {
+        "width": 0.01,
+        "height": 0.01
+      },
+      "minecraft:timer": {
+        "time": 0.15,
+        "looping": true,
+        "time_down_event": {
+          "event": "maid:despawn"
+        }
+      },
+      "minecraft:conditional_bandwidth_optimization": {
+        "default_values": {
+          "max_optimized_distance": 80,
+          "max_dropped_ticks": 7,
+          "use_motion_prediction_hints": true
+        }
+      },
+      "minecraft:physics": {
+      }
+    },
+    "events": {
+      "minecraft:entity_spawned": {
+        "queue_command": {
+          "command": [
+            "playsound dm34_mossberg @a[r=33] ~~~ 3.0 1.0"
+          ]
+        }
+      },
+      "maid:despawn": {
+        "add": {
+          "component_groups": [
+            "despawn"
+          ]
+        }
+      }
+    }
+  }
+}

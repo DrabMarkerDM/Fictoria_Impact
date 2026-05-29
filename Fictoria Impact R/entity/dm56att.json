@@ -1,0 +1,22 @@
+{"format_version":"1.10.0",
+"minecraft:client_entity":{
+"description":{
+    "animations":{"attack":"controller.animation.dm56att",
+    "attacking":"animation.dm56att",
+    "default":"controller.animation.dm56att_def",
+    "defaulting":"animation.dm56att_def"
+    },
+    "geometry":{"default":"geometry.dm56att"
+    },
+    "identifier":"mob:dm56att",
+    "materials":{"default":"wither_boss_armor"
+    },
+    "render_controllers":[
+    "controller.render.dm56att"],
+    "scripts":{"animate":["attack","default"],
+    "pre_animation":["variable.attack = Math.sin(variable.attack_time * 30.0);"
+            ],
+          "scale": "1.5"
+    },
+    "textures":{"default":"textures/entity/mob/dm56att"
+    }}}}

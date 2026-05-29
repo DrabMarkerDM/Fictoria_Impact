@@ -1,0 +1,12 @@
+{
+  "format_version": "1.10.0",
+  "minecraft:client_entity": {
+    "description": {
+      "identifier": "player:pre_test1",
+      "spawn_egg": {
+        "texture": "eggs",
+        "texture_index": 69
+      }
+    }
+  }
+}

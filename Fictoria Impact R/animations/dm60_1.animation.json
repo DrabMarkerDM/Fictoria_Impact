@@ -1,0 +1,16 @@
+{
+	"format_version": "1.8.0",
+	"animations": {
+		"animation.dm60.att_1": {
+			"loop": true,
+			"bones": {
+				"leftArm": {
+					"rotation": [-33.86228, 10.18167, -21.75684]
+				},
+				"rightArm": {
+					"rotation": [50.30513, 13.09255, 11.22391]
+				}
+			}
+		}
+	}
+}

@@ -1,0 +1,24 @@
+{"format_version":"1.8.0",
+"animation_controllers":{
+"controller.animation.dm34_moss":{
+"states":{
+"default":{"transitions":[
+{"attack":"query.variant == 1 "}
+
+]
+
+},
+"attack": {
+					"transitions": [
+						{
+							"default": "query.variant == 1 "
+						}
+					],
+	"on_entry": [
+		"/damage @e[tag=!dm,family=monster,r=5,c=4] 46 override entity @s"
+	]
+}
+}
+}
+}
+}

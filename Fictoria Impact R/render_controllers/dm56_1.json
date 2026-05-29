@@ -1,0 +1,17 @@
+{
+  "format_version": "1.8.0",
+  "render_controllers": {
+    "controller.render.dm56_1": {
+      "geometry": "Geometry.ghost",
+      "materials": [ { "*": "Material.default" } ],
+      "part_visibility": [
+        { "*": "query.mark_variant == 2" },
+        { "stick1": "query.get_equipped_item_name =='dm56_1' && query.has_target" },
+        { "s_stick1": "query.get_equipped_item_name =='dm56_1' && query.has_target" },
+        { "stick2": "query.get_equipped_item_name =='dm56_1' && !query.has_target" },
+        { "s_stick2": "query.get_equipped_item_name =='dm56_1' && !query.has_target" }
+      ],
+      "textures": [ "Texture.ghost" ]
+    }
+  }
+}

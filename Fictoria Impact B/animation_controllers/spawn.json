@@ -1,0 +1,8 @@
+{
+  "animation_controllers": {
+    "controller.animation.spawn": {
+      "states": { "default": { "on_entry": [ "/replaceitem entity @s slot.weapon.offhand 1 shield" ] } }
+    }
+  },
+  "format_version": "1.8.0"
+}

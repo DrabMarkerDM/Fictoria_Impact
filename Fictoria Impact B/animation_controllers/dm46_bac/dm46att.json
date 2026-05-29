@@ -1,0 +1,25 @@
+{"format_version":"1.8.0",
+"animation_controllers":{
+"controller.animation.dm46att":{
+"states":{
+"default":{"transitions":[
+{"attack":"query.mark_variant == 1"}
+
+]
+
+},
+"attack": {
+					"transitions": [
+						{
+							"default": "!query.mark_variant == 1"
+						}
+					],
+"on_entry": [
+"/scoreboard players add @s dm46att 1",
+"/event entity @e[scores={dm46att=30..}] sss"
+]
+}
+}
+}
+}
+}

@@ -1,0 +1,18 @@
+{
+  "format_version": "1.8.0",
+  "minecraft:client_entity": {
+    "description": {
+      "identifier": "bullet:lightball_1",
+      "materials": {
+        "default": "charged_creeper"
+      },
+      "textures": {
+        "default": "textures/bullet/lightball"
+      },
+      "geometry": {
+        "default": "geometry.lightball"
+      },
+      "render_controllers": [ "controller.render.lightball" ]
+    }
+  }
+}

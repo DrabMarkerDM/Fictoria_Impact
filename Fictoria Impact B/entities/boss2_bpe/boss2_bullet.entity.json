@@ -1,0 +1,88 @@
+{
+  "format_version": "1.12.0",
+  "minecraft:entity": {
+    "description": {
+      "identifier": "bullet:boss2_bullet",
+      "runtime_identifier": "minecraft:snowball",
+      "is_spawnable": false,
+      "is_summonable": true,
+      "is_experimental": false
+    },
+    "component_groups": {
+      "minecraft:exploding": {
+        "minecraft:explode": {
+          "fuseLength": 0,
+          "fuseLit": true,
+          "power": 1.5,
+          "causesFire": true,
+          "destroyAffectedByGriefing": true
+        }
+      },
+      "despawning": {
+          "minecraft:instant_despawn": {
+            "remove_child_entities": false
+          }
+      }
+    },
+    "components": {
+      "minecraft:type_family": {
+        "family": [ "bullet", "inanimate", "demon" ]
+      },
+      "minecraft:collision_box": {
+        "width": 0.35,
+        "height": 0.35
+      },
+      "minecraft:despawn": {
+        "despawn_from_distance": {
+          "max_distance": 38,
+          "min_distance": 38
+        }
+      },
+      "minecraft:projectile": {
+        "onHit": {
+          "impact_damage": {
+            "damage": 11,
+            "knockback": true,
+            "semirandomdiffdamage": false,
+            "destroyonhit": true
+          },
+          "mob_effect": {
+            "effect": "slowness",
+            "durationeasy": 200,
+            "durationnormal": 200,
+            "durationhard": 200,
+            "amplifier": 4
+          },
+          "remove_on_hit": {
+          }
+        },
+        "liquid_inertia": 1.8,
+        "power": 1,
+        "gravity": 0,
+        "angleoffset": 0.0,
+        "reflect_on_hurt": true,
+        "anchor": 1,
+        "uncertaintyBase": 10,
+        "uncertaintyMultiplier": 5,
+        "offset": [ 0, -0.1, 0 ],
+        "inertia": 1.8
+      },
+      "minecraft:physics": {
+      }
+    },
+    "events": {
+      "minecraft:explode": {
+        "add": {
+          "component_groups": [
+            "minecraft:exploding"
+          ]
+        }
+      },
+      "minecraft:start_despawn": {
+        "add": {
+          "component_groups": [ "despawning" ]
+        }
+      }
+    }
+  }
+}

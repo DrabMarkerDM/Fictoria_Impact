@@ -1,0 +1,29 @@
+{"format_version":"1.8.0",
+"animation_controllers":{
+"controller.animation.s_attack":{
+"states":{
+"default":{"transitions":[
+{"attack":"query.is_delayed_attacking"}
+
+]
+
+},
+"attack": {
+					"transitions": [
+						{
+							"default": "!query.is_delayed_attacking"
+						}
+					],
+"on_entry": ["/particle minecraft:basic_crit_particle ^ ^1.5 ^2",
+"/particle minecraft:basic_crit_particle ^ ^1.5 ^2",
+"/particle minecraft:basic_crit_particle ^ ^1.5 ^2",
+"/particle minecraft:basic_crit_particle ^ ^1.5 ^2",
+"/particle minecraft:basic_crit_particle ^ ^1.5 ^2",
+"/particle minecraft:basic_crit_particle ^ ^1.5 ^2"
+
+]
+}
+}
+}
+}
+}

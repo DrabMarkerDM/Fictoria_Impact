@@ -1,0 +1,35 @@
+{"format_version":"1.8.0",
+"animation_controllers":{
+"controller.animation.dm61att_1":{
+"states":{
+	"default": {
+		"transitions": [
+			{ "attack": "query.is_delayed_attacking && query.mark_variant == 2" }
+
+		]
+
+	},
+"attack": {
+					"transitions": [
+						{
+							"default": "!query.is_delayed_attacking || query.mark_variant != 2"
+						}
+					],
+	"on_entry": [
+		"/effect @s slowness 3 255 true",
+		"/damage @e[tag=!dm,family=monster,r=3] 48 magic entity @s",
+		"/scoreboard players add @s dm61_2 1",
+		"/event entity @e[scores={dm61_2=2..}] skill_off",
+		"/scoreboard players set @e[scores={dm61_2=2..}] dm61_2 0",
+		"/particle minecraft:snowflake_particle ^-1^^2",
+		"/particle minecraft:snowflake_particle ^-1^^2",
+		"/particle minecraft:snowflake_particle ^-1^^2",
+		"/particle minecraft:snowflake_particle ^-1^^2",
+		"/particle minecraft:snowflake_particle ^-1^^2",
+		"/particle minecraft:snowflake_particle ^-1^^2"
+	]
+}
+}
+}
+}
+}

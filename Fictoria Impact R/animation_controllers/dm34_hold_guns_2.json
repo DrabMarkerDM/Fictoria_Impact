@@ -1,0 +1,47 @@
+{
+	"format_version": "1.10.0",
+	"animation_controllers": {
+		"controller.animation.dm34_hold_guns_2": {
+			"initial_state": "default",
+			"states": {
+				"target": {
+					"animations": [
+						"target"
+					],
+					"transitions": [
+						{
+							"default": "query.variant != 2"
+						},
+						{
+							"standby": "!query.has_target && query.variant == 2"
+						}
+					]
+				},
+				"standby": {
+					"animations": [
+						"standby"
+					],
+					"transitions": [
+						{
+							"target": "query.has_target && query.variant == 2"
+						},
+						{
+							"default": "query.variant != 2"
+						}
+					]
+				},
+				"default": {
+					"transitions": [
+						{
+							"target": "query.has_target && query.variant == 2"
+						},
+						{
+							"standby": "!query.has_target && query.variant == 2"
+						}
+					]
+
+				}
+			}
+		}
+	}
+}

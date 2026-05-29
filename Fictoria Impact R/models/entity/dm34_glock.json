@@ -1,0 +1,98 @@
+{
+	"format_version": "1.10.0",
+	"geometry.dm34_glock": {
+		"texturewidth": 128,
+		"textureheight": 128,
+		"visible_bounds_width": 3,
+		"visible_bounds_height": 3,
+		"visible_bounds_offset": [0, 1.5, 0],
+		"bones": [
+			{
+				"name": "root",
+				"pivot": [0, 0, 0]
+			},
+			{
+				"name": "waist",
+				"parent": "root",
+				"pivot": [0, 12, 0]
+			},
+			{
+				"name": "body",
+				"parent": "waist",
+				"pivot": [0, 24, 0]
+			},
+			{
+				"name": "rightArm",
+				"parent": "body",
+				"pivot": [-5, 21.5, 0]
+			},
+			{
+				"name": "gun",
+				"parent": "rightArm",
+				"pivot": [-14, 4, 0]
+			},
+			{
+				"name": "gunBody",
+				"parent": "gun",
+				"pivot": [-14, 4, 0],
+				"cubes": [
+					{"origin": [-15, 4, -9], "size": [2, 1, 12], "uv": [74, 90], "inflate": 0.02},
+					{"origin": [-14.9, 5.9, -4], "size": [1, 1, 2], "uv": [80, 103], "inflate": 0.02},
+					{"origin": [-14.5, 2, -4], "size": [1, 1, 4], "uv": [74, 103]},
+					{"origin": [-14.5, 3, -4], "size": [1, 1, 1], "uv": [90, 90]},
+					{"origin": [-15, -2.28939, -1.56066], "size": [2, 6, 3], "uv": [74, 90]},
+					{"origin": [-14.5, 5.7, -9.1], "size": [1, 1, 5], "uv": [98, 74], "inflate": 0.02}
+				],
+				"locators": {
+					"glock17_muzzle": [-14, 6.5, -9.5],
+					"glock17_case": [-15, 6.5, -3]
+				}
+			},
+			{
+				"name": "mag",
+				"parent": "gunBody",
+				"pivot": [-14, -1, 2],
+				"cubes": [
+					{"origin": [-14.5, -1.54224, 0.80133], "size": [1, 5, 2], "uv": [74, 74]}
+				]
+			},
+			{
+				"name": "slide",
+				"parent": "gunBody",
+				"pivot": [-14, 5, 0],
+				"cubes": [
+					{"origin": [-14, 5, -9], "size": [1, 2, 12], "uv": [90, 91], "inflate": 0.02},
+					{"origin": [-15, 5, -9], "size": [1, 1, 12], "uv": [74, 103], "inflate": 0.02},
+					{"origin": [-15, 6, -9], "size": [1, 1, 5], "uv": [90, 96], "inflate": 0.02},
+					{"origin": [-15, 6, -2], "size": [1, 1, 5], "uv": [90, 90], "inflate": 0.02}
+				]
+			},
+			{
+				"name": "ironSight",
+				"parent": "slide",
+				"pivot": [-14, 7, 2],
+				"cubes": [
+					{"origin": [-13.9, 6.5, 1.8], "size": [1, 1, 1], "uv": [101, 103], "inflate": -0.1},
+					{"origin": [-15.1, 6.5, 1.8], "size": [1, 1, 1], "uv": [101, 103], "inflate": -0.1},
+					{"origin": [-14.5, 6.5, -8.6], "size": [1, 1, 1], "uv": [81, 90], "inflate": 0.1}
+				]
+			},
+			{
+				"name": "sightPoint",
+				"parent": "ironSight",
+				"pivot": [-14, 7, -7],
+				"cubes": [
+					{"origin": [-14.5, 6.5, -8.45], "size": [1, 1, 1], "uv": [78, 74]}
+				]
+			},
+			{
+				"name": "trigger",
+				"parent": "gunBody",
+				"pivot": [-14.11111, 4.01463, -1.26459],
+				"cubes": [
+					{"origin": [-14.5, 3.25, -2.5], "size": [1, 1, 2], "uv": [74, 99]}
+				]
+			}
+		]
+	}
+}

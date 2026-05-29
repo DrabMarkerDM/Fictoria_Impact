@@ -1,0 +1,15 @@
+{
+  "format_version": "1.10",
+  "minecraft:item": {
+    "description": {
+      "identifier": "gun:hand_empty",
+      "category": "Equipment"
+    },
+
+    "components": {
+      "minecraft:icon": "hand_empty",
+      "minecraft:use_animation": "bow",
+      "minecraft:render_offsets": "miscellaneous"
+    }
+  }
+}

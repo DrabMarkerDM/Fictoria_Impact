@@ -1,0 +1,27 @@
+{
+  "format_version": "1.12",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "gun:hand_ammo"
+    },
+
+
+    "tags": [ "crafting_table" ],
+    "pattern": [
+      "   ",
+      " P ",
+      " X "
+    ],
+    "key": {
+      "X": {
+        "item": "minecraft:gunpowder"
+      },
+      "P": {
+        "item": "minecraft:iron_ingot"
+      }
+    },
+    "result": {
+      "item": "gun:hand_ammo"
+    }
+  }
+}

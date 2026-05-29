@@ -1,0 +1,38 @@
+{"format_version":"1.8.0",
+"animation_controllers":{
+"controller.animation.knock":{
+"states":{
+"default":{"transitions":[
+{"attack":"query.is_delayed_attacking"}
+
+]
+
+},
+"attack": {
+					"transitions": [
+						{
+							"default": "!query.is_delayed_attacking"
+						}
+					],
+	"on_entry": [
+		"/effect @e[type=!player:dm41,r=3,family=monster,c=3] weakness 4 4 true",
+		"/effect @e[type=!player:dm41,r=3,family=monster,c=3] slowness 4 4 true",
+		"/particle dm:dm41_att ^ ^2 ^2",
+		"/execute positioned ^ ^ ^2 run execute at @e[type=!player:dm41,r=3,family=monster,c=3] run particle minecraft:water_splash_particle ~~0.5~",
+		"/execute positioned ^ ^ ^2 run execute at @e[type=!player:dm41,r=3,family=monster,c=3] run particle minecraft:water_splash_particle ~~0.5~",
+		"/execute positioned ^ ^ ^2 run execute at @e[type=!player:dm41,r=3,family=monster,c=3] run particle minecraft:water_splash_particle ~~0.5~",
+		"/execute positioned ^ ^ ^2 run execute at @e[type=!player:dm41,r=3,family=monster,c=3] run particle minecraft:water_splash_particle ~~0.5~",
+		"/execute positioned ^ ^ ^2 run execute at @e[type=!player:dm41,r=3,family=monster,c=3] run particle minecraft:dolphin_move_particle ~~0.5~",
+		"/execute positioned ^ ^ ^2 run execute at @e[type=!player:dm41,r=3,family=monster,c=3] run particle minecraft:dolphin_move_particle ~~0.5~",
+		"/execute positioned ^ ^ ^2 run execute at @e[type=!player:dm41,r=3,family=monster,c=3] run particle minecraft:dolphin_move_particle ~~0.5~",
+		"/execute positioned ^ ^ ^2 run execute at @e[type=!player:dm41,r=3,family=monster,c=3] run particle minecraft:dolphin_move_particle ~~0.5~"
+
+
+
+
+	]
+}
+}
+}
+}
+}

@@ -1,0 +1,23 @@
+{
+    "format_version":"1.10.0",
+    "animation_controllers": {
+    "controller.animation.mon3tr.attack":{"states":{"attack":{"animations":["attacking"],"blend_transition":0.5,"transitions":[{"default":"query.all_animations_finished"}]},"default":{"animations":[{"moving":"query.modified_move_speed"}],"blend_transition":0.5,"transitions":[{"attack":"variable.attack > 0 && query.variant != 1"
+          }
+         ]
+         }
+      }
+        },
+     "controller.animation.mon3tr.s_attack":{"states":{"attack":{"animations":["s_attacking"],"blend_transition":0.5,"transitions":[{"default":"query.all_animations_finished"}]},"default":{"animations":[{"moving":"query.modified_move_speed"}],"blend_transition":0.5,"transitions":[{"attack":"variable.attack > 0 && query.variant == 1"
+          }
+         ]
+         }
+      }
+        },
+     "controller.animation.mon3tr.default":{"initial_state":"default",
+"states":{"default":{"animations":["defaulting"     
+         ]
+        }
+      }
+    }
+  }
+}

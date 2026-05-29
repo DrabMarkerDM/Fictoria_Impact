@@ -1,0 +1,24 @@
+{
+    "format_version": 2,
+  "header": {
+    "description": "By §eDrabMarker",
+    "name": "Fictoria Impact§a v0.3",
+    "uuid": "ec476140-ee2e-971d-8d3b-b7e088d761b6",
+    "version": [ 1, 0, 0 ],
+    "min_engine_version": [ 1, 20, 30 ]
+  },
+    "modules": [
+      {
+        "description": "By §eDrabMarker",
+        "type": "resources",
+        "uuid": "54c30b72-4f56-d94a-a9cc-660ecdec7bf0",
+        "version": [ 1, 0, 0 ]
+      }
+  ],
+  "dependencies": [
+    {
+      "uuid": "b1367c17-c76e-610f-d52f-9c197b4058a9",
+      "version": [ 1, 0, 0 ]
+    }
+  ]
+}

@@ -1,0 +1,107 @@
+{
+  "format_version": "1.12.0",
+  "minecraft:entity": {
+    "description": {
+      "identifier": "bullet:bomb",
+      "runtime_identifier": "minecraft:snowball",
+      "is_spawnable": false,
+      "is_summonable": true,
+      "is_experimental": false,
+      "scripts": {
+        "animate": [
+          "bom"
+        ]
+      },
+      "animations": {
+        "bom": "controller.animation.bomb_1"
+      }
+    },
+    "component_groups": {
+      "bom": {
+        "minecraft:variant": {
+          "value": 0
+        }
+      },
+      "despawning": {
+          "minecraft:instant_despawn": {
+            "remove_child_entities": false
+        }
+      }
+    },
+    "components": {
+      "minecraft:type_family": {
+        "family": [ "bullet", "inanimate", "demon" ]
+      },
+      "minecraft:collision_box": {
+        "width": 0.35,
+        "height": 0.35
+      },
+      "minecraft:despawn": {
+        "despawn_from_distance": {
+          "max_distance": 38,
+          "min_distance": 38
+        }
+      },
+      "minecraft:spawn_entity": [
+        {
+          "min_wait_time": 0,
+          "max_wait_time": 0,
+          "single_use": true,
+          "spawn_entity": "null:null",
+          "spawn_sound": "fire",
+          "num_to_spawn": 1
+        }
+      ],
+      "minecraft:projectile": {
+        "onHit": {
+          "impact_damage": {
+            "damage": 31,
+            "knockback": true,
+            "semirandomdiffdamage": false,
+            "destroyonhit": false
+          },
+          "definition_event": {
+            "affectProjectile": true,
+            "eventTrigger": {
+              "event": "bom",
+              "target": "self"
+            }
+          }
+        },
+        "liquid_inertia": 0.5,
+        "power": 1.8,
+        "gravity": 0.00,
+        "angleoffset": 0.0,
+        "reflect_on_hurt": true,
+        "anchor": 1,
+        "offset": [ -0.3, -0.25, 1 ],
+        "inertia": 1.5,
+        "catch_fire": true
+      },
+      "minecraft:physics": {
+      }
+    },
+    "events": {
+      "minecraft:entity_spawned": {
+        "queue_command": {
+          "command": [
+            "particle minecraft:water_evaporation_actor_emitter ^^1.5^2"
+          ]
+        }
+      },
+      "minecraft:start_despawn": {
+        "add": {
+          "component_groups": [ "despawning" ]
+        }
+      },
+      "bom": {
+        "queue_command": {
+          "command": [
+            "execute at @e[r=8,family=!demon,tag=!demon,type=!demon:bomb_soldier,family=!inanimate,type=!arrow] run summon bullet:bomb_1 ~~0.3~",
+            "execute at @e[r=8,c=1,family=!demon,tag=!demon,type=!demon:bomb_soldier,family=!inanimate,type=!arrow] run summon mob:bomb_roar ^^^1"
+          ]
+        }
+      }
+    }
+  }
+}

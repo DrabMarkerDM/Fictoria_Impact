@@ -1,0 +1,26 @@
+{"format_version":"1.8.0",
+"animation_controllers":{
+"controller.animation.dm4bow":{
+"states":{
+"default":{"transitions":[
+{"attack":"query.variant == 1 "}
+
+]
+
+},
+"attack": {
+					"transitions": [
+						{
+							"default": "!query.variant == 1 "
+						}
+					],
+"on_entry": [
+"/scoreboard players add @e[type=player:dm4] dm4att 1",
+"/event entity @e[scores={dm4att=20..}] sss",
+"/scoreboard players set @e[scores={dm4att=20..}] dm4att 0"
+]
+}
+}
+}
+}
+}

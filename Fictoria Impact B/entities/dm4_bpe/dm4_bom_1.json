@@ -1,0 +1,89 @@
+{
+  "format_version": "1.12.0",
+  "minecraft:entity": {
+    "description": {
+    "identifier": "bullet:dm4_bom_1",
+      "runtime_identifier": "minecraft:snowball",
+      "is_spawnable": false,
+      "is_summonable": true,
+      "is_experimental": false
+    },
+        "component_groups": {
+            "despawning": {
+                "minecraft:type_family": {
+                    "family": ["despawer", "despawer_despawning", "dm"
+                    ]
+                }
+            }
+    },
+    "components": {
+    "minecraft:type_family": {
+        "family": [ "bullet", "inanimate", "dm" ]
+      },
+      "minecraft:collision_box": {
+        "width": 0.05,
+        "height": 0.05
+      },
+		"minecraft:timer": {
+		  "looping": true,
+		  "randomInterval": false,
+		  "time": 0.3,
+		  "time_down_event": {
+		    "event": "minecraft:start_despawn"
+		  }
+            },
+			"minecraft:spawn_entity": [
+              {
+                "min_wait_time": 0,
+                "max_wait_time": 0,
+                "single_use": true,
+                "spawn_entity": "null:null",
+                "spawn_sound": "fire",
+                "num_to_spawn": 1
+              }
+            ],
+            "minecraft:despawn": {
+                "filters": {
+                    "all_of": [{
+                            "any_of": [{
+                                    "test":
+                                    "is_family",
+                                    "subject": "self",
+                                    "value": "despawer_despawning"
+                                }
+                            ]
+                        }
+                    ]
+                }
+      },
+    "minecraft:projectile": {
+	"onHit": {
+	"impact_damage": {
+	 "damage": 24,
+	"knockback": true,
+	"semirandomdiffdamage": false,
+	"destroyonhit": false
+	},
+					"definition_event": {
+						"affectProjectile": true
+          }
+    },
+         	"power": 2.0,
+			"gravity": 0.00,
+			"inertia": 1,
+			"liquid_inertia": 1,
+			"anchor": 1,
+			"catchFire": true
+      },
+	    "minecraft:physics": {
+	    }
+        },
+        "events": {
+            "minecraft:start_despawn": {
+                "add": {
+                    "component_groups": ["despawning"]
+                }
+            }
+        }
+    }
+}

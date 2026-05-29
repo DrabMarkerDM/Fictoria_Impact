@@ -1,0 +1,130 @@
+{
+	"format_version": "1.8.0",
+	"minecraft:entity": {
+		"description": {
+			"identifier": "bullet:dm4_bullet",
+			"runtime_identifier": "minecraft:snowball",
+			"is_spawnable": false,
+			"is_summonable": true,
+			"is_experimental": false,
+			    "scripts":{"animate":[
+"bow",
+"hit"
+]},"animations":{
+"bow":"controller.animation.dm4bow",
+"hit":"controller.animation.dm4hit"
+  }
+		},
+		"component_groups": {
+			"minecraft:exploding": {
+				"minecraft:explode": {
+					"fuseLength": 0,
+					"fuseLit": true,
+					"power": 1.6,
+					"causesFire": true,
+					"destroyAffectedByGriefing": true
+				}
+			},
+			"despawning": {
+				"minecraft:type_family": {
+					"family": [
+						"despawer",
+						"despawer_despawning", "dm"
+					]
+				}
+			},
+      "hit": {
+      "minecraft:mark_variant": {
+          "value": 1
+                }
+            }
+		},
+		"components": {
+			"minecraft:type_family": {
+				"family": [ "bullet", "inanimate", "dm" ]
+			},
+			"minecraft:collision_box": {
+				"width": 0.32,
+				"height": 0.32
+			},
+      "minecraft:variant": {
+        "value": 1
+			},
+			"minecraft:timer": {
+				"looping": true,
+				"randomInterval": false,
+				"time": 0.25,
+				"time_down_event": {
+					"event": "minecraft:start_despawn"
+				}
+			},
+			"minecraft:spawn_entity": [
+				{
+					"min_wait_time": 0,
+					"max_wait_time": 0,
+					"single_use": true,
+					"spawn_entity": "null:null",
+					"spawn_sound": "fire",
+					"num_to_spawn": 10
+				}
+			],
+			"minecraft:despawn": {
+				"filters": {
+					"all_of": [
+						{
+							"any_of": [
+								{
+									"test": "is_family",
+									"subject": "self",
+									"value": "despawer_despawning"
+								}
+							]
+						}
+					]
+				}
+			},
+			"minecraft:projectile": {
+				"onHit": {
+					"impact_damage": {
+						"damage": 28,
+						"knockback": true,
+						"semirandomdiffdamage": false,
+						"destroyonhit": false
+					},
+					"definition_event": {
+						"affectProjectile": true,
+						"eventTrigger": {
+							"event": "minecraft:explode",
+							"target": "self"
+						}
+					}
+				},
+				"power": 1.8,
+				"gravity": 0,
+				"inertia": 2,
+				"liquid_inertia": 1,
+				"anchor": 1,
+				"catchFire": true
+			},
+			"minecraft:physics": {}
+		},
+		"events": {
+			"minecraft:explode": {
+				"add": {
+		"component_groups": [
+		"minecraft:exploding","hit"				          ]
+        },
+        "remove": {
+          "component_groups": [
+            "hit"
+					]
+				}
+			},
+			"minecraft:start_despawn": {
+				"add": {
+					"component_groups": [ "despawning" ]
+				}
+			}
+		}
+	}
+}

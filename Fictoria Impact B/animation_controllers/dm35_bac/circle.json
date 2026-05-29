@@ -1,0 +1,23 @@
+{"format_version":"1.8.0",
+"animation_controllers":{
+"controller.animation.circle":{
+"states":{
+"default":{"transitions":[
+{"att":"query.variant == 2"}
+
+]
+
+},
+"att": {
+					"transitions": [
+						{
+							"default": "!query.variant == 2"
+						}
+					],
+"on_entry": ["/execute at @e[r=7,c=5,tag=!dm,type=!player:dm35,family=monster] run summon bullet:dm35_bullet_2 ~~6~"
+]
+}
+}
+}
+}
+}

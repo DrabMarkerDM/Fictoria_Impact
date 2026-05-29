@@ -1,0 +1,398 @@
+{
+  "resource_pack_name": "Undefined World",
+  "texture_name": "atlas.items",
+  "texture_data": {
+    "card_1": {
+      "textures": "textures/items/card_1"
+    },
+    "card_2": {
+      "textures": "textures/items/card_2"
+    },
+    "card_3": {
+      "textures": "textures/items/card_3"
+    },
+    "dm3_sword": {
+      "textures": "textures/items/dm3_sword"
+    },
+    "dm7_sword": {
+      "textures": "textures/items/dm7_sword"
+    },
+    "dm8_sword": {
+      "textures": "textures/items/dm8_sword"
+    },
+    "dm10_axe": {
+      "textures": "textures/items/dm10_axe"
+    },
+    "dm11_sword": {
+      "textures": "textures/items/dm11_sword"
+    },
+    "dm12_sword": {
+      "textures": "textures/items/dm12_sword"
+    },
+    "dm22_sword": {
+      "textures": "textures/items/dm22_sword"
+    },
+    "dm24_sword": {
+      "textures": "textures/items/dm24_sword"
+    },
+    "bigsword": {
+      "textures": "textures/items/bigsword"
+    },
+    "Kirito_sword": {
+      "textures": "textures/items/Kirito_sword"
+    },
+    "knife": {
+      "textures": "textures/items/knife"
+    },
+    "demon_axe": {
+      "textures": "textures/items/demon_axe"
+    },
+    "demon_hand": {
+      "textures": "textures/items/demon_hand"
+    },
+    "dm30_stick": {
+      "textures": "textures/items/dm30_stick"
+    },
+    "dm14_sword": {
+      "textures": "textures/items/dm14_sword"
+    },
+    "boss2_1": {
+      "textures": "textures/items/boss2_1"
+    },
+    "boss2_2": {
+      "textures": "textures/items/boss2_2"
+    },
+    "dm33_sword": {
+      "textures": "textures/items/dm33_sword"
+    },
+    "dm29_sword": {
+      "textures": "textures/items/dm29_sword"
+    },
+    "dm37_sword": {
+      "textures": "textures/items/dm37_sword"
+    },
+    "dm38_sword": {
+      "textures": "textures/items/dm38_sword"
+    },
+    "dm39_sword": {
+      "textures": "textures/items/dm39_sword"
+    },
+    "dm40_sword": {
+      "textures": "textures/items/dm40_sword"
+    },
+    "soldier_5_sword": {
+      "textures": "textures/items/soldier_5_sword"
+    },
+    "dm41_sword_1": {
+      "textures": "textures/items/dm41_sword"
+    },
+    "dm41_sword_2": {
+      "textures": "textures/items/dm41_sword"
+    },
+    "remove": {
+      "textures": "textures/items/remove"
+    },
+    "gun_soldier_sword": {
+      "textures": "textures/items/gun_soldier_sword"
+    },
+    "dm42_sword_1": {
+      "textures": "textures/items/dm42_sword_1"
+    },
+    "dm42_sword_2": {
+      "textures": "textures/items/dm42_sword_2"
+    },
+    "fire_boy_sword": {
+      "textures": "textures/items/fire_boy_sword"
+    },
+    "police_stick": {
+      "textures": "textures/items/police_stick"
+    },
+    "boss3": {
+      "textures": "textures/items/boss3_sword"
+    },
+    "soldier7_sword": {
+      "textures": "textures/items/soldier7_sword"
+    },
+    "sweep_sword": {
+      "textures": "textures/items/sweep_sword"
+    },
+    "dm49_sword": {
+      "textures": "textures/items/dm49_sword"
+    },
+    "dm53_sword": {
+      "textures": "textures/items/dm53_sword"
+    },
+    "dm54_sword": {
+      "textures": "textures/items/dm54_sword"
+    },
+    "Asuna_sword": {
+      "textures": "textures/items/Asuna_sword"
+    },
+    "dm57_sword": {
+      "textures": "textures/items/dm57_sword"
+    },
+    "dm59_sword": {
+      "textures": "textures/items/dm59_sword"
+    },
+    "Original_sword": {
+      "textures": "textures/items/Original_sword"
+    },
+    "soldier_8_sword": {
+      "textures": "textures/items/soldier_8_sword"
+    },
+    "maid_command": {
+      "textures": "textures/items/maid_command"
+       },
+    "follow_command": {
+      "textures": "textures/items/follow_command"
+    },
+    "dm34_war_maid": {
+      "textures": "textures/items/dm34_war_maid"
+    },
+    "dm34_gentle_maid": {
+      "textures": "textures/items/dm34_gentle_maid"
+
+
+
+
+    },
+    "gun": {
+    },
+    "ak47": {
+      "textures": "textures/items/ak47"
+    },
+    "ak47_empty": {
+      "textures": "textures/items/ak47_empty"
+    },
+    "ex_gun": {
+      "textures": "textures/items/ex_gun"
+    },
+    "ex_gun_empty": {
+      "textures": "textures/items/ex_gun_empty"
+    },
+    "rifle_ammo": {
+      "textures": "textures/items/ammo_rifle"
+    },
+    "hand": {
+      "textures": "textures/items/hand"
+    },
+    "hand_empty": {
+      "textures": "textures/items/hand_empty"
+    },
+    "hand_ammo": {
+      "textures": "textures/items/hand_ammo"
+    },
+    "m1871": {
+      "textures": "textures/items/m1871"
+    },
+    "m1871_empty": {
+      "textures": "textures/items/m1871_empty"
+    },
+    "ammo_sniper": {
+      "textures": "textures/items/ammo_sniper"
+    },
+    "p90": {
+      "textures": "textures/items/p90"
+    },
+    "p90_empty": {
+      "textures": "textures/items/p90_empty"
+    },
+    "shotgun": {
+      "textures": "textures/items/shotgun"
+    },
+    "shotgun_empty": {
+      "textures": "textures/items/shotgun_empty"
+    },
+    "dm4_gun": {
+      "textures": "textures/items/dm4_gun"
+    },
+    "dm6_gun": {
+      "textures": "textures/items/dm6_gun"
+    },
+    "dm14_gun": {
+      "textures": "textures/items/dm14_gun"
+    },
+    "dm21_gun": {
+      "textures": "textures/items/dm21_gun"
+    },
+    "dm28_gun": {
+      "textures": "textures/items/dm28_gun"
+    },
+    "dm31_gun": {
+      "textures": "textures/items/dm31_gun"
+    },
+    "dm32_gun": {
+      "textures": "textures/items/dm32_gun"
+    },
+    "dm35_bow": {
+      "textures": "textures/items/dm35_bow"
+    },
+    "dm38_gun": {
+      "textures": "textures/items/dm38_gun"
+    },
+    "dm39_gun": {
+      "textures": "textures/items/dm39_gun"
+    },
+    "gun_soldier_gun": {
+      "textures": "textures/items/gun_soldier_gun"
+    },
+    "police_ak": {
+      "textures": "textures/items/police_ak"
+    },
+    "soldier7_gun": {
+      "textures": "textures/items/soldier7_gun"
+    },
+    "dm48_ak": {
+      "textures": "textures/items/dm48_ak"
+    },
+    "boss4": {
+      "textures": "textures/items/boss4"
+    },
+    "dm50_gun": {
+      "textures": "textures/items/dm50_gun"
+    },
+    "dm51_gun": {
+      "textures": "textures/items/dm51_gun"
+    },
+    "dm52_gun": {
+      "textures": "textures/items/dm52_gun"
+    },
+    "dm55_gun": {
+      "textures": "textures/items/dm55_gun"
+    },
+    "dm58_ak": {
+      "textures": "textures/items/dm58_ak"
+       },
+    "mode_m4a1": {
+      "textures": "textures/items/mode_m4a1"
+       },
+    "mode_mossberg": {
+      "textures": "textures/items/mode_mossberg"
+      },
+    "mode_awp": {
+      "textures": "textures/items/mode_awp"
+       },
+    "mode_glock": {
+      "textures": "textures/items/mode_glock"
+       },
+    "mode_sword": {
+      "textures": "textures/items/mode_sword"
+
+
+    },
+    "armor": {
+    },
+    "dm_armor": {
+      "textures": "textures/items/dm_armor"
+
+
+
+
+
+
+
+
+
+
+
+    },
+    "eggs": {
+      "textures": [
+        "textures/items/egg_dm0",
+        "textures/items/egg_dm1",
+        "textures/items/egg_dm2",
+        "textures/items/egg_dm3",
+        "textures/items/egg_dm4",
+        "textures/items/egg_dm5",
+        "textures/items/egg_dm6",
+        "textures/items/egg_dm7",
+        "textures/items/egg_dm8",
+        "textures/items/egg_dm9",
+        "textures/items/egg_dm10",
+        "textures/items/egg_dm11",
+        "textures/items/egg_dm12",
+        "textures/items/egg_doctor",
+        "textures/items/egg_protecter",
+        "textures/items/egg_dm13",
+        "textures/items/egg_dm14",
+        "textures/items/egg_dm15",
+        "textures/items/egg_dm16",
+        "textures/items/egg_dm17",
+        "textures/items/egg_dm18",
+        "textures/items/egg_dm19",
+        "textures/items/egg_dm20",
+        "textures/items/egg_dm21",
+        "textures/items/egg_dm22",
+        "textures/items/egg_dm23",
+        "textures/items/egg_dm24",
+        "textures/items/egg_dm25",
+        "textures/items/egg_test",
+        "textures/items/egg_dm26",
+        "textures/items/egg_steve",
+        "textures/items/egg_dm27",
+        "textures/items/egg_Kirito",
+        "textures/items/egg_demon",
+        "textures/items/egg_dm28",
+        "textures/items/egg_dm29",
+        "textures/items/egg_dm30",
+        "textures/items/egg_dm31",
+        "textures/items/egg_villager_socout",
+        "textures/items/egg_dm32",
+        "textures/items/egg_dm33",
+        "textures/items/egg_dm34",
+        "textures/items/egg_dm35",
+        "textures/items/egg_dm36",
+        "textures/items/egg_dm37",
+        "textures/items/egg_dm38",
+        "textures/items/egg_dm39",
+        "textures/items/egg_dm40",
+        "textures/items/egg_dm41",
+        "textures/items/egg_dm42",
+        "textures/items/egg_robot",
+        "textures/items/egg_dm43",
+        "textures/items/egg_dm44",
+        "textures/items/egg_dm45",
+        "textures/items/egg_dm46",
+        "textures/items/egg_dm47",
+        "textures/items/egg_dm48",
+        "textures/items/egg_dm49",
+        "textures/items/egg_dm50",
+        "textures/items/egg_dm51",
+        "textures/items/egg_dm52",
+        "textures/items/egg_dm53",
+        "textures/items/egg_dm54",
+        "textures/items/egg_Asuna",
+        "textures/items/egg_dm55",
+        "textures/items/egg_dm56",
+        "textures/items/egg_dm57",
+        "textures/items/egg_dm58",
+        "textures/items/egg_dm59",
+        "textures/items/egg_test1",
+        "textures/items/egg_dm60",
+        "textures/items/egg_dm61",
+        "textures/items/egg_dm62",
+        "textures/items/egg_dm63",
+        "textures/items/egg_soldier_1",
+        "textures/items/egg_soldier_2",
+        "textures/items/egg_soldier_3",
+        "textures/items/egg_soldier_4",
+        "textures/items/egg_soldier_5",
+        "textures/items/egg_soldier_6",
+        "textures/items/egg_soldier_7",
+        "textures/items/egg_soldier_8",
+        "textures/items/egg_gun_soldier",
+        "textures/items/egg_sweep_soldier",
+        "textures/items/egg_demon_witch",
+        "textures/items/egg_bomb_soldier",
+        "textures/items/egg_boss1",
+        "textures/items/egg_boss2",
+        "textures/items/egg_boss3",
+        "textures/items/egg_boss4",
+        "textures/items/egg_fire_boy"
+
+
+
+      ]
+    }
+  }
+}

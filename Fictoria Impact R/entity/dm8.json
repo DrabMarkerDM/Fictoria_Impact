@@ -1,0 +1,92 @@
+{
+  "format_version": "1.8.0",
+  "minecraft:client_entity": {
+    "description": {
+      "identifier": "player:dm8",
+      "materials": {
+        "default": "spider",
+        "light": "wither_boss_armor"
+      },
+      "textures": {
+        "default": "textures/entity/player/dm8_rpp/dm8",
+        "light": "textures/entity/player/dm8_rpp/dm8"
+      },
+      "geometry": {
+        "default": "geometry.dm8",
+        "light": "geometry.dm8_light"
+      },
+      "scripts": {
+        "pre_animation": [
+          "variable.tcos0 = (Math.cos(query.modified_distance_moved * 38.17) * query.modified_move_speed / variable.gliding_speed_value) * 57.3;",
+          "variable.tcos1 = -variable.tcos0;",
+          "variable.attack_body_rot_y = Math.sin(360*Math.sqrt(variable.attack_time)) * 5.0;",
+          "variable.internal_swim_pos = Math.mod(query.modified_distance_moved, 26.0);",
+          "variable.z_bob = Math.cos(query.life_time * 103.13244) * 2.865 + 2.865;",
+          "variable.x_bob = Math.sin(query.life_time * 76.776372) * 2.865;"
+        ],
+        "scale": "0.93"
+      },
+      "animations": {
+        "root": "controller.animation.player.root",
+        "sitting": "animation.player.sneaking",
+        "humanoid_big_head": "animation.humanoid.big_head",
+        "humanoid_base_pose": "animation.humanoid.base_pose",
+        "look_at_target_default": "animation.humanoid.look_at_target.default",
+        "look_at_target_gliding": "animation.humanoid.look_at_target.gliding",
+        "look_at_target_swimming": "animation.humanoid.look_at_target.swimming",
+        "move": "animation.humanoid.move",
+        "riding": "animation.dm.riding",
+        "holding": "animation.humanoid.holding",
+        "brandish_spear": "animation.humanoid.brandish_spear",
+        "satt": "animation.dm8_att3",
+        "attack.rotations": "animation.dm8_att1",
+        "bow_and_arrow": "animation.dm8_ratt_target",
+        "crossbow_hold": "animation.player.crossbow_hold",
+        "crossbow_charge": "animation.player.crossbow_equipped",
+        "sneaking": "animation.humanoid.sneaking",
+        "bob": "animation.humanoid.bob",
+        "damage_nearby_mobs": "animation.humanoid.damage_nearby_mobs",
+        "swimming": "animation.humanoid.swimming",
+        "use_item_progress": "animation.humanoid.use_item_progress",
+        "get_in_bed": "animation.get_in_bed",
+        "holding_1": "animation.dm8_hold",
+        "sword": "animation.dm8_sword",
+        "dm8_default": "animation.dm8_default"
+      },
+      "animation_controllers": [
+        { "humanoid_baby_big_head": "controller.animation.humanoid.baby_big_head" },
+        { "humanoid_base_pose": "controller.animation.humanoid.base_pose" },
+        { "look_at_target": "controller.animation.humanoid.look_at_target" },
+        { "move": "controller.animation.humanoid.move" },
+        { "riding": "controller.animation.dm_riding" },
+        { "sitting": "controller.animation.player.sit" },
+        { "holding": "controller.animation.humanoid.holding" },
+        { "brandish_spear": "controller.animation.humanoid.brandish_spear" },
+        { "satt": "controller.animation.dm8_att3" },
+        { "attack": "controller.animation.dm8_att1" },
+        { "bow_and_arrow": "controller.animation.dm8_ratt_target" },
+        { "crossbow_controller": "controller.animation.player.crossbow" },
+        { "sneaking": "controller.animation.humanoid.sneaking" },
+        { "bob": "controller.animation.humanoid.bob" },
+        { "damage_nearby_mobs": "controller.animation.humanoid.damage_nearby_mobs" },
+        { "swimming": "controller.animation.humanoid.swimming" },
+        { "use_item_progress": "controller.animation.humanoid.use_item_progress" },
+        { "holding_1": "controller.animation.dm8_hold" },
+        { "sword": "controller.animation.dm8_sword" },
+        { "dm8_default": "controller.animation.dm8_default" }
+      ],
+      "spawn_egg": {
+        "texture": "eggs",
+        "texture_index": 8
+      },
+      "particle_effects": {
+        "dm8_particle_1": "dm:dm8_particle_1"
+      },
+      "render_controllers": [
+        "controller.render.dm8",
+        "controller.render.dm8_light"
+      ],
+      "enable_attachables": true
+    }
+  }
+}

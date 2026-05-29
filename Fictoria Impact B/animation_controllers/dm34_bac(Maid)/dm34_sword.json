@@ -1,0 +1,26 @@
+{"format_version":"1.8.0",
+"animation_controllers":{
+"controller.animation.dm34_sword":{
+"states":{
+"default":{"transitions":[
+	{ "att": "variable.attack_time >= 0.001 && query.variant == 4 " }
+
+]
+
+},
+"att": {
+					"transitions": [
+						{
+							"default": "variable.attack_time < 0.001 || query.variant != 4 "
+						}
+					],
+	"on_entry": [
+		"/particle dm:dm34_att ^ ^2 ^2",
+		"/damage @e[tag=!dm,family=monster,r=4,c=3] 9 override entity @s",
+		"/playsound dm34_attack @a[r=35] ~~~ 1.6 1.1"
+	]
+}
+}
+}
+}
+}

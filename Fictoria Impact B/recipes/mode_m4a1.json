@@ -1,0 +1,33 @@
+{
+  "format_version": "1.12",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "item:mode_m4a1"
+    },
+
+
+    "tags": [ "crafting_table" ],
+    "pattern": [
+      " Y ",
+      "X#Y",
+      "Z Z"
+    ],
+    "key": {
+      "#": {
+        "item": "minecraft:redstone_block"
+      },
+      "X": {
+        "item": "minecraft:blaze_rod"
+      },
+      "Y": {
+        "item": "minecraft:amethyst_shard"
+      },
+      "Z": {
+        "item": "minecraft:obsidian"
+      }
+    },
+    "result": {
+      "item": "item:mode_m4a1"
+    }
+  }
+}

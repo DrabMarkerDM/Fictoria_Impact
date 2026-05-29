@@ -1,0 +1,27 @@
+{"format_version":"1.8.0",
+"animation_controllers":{
+"controller.animation.dm45ratt_1":{
+"states":{
+"default":{"transitions":[
+{"att":"query.variant == 0"}
+
+]
+
+},
+"att": {
+					"transitions": [
+						{
+							"default": "query.variant == 0"
+						}
+					],
+	"on_entry": [
+		"/damage @e[r=6,family=monster,tag=!dm,type=!player:dm45,c=8] 30 magic entity @s",
+		"/playsound lightatt @a[r=16] ~~~ 1.5 1.2",
+		"/effect @e[r=6,family=monster,tag=!dm,type=!player:dm45,c=8] wither 4 3 true",
+		"/effect @e[r=6,family=monster,tag=!dm,type=!player:dm45,c=8] slowness 4 3 true"
+	]
+}
+}
+}
+}
+}

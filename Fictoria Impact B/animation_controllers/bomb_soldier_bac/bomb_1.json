@@ -1,0 +1,25 @@
+{"format_version":"1.8.0",
+"animation_controllers":{
+"controller.animation.bomb_1":{
+"states":{
+"default":{"transitions":[
+{"att":"query.variant == 0"}
+
+]
+
+},
+"att": {
+					"transitions": [
+						{
+							"default": "query.variant == 0"
+						}
+					],
+	"on_entry": [
+		"/execute at @e[r=16,family=!demon,tag=!demon,type=!demon:bomb_soldier,family=!inanimate,type=!arrow] run summon bullet:bomb_1 ~~0.3~",
+		"/execute at @e[r=16,c=1,family=!demon,tag=!demon,type=!demon:bomb_soldier,family=!inanimate,type=!arrow] run summon mob:bomb_roar ^^^1"
+	]
+}
+}
+}
+}
+}

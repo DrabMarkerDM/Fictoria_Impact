@@ -1,0 +1,24 @@
+{"format_version":"1.8.0",
+"animation_controllers":{
+"controller.animation.dm28":{
+"states":{
+"default":{"transitions":[
+{"att":"query.variant == 1"}
+
+]
+
+},
+"att": {
+					"transitions": [
+						{
+							"default": "!query.variant == 1"
+						}
+					],
+"on_entry": ["/execute at @e[r=35,c=5,family=monster,tag=!dm,type=!player:dm28] run summon bullet:dm28_bullet_2 ~~0.3~"
+
+]
+}
+}
+}
+}
+}

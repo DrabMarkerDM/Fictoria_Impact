@@ -1,0 +1,15 @@
+{
+  "format_version": "1.8.0",
+  "render_controllers": {
+    "controller.render.dm62": {
+      "geometry": "Geometry.default",
+      "materials": [ { "*": "Material.default" } ],
+      "part_visibility": [
+        { "*": "query.variant != 2" },
+        { "right_paw": "query.variant == 1" },
+        { "left_paw": "query.variant == 1" }
+      ],
+      "textures": [ "Texture.default" ]
+    }
+  }
+}

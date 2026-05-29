@@ -1,0 +1,30 @@
+{
+  "format_version": "1.12",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "gun:hand_empty"
+    },
+
+
+    "tags": [ "crafting_table" ],
+    "pattern": [
+      "P#X",
+      "  X",
+      "   "
+    ],
+    "key": {
+      "#": {
+        "item": "minecraft:redstone_torch"
+      },
+      "X": {
+        "item": "minecraft:oak_log"
+      },
+      "P": {
+        "item": "minecraft:iron_ingot"
+      }
+    },
+    "result": {
+      "item": "gun:hand_empty"
+    }
+  }
+}

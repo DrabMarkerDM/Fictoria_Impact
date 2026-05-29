@@ -1,0 +1,23 @@
+{"format_version":"1.8.0",
+"animation_controllers":{
+"controller.animation.dm47_target":{
+"states":{
+"default":{"transitions":[
+{"att":"variable.has_target"}
+
+]
+
+},
+"att": {
+					"transitions": [
+						{
+							"default": "!variable.has_target"
+						}
+					],
+"on_entry": [
+"/replaceitem entity @s slot.weapon.offhand 1 shield"]
+}
+}
+}
+}
+}

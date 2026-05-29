@@ -1,0 +1,13 @@
+{
+  "format_version": "1.8.0",
+  "render_controllers": {
+    "controller.render.mon3tr_1": {
+      "geometry": "Geometry.sss",
+      "materials": [ { "*": "Material.sss" } ],
+      "part_visibility": [
+{ "*": "query.variant == 1" }
+      ],
+      "textures": [ "Texture.sss" ]
+    }
+  }
+}

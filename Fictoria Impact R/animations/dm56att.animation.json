@@ -1,0 +1,23 @@
+{
+	"format_version": "1.8.0",
+	"animations": {
+		"animation.dm56att": {
+			"loop": true,
+			"animation_length": 0.25,
+			"override_previous_animation": true,
+			"bones": {
+				"all": {
+					"rotation": {
+						"0.0": [0, 0, 0],
+						"0.0417": [0, 60, 0],
+				        "0.0833": [0, 120, 0],
+						"0.125": [0, 180, 0],
+						"0.1667": [0, 240, 0],
+						"0.2083": [0, 300, 0],
+						"0.25": [0, 360, 0]
+					}
+				}
+			}
+		}
+	}
+}

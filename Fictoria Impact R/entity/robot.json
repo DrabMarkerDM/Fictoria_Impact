@@ -1,0 +1,37 @@
+{
+  "format_version": "1.10.0",
+  "minecraft:client_entity": {
+    "description": {
+      "identifier": "mob:robot",
+      "materials": {
+        "default": "npc"
+      },
+      "textures": {
+        "default": "textures/entity/mob/robot"
+      },
+      "geometry": {
+        "default": "geometry.robot"
+      },
+      "animations": {
+        "hid_turret_general": "animation.robot.general",
+		"shooting": "animation.robot.shooting",
+		"preing": "animation.robot.preing",
+        "general": "controller.animation.robot.general",
+		"shoot": "controller.animation.robot.shoot",
+		"pre": "controller.animation.robot.pre"
+      },
+      "scripts": {
+        "animate": [
+          "general", "shoot", "pre"
+        ]
+	  },
+      "render_controllers": [
+        "controller.render.default"
+      ],
+      "spawn_egg": {
+        "texture": "eggs",
+        "texture_index": 50
+      }
+    }
+  }
+}

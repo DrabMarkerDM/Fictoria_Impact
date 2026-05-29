@@ -1,0 +1,29 @@
+{"format_version":"1.8.0",
+"animation_controllers":{
+"controller.animation.dm0sword":{
+"states":{
+"default":{"transitions":[
+{"attack":"query.is_delayed_attacking && query.variant == 1 "}
+
+]
+
+},
+"attack": {
+					"transitions": [
+						{
+							"default": "!query.is_delayed_attacking || query.variant != 1 "
+						}
+					],
+"on_entry": [
+"/particle dm:dm0_att ^ ^2 ^2",
+"/scoreboard players add @s dm0att 1",
+"/event entity @e[scores={dm0att=5..}] sword",
+"/scoreboard players set @e[scores={dm0att=5..}] dm0att 0",
+"/effect @e[tag=!dm,type=!player:dm0,family=monster,family=!undead,r=3,c=3] instant_damage 1 1 true",
+"/effect @s absorption 5 25 true"
+]
+}
+}
+}
+}
+}

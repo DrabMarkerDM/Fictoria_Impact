@@ -1,0 +1,7 @@
+{"format_version":"1.8.0","animation_controllers":{"controller.animation.tag_11":{"states":{"default":{"on_entry":["/tag @s add dm",
+"/scoreboard objectives add dm35att dummy",
+"/scoreboard objectives add dm35att1 dummy",
+"/scoreboard objectives add dm35sss dummy"]}}
+}
+}
+}

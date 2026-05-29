@@ -1,0 +1,24 @@
+{"format_version":"1.8.0",
+"animation_controllers":{
+"controller.animation.attack":{
+"states":{
+"default":{"transitions":[
+{"attack":"query.is_delayed_attacking"}
+
+]
+
+},
+"attack": {
+					"transitions": [
+						{
+							"default": "!query.is_delayed_attacking"
+						}
+					],
+"on_entry": ["/effect @s strength 1 1 true",
+"/particle dm:kirito_att ^ ^2 ^2"
+]
+}
+}
+}
+}
+}

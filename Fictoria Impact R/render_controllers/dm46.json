@@ -1,0 +1,15 @@
+{
+  "format_version": "1.8.0",
+  "render_controllers": {
+    "controller.render.dm46": {
+      "geometry": "Geometry.default",
+      "materials": [ { "*": "Material.default" } ],
+      "part_visibility": [
+        { "*": "!query.is_powered" },
+        { "sword": "query.get_equipped_item_name =='dm46_sword'" },
+        { "part1": "query.get_equipped_item_name =='dm46_sword'" }
+      ],
+      "textures": [ "Texture.default" ]
+    }
+  }
+}

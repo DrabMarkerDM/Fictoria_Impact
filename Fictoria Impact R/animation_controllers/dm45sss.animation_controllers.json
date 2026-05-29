@@ -1,0 +1,25 @@
+{
+	"format_version" : "1.10.0",
+	"animation_controllers" : {
+		"controller.animation.dm45sss" : {
+			"initial_state" : "default",
+			"states" : {
+				"attacking" : {
+					"animations" : [ "charging" ],
+					"transitions" : [
+						{
+							"default" : "!query.is_powered || !query.has_target"
+						}
+					]
+				},
+				"default" : {
+					"transitions" : [
+						{
+							"attacking" : "query.is_powered && query.has_target"
+						}
+          ]
+        }
+      }
+    }
+  }
+}

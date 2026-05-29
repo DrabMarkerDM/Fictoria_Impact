@@ -1,0 +1,25 @@
+{
+	"format_version": "1.10.0",
+	"animation_controllers": {
+		"controller.animation.dm63_hold": {
+			"initial_state": "default",
+			"states": {
+				"ratt": {
+					"animations": [ "holding_1" ],
+					"transitions": [
+						{
+							"default": "query.mark_variant != 1 || query.has_target"
+						}
+					]
+				},
+				"default": {
+					"transitions": [
+						{
+							"ratt": "query.mark_variant == 1 && !query.has_target"
+						}
+					]
+				}
+			}
+		}
+	}
+}

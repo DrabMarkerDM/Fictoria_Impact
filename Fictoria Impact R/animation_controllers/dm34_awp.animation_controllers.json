@@ -1,0 +1,25 @@
+{
+	"format_version": "1.10.0",
+	"animation_controllers": {
+		"controller.animation.dm34_awp": {
+			"initial_state": "default",
+			"states": {
+				"ratt": {
+					"animations": [ "awp" ],
+					"transitions": [
+						{
+							"default": "query.variant != 3"
+						}
+					]
+				},
+				"default": {
+					"transitions": [
+						{
+							"ratt": "query.variant == 3"
+						}
+					]
+				}
+			}
+		}
+	}
+}

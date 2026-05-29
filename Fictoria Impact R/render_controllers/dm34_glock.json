@@ -1,0 +1,13 @@
+{
+  "format_version": "1.8.0",
+  "render_controllers": {
+    "controller.render.dm34_glock": {
+      "geometry": "Geometry.glock",
+      "materials": [ { "*": "Material.gun" } ],
+      "part_visibility": [
+        { "*": "query.variant == 5" }
+      ],
+      "textures": [ "Texture.glock" ]
+    }
+  }
+}

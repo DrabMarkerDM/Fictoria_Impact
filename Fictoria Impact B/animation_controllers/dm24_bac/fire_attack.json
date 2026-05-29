@@ -1,0 +1,28 @@
+{"format_version":"1.8.0",
+"animation_controllers":{
+"controller.animation.fire_attack":{
+"states":{
+"default":{"transitions":[
+	{ "attack": "query.is_delayed_attacking && query.mark_variant != 1 " }
+
+]
+
+},
+"attack": {
+					"transitions": [
+						{
+							"default": "!query.is_delayed_attacking || query.mark_variant == 1 "
+						}
+					],
+	"on_entry": [
+		"/execute positioned ^ ^ ^2 run execute at @e[type=!player:dm24,tag=!dm,r=5,c=5,family=monster] run summon bullet:fire_attack ~~0.3~",
+		"/scoreboard players add @e[type=player:dm24] dm24 1",
+		"/event entity @e[scores={dm24=24..}] sss",
+		"/scoreboard players set @e[scores={dm24=24..}] dm24 0",
+		"/event entity @s random"
+	]
+}
+}
+}
+}
+}

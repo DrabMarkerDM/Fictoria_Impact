@@ -1,0 +1,29 @@
+{"format_version":"1.8.0",
+"animation_controllers":{
+"controller.animation.mon3tr_die":{
+"states":{
+"default":{"transitions":[
+{"att":"query.mark_variant == 1"}
+
+]
+
+},
+"att": {
+					"transitions": [
+						{
+							"default": "query.mark_variant != 1"
+						}
+					],
+	"on_entry": [
+		"/event entity @e[type=player:dm52] m_die",
+		"/execute at @e[type=!mob:mon3tr,tag=!dm,family=monster,r=11] run summon bullet:mon3tr_ex ~~0.3~",
+		"/damage @e[type=!mob:mon3tr,tag=!dm,family=monster,r=11] 510 suicide entity @s",
+		"/playsound mon3tr_dead @a[r=40] ~~~ 2.0 1.0",
+		"/effect @e[tag=!dm,type=!mob:mon3tr,family=monster,r=11] weakness 50 255",
+		"/effect @e[tag=!dm,type=!mob:mon3tr,family=monster,r=11] slowness 50 255"
+	]
+}
+}
+}
+}
+}

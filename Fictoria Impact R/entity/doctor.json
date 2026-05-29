@@ -1,0 +1,32 @@
+{
+  "format_version": "1.8.0",
+  "minecraft:client_entity": {
+    "description": {
+      "identifier": "mob:doctor",
+      "min_engine_version": "1.8.0",
+      "materials": {
+        "default": "villager"
+      },
+      "textures": {
+      "default":  "textures/entity/mob/doctor"
+      },
+      "geometry": {
+        "default": "geometry.new_npc"
+      },
+      "animations": {
+        "general": "animation.villager.general",
+        "look_at_target": "animation.common.look_at_target",
+        "move": "animation.villager.move"
+      },
+      "animation_controllers": [
+        { "general": "controller.animation.villager.general" },
+        { "move": "controller.animation.villager.move" }
+      ],
+      "render_controllers": [ "controller.render.new_npc" ],
+      "spawn_egg": {
+        "texture": "eggs",
+        "texture_index": 13
+      }
+    }
+  }
+}

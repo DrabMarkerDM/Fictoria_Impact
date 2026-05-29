@@ -1,0 +1,26 @@
+{"format_version":"1.8.0",
+"animation_controllers":{
+"controller.animation.dm52bow":{
+"states":{
+"default":{"transitions":[
+{"att":"query.variant == 1"}
+
+]
+
+},
+"att": {
+					"transitions": [
+						{
+							"default": "query.variant == 1"
+						}
+					],
+	"on_entry": [
+		"/effect @e[tag=dm,r=51,c=1,type=mob:mon3tr] instant_health 1 2 true",
+		"/effect @e[tag=dm,r=51,c=1,type=player:dm52] instant_health 1 1 true",
+		"/effect @e[tag=dm,r=51,c=3,family=dm,type=!mob:mon3tr,type=!player:dm52] instant_health 1 1 true"
+	]
+}
+}
+}
+}
+}

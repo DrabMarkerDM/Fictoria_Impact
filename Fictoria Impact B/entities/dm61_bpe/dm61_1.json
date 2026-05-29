@@ -1,0 +1,159 @@
+{
+  "format_version": "1.8.0",
+  "minecraft:entity": {
+    "description": {
+      "identifier": "player:dm61_1",
+      "is_spawnable": false,
+      "is_summonable": true,
+      "is_experimental": false
+    },
+    "component_groups": {
+      "air": {
+        "minecraft:type_family": {
+          "family": [
+            "despawer",
+            "despawer_despawning"
+          ]
+        }
+      }
+    },
+    "components": {
+      "minecraft:type_family": {
+        "family": [ "player", "dm", "dm61shield" ]
+      },
+      "minecraft:collision_box": {
+        "width": 0.6,
+        "height": 1.8
+      },
+      "minecraft:health": {
+        "value": 5000,
+        "max": 5000
+      },
+      "minecraft:variant": {
+        "value": 1
+      },
+      "minecraft:attack": {
+        "damage": 161
+      },
+      "minecraft:damage_sensor": {
+        "triggers": {
+          "cause": "all",
+          "deals_damage": false
+        }
+      },
+      "minecraft:can_climb": {
+      },
+      "minecraft:movement": {
+        "value": 0.0000000000000000001
+      },
+      "minecraft:navigation.walk": {
+        "is_amphibious": true,
+        "can_path_over_water": true,
+        "can_pass_doors": true,
+        "can_open_doors": true,
+        "avoid_damage_blocks": true
+      },
+      "minecraft:movement.basic": {
+      },
+      "minecraft:jump.static": {
+      },
+      "minecraft:despawn": {
+        "filters": {
+          "all_of": [
+            {
+              "any_of": [
+                {
+                  "test": "is_family",
+                  "subject": "self",
+                  "value": "despawer_despawning"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "minecraft:underwater_movement": {
+        "value": 0.0
+      },
+      "minecraft:knockback_resistance": {
+        "value": 2.0
+      },
+      "minecraft:timer": {
+        "looping": true,
+        "randomInterval": false,
+        "time": 10.0,
+        "time_down_event": {
+          "event": "air"
+        }
+      },
+      "minecraft:behavior.delayed_attack": {
+        "priority": 1,
+        "reach_multiplier": 100,
+        "attack_duration": 0.1,
+        "hit_delay_pct": 0.5,
+        "track_target": true
+      },
+      "minecraft:pushable": {
+        "is_pushable": false,
+        "is_pushable_by_piston": false
+      },
+      "minecraft:spell_effects": {
+        "add_effects": [
+          {
+            "effect": "instant_health",
+            "amplifier": 255,
+            "visible": false,
+            "ambient": false,
+            "duration": 999999
+          },
+          {
+            "effect": "resistance",
+            "amplifier": 255,
+            "visible": false,
+            "ambient": false,
+            "duration": 999999
+          }
+        ]
+      },
+      "minecraft:behavior.nearest_attackable_target": {
+        "priority": 2,
+        "walk_speed_multiplier": 0,
+        "sprint_speed_multiplier": 0,
+        "reselect_targets": true,
+        "entity_types": [
+          {
+            "filters": {
+              "any_of": [
+                {
+                  "test": "is_family",
+                  "subject": "other",
+                  "value": "null"
+                }
+              ]
+            },
+            "max_dist": 100
+          }
+        ],
+        "must_see": false,
+        "must_see_forget_duration": 5.0
+      },
+      "minecraft:follow_range": {
+        "value": 100
+      },
+      "minecraft:physics": {
+        "has_gravity": true,
+        "has_collision": true
+    },
+      "minecraft:scaffolding_climber": {}
+    },
+    "events": {
+      "air": {
+        "add": {
+          "component_groups": [
+            "air"
+          ]
+        }
+      }
+    }
+  }
+  }
