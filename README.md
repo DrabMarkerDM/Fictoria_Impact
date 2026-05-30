@@ -229,4 +229,3 @@ MIT — Free to use, modify, and distribute with attribution.
 
 ---
 
-**Fictoria_Impact — 为基岩版的战斗带来一点"脑子"。**
