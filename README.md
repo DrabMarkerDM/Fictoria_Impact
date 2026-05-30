@@ -1,236 +1,231 @@
 # ⚔️ Fictoria_Impact
 
-**Minecraft Bedrock Edition 通用战斗 AI 框架** — 让基岩版生物学会"战斗"，而不仅仅是"攻击最近目标"。
-
-> 这不是一个简单的"模组包"，而是一套**基于自定义AI框架的生物实体战斗逻辑**。  
-> 如果你想让自己的 Add‑on 生物拥有远程绕圈、近战三态决策、脱困本能、友军识别，甚至一套完整的记分板驱动技能 → 爆发的技能体系，这里的代码可以直接参考。
+**A Minecraft Bedrock Edition universal combat AI framework** — making entities *fight* instead of just *chasing the nearest target*.
 
 ---
 
-## 📦 概览
+## 📦 Overview
 
-| 项目 | 数值 |
-|------|------|
-| 行为包实体 | 98+ 个（含独立子文件夹） |
-| 动画控制器 | 167 个 |
-| 核心 JS 引擎 | 6 个模块，约 60 KB |
-| 总 JSON 代码量 | ~1.2 MB（含实体、AC、方块、物品等） |
-| 许可证 | MIT |
-| 最低引擎版本 | 1.20.30 |
-| 脚本 API | `@minecraft/server` 1.19.0 |
-
----
-
-## 🧠 核心架构
-
-### 三层分离设计
-
-```
-┌──────────────────────────────────────────────────┐
-│  Layer 1: JSON 数据层（实体定义、组件组、事件）   │
-│  负责：基础属性、变体切换、驯服流程、伤害减免     │
-├──────────────────────────────────────────────────┤
-│  Layer 2: 动画控制器状态机（167 个控制器）       │
-│  负责：武器动画、特效、复数的计分板               │
-├──────────────────────────────────────────────────┤
-│  Layer 3: JavaScript 运行时（DmTargetEngine）    │
-│  负责：索敌权重、走位决策、脱困检测、伤害结算     │
-└──────────────────────────────────────────────────┘
-```
-
-### 设计哲学
-
-**JSON 做它擅长的事**：数据定义、事件触发、动画状态机  
-**JS 做它擅长的事**：运行时决策、碰撞检测、配置表驱动逻辑  
-**互不抢权，各司其职**
+| Item | Value |
+|------|-------|
+| Behavior Pack Entities | 98+ |
+| Animation Controllers | 167 |
+| Core JS Engine | 6 modules, ~60 KB |
+| Total JSON | ~1.2 MB |
+| License | MIT |
+| Min Engine Version | 1.20.30 |
+| Script API | `@minecraft/server` 1.19.0 |
 
 ---
 
-## ⚙️ 核心引擎：`DmTargetEngine`
+## 🧠 Architecture
 
-### 工作流程
+### Three-Layer Design
 
 ```
-每 1 tick（main.js）:
-  └─ driveMaidMuscles() → 遍历活跃维度 + 实体类型
-       ├─ 读取 dynamicProperty 速度指令
-       └─ applyImpulse() 注入动力
+Layer 1: JSON Data Layer (entity definitions, component groups, events)
+         → Base stats, variant switching, taming, damage reduction
 
-每 5 tick（target_engine.js）:
-  └─ DmTargetEngine.update() → 索敌权重计算 + 走位决策
+Layer 2: Animation Controller State Machine (167 controllers)
+         → Weapon animations, effects, scoreboard-driven states
 
-战术时钟（随机 30~50 tick）:
-  └─ 多模态方向选择（直线后退 / 左绕 / 右绕）
+Layer 3: JavaScript Runtime (DmTargetEngine)
+         → Targeting weights, movement decisions, stuck detection, damage handling
 ```
 
-### 已落地的子系统
-
-| 子系统 | 文件 | 状态 |
-|--------|------|------|
-| **权重索敌** | `target_engine.js` | ✅ 完整实现 |
-| **远程走位** | `movement_ranged.js` | ✅ 含威胁源检测 + 受击阻尼 |
-| **脱困系统** | (内置) | ✅ 卡墙/卡坑/矮洞/岩浆/悬崖 |
-| **友军保护** | `player_attack_blocker.js` | ✅ 三层拦截（弹射物→JSON→JS回血）|
-| **override 伤害** | `bullet_manager.js` | ✅ 绕过原版无敌帧 |
-| **岩浆检测** | `maid_manager.js` | ✅ 事件驱动，非轮询 |
-| **近战引擎** | `movement_melee.js` | ⏳ 设计中（激进/稳健/撤退） |
-| **巡逻模式** | `patrol.js` | ⏳ 设计中 彼时会有漫游、跟随、巡逻三态切换 |
+**Design philosophy**: JSON does what JSON is good at (data, events, animation states). JS does what JS is good at (runtime decisions, collision detection, config-driven logic). **They don't fight for control.**
 
 ---
 
-## 🧬 实体体系
+## ⚙️ Core Engine: `DmTargetEngine`
 
-### 1. JSON 自闭环实体（精英单位）
+### Workflow
 
-这些实体拥有完整的自闭环战斗系统——索敌、武器切换、终结技（sss）爆发全部在 JSON 层完成。引擎只为他们提供脱困检测和友军保护兜底。
+```
+Every 1 tick (main.js):
+  └─ driveMaidMuscles() → iterate dimensions + entity types
+       ├─ read dynamicProperty velocity commands
+       └─ applyImpulse()
 
-**代表实体**：
+Every 5 tick (target_engine.js):
+  └─ DmTargetEngine.update() → target weighting + movement decision
 
-| 实体 | 定位 | 特色 |
-|------|------|------|
-| **dm0** | 六边形四重技能近战远程切换战士 | sword/bow/SSS，逻辑自洽的自循环模板 |
-| **dm41** | 技能带有单段高倍率强力击的战士 | 单体极致索敌，最高单发 198 伤害 |
-| **dm60** | 割草冠军 | 敌人越多，敌人越少。由记分板驱动和加减运算，大范围AOE技能伤害 |
-| **dm61** | 后方主力远程输出 | 常态和技能为远程炮台，终结技开启后召唤冰柱嘲讽吸引敌人 |
-| **dm63** | 远程坦克 | 技能有受击回复的override类反伤能量盾，高压深水区选手 |
-| **dm52** | 海陆空召唤物发射器 | 常态后勤可治疗友方，召唤物海陆空可移动，伤害爆炸 |
-| **dm25** | 敌方阵线破坏者 | 常态可近战大范围对群，终结技300DPS对单斩杀 |
-| **boss1** | 近战远程双修Boss，受击可击退友方 | 1000HP，高频远程爆炸伤害，前摇可被打断 |
-| **fire_boy** | 专精近战的超级Boss | 250 HP，免疫火焰，近战为大范围半径的火焰群攻爆破 |
+Tactical clock (random 30–50 ticks):
+  └─ Multi-mode direction selection (straight retreat / left circle / right circle)
+```
 
-### 2. 引擎驱动实体（配置表驱动的基础单位）
+### Implemented Subsystems
 
-这些实体由 `DmTargetRegistry` 配置表 + JS 引擎提供完整的战斗能力。
-
-| 实体 | 模式 | 武器 |
-|------|------|------|
-| **dm34_1**（军械女仆） | 5 战斗模式 | M4A1 / Mossberg / AWP / 近战 / Glock |
-| **dm34**（基础女仆） | 3 战斗模式 + 2后勤模式 | 近战 / 弓箭 / 十字弩 | + | 做饭 / 种地 |
-
-### 3. 辅助系统
-
-| 系统 | 说明 |
-|------|------|
-| **hug_maid** | 4.4 KB 的透明虚拟实体，利用 `parrot_tame` 族实现"抱起女仆"交互闭环 |
-| **player.json** | `family: ["player", "dm"]`，实现玩家于友方dm互伤免疫 |
-| **子弹体系** | 10+ 种弹种，部分带 `dm` 族互免，部分靠 JS 回血兜底 |
+| Subsystem | File | Status |
+|-----------|------|--------|
+| Weight-based Targeting | `target_engine.js` | ✅ Complete |
+| Ranged Movement | `movement_ranged.js` | ✅ With threat detection + hit damping |
+| Stuck Detection | (built-in) | ✅ Wall / pit / low-ceiling / lava / cliff |
+| Friendly Fire Protection | `player_attack_blocker.js` | ✅ Triple-layer (projectile → JSON → JS heal) |
+| Override Damage | `bullet_manager.js` | ✅ Bypass vanilla invincibility frames |
+| Lava Detection | `maid_manager.js` | ✅ Event-driven, not polling |
+| Melee Engine | `movement_melee.js` | ⏳ In design (aggressive / balanced / retreat) |
+| Patrol Mode | `patrol.js` | ⏳ In design (roam / follow / patrol) |
 
 ---
 
-## 🎬 动画控制器生态（167 个）
+## 🧬 Entity System
 
-### 13 大分类
+### Type A: JSON Self-Contained Entities (Elite Units)
 
-| 类别 | 数量 | 说明 |
-|------|------|------|
-| 武器状态机 | 5 | sword / bow / crossbow / gun(50KB) / ak47 |
-| 基础状态 | 3 | 姿态 / 移动 / 冲刺移动 / 后撤步 |
-| 战斗状态 | 4 | 索敌 / 血量 / 死亡 / 格挡 |
-| 技能系统 | 8 | 通用技能 + 角色专属终结技 + 数种技能配置（自动回复、攻击回复、受击回复） s1~s3 + SSS |
-| **Tag 系统** | **31** | 记分板自动登记系统 |
-| 状态标签 | 6 | 装备 / 攻击 / 物品 / 模式 / 移动 / 目标 |
-| 特效 | 6 | 攻击特效 / 受击粒子 |
-| 坐骑 | 3 | 骑乘 / 被骑乘 / 女仆骑乘 |
-| Boss 专属 | 4 | 战斗和闲置状态转换，其闲置状态数值较低，适合暗杀处决 |
-| 女仆专用 | 6 | 基础 / 攻击 / 跟随 / 技能 / 坐下 / 拾取 |
+These entities have complete self-contained combat systems — targeting, weapon switching, and ultimate skills (SSS) all handled in JSON. The engine only provides stuck detection and friendly fire protection.
 
+| Entity | Role | Specialty |
+|--------|------|-----------|
+| **dm0** | Versatile hybrid fighter | sword / bow / SSS, self-contained template |
+| **dm41** | Heavy single-hit striker | Up to 198 damage per hit |
+| **dm60** | AoE crowd-clearer | Scoreboard-driven rage, large-area damage |
+| **dm61** | Ranged artillery | Summons ice pillars to taunt enemies in SSS mode |
+| **dm63** | Ranged tank | Override damage-reflect shield, high-pressure specialist |
+| **dm52** | Summoner support | Heals allies, summons mobile units |
+| **dm25** | Linebreaker | AoE melee, 300 DPS single-target execute |
+| **boss1** | Hybrid melee/ranged boss | 1000 HP, explosive projectiles, interruptible wind-up |
+| **fire_boy** | Melee-focused super boss | 250 HP, fire immune, large AoE fire explosions |
 
-## 🛠️ 从零开始的基于《Fictoria_虚构幻域》Addon的实体设计路线，欢迎加入我们！
+### Type B: Engine-Driven Entities (Config-Driven Units)
 
-### 方案 A：JSON 自循环（适合"精英单位"）
+These entities get their full combat capabilities from the `DmTargetRegistry` config table + JS engine.
+
+| Entity | Modes | Weapons |
+|--------|-------|---------|
+| **dm34_1** (Arsenal Maid) | 5 combat modes | M4A1 / Mossberg / AWP / Melee / Glock |
+| **dm34** (Base Maid) | 3 combat + 2 logistics | Melee / Bow / Crossbow + Cooking / Farming |
+
+### Key Utility Systems
+
+| System | Description |
+|--------|-------------|
+| **hug_maid** | 4.4 KB invisible entity using `parrot_tame` family to let players "carry" maids |
+| **player.json** | `family: ["player", "dm"]` — enables friendly fire immunity between player and dm entities |
+| **Projectile System** | 10+ ammo types, some with `dm` family immunity, others backed by JS heal fallback |
+
+---
+
+## 🎬 Animation Controller Ecosystem (167 total)
+
+### Categories
+
+| Category | Count | Description |
+|----------|-------|-------------|
+| Weapon State Machines | 5 | sword / bow / crossbow / gun(50KB) / ak47 |
+| Base States | 3 | idle / move / sprint / retreat |
+| Combat States | 4 | targeting / health / death / blocking |
+| Skill System | 8 | generic skills + ultimate + various skill charge types |
+| **Tag System** | **31** | Scoreboard-driven orthogonal state bits |
+| Status Tags | 6 | equipment / attack / item / mode / move / target |
+| Effects | 6 | attack effects / hit particles |
+| Mounts | 3 | riding / being ridden / maid riding |
+| Boss Exclusive | 4 | weaker idle states for assassination opportunities |
+| Maid Exclusive | 6 | base / attack / follow / skill / sit / pickup |
+
+---
+
+## 🛠️ Creating a New Entity
+
+### Plan A: JSON Self-Contained (for elite units)
 
 ```
-创建一个新的 JSON 自闭环实体：
-1.  确定 variant 数量（如 3 种武器模式）
-2.  编写 component_groups（每个 variant 一组）
-3.  设计 target_nearby_sensor 切换阈值
-4.  设计 SSS 爆发机制（记分板 / timer / 事件链）
-5.  编写对应的动画控制器（约 5~8 个）
-6.  在 player.json 中注册 dm 族互免
+1. Decide variant count (e.g. 3 weapon modes)
+2. Write component_groups (one per variant)
+3. Design target_nearby_sensor thresholds
+4. Design SSS mechanic (scoreboard / timer / event chain)
+5. Write animation controllers (~5–8 files)
+6. Register dm family immunity in player.json
 ```
 
-### 方案 B：引擎驱动（适合"量产单位"）
+### Plan B: Engine-Driven (for mass-production units)
 
 ```
-创建一个新的引擎驱动实体：
-1.  确定 identifier 和 variant 编号
-2.  在 DmTargetRegistry 中添加配置条目
-3.  在 main.js 的 targetTypes 中添加 identifier
-4.  可选：在 DAMAGE 表中添加子弹伤害
-5.  不需要编写复杂的战斗 JSON 组件
+1. Pick identifier and variant number
+2. Add entry to DmTargetRegistry config
+3. Add identifier to targetTypes in main.js
+4. (Optional) Add bullet damage to DAMAGE table
+5. No complex combat JSON needed
 ```
 
 ---
 
-## 📊 当前项目状态
+## 📊 Project Status
 
-| 模块 | 进度 | 备注 |
-|------|------|------|
-| 远程走位引擎 | ✅ 100% | 含脱困/友军保护 |
-| 权重索敌引擎 | ✅ 100% | 含专注度/冷却/伤害超时 |
-| override 伤害 | ✅ 100% | 子弹 + 近战均可 |
-| 岩浆检测 | ✅ 100% | 女仆传送 + demon 弹跳 |
-| 友军保护 | ✅ 100% | 三层兜底 |
-| 近战三大策略 | ⏳ 30% | 架构已设计，待实现 |
-| 巡逻模式 | ⏳ 0% | 槽位驱动 + ActionForm |
-| 精灵球 | ⏳ 0% | 实体序列化/反序列化 |
-| 等级系统 | ❌ 搁置 | 优先级低 |
-| README 本文 | ✅ 完成 | 😄 |
+| Module | Progress | Notes |
+|--------|----------|-------|
+| Ranged Movement Engine | ✅ 100% | Includes stuck detection + friendly fire |
+| Targeting Engine | ✅ 100% | Focus / cooldown / damage timeout |
+| Override Damage | ✅ 100% | Bullets + melee |
+| Lava Detection | ✅ 100% | Maid teleport + demon bounce |
+| Friendly Fire Protection | ✅ 100% | Triple-layer |
+| Melee 3-Strategy | ⏳ 30% | Designed, not yet implemented |
+| Patrol Mode | ⏳ 0% | Slot-driven + ActionForm UI |
+| Capture System | ⏳ 0% | Entity serialization |
+| Level System | ❌ Shelved | Low priority |
 
 ---
 
-## 🧪 技术栈与兼容性（存在的问题，未来要做什么）
+## 🧪 Technical Notes
 
-### 已知的格式版本分布
+### JSON Format Versions in Use
 
-| 格式版本 | 用途 | 状态 |
-|---------|------|------|
-| 1.8.0 | 绝大多数 dm 实体 | ⚠️ 将升级至 ≥1.16.0 |
-| 1.12.0 | 老子弹实体 | ⚠️ `onHit` 已废弃，将迁移 |
-| 1.20.30 | 当前 min_engine_version | ✅ 目标版本 |
-| 1.21.0 | dm34 子弹 | ✅ 最新 |
-| 1.26.0 | player.json | ⚠️ 预览版格式，将回退 |
+| Version | Used By | Status |
+|---------|---------|--------|
+| 1.8.0 | Most dm entities | ⚠️ Will upgrade to ≥1.16.0 |
+| 1.12.0 | Legacy projectile entities | ⚠️ `onHit` deprecated, will migrate |
+| 1.20.30 | Current min_engine_version | ✅ Target version |
+| 1.21.0 | dm34 projectiles | ✅ Latest |
+| 1.26.0 | player.json | ⚠️ Preview format, will downgrade |
 
-### JS 模块
+### JS Dependencies
 
+```json
+"@minecraft/server": "^1.19.0",
+"@minecraft/server-ui": "^1.2.0"
 ```
-@minecraft/server     ^1.19.0
-@minecraft/server-ui  ^1.2.0
+
+---
+
+## 📝 Credits
+
+- **Aplok** — Override damage projectile logic
+- **TouhouLittleMaidBE** — State machine architecture, hug_maid & inventory detection references
+- **NotUnaNancyOwen** — Java skeleton strafing logic
+- **The_XD259** — Shield blocking concept (future)
+
+---
+
+## 🤝 Contributing
+
+Areas open for discussion:
+
+- Melee engine 3-strategy implementation
+- JSON format version migration
+- Projectile system unification
+- New entity design (self-contained or engine-driven)
+
+---
+
+## 📬 Contact
+
+- **QQ Group**: `191050693` (recommended, daily chat + dev discussion)
+- **GitHub Issues**: [Submit bugs or suggestions](https://github.com/DrabMarkerDM/Fictoria_Impact/issues)
+
+> Before submitting an Issue or PR, consider reading `attackable_target_manager.js` and `main.js` first to understand the routing logic. For testing, use `/summon` with the `variant` parameter.
+
+---
+
+## 📜 License
+
+MIT — Free to use, modify, and distribute with attribution.
+
+---
+
+**Fictoria_Impact — bringing brains to Bedrock combat.**
 ```
 
 ---
 
-## 📝 致谢与参考
 
-- **Aplok 枪械** — 基于 override 伤害弹射物判定逻辑
-- **车万女仆 / TouhouLittleMaidBE** — 属性驱动状态机、架构参考，比如hug_maid和背包检测json
-- **NotUnaNancyOwen** — Java 骷髅走位逻辑
-- **The_XD259** — 生物实体的盾牌格挡思路（未来）
-
----
-
-## 🤝 贡献
-
-这是一个小小的个人项目，但你如果对以下方向感兴趣，欢迎交流：
-
-- 近战引擎的三大策略落地
-- JSON 格式版本统一迁移方案
-- 子弹体系双轨制合并
-- 新实体设计（自闭环或引擎驱动）
-
-
-## 📬 交流与反馈
-- **QQ 群**: `191050693`（推荐，日常交流 + 开发讨论）
-- **GitHub Issues**: `https://github.com/DrabMarkerDM/Fictoria_Impact/issues`
-
-**提 Issue 或 PR 前**：建议先看一看 `attackable_target_manager.js` 和 `main.js`，理解路由分层逻辑。测试时请用 `/summon` 配合 variant 参数。
-
----
-
-## 📜 许可证
-
-MIT — 你可以自由使用、修改、分发，但请保留原作者署名。
-
----
-
-**Fictoria_Impact — 为基岩版的战斗带来一点"脑子"。**
+**If you want me to adjust the tone anywhere — make it more technical, more casual, or fix any mistranslations — just say the word.**
