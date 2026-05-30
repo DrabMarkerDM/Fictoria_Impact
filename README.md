@@ -160,6 +160,7 @@ These entities get their full combat capabilities from the `DmTargetRegistry` co
 | Override Damage | ✅ 100% | Bullets + melee |
 | Lava Detection | ✅ 100% | Maid teleport + demon bounce |
 | Friendly Fire Protection | ✅ 100% | Triple-layer |
+| Custom-skill system | ⏳ 80% | melee_box_attack will be soon added to replace delayed_attack |
 | Melee 3-Strategy | ⏳ 30% | Designed, not yet implemented |
 | Patrol Mode | ⏳ 0% | Slot-driven + ActionForm UI |
 | Capture System | ⏳ 0% | Entity serialization |
@@ -224,9 +225,3 @@ MIT — Free to use, modify, and distribute with attribution.
 ---
 
 **Fictoria_Impact — bringing brains to Bedrock combat.**
-```
-
----
-
-
-**If you want me to adjust the tone anywhere — make it more technical, more casual, or fix any mistranslations — just say the word.**
