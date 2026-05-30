@@ -58,6 +58,7 @@ Tactical clock (random 30–50 ticks):
 
 | Subsystem | File | Status |
 |-----------|------|--------|
+| Custom-skill system | `The.json file in entities folder and animation controllers` | ✅ Complete |
 | Weight-based Targeting | `target_engine.js` | ✅ Complete |
 | Ranged Movement | `movement_ranged.js` | ✅ With threat detection + hit damping |
 | Stuck Detection | (built-in) | ✅ Wall / pit / low-ceiling / lava / cliff |
@@ -189,7 +190,7 @@ These entities get their full combat capabilities from the `DmTargetRegistry` co
 
 ## 📝 Credits
 
-- **Aplok** — Override damage projectile logic
+- **Aplok guns** — Override damage projectile logic
 - **TouhouLittleMaidBE** — State machine architecture, hug_maid & inventory detection references
 - **NotUnaNancyOwen** — Java skeleton strafing logic
 - **The_XD259** — Shield blocking concept (future)
