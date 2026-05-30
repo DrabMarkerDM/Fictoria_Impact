@@ -9,7 +9,7 @@
       },
       "textures": {
       "default": "textures/entity/player/dm0_rpp/dm0",
-      "sss": "textures/entity/player/dm0_sss"
+      "sss": "textures/entity/player/dm0_rpp/dm0_sss"
       },
       "geometry": {
         "default": "geometry.dm0",
