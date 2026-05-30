@@ -195,6 +195,7 @@ These entities get their full combat capabilities from the `DmTargetRegistry` co
 - **TouhouLittleMaidBE** — State machine architecture, hug_maid & inventory detection references
 - **NotUnaNancyOwen** — Java skeleton strafing logic
 - **The_XD259** — Shield blocking concept (future)
+- **Sounds** — Sound resource from [あみたろの声素材工房](https://amitaro.net/)
 
 ---
 
