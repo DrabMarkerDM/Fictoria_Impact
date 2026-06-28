@@ -16,6 +16,7 @@
 					],
 "on_entry": [
 "/particle dm:asuna_att ^ ^2 ^2",
+"/playsound att @a[r=33] ~~~ 1.8 1.4",
 "/effect @e[tag=!dm,type=!player:asuna,family=monster,family=!undead,r=4,c=4] instant_damage 2 2 true",
 "/effect @e[tag=!dm,type=!player:asuna,family=monster,r=4,c=4] wither 5 50 true"
 ]

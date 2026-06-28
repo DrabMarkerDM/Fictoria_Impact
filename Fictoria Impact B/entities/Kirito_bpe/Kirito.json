@@ -1,5 +1,5 @@
 {
-  "format_version": "1.8.0",
+  "format_version": "1.21.50",
   "minecraft:entity": {
     "description": {
       "identifier": "player:kirito",
@@ -8,7 +8,6 @@
       "is_experimental": false,
       "scripts": {
         "animate": [
-          "att",
           "attack",
           "tag",
           "ect",
@@ -16,11 +15,17 @@
         ]
       },
       "animations": {
-        "att": "controller.animation.air",
         "attack": "controller.animation.attack",
-        "tag": "controller.animation.tag_10",
+        "tag": "controller.animation.dm_tag",
         "ect": "controller.animation.ect_5",
-        "equip": "controller.animation.k_equip"
+        "equip": "controller.animation.dm_equip"
+       },
+      "properties": {
+        "dm:clock_time_1": {  "type": "enum",
+          "values": [ "def", "on", "off" ],
+          "default": "def",
+          "client_sync": true
+        }
       }
     },
     "component_groups": {
@@ -28,6 +33,14 @@
       "minecraft:attack" :{
      "damage": 15
       },
+        "minecraft:behavior.melee_box_attack": {
+          "priority": 2,
+          "can_spread_on_fire": true,
+          "horizontal_reach": 2.0,
+          "cooldown_time": 0.16,
+          "speed_multiplier": 1.2,
+          "track_target": true
+        },
       "minecraft:movement": {
         "value": 0.34
       },
@@ -51,14 +64,6 @@
               "duration": 1
             }
           ]
-        },
-		"minecraft:timer": {
-		  "looping": true,
-		  "randomInterval": false,
-		  "time": 0.1,
-      "time_down_event": {
-        "event": "scores"
-      }
 		},
         "minecraft:variant": {
           "value": 0
@@ -95,6 +100,14 @@
      "minecraft:attack" :{
      "damage": 42
      },
+        "minecraft:behavior.melee_box_attack": {
+          "priority": 2,
+          "can_spread_on_fire": true,
+          "horizontal_reach": 2.25,
+          "cooldown_time": 0.14,
+          "speed_multiplier": 1.3,
+          "track_target": true
+     },
         "minecraft:variant": {
           "value": 0
      },
@@ -104,16 +117,6 @@
       "minecraft:equipment": {
         "table": "loot_tables/kirito_2.json"
       },
-			"minecraft:spawn_entity": [
-              {
-                "min_wait_time": 0,
-                "max_wait_time": 0,
-                "single_use": true,
-                "spawn_entity": "null:null",
-                "spawn_sound": "fire",
-                "num_to_spawn": 1
-              }
-            ],
         "minecraft:spell_effects": {
           "add_effects": [
                 {
@@ -121,20 +124,12 @@
               "amplifier": 1,
               "visible": false,
               "ambient": false,
-              "duration": 40
+              "duration": 999999
             }
           ]
         },
       "minecraft:knockback_resistance": {
         "value": 0.4
-        },
-		"minecraft:timer": {
-		  "looping": false,
-		  "randomInterval": false,
-		  "time": 40.0,
-		  "time_down_event": {
-		    "event": "back"
-		  }
        }
      },
             "ta": {
@@ -211,32 +206,37 @@
         }
         },
       "minecraft:behavior.nearest_attackable_target": {
-        "priority": 2,
-        "walk_speed_multiplier": 1.2,
-        "sprint_speed_multiplier": 1.4,
-        "reselect_targets": true,
-        "entity_types": [
-          {
-            "filters": {
-              "any_of": [
-                {
-                  "test": "is_family",
-                  "subject": "other",
-                  "value": "monster"
-                }
-              ]
-            },
-            "max_dist": 38
-          }
-        ],
-        "must_see": true,
-        "must_see_forget_duration": 5.0
-      },
-      "minecraft:follow_range": {
-        "value": 38
-      }
+          "priority": 2,
+          "must_see": true,
+          "reselect_targets": true,
+          "entity_types": [
+            {
+              "filters": {
+                "any_of": [
+                  {
+                    "test": "is_family",
+                    "subject": "other",
+                    "value": "monster"
+                    },
+                  {
+                    "test": "is_family",
+                    "subject": "other",
+                    "value": "cordyceps"
+                  }
+                ]
+              },
+          "max_dist": 38,
+          "must_see_forget_duration": 5.0,
+          "walk_speed_multiplier": 1.1,
+          "sprint_speed_multiplier": 1.3
+            }
+          ]
+        },
+        "minecraft:follow_range": {
+          "value": 48
+        }
      },
-    "senor": {
+    "sensor": {
       "minecraft:on_target_acquired": {
         "event": "attack",
         "target": "self"
@@ -248,6 +248,16 @@
       "minecraft:knockback_resistance": {
         "value": 0.2
       }
+      },
+      "attack_reset": {
+        "minecraft:timer": {
+          "looping": true,
+          "randomInterval": false,
+          "time": 1.5,
+          "time_down_event": {
+            "event": "attack_reset"
+          }
+        }
     },
     "s_time": {
 		"minecraft:timer": {
@@ -282,6 +292,21 @@
       "minecraft:health": {
         "value": 20,
         "max": 20
+      },
+    "minecraft:behavior.avoid_block": {
+  "priority": 4,           
+  "search_range": 1,       
+  "search_height": 0,      
+  "target_blocks": [
+    "minecraft:fire",
+    "minecraft:soul_fire",
+    "minecraft:magma",
+    "minecraft:sweet_berry_bush",
+    "minecraft:lava"
+  ],
+  "target_selection_method": "nearest",
+  "walk_speed_modifier": 1.0, 
+  "sprint_speed_modifier": 1.0
       },
       "minecraft:hurt_on_condition": {
         "damage_conditions": [
@@ -352,14 +377,6 @@
         "speed_multiplier": 0.9,
         "goal_radius": 0.8
       },
-      "minecraft:behavior.delayed_attack": {
-        "priority": 3,
-        "reach_multiplier": 4.0,
-        "attack_duration": 0.08,
-        "hit_delay_pct": 0.5,
-        "track_target": true,
-        "sound_event": "attack.strong"
-      },
       "minecraft:behavior.pickup_items": {
         "priority": 8,
         "max_dist": 3,
@@ -390,7 +407,7 @@
                 "value": "dm"
               }
             },
-            "deals_damage": true
+            "deals_damage": "yes"
           },
           {
             "cause": "entity_attack",
@@ -404,7 +421,7 @@
                 "value": "dm"
               }
             },
-            "deals_damage": true
+            "deals_damage": "yes"
           },
           {
             "cause": "entity_explosion",
@@ -418,7 +435,7 @@
                 "value": "dm"
               }
             },
-            "deals_damage": true
+            "deals_damage": "yes"
           },
           {
             "cause": "block_explosion",
@@ -432,7 +449,7 @@
                 "value": "dm"
               }
             },
-            "deals_damage": true
+            "deals_damage": "yes"
           },
           {
             "cause": "override",
@@ -446,7 +463,7 @@
                 "value": "dm"
               }
             },
-            "deals_damage": true
+            "deals_damage": "yes"
           },
           {
             "cause": "magic",
@@ -460,7 +477,7 @@
                 "value": "dm"
               }
             },
-            "deals_damage": true
+            "deals_damage": "yes"
           },
           {
             "on_damage": {
@@ -470,7 +487,7 @@
                 "value": "dm"
               }
             },
-            "deals_damage": false
+            "deals_damage": "no"
           }
         ]
       },
@@ -528,43 +545,85 @@
         "add": {
           "component_groups": [
             "on_ta",
-            "senor"
+            "sensor"
           ]
         }
       },
       "attack": {
-        "remove": {
-          "component_groups": [
-            "air",
-            "s_time",
-            "equip"
-          ]
+    "sequence": [
+        {
+            
+            "remove": {
+                "component_groups": ["equip", "attack_reset", "s_time", "air"]
+            },
+            "queue_command": {
+                "command": [
+                    "tag @s add dm_has_target"
+                ]
+            }
         },
-        "add": {
-          "component_groups": [
-            "sword"
-          ]
+        {
+            
+            "filters": {
+                "all_of": [
+                    {
+                        "test": "has_component",
+                        "subject": "self",
+                        "operator": "!=",
+                        "value": "minecraft:behavior.melee_box_attack"
+                    }
+                ]
+            },
+            "add": {
+                "component_groups": ["sword"]
+            }
         }
+    ]
       },
       "silent": {
         "remove": {
           "component_groups": [
-            "sword",
             "equip"
           ]
         },
         "add": {
           "component_groups": [
+            "attack_reset"
+          ]
+        }
+        },
+      "attack_reset": {
+        "remove": {
+          "component_groups": [
+            "attack_reset"
+             ]
+        },
+        "add": {
+          "component_groups": [
             "s_time"
+             ]
+        },
+         "queue_command": {
+           "command": [
+           "tag @s remove dm_has_target"
           ]
         }
       },
-      "scores": {
+      "dm_scores": {
         "queue_command": {
           "command": [
-            "scoreboard players add @s kirito 1",
-            "execute as @e[scores={kirito=350..}] run event entity @s sss",
-            "execute as @e[scores={kirito=350..}] run scoreboard players set @s kirito 0"
+            "scoreboard players add @s dm_skill_timer 1",
+            "execute as @s[scores={dm_skill_timer=35..}] run event entity @s sss",
+            "execute as @s[scores={dm_skill_timer=35..}] run scoreboard players set @s dm_skill_timer 0"
+          ]
+        }
+        },
+      "dm_scores_1": {
+        "queue_command": {
+          "command": [
+            "scoreboard players add @s dm_skill_timer_1 1",
+            "execute as @s[scores={dm_skill_timer_1=40..}] run event entity @s back",
+            "execute as @s[scores={dm_skill_timer_1=40..}] run scoreboard players set @s dm_skill_timer_1 0"
           ]
         }
       },
@@ -572,8 +631,9 @@
         "remove": {
           "component_groups": [
             "sword",
-            "senor",
+            "sensor",
             "air",
+            "attack_reset",
             "s_time",
             "equip"
           ]
@@ -581,7 +641,17 @@
         "add": {
           "component_groups": [
             "sss"
+           ]
+        },
+         "queue_command": {
+           "command": [
+           "tag @s add dm_skill_on",
+            "tag @s remove dm_has_target",
+             "playsound sss @a[r=33] ~~~ 1.8 1.2"
           ]
+           },
+        "set_property": {
+          "dm:clock_time_1": "on"
         }
       },
       "back": {
@@ -593,14 +663,34 @@
         "add": {
           "component_groups": [
             "equip",
-            "senor"
-          ]
+            "sensor"
+           ]
+        },
+         "queue_command": {
+           "command": [
+           "tag @s remove dm_skill_on",
+           "effect @s jump_boost 0"
+           ]
+           },
+        "set_property": {
+          "dm:clock_time_1": "off"
         }
-      },
+        },
       "air": {
-        "add": {
+          "remove": {
           "component_groups": [
-            "air"
+            "sword"
+          ]
+        },
+       "queue_command": {
+        "command": [
+        "replaceitem entity @s slot.weapon.mainhand 1 air"
+           ]
+          },
+           "add": {
+          "component_groups": [
+             "sensor",
+             "air"
           ]
         }
       },

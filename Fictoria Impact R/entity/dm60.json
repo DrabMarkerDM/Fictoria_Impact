@@ -10,12 +10,14 @@
       "textures": {
         "default": "textures/entity/player/dm60_rpp/dm60_1",
         "attack": "textures/entity/player/dm60_rpp/dm60_2",
-        "sss": "textures/entity/player/dm60_rpp/dm60_3"
+        "sss": "textures/entity/player/dm60_rpp/dm60_3",
+        "slash": "textures/entity/player/dm60_rpp/dm60_3"
       },
       "geometry": {
         "default": "geometry.dm60_1",
         "attack": "geometry.dm60_2",
-        "sss": "geometry.dm60_3"
+        "sss": "geometry.dm60_3",
+        "slash": "geometry.dm60_slash"
       },
       "scripts": {
         "pre_animation": [
@@ -77,7 +79,8 @@
       "render_controllers": [
         "controller.render.dm60",
         "controller.render.dm60_1",
-        "controller.render.dm60sss"
+        "controller.render.dm60sss",
+        "controller.render.dm60_slash"
 
       ],
        "enable_attachables": true

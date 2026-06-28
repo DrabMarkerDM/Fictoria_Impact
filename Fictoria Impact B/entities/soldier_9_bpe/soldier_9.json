@@ -1,0 +1,1682 @@
+{
+  "format_version": "1.21.50",
+  "minecraft:entity": {
+    "description": {
+      "identifier": "demon:soldier_9",
+      "is_spawnable": true,
+      "is_summonable": true,
+      "is_experimental": false,
+      "scripts": {
+        "animate": [
+          "tag",
+          "ect",
+          "equip",
+          "health"
+        ]
+      },
+      "animations": {
+        "tag": "controller.animation.demon_tag",
+        "ect": "controller.animation.ect_1",
+        "equip": "controller.animation.dm_equip",
+        "health": "controller.animation.soldier_9_health"
+      },
+      "properties": {
+        "dm:clock_time_1": {  "type": "enum",
+          "values": [ "def", "on", "off" ],
+          "default": "def",
+          "client_sync": true
+      },
+      "dm:clock_time_2": {  "type": "enum",
+          "values": [ "def", "on", "off" ],
+          "default": "def",
+          "client_sync": true
+          },
+      "demon:soldier_9_state": {  "type": "enum",
+          "values": [ "def", "day", "night", "escape" ],
+          "default": "def",
+          "client_sync": true
+        }
+      }
+  },
+    "component_groups": {
+     "attack_1":{
+      "minecraft:equipment": {
+        "table": "loot_tables/remove_1.json"
+         },
+        "minecraft:break_blocks": {
+          "breakable_blocks": [
+            "scaffolding",
+            "stone_button",
+            "gold_block",
+            "iron_block",
+            "diamond_block",
+            "emerald_block",
+            "lever",
+            "dirt",
+            "grass",
+            "sand",
+            "andesite",
+            "cobblestone",
+            "diorite",
+            "grass_path",
+            "oak_planks",
+            "spruce_planks",
+            "birch_planks",
+            "jungle_planks",
+            "acacia_planks",
+            "dark_oak_planks",
+            "mangrove_planks",
+            "cherry_planks",
+            "bamboo_planks",
+            "pale_oak_planks",
+            "crimson_planks",
+            "warped_planks",
+            "oak_log",
+            "spruce_log",
+            "birch_log",
+            "jungle_log",
+            "acacia_log",
+            "dark_oak_log",
+            "mangrove_log",
+            "cherry_log",
+            "pale_oak_log",
+            "crimson_stem",
+            "warped_stem",
+            "stripped_oak_log",
+            "stripped_spruce_log",
+            "stripped_birch_log",
+            "stripped_jungle_log",
+            "stripped_acacia_log",
+            "stripped_dark_oak_log",
+            "stripped_mangrove_log",
+            "stripped_cherry_log",
+            "stripped_pale_oak_log",
+            "stripped_crimson_stem",
+            "stripped_warped_stem",
+            "oak_slab",
+            "spruce_slab",
+            "birch_slab",
+            "jungle_slab",
+            "acacia_slab",
+            "dark_oak_slab",
+            "mangrove_slab",
+            "cherry_slab",
+            "bamboo_slab",
+            "pale_oak_slab",
+            "crimson_slab",
+            "warped_slab",
+            "polished_andesite",
+            "polished_diorite",
+            "polished_granite",
+            "gravel",
+            "sandstone",
+            "mossy_cobblestone",
+            "quartz_block",
+            "chiseled_quartz_block",
+            "quartz_pillar",
+            "smooth_quartz",
+            "quartz_bricks",
+            "quartz_slab",
+            "glass",
+            "glass_pane",
+            "white_stained_glass",
+            "light_gray_stained_glass",
+            "gray_stained_glass",
+            "black_stained_glass",
+            "brown_stained_glass",
+            "red_stained_glass",
+            "orange_stained_glass",
+            "yellow_stained_glass",
+            "lime_stained_glass",
+            "green_stained_glass",
+            "cyan_stained_glass",
+            "light_blue_stained_glass",
+            "blue_stained_glass",
+            "purple_stained_glass",
+            "magenta_stained_glass",
+            "pink_stained_glass",
+            "white_stained_glass_pane",
+            "light_gray_stained_glass_pane",
+            "gray_stained_glass_pane",
+            "black_stained_glass_pane",
+            "brown_stained_glass_pane",
+            "red_stained_glass_pane",
+            "orange_stained_glass_pane",
+            "yellow_stained_glass_pane",
+            "lime_stained_glass_pane",
+            "green_stained_glass_pane",
+            "cyan_stained_glass_pane",
+            "light_blue_stained_glass_pane",
+            "blue_stained_glass_pane",
+            "purple_stained_glass_pane",
+            "magenta_stained_glass_pane",
+            "pink_stained_glass_pane",
+            "tinted_glass",
+            "white_wool",
+            "light_gray_wool",
+            "gray_wool",
+            "black_wool",
+            "brown_wool",
+            "red_wool",
+            "orange_wool",
+            "yellow_wool",
+            "lime_wool",
+            "green_wool",
+            "cyan_wool",
+            "light_blue_wool",
+            "blue_wool",
+            "purple_wool",
+            "magenta_wool",
+            "pink_wool",
+            "white_concrete",
+            "light_gray_concrete",
+            "gray_concrete",
+            "black_concrete",
+            "brown_concrete",
+            "red_concrete",
+            "orange_concrete",
+            "yellow_concrete",
+            "lime_concrete",
+            "green_concrete",
+            "cyan_concrete",
+            "light_blue_concrete",
+            "blue_concrete",
+            "purple_concrete",
+            "magenta_concrete",
+            "pink_concrete",
+            "hardened_clay",
+            "clay",
+            "white_terracotta",
+            "light_gray_terracotta",
+            "gray_terracotta",
+            "black_terracotta",
+            "brown_terracotta",
+            "red_terracotta",
+            "orange_terracotta",
+            "yellow_terracotta",
+            "lime_terracotta",
+            "green_terracotta",
+            "cyan_terracotta",
+            "light_blue_terracotta",
+            "blue_terracotta",
+            "purple_terracotta",
+            "magenta_terracotta",
+            "pink_terracotta",
+            "white_glazed_terracotta",
+            "silver_glazed_terracotta",
+            "gray_glazed_terracotta",
+            "black_glazed_terracotta",
+            "brown_glazed_terracotta",
+            "red_glazed_terracotta",
+            "orange_glazed_terracotta",
+            "yellow_glazed_terracotta",
+            "lime_glazed_terracotta",
+            "green_glazed_terracotta",
+            "cyan_glazed_terracotta",
+            "light_blue_glazed_terracotta",
+            "blue_glazed_terracotta",
+            "purple_glazed_terracotta",
+            "magenta_glazed_terracotta",
+            "pink_glazed_terracotta",
+            "brick_block",
+            "brick_slab",
+            "stone_bricks",
+            "stone_brick_slab",
+            "mossy_stone_bricks",
+            "cobblestone_wall",
+"mossy_cobblestone_wall",
+"stone_brick_wall",
+"mossy_stone_brick_wall",
+"andesite_wall",
+"diorite_wall",
+"granite_wall",
+"brick_wall",
+"mud_brick_wall",
+"mud",
+"prismarine_wall",
+"red_sandstone_wall",
+"red_sand",
+"sandstone_wall",
+"blackstone_wall",
+"polished_blackstone_wall",
+"polished_blackstone_brick_wall",
+"deepslate_brick_wall",
+"deepslate_tile_wall",
+"polished_deepslate_wall",
+"cobbled_deepslate_wall",
+"tuff_wall",
+"polished_tuff_wall",
+"tuff_brick_wall",
+"resin_brick_wall",
+"red_nether_brick_wall",
+"nether_brick_wall",
+"end_stone_brick_wall",
+            "chiseled_stone_bricks",
+            "cracked_stone_bricks",
+            "snow",
+            "ice",
+            "blue_ice",
+            "bookshelf",
+            "torch",
+"wall_torch",
+"soul_torch",
+"soul_wall_torch",
+"lantern",
+"soul_lantern",
+"glowstone",
+"sea_lantern",
+"redstone_lamp",
+"froglight",
+"pearlescent_froglight",
+"verdant_froglight",
+"ochre_froglight",
+            "crafting_table",
+"furnace",
+"anvil",
+"enchanting_table",
+"brewing_stand",
+"chest",
+"barrel",
+"ender_chest",
+"bed",
+      "farmland",
+      "wheat",
+      "hay_block",
+      "composter",
+      "pumpkin",
+      "melon",
+      "redstone_wire",
+"redstone_lamp",
+"piston",
+"sticky_piston",
+"observer",
+"dispenser",
+"dropper",
+"comparator",
+"repeater",
+"hopper",
+"rail",
+"golden_rail",
+"activator_rail",
+"redstone_block",
+
+"oak_door",
+"spruce_door",
+"birch_door",
+"jungle_door",
+"acacia_door",
+"dark_oak_door",
+"mangrove_door",
+"cherry_door",
+"bamboo_door",
+"crimson_door",
+"warped_door",
+"pale_oak_door",
+
+"oak_trapdoor",
+"spruce_trapdoor",
+"birch_trapdoor",
+"jungle_trapdoor",
+"acacia_trapdoor",
+"dark_oak_trapdoor",
+"mangrove_trapdoor",
+"cherry_trapdoor",
+"bamboo_trapdoor",
+"crimson_trapdoor",
+"warped_trapdoor",
+"pale_oak_trapdoor",
+"iron_door",
+"iron_trapdoor",
+"copper_door",
+"exposed_copper_door",
+"weathered_copper_door",
+"oxidized_copper_door",
+"waxed_copper_door",
+"waxed_exposed_copper_door",
+"waxed_weathered_copper_door",
+"waxed_oxidized_copper_door",
+"copper_trapdoor",
+"exposed_copper_trapdoor",
+"weathered_copper_trapdoor",
+"oxidized_copper_trapdoor",
+"waxed_copper_trapdoor",
+"waxed_exposed_copper_trapdoor",
+"waxed_weathered_copper_trapdoor",
+"waxed_oxidized_copper_trapdoor",
+"oak_fence",
+"spruce_fence",
+"birch_fence",
+"jungle_fence",
+"acacia_fence",
+"dark_oak_fence",
+"mangrove_fence",
+"cherry_fence",
+"bamboo_fence",
+"crimson_fence",
+"warped_fence",
+"pale_oak_fence",
+"oak_fence_gate",
+"spruce_fence_gate",
+"birch_fence_gate",
+"jungle_fence_gate",
+"acacia_fence_gate",
+"dark_oak_fence_gate",
+"mangrove_fence_gate",
+"cherry_fence_gate",
+"bamboo_fence_gate",
+"crimson_fence_gate",
+"warped_fence_gate",
+"pale_oak_fence_gate",
+"cartography_table",
+"lectern",
+"loom",
+"stonecutter_block",
+"fletching_table",
+"smithing_table",
+"grindstone",
+"cauldron",
+"blast_furnace",
+"smoker",
+"beehive",
+"bee_nest",
+"composter",
+"barrel"
+          ]
+          },
+        "minecraft:behavior.move_to_block": {
+          "priority": 1,
+          "tick_interval": 1,
+          "speed_multiplier": 1.3,
+          "start_chance": 1.0,
+          "search_range": 28,
+          "search_height": 6,
+          "goal_radius": 0.5,
+          "stay_duration": 0,
+          "target_selection_method": "nearest",
+          "target_offset": [
+            0,
+            0,
+            0
+          ],
+          "target_blocks": [
+            "stone_button",
+            "gold_block",
+            "iron_block",
+            "diamond_block",
+            "emerald_block",
+            "lever",
+            "oak_door",
+"spruce_door",
+"birch_door",
+"jungle_door",
+"acacia_door",
+"dark_oak_door",
+"mangrove_door",
+"cherry_door",
+"bamboo_door",
+"crimson_door",
+"warped_door",
+"pale_oak_door",
+"iron_door",
+"copper_door",
+"exposed_copper_door",
+"weathered_copper_door",
+"oxidized_copper_door",
+"waxed_copper_door",
+"waxed_exposed_copper_door",
+"waxed_weathered_copper_door",
+"waxed_oxidized_copper_door",
+"oak_trapdoor",
+"spruce_trapdoor",
+"birch_trapdoor",
+"jungle_trapdoor",
+"acacia_trapdoor",
+"dark_oak_trapdoor",
+"mangrove_trapdoor",
+"cherry_trapdoor",
+"bamboo_trapdoor",
+"crimson_trapdoor",
+"warped_trapdoor",
+"pale_oak_trapdoor",
+"iron_trapdoor",
+"copper_trapdoor",
+"exposed_copper_trapdoor",
+"weathered_copper_trapdoor",
+"oxidized_copper_trapdoor",
+"waxed_copper_trapdoor",
+"waxed_exposed_copper_trapdoor",
+"waxed_weathered_copper_trapdoor",
+"waxed_oxidized_copper_trapdoor",
+"oak_fence_gate",
+"spruce_fence_gate",
+"birch_fence_gate",
+"jungle_fence_gate",
+"acacia_fence_gate",
+"dark_oak_fence_gate",
+"mangrove_fence_gate",
+"cherry_fence_gate",
+"bamboo_fence_gate",
+"crimson_fence_gate",
+"warped_fence_gate",
+"pale_oak_fence_gate",
+"redstone_wire",
+"redstone_lamp",
+"piston",
+"sticky_piston",
+"observer",
+"dispenser",
+"dropper",
+"comparator",
+"repeater",
+"hopper",
+"rail",
+"golden_rail",
+"activator_rail",
+"detector_rail",
+"redstone_block",
+"tnt",
+"crafting_table",
+"furnace",
+"blast_furnace",
+"smoker",
+"anvil",
+"chipped_anvil",
+"damaged_anvil",
+"enchanting_table",
+"brewing_stand",
+"chest",
+"trapped_chest",
+"barrel",
+"ender_chest",
+"bed",
+"grindstone",
+"stonecutter_block",
+"cartography_table",
+"lectern",
+"loom",
+"fletching_table",
+"smithing_table",
+"cauldron",
+"composter",
+"beehive",
+"bee_nest",
+"torch",
+"wall_torch",
+"soul_torch",
+"soul_wall_torch",
+"lantern",
+"soul_lantern",
+"glowstone",
+"sea_lantern",
+"redstone_lamp",
+"froglight",
+"pearlescent_froglight",
+"verdant_froglight",
+"ochre_froglight",
+"farmland",
+"wheat",
+"carrots",
+"potatoes",
+"beetroots",
+"hay_block",
+"pumpkin",
+"melon",
+"pumpkin_stem",
+"melon_stem",
+"mycelium",
+"rooted_dirt",
+"podzol"
+          ]
+      }
+    },
+      "attack_2":{
+      "minecraft:equipment": {
+        "table": "loot_tables/remove_1.json"
+         },
+        "minecraft:break_blocks": {
+          "breakable_blocks": [
+            "scaffolding",
+            "stone_button",
+            "gold_block",
+            "iron_block",
+            "diamond_block",
+            "emerald_block",
+            "lever",
+             "oak_door",
+"spruce_door",
+"birch_door",
+"jungle_door",
+"acacia_door",
+"dark_oak_door",
+"mangrove_door",
+"cherry_door",
+"bamboo_door",
+"crimson_door",
+"warped_door",
+"pale_oak_door",
+"iron_door",
+"copper_door",
+"exposed_copper_door",
+"weathered_copper_door",
+"oxidized_copper_door",
+"waxed_copper_door",
+"waxed_exposed_copper_door",
+"waxed_weathered_copper_door",
+"waxed_oxidized_copper_door",
+"oak_trapdoor",
+"spruce_trapdoor",
+"birch_trapdoor",
+"jungle_trapdoor",
+"acacia_trapdoor",
+"dark_oak_trapdoor",
+"mangrove_trapdoor",
+"cherry_trapdoor",
+"bamboo_trapdoor",
+"crimson_trapdoor",
+"warped_trapdoor",
+"pale_oak_trapdoor",
+"iron_trapdoor",
+"copper_trapdoor",
+"exposed_copper_trapdoor",
+"weathered_copper_trapdoor",
+"oxidized_copper_trapdoor",
+"waxed_copper_trapdoor",
+"waxed_exposed_copper_trapdoor",
+"waxed_weathered_copper_trapdoor",
+"waxed_oxidized_copper_trapdoor",
+"oak_fence_gate",
+"spruce_fence_gate",
+"birch_fence_gate",
+"jungle_fence_gate",
+"acacia_fence_gate",
+"dark_oak_fence_gate",
+"mangrove_fence_gate",
+"cherry_fence_gate",
+"bamboo_fence_gate",
+"crimson_fence_gate",
+"warped_fence_gate",
+"pale_oak_fence_gate",
+"redstone_wire",
+"redstone_lamp",
+"piston",
+"sticky_piston",
+"observer",
+"dispenser",
+"dropper",
+"comparator",
+"repeater",
+"hopper",
+"rail",
+"golden_rail",
+"activator_rail",
+"detector_rail",
+"redstone_block",
+"tnt",
+"crafting_table",
+"furnace",
+"blast_furnace",
+"smoker",
+"anvil",
+"chipped_anvil",
+"damaged_anvil",
+"enchanting_table",
+"brewing_stand",
+"chest",
+"trapped_chest",
+"barrel",
+"ender_chest",
+"bed",
+"grindstone",
+"stonecutter_block",
+"cartography_table",
+"lectern",
+"loom",
+"fletching_table",
+"smithing_table",
+"cauldron",
+"composter",
+"beehive",
+"bee_nest",
+"torch",
+"wall_torch",
+"soul_torch",
+"soul_wall_torch",
+"lantern",
+"soul_lantern",
+"glowstone",
+"sea_lantern",
+"redstone_lamp",
+"froglight",
+"pearlescent_froglight",
+"verdant_froglight",
+"ochre_froglight",
+"farmland",
+"wheat",
+"carrots",
+"potatoes",
+"beetroots",
+"hay_block",
+"pumpkin",
+"melon",
+"pumpkin_stem",
+"melon_stem"
+          ]
+          },
+        "minecraft:behavior.move_to_block": {
+          "priority": 1,
+          "tick_interval": 1,
+          "speed_multiplier": 1.3,
+          "start_chance": 1.0,
+          "search_range": 28,
+          "search_height": 6,
+          "goal_radius": 0.5,
+          "stay_duration": 0,
+          "target_selection_method": "nearest",
+          "target_offset": [
+            0,
+            0,
+            0
+          ],
+          "target_blocks": [
+            "stone_button",
+            "gold_block",
+            "iron_block",
+            "diamond_block",
+            "emerald_block",
+            "lever",
+            "oak_door",
+"spruce_door",
+"birch_door",
+"jungle_door",
+"acacia_door",
+"dark_oak_door",
+"mangrove_door",
+"cherry_door",
+"bamboo_door",
+"crimson_door",
+"warped_door",
+"pale_oak_door",
+"iron_door",
+"copper_door",
+"exposed_copper_door",
+"weathered_copper_door",
+"oxidized_copper_door",
+"waxed_copper_door",
+"waxed_exposed_copper_door",
+"waxed_weathered_copper_door",
+"waxed_oxidized_copper_door",
+"oak_trapdoor",
+"spruce_trapdoor",
+"birch_trapdoor",
+"jungle_trapdoor",
+"acacia_trapdoor",
+"dark_oak_trapdoor",
+"mangrove_trapdoor",
+"cherry_trapdoor",
+"bamboo_trapdoor",
+"crimson_trapdoor",
+"warped_trapdoor",
+"pale_oak_trapdoor",
+"iron_trapdoor",
+"copper_trapdoor",
+"exposed_copper_trapdoor",
+"weathered_copper_trapdoor",
+"oxidized_copper_trapdoor",
+"waxed_copper_trapdoor",
+"waxed_exposed_copper_trapdoor",
+"waxed_weathered_copper_trapdoor",
+"waxed_oxidized_copper_trapdoor",
+"oak_fence_gate",
+"spruce_fence_gate",
+"birch_fence_gate",
+"jungle_fence_gate",
+"acacia_fence_gate",
+"dark_oak_fence_gate",
+"mangrove_fence_gate",
+"cherry_fence_gate",
+"bamboo_fence_gate",
+"crimson_fence_gate",
+"warped_fence_gate",
+"pale_oak_fence_gate",
+"redstone_wire",
+"redstone_lamp",
+"piston",
+"sticky_piston",
+"observer",
+"dispenser",
+"dropper",
+"comparator",
+"repeater",
+"hopper",
+"rail",
+"golden_rail",
+"activator_rail",
+"detector_rail",
+"redstone_block",
+"tnt",
+"crafting_table",
+"furnace",
+"blast_furnace",
+"smoker",
+"anvil",
+"chipped_anvil",
+"damaged_anvil",
+"enchanting_table",
+"brewing_stand",
+"chest",
+"trapped_chest",
+"barrel",
+"ender_chest",
+"bed",
+"grindstone",
+"stonecutter_block",
+"cartography_table",
+"lectern",
+"loom",
+"fletching_table",
+"smithing_table",
+"cauldron",
+"composter",
+"beehive",
+"bee_nest",
+"torch",
+"wall_torch",
+"soul_torch",
+"soul_wall_torch",
+"lantern",
+"soul_lantern",
+"glowstone",
+"sea_lantern",
+"redstone_lamp",
+"froglight",
+"pearlescent_froglight",
+"verdant_froglight",
+"ochre_froglight",
+"farmland",
+"wheat",
+"carrots",
+"potatoes",
+"beetroots",
+"hay_block",
+"pumpkin",
+"melon",
+"pumpkin_stem",
+"melon_stem"
+          ]
+      }
+    },
+    "day_mode":{
+      "minecraft:behavior.follow_mob": {
+      "priority": 2,
+      "speed_multiplier": 1.0,
+      "stop_distance": 4.0,
+      "search_range": 38.0,
+      "filters": {
+       "all_of": [
+        {
+        "test": "is_family",
+        "subject": "other",
+        "operator": "==",
+        "value": "player"
+        },
+      {
+        "test": "has_component",
+        "subject": "other",
+        "value": "minecraft:player.level"
+      }
+    ]
+    },
+        "minecraft:leashable": {
+          "soft_distance": 4.5,
+          "hard_distance": 6.0,
+          "max_distance": 34.0
+  }
+   },
+        "minecraft:behavior.panic": {
+          "priority": 2,
+          "speed_multiplier": 1.3
+          },
+        "minecraft:behavior.avoid_mob_type": {
+          "priority": 3,
+          "entity_types": [
+            {
+              "filters": {
+                "test": "is_family",
+                "subject": "other",
+                "value": "monster"
+              },
+              "max_dist": 28.0,
+              "walk_speed_multiplier": 1.1,
+              "sprint_speed_multiplier": 1.2
+            }
+          ]
+           },
+        "minecraft:cannot_be_attacked": {
+          
+}
+   },
+    "escape_mode":{
+     "minecraft:behavior.avoid_mob_type": {
+          "priority": 1,
+          "entity_types": [
+            {
+              "filters": {
+                "test": "is_family",
+                "subject": "other",
+                "value": "dm"
+              },
+              "max_dist": 10.0,
+              "walk_speed_multiplier": 1.4,
+              "sprint_speed_multiplier": 1.6
+            }
+          ]
+           },
+        "minecraft:behavior.panic": {
+          "priority": 2,
+          "speed_multiplier": 1.8
+        },
+        "minecraft:timer": {
+          "looping": true,
+          "time": 60.0,
+          "time_down_event": {
+            "event": "end_escape"
+          }
+}
+       },
+      "night_mode": {
+      "minecraft:behavior.ranged_attack": {
+        "priority": 2,
+         "speed_multiplier": 1.0,
+        "attack_interval_min": 45.0,
+          "attack_interval_max": 47.0,
+          "burst_shots": 1,
+          "burst_interval": 46.0,              
+          "charge_charged_trigger": 0.0,
+        "charge_shoot_trigger": 0.0,
+          "attack_radius": 4
+       
+  },
+         "minecraft:behavior.avoid_mob_type": {
+          "priority": 1,
+          "entity_types": [
+            {
+              "filters": {
+                "test": "is_family",
+                "subject": "other",
+                "value": "dm"
+              },
+              "max_dist": 3.0,
+              "walk_speed_multiplier": 1.2,
+              "sprint_speed_multiplier": 1.4
+            }
+          ]
+           },
+        "minecraft:behavior.panic": {
+          "priority": 2,
+          "speed_multiplier": 1.2
+        },
+      "minecraft:behavior.hurt_by_target": {
+        "priority": 2,
+        "entity_types": {
+          "filters": {
+            "test": "is_family",
+            "subject": "other",
+            "operator": "!=",
+            "value": "demon"
+          },
+          "max_dist": 40
+        }
+     },
+      "minecraft:behavior.nearest_attackable_target": {
+          "priority": 1,
+          "must_see": false,
+          "reselect_targets": true,
+          "entity_types": [
+            {
+              "filters": {
+                "any_of": [
+                  {
+                    "test": "is_family",
+                    "subject": "other",
+                    "value": "player"
+                    },
+                  {
+                    "test": "is_family",
+                    "subject": "other",
+                    "value": "dm"
+                    },
+                  {
+                    "test": "is_family",
+                    "subject": "other",
+                    "value": "villager"
+                  }
+                ]
+              },
+          "max_dist": 40,
+          "must_see_forget_duration": 15.0,
+          "walk_speed_multiplier": 1.0,
+          "sprint_speed_multiplier": 1.1
+            }
+          ]
+        },
+      "minecraft:follow_range": {
+        "value": 40
+         },
+      "minecraft:on_target_acquired": {
+        "event": "attack",
+        "target": "self"
+      },
+      "minecraft:on_target_escape": {
+        "event": "silent",
+        "target": "self"
+        }
+      },
+      "family_1": {
+        "minecraft:type_family": {
+        "family": [ "monster", "demon" ]
+      }
+      },
+      "family_2": {
+        "minecraft:type_family": {
+        "family": [ "demon" ]
+      }
+      },
+      "s_time": {
+        "minecraft:timer": {
+          "looping": false,
+          "randomInterval": false,
+          "time": 11.0,
+          "time_down_event": {
+            "event": "air"
+          }
+        }
+           },
+      "attack_reset": {
+        "minecraft:timer": {
+          "looping": true,
+          "randomInterval": false,
+          "time": 1.5,
+          "time_down_event": {
+            "event": "attack_reset"
+          }
+        }
+        },
+        "block_check": {
+      "minecraft:timer": {
+        "looping": true,
+        "time": 2.0,
+        "time_down_event": {
+          "event": "check_vertical"
+        }
+      }
+    },
+    "dig_active": {
+      "minecraft:timer": {
+        "looping": true,
+        "time": 0.5,
+        "time_down_event": {
+          "event": "dig_down"
+        }
+      }
+    },
+    "raise_active": {
+      "minecraft:timer": {
+        "looping": true,
+        "time": 0.5,
+        "time_down_event": {
+          "event": "raise_up"
+        }
+      }
+      }
+    },
+    "components": {
+       "minecraft:is_hidden_when_invisible": {
+      },
+      "minecraft:collision_box": {
+        "width": 0.6,
+        "height": 1.78
+      },
+      "minecraft:health": {
+        "value": 27,
+        "max": 27
+      },
+    "minecraft:behavior.avoid_block": {
+  "priority": 4,           
+  "search_range": 1,       
+  "search_height": 0,      
+  "target_blocks": [
+    "minecraft:fire",
+    "minecraft:soul_fire",
+    "minecraft:magma",
+    "minecraft:sweet_berry_bush",
+    "minecraft:lava"
+  ],
+  "target_selection_method": "nearest",
+  "walk_speed_modifier": 1.0, 
+  "sprint_speed_modifier": 1.0
+      },
+      "minecraft:hurt_on_condition": {
+        "damage_conditions": [
+          {
+            "filters": {
+              "test": "in_lava",
+              "subject": "self",
+              "operator": "==",
+              "value": true
+            },
+            "cause": "lava",
+            "damage_per_tick": 3
+          }
+        ]
+      },
+      "minecraft:can_climb": {
+      },
+      "minecraft:movement": {
+        "value": 0.34
+      },
+      "minecraft:underwater_movement": {
+        "value": 0.06
+      },
+      "minecraft:damage_sensor": {
+        "triggers": [
+          {
+            "cause": "projectile",
+            "damage_multiplier": 0.9,
+            "on_damage": {
+              "event": "hurt_by",
+                "target": "self",
+              "filters": {
+                "test": "is_family",
+                "subject": "other",
+                "operator": "!=",
+                "value": "demon"
+              }
+            },
+            "deals_damage": "yes"
+          },
+          {
+            "cause": "entity_attack",
+            "damage_multiplier": 0.9,
+            "on_damage": {
+              "event": "hurt_by",
+                "target": "self",
+              "filters": {
+                "test": "is_family",
+                "subject": "other",
+                "operator": "!=",
+                "value": "demon"
+              }
+            },
+            "deals_damage": "yes"
+          },
+          {
+            "cause": "entity_explosion",
+            "damage_multiplier": 0.9,
+            "on_damage": {
+              "event": "hurt_by",
+                "target": "self",
+              "filters": {
+                "test": "is_family",
+                "subject": "other",
+                "operator": "!=",
+                "value": "demon"
+              }
+            },
+            "deals_damage": "yes"
+          },
+          {
+            "cause": "block_explosion",
+            "damage_multiplier": 0.9,
+            "on_damage": {
+              "event": "hurt_by",
+                "target": "self",
+              "filters": {
+                "test": "is_family",
+                "subject": "other",
+                "operator": "!=",
+                "value": "demon"
+              }
+            },
+            "deals_damage": "yes"
+          },
+          {
+            "cause": "override",
+            "damage_multiplier": 0.9,
+            "on_damage": {
+              "event": "hurt_by",
+                "target": "self",
+              "filters": {
+                "test": "is_family",
+                "subject": "other",
+                "operator": "!=",
+                "value": "demon"
+              }
+            },
+            "deals_damage": "yes"
+          },
+          {
+            "cause": "magic",
+            "damage_multiplier": 1.0,
+            "on_damage": {
+              "event": "hurt_by",
+                "target": "self",
+              "filters": {
+                "test": "is_family",
+                "subject": "other",
+                "operator": "!=",
+                "value": "demon"
+              }
+            },
+            "deals_damage": "yes"
+          },
+          {
+            "on_damage": {
+              "filters": {
+                "test": "is_family",
+                "subject": "other",
+                "value": "demon"
+              }
+            },
+            "deals_damage": "no"
+            },
+          {
+            "cause": "fall",
+            "deals_damage": "no"
+          }
+        ]
+      },
+      "minecraft:attack": {
+        "damage": 1
+      },
+      "minecraft:annotation.open_door": {
+      },
+      "minecraft:navigation.walk": {
+        "is_amphibious": true,
+        "can_path_over_water": true,
+        "can_pass_doors": true,
+        "can_open_doors": true,
+        "avoid_damage_blocks": true
+      },
+      "minecraft:behavior.open_door": {
+      },
+      "minecraft:movement.basic": {
+
+      },
+      "minecraft:jump.static": {
+      },
+      "minecraft:inventory": {
+        "container_type": "minecart_chest",
+          "can_be_siphoned_from": false,
+          "private": true,
+          "inventory_size": 66
+          },
+        "minecraft:is_chested": {
+      },
+      "minecraft:behavior.float": {
+        "priority": 0
+      },
+      "minecraft:breathable": {
+        "totalSupply": 28,
+        "suffocateTime": -1,
+        "inhaleTime": 3.75,
+        "generatesBubbles": true
+      },
+      "minecraft:nameable": {
+        "alwaysShow": true
+      },
+      "minecraft:behavior.move_to_village": {
+        "priority": 6,
+        "speed_multiplier": 0.98,
+        "goal_radius": 0.6
+      },
+        "minecraft:behavior.pickup_items": {
+          "priority": 4,
+          "max_dist": 8,
+          "goal_radius": 2,
+          "speed_multiplier": 1.25,
+          "search_height": 2,
+          "can_pickup_any_item": true,
+          "can_pickup_to_hand_or_equipment": false
+        },
+         "minecraft:shareables": {
+          "singular_pickup": true,
+          "all_items": true,
+          "items": [
+            {
+              "item": "minecraft:dandelion",
+              "want_amount": 520
+            }
+          ]
+        },
+      "minecraft:behavior.random_stroll": {
+        "priority": 5,
+        "speed_multiplier": 0.72,
+        "xz_dist": 9,
+        "y_dist": 6
+      },
+      "minecraft:pushable": {
+        "is_pushable": true,
+        "is_pushable_by_piston": true
+      },
+      "minecraft:behavior.look_at_player": {
+        "priority": 6,
+        "look_distance": 6,
+        "probability": 0.04
+      },
+      "minecraft:behavior.look_at_target": {
+        "priority": 5,
+        "look_distance": 34,
+        "probability": 0.06
+      },
+      "minecraft:behavior.look_at_entity": {
+        "priority": 7,
+        "look_distance": 6.0,
+        "probability": 0.02,
+        "filters": {
+          "test": "is_family",
+          "subject": "other",
+          "value": "mob"
+        }
+      },
+      "minecraft:behavior.random_look_around": {
+        "priority": 7
+      },
+      "minecraft:despawn": {
+        "despawn_from_distance": {}  
+      },
+      "minecraft:physics": {
+      },
+      "minecraft:scaffolding_climber": {
+      },
+        "minecraft:scheduler": {
+          "min_delay_secs": 0,
+          "max_delay_secs": 10,
+          "scheduled_events": [
+            {
+              "filters": {
+                "all_of": [
+                  {
+                    "test": "hourly_clock_time",
+                    "operator": ">=",
+                    "value": 0
+                  },
+                  {
+                    "test": "hourly_clock_time",
+                    "operator": "<",
+                    "value": 12000
+                  }
+                ]
+              },
+              "event": "day"
+            },
+            {
+              "filters": {
+                "all_of": [
+                  {
+                    "test": "hourly_clock_time",
+                    "operator": ">=",
+                    "value": 14000
+                  },
+                  {
+                    "test": "hourly_clock_time",
+                    "operator": "<",
+                    "value": 24000
+                  }
+                ]
+              },
+              "event": "night"
+            }
+          ]
+
+        }
+    },
+    "events": {
+       "minecraft:entity_spawned": {
+       },
+      "attack": {
+        "remove": {
+          "component_groups":[
+            "equip", 
+            "attack_reset", 
+            "s_time",
+            "attack_2"
+          ]
+        },
+        "add": {
+          "component_groups": [
+            "attack_1",
+            "block_check"
+          ]
+        }
+      },
+      "silent": {
+        "add": {
+          "component_groups": [
+            "attack_reset"
+             ]
+        },
+        "remove": {
+          "component_groups": [
+            "equip",
+            "dig_active",
+             "raise_active"
+          ]
+       },
+  "queue_command": {
+    "command": [ "tag @s remove target_below" ]
+  }
+         },
+      "attack_reset": {
+        "remove": {
+          "component_groups": [
+            "attack_reset",
+            "attack_1",
+            "block_check", 
+            "dig_active",
+            "raise_active"
+             ]
+        },
+        "add": {
+          "component_groups": [
+            "s_time",
+            "attack_2"
+             ]
+        },
+         "queue_command": {
+           "command": [
+           "tag @s remove dm_has_target",
+            "tag @s remove target_below"
+          ]
+        }
+        },
+      "day": {
+        "remove": {
+          "component_groups": [
+            "night_mode",
+            "family_1",
+            "attack_1",
+            "attack_2",
+             "block_check", 
+             "dig_active",
+             "raise_active"
+             ]
+        },
+        "add": {
+          "component_groups": [
+            "day_mode",
+            "family_2"
+          ]
+          },
+                "queue_command": {
+                  "command": [
+                    "say day"
+                  ]
+                   },
+        "set_property": {
+          "demon:soldier_9_state": "day",
+          "dm:clock_time_1": "off",
+          "dm:clock_time_2": "off"
+        }
+        },
+      "night": {
+        "remove": {
+          "component_groups": [
+            "day_mode",
+            "family_2",
+            "attack_2"
+             ]
+        },
+        "add": {
+          "component_groups": [
+            "night_mode",
+            "family_1",
+            "attack_1",
+            "block_check"
+          ]
+          },
+                "queue_command": {
+                  "command": [
+                    "say night"
+                  ]
+                   },
+        "set_property": {
+          "demon:soldier_9_state": "night",
+           "dm:clock_time_1": "on",
+          "dm:clock_time_2": "on"
+        }
+         },
+      "skill_3": {
+          "queue_command": {
+                  "command": [
+                    "damage @e[family=monster,r=60] 0 entity_attack entity @e[family=dm,r=60,c=1]",
+                    "effect @e[family=demon,r=20] absorption 30 10",
+                    "effect @e[family=demon,r=20] resistance 30 1",
+                    "effect @e[family=demon,r=20] instant_health 1 0",
+                    "say skill_3"
+                  ]
+        }
+         },
+      "low_health": {
+         "remove": {
+          "component_groups": [
+            "day_mode",
+            "night_mode",
+            "family_1",
+            "attack_1",
+            "attack_2",
+            "block_check", 
+            "dig_active",
+            "raise_active"
+             ]
+        },
+        "add": {
+          "component_groups": [
+            "escape_mode",
+            "family_2"
+          ]
+          },
+          "queue_command": {
+                  "command": [
+                    "damage @e[family=monster,r=60] 0 entity_attack entity @e[family=dm,r=60,c=1]",
+                    "effect @s invisibility 60 255",
+                    "effect @s speed 60 2",
+                    "replaceitem entity @s slot.weapon.mainhand 1 air",
+                    "say low"
+                  ]
+                   },
+        "set_property": {
+          "demon:soldier_9_state": "escape",
+          "dm:clock_time_1": "off",
+          "dm:clock_time_2": "off"
+        }
+         },
+      "end_escape": {
+         "remove": {
+          "component_groups": [
+            "day_mode",
+            "family_2",
+            "escape_mode"
+             ]
+        },
+        "add": {
+          "component_groups": [
+            "night_mode",
+            "family_1"
+          ]
+          },
+          "queue_command": {
+                  "command": [
+                    "damage @e[family=monster,r=60] 0 entity_attack entity @e[family=dm,r=60,c=1]",
+                    "effect @s invisibility 120 255",
+                    "effect @s speed 120 2"
+                  ]
+        }
+         },
+      "hurt_by": {
+        "queue_command": {
+          "command": [
+            "scoreboard players add @s dm_skill_timer_3 1",
+            "execute as @s[scores={dm_skill_timer_3=5..}] run event entity @s skill_3",
+            "execute as @s[scores={dm_skill_timer_3=5..}] run scoreboard players set @s dm_skill_timer_3 0"
+          ]
+        }
+      },
+      "dm_scores": {
+        "queue_command": {
+          "command": [
+            "scoreboard players add @s dm_skill_timer 1",
+            "execute as @s[scores={dm_skill_timer=30..}] run event entity @s skill_0",
+            "execute as @s[scores={dm_skill_timer=30..}] run scoreboard players set @s dm_skill_timer 0"
+          ]
+        }
+        },
+      "dm_scores_1": {
+        "queue_command": {
+          "command": [
+            "scoreboard players add @s dm_skill_timer_1 1",
+            "execute as @s[scores={dm_skill_timer_1=60..}] run event entity @s skill_1",
+            "execute as @s[scores={dm_skill_timer_1=60..}] run scoreboard players set @s dm_skill_timer_1 0"
+          ]
+        }
+         },
+      "dm_scores_2": {
+        "queue_command": {
+          "command": [
+            "scoreboard players add @s dm_skill_timer_2 1",
+            "execute as @s[scores={dm_skill_timer_2=10..}] run event entity @s skill_2",
+            "execute as @s[scores={dm_skill_timer_2=10..}] run scoreboard players set @s dm_skill_timer_2 0"
+          ]
+        }
+        },
+      "air": {
+          "remove": {
+          "component_groups": [
+            "attack_1",
+            "block_check", 
+            "dig_active",
+            "raise_active"
+          ]
+        },
+       "queue_command": {
+        "command": [
+        "replaceitem entity @s slot.weapon.mainhand 1 air"
+           ]
+          },
+           "add": {
+          "component_groups": [
+             "attack_2"
+          ]
+        }
+    },
+    "start_dig": {
+      "remove": {
+        "component_groups": [ "attack_1", "block_check","raise_active" ]
+      },
+      "add": {
+        "component_groups": [ "dig_active" ]
+      },
+      "queue_command": {
+        "command": [ "tag @s add target_below" ]
+      }
+    },
+    "stop_dig": {
+      "remove": {
+        "component_groups": [ "dig_active" ]
+      },
+      "add": {
+        "component_groups": [ "attack_1", "block_check" ]
+      },
+      "queue_command": {
+        "command": [ "tag @s remove target_below" ]
+      }
+    },
+    "dig_down": {
+      "queue_command": {
+        "command": [
+          "say dig",
+      "execute as @s at @s if block ~ ~-1 ~ minecraft:dirt run setblock ~ ~-1 ~ air destroy",
+      "execute as @s at @s if block ~ ~-1 ~ minecraft:grass_block run setblock ~ ~-1 ~ air destroy",
+      "execute as @s at @s if block ~ ~-1 ~ minecraft:coarse_dirt run setblock ~ ~-1 ~ air destroy",
+      "execute as @s at @s if block ~ ~-1 ~ minecraft:grass_path run setblock ~ ~-1 ~ air destroy",
+      "execute as @s at @s if block ~ ~-1 ~ minecraft:sand run setblock ~ ~-1 ~ air destroy",
+      "execute as @s at @s if block ~ ~-1 ~ minecraft:gravel run setblock ~ ~-1 ~ air destroy",
+      "execute as @s at @s if block ~ ~-1 ~ minecraft:snow run setblock ~ ~-1 ~ air destroy",
+      "execute as @s at @s if block ~ ~-2 ~ minecraft:dirt run setblock ~ ~-2 ~ air destroy",
+      "execute as @s at @s if block ~ ~-2 ~ minecraft:grass_block run setblock ~ ~-2 ~ air destroy",
+      "execute as @s at @s if block ~ ~-2 ~ minecraft:coarse_dirt run setblock ~ ~-2 ~ air destroy",
+      "execute as @s at @s if block ~ ~-2 ~ minecraft:grass_path run setblock ~ ~-2 ~ air destroy",
+      "execute as @s at @s if block ~ ~-2 ~ minecraft:sand run setblock ~ ~-2 ~ air destroy",
+      "execute as @s at @s if block ~ ~-2 ~ minecraft:gravel run setblock ~ ~-2 ~ air destroy",
+      "execute as @s at @s if block ~ ~-2 ~ minecraft:snow run setblock ~ ~-2 ~ air destroy",
+      "execute as @s at @s if block ~ ~-1 ~ minecraft:stone run event entity @s stop_dig",
+      "execute as @s at @s if block ~ ~-1 ~ minecraft:deepslate run event entity @s stop_dig",
+      "execute as @s at @s if block ~ ~-1 ~ minecraft:cobblestone run event entity @s stop_dig",
+      "execute as @s at @s if block ~ ~-1 ~ minecraft:air run event entity @s stop_dig"
+        ]
+      }
+    },
+   "check_vertical": {
+      "queue_command": {
+        "command": [
+           "say check",
+      "execute as @s at @s if entity @p[dy=-10] unless block ~ ~-1 ~ air run tag @s add should_dig",
+      "execute as @s at @s if entity @e[family=dm,dy=-10,c=1] unless block ~ ~-1 ~ air run tag @s add should_dig",
+      "execute as @s at @s if entity @e[family=villager,dy=-10,c=1] unless block ~ ~-1 ~ air run tag @s add should_dig",
+      "execute as @s at @s if entity @p[dy=10] run tag @s add should_raise",
+      "execute as @s at @s if entity @e[family=dm,dy=10,c=1] run tag @s add should_raise",
+      "execute as @s at @s if entity @e[family=villager,dy=10,c=1] run tag @s add should_raise",
+      "execute as @s[tag=should_dig] run event entity @s start_dig",
+      "execute as @s[tag=should_raise] run event entity @s start_raise",
+      "tag @s remove should_dig",
+      "tag @s remove should_raise"
+        ]
+      }
+    },
+    "start_raise": {
+      "remove": {
+        "component_groups": [ "attack_1", "block_check", "dig_active" ]
+      },
+      "add": {
+        "component_groups": [ "raise_active" ]
+         },
+      "queue_command": {
+        "command": [ "tag @s add target_above" ]
+      }
+    },
+    "stop_raise": {
+      "remove": {
+        "component_groups": [ "raise_active" ]
+      },
+      "add": {
+        "component_groups": [ "attack_1", "block_check" ]
+         },
+      "queue_command": {
+        "command": [ "tag @s remove target_above" ]
+      }
+    },
+    "raise_up": {
+      "queue_command": {
+        "command": [
+         "say raise",
+      "execute as @s at @s unless entity @p[dy=10] unless entity @e[family=dm,dy=6,c=1] unless entity @e[family=villager,dy=6,c=1] run event entity @s stop_raise",
+      "execute as @s at @s if block ~ ~1 ~ minecraft:stone run event entity @s stop_raise",
+      "execute as @s at @s if block ~ ~1 ~ minecraft:deepslate run event entity @s stop_raise",
+      "execute as @s at @s if block ~ ~1 ~ minecraft:cobblestone run event entity @s stop_raise",
+      "execute as @s at @s if block ~ ~1 ~ minecraft:dirt run setblock ~ ~1 ~ air destroy",
+      "execute as @s at @s if block ~ ~1 ~ minecraft:grass_block run setblock ~ ~1 ~ air destroy",
+      "execute as @s at @s if block ~ ~1 ~ minecraft:sand run setblock ~ ~1 ~ air destroy",
+      "execute as @s at @s if block ~ ~1 ~ minecraft:gravel run setblock ~ ~1 ~ air destroy",
+      "execute as @s at @s if block ~ ~1 ~ minecraft:grass_path run setblock ~ ~1 ~ air destroy",
+      "execute as @s at @s if block ~ ~1 ~ air if block ~ ~2 ~ minecraft:dirt run setblock ~ ~2 ~ air destroy",
+      "execute as @s at @s if block ~ ~1 ~ air if block ~ ~2 ~ minecraft:grass_block run setblock ~ ~2 ~ air destroy",
+      "execute as @s at @s if block ~ ~1 ~ air if block ~ ~2 ~ minecraft:sand run setblock ~ ~2 ~ air destroy",
+      "execute as @s at @s if block ~ ~1 ~ air if block ~ ~2 ~ minecraft:gravel run setblock ~ ~2 ~ air destroy",
+      "execute as @s at @s if block ~ ~1 ~ air if block ~ ~2 ~ minecraft:grass_path run setblock ~ ~2 ~ air destroy",
+      "execute as @s at @s if block ~ ~1 ~ air if block ~ ~2 ~ air run tp @s ~ ~1 ~",
+      "execute as @s at @s if block ~ ~-1 ~ air run setblock ~ ~-1 ~ scaffolding"
+        ]
+      }
+    }
+  }
+}
+}

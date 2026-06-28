@@ -3,7 +3,7 @@
 "controller.animation.dm25_1":{
 "states":{
 "default":{"transitions":[
-{"attack":"query.is_delayed_attacking"}
+{"attack":"variable.attack_time >= 0.001"}
 
 ]
 
@@ -11,13 +11,15 @@
 "attack": {
 					"transitions": [
 						{
-							"default": "!query.is_delayed_attacking"
+							"default": "variable.attack_time < 0.001"
 						}
 					],
-"on_entry": ["/scoreboard players add @s dm25att 1",
+"on_entry": [
+"/playsound dm25 @a[r=33] ~~~ 1.8 1.0",
+"/scoreboard players add @s dm_skill_timer_2 1",
 "/particle dm:dm25 ^ ^2 ^2",
 "/execute positioned ^ ^ ^3 run execute at @e[type=!player:dm25,tag=!dm,family=monster,r=8] run summon bullet:dm25_sweep ~~0.3~",
-"/event entity @e[scores={dm25att=5..}] sword"
+"/event entity @e[scores={dm_skill_timer_2=5..}] sword"
 ]
 }
 }

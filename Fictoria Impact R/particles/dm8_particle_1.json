@@ -10,13 +10,13 @@
 		},
 		"components": {
 			"minecraft:emitter_rate_instant": {
-				"num_particles": 2
+				"num_particles": 1
 			},
 			"minecraft:emitter_lifetime_looping": {
 				"active_time": 1.5
 			},
 			"minecraft:emitter_shape_sphere": {
-				"radius": 1.8,
+				"radius": 2.5,
 				"direction": "outwards"
 			},
 			"minecraft:particle_lifetime_expression": {

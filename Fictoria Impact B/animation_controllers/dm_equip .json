@@ -1,6 +1,6 @@
 {"format_version":"1.8.0",
 "animation_controllers":{
-"controller.animation.dm50_equip":{
+"controller.animation.dm_equip":{
 "states":{
 "default":{"transitions":[
 {"att":"query.is_powered && variable.has_target"}
@@ -14,9 +14,9 @@
 							"default": "!query.is_powered || !variable.has_target"
 						}
 					],
-	"on_entry": [
-		"/event entity @e[type=player:dm50] stop"
-	]
+"on_entry": [
+"/event entity @s attack"
+]
 }
 }
 }

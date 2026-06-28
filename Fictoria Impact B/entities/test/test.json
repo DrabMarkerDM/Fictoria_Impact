@@ -8,13 +8,11 @@
       "is_experimental": false,
       "scripts": {
         "animate": [
-          "tag",
-          "test"
+          "tag"
         ]
       },
       "animations": {
-        "tag": "controller.animation.tag_1",
-        "test": "controller.animation.test"
+        "tag": "controller.animation.tag_1"
       }
     },
     "component_groups": {
@@ -226,6 +224,9 @@
         "attack_duration": 0.1,
         "hit_delay_pct": 0.5,
         "track_target": true
+        },
+        "minecraft:variant": {
+          "value": 1
       },
       "minecraft:behavior.pickup_items": {
         "priority": 8,

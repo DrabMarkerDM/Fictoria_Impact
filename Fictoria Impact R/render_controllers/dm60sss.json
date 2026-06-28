@@ -18,9 +18,7 @@
         { "s6": "query.variant == 3" },
         { "s7": "query.variant == 3" },
         { "s8": "query.variant == 3" },
-        { "s9": "query.variant == 3" },
-        { "effect": "query.variant == 3 && query.is_delayed_attacking"
-        }
+        { "s9": "query.variant == 3" }
       ],
       "textures": [ "Texture.sss" ]
     }

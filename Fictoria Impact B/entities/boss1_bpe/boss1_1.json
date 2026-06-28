@@ -106,7 +106,7 @@
       },
       "minecraft:boss": {
         "should_darken_sky": false,
-        "name": "Boss1",
+        "name": "Harold",
         "hud_range": 35
       },
       "minecraft:collision_box": {

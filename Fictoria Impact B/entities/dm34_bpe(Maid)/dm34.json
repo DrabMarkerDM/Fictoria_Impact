@@ -4851,7 +4851,7 @@
           "target": "self"
         },
         "minecraft:on_target_escape": {
-          "event": "null",
+          "event": "silent",
           "target": "self"
         },
         "minecraft:scheduler": {
@@ -15526,6 +15526,16 @@
         "minecraft:horse.jump_strength": {
           "value": 0.9
         }
+         },
+      "attack_reset": {
+        "minecraft:timer": {
+          "looping": true,
+          "randomInterval": false,
+          "time": 1.5,
+          "time_down_event": {
+            "event": "attack_reset"
+          }
+        }
       }
     },
     "components": {
@@ -17078,6 +17088,25 @@
             "effect @s absorption 10 5"
           ]
         }
+         },
+      "silent": {
+        "add": {
+          "component_groups": [
+            "attack_reset"
+          ]
+        }
+         },
+      "attack_reset": {
+        "remove": {
+          "component_groups": [
+            "attack_reset"
+             ]
+        },
+         "queue_command": {
+           "command": [
+           "tag @s remove dm_has_target"
+          ]
+        }
       },
       "follow_1": {
         "remove": {
@@ -17167,8 +17196,14 @@
         ]
       },
       "target_sound": {
+         "remove": {
+          "component_groups": [
+            "attack_reset"
+          ]
+        },
         "queue_command": {
           "command": [
+            "tag @s add dm_has_target",
             "scoreboard players add @s dm34 1",
             "execute as @e[scores={dm34=9..}] run stopsound @a[r=15] dm34_target",
             "execute as @e[scores={dm34=9..}] run playsound dm34_target @a[r=15] ~~~ 1.4 1.0",

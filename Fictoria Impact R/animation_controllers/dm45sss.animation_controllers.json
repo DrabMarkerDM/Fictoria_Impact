@@ -8,14 +8,14 @@
 					"animations" : [ "charging" ],
 					"transitions" : [
 						{
-							"default" : "!query.is_powered || !query.has_target"
+							"default" : "!query.variant == 2 || !query.has_target"
 						}
 					]
 				},
 				"default" : {
 					"transitions" : [
 						{
-							"attacking" : "query.is_powered && query.has_target"
+							"attacking" : "query.variant == 2 && query.has_target"
 						}
           ]
         }

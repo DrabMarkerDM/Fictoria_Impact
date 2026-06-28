@@ -1,0 +1,24 @@
+{"format_version":"1.8.0",
+"animation_controllers":{
+"controller.animation.soldier_9_health":{
+"states":{
+"default":{"transitions":[
+	{ "att": "query.health <= 12" }
+
+]
+
+},
+"att": {
+					"transitions": [
+						{
+							"default": "query.health > 12"
+						}
+					],
+	"on_entry": [
+		"/event entity @s low_health"
+	]
+}
+}
+}
+}
+}

@@ -94,8 +94,8 @@
       "minecraft:entity_spawned": {
         "queue_command": {
           "command": [
-            "event entity @e[type=player:dm31] back_1",
-            "execute as @e[scores={dm31=35..}] run scoreboard players set @s dm31 0"
+            "event entity @e[type=player:dm31,c=1] back_1",
+            "execute as @e[scores={dm_skill_timer_3=4..},c=1,type=player:dm31] run scoreboard players set @s dm_skill_timer_3 0"
           ]
         }
       },

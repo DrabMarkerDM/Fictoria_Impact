@@ -81,11 +81,14 @@
           ]
         }
       },
-      "minecraft:projectile": {
-        "onHit": {
-          "knockback": true,
-          "semirandomdiffdamage": false,
-          "destroyonhit": false
+       "minecraft:projectile": {
+	     "onHit": {
+	     "impact_damage": {
+       "damage": 76,
+	     "knockback": true,
+	     "semirandomdiffdamage": false,
+	     "destroyonhit": false
+          }
         },
         "hit_sound": "gun.hit",
         "liquid_inertia": 1.8,
@@ -117,11 +120,11 @@
                 "weight": 25000,
                 "queue_command": {
                   "command": [
-                    "scoreboard players remove @e[type=player:dm31] dm31s 1",
+                    "scoreboard players remove @e[type=player:dm31,c=1] dm_skill_timer_1 1",
                     "playsound dm31_charge @a[r=42] ~~~ 1.8 1.0",
                     "particle dm:dm31_2 ^^1.5^2",
                     "particle dm:dm31_2 ^^1.5^2",
-                    "effect @e[type=player:dm31] absorption 8 18 true",
+                    "effect @e[type=player:dm31,c=1] absorption 8 18 true",
                     "function dm31"
                   ]
                 }

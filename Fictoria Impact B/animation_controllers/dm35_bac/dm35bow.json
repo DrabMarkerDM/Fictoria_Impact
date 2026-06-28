@@ -15,13 +15,13 @@
 						}
 					],
 	"on_entry": [
-		"/scoreboard players add @e[type=player:dm35] dm35att 1",
-		"/scoreboard players add @e[type=player:dm35] dm35att1 1",
-		"/event entity @e[scores={dm35att=30..}] sss",
-		"/scoreboard players set @e[scores={dm35att=30..}] dm35sss 0",
-		"/event entity @e[scores={dm35att1=3..}] circle",
-		"/scoreboard players set @e[scores={dm35att=30..}] dm35att 0",
-		"/scoreboard players set @e[scores={dm35att1=3..}] dm35att1 0"
+		"/scoreboard players add @e[type=player:dm35,c=1] dm_skill_timer 1",
+		"/scoreboard players add @e[type=player:dm35,c=1] dm_skill_timer_2 1",
+		"/event entity @e[scores={dm_skill_timer=30..},type=player:dm35,c=1] sss",
+		"/scoreboard players set @e[scores={dm_skill_timer=30..},type=player:dm35,c=1] dm35sss 0",
+		"/event entity @e[scores={dm_skill_timer_2=3..},type=player:dm35,c=1] circle",
+		"/scoreboard players set @e[scores={dm_skill_timer=30..},type=player:dm35,c=1] dm_skill_timer 0",
+		"/scoreboard players set @e[scores={dm_skill_timer_2=3..},type=player:dm35,c=1] dm_skill_timer_2 0"
 	]
 }
 }

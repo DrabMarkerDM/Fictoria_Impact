@@ -42,7 +42,7 @@
           "burst_shots": 15,
           "burst_interval": 3.0,              "charge_charged_trigger": 0.0,
         "charge_shoot_trigger": 2.5,
-          "attack_radius": 160
+          "attack_radius": 80
         },
       "minecraft:equipment": {
         "table": "loot_tables/dm13.json"
@@ -120,7 +120,7 @@
             "operator": "!=",
             "value": "dm"
           },
-          "max_dist": 160,
+          "max_dist": 86,
           "must_see": true
         }
         },
@@ -133,7 +133,7 @@
             "operator": "!=",
             "value": "dm"
           },
-          "max_dist": 160
+          "max_dist": 86
         }
         },
       "minecraft:behavior.nearest_attackable_target": {
@@ -152,14 +152,14 @@
                 }
               ]
             },
-            "max_dist": 160
+            "max_dist": 86
           }
         ],
         "must_see": true,
-        "must_see_forget_duration": 6.0
+        "must_see_forget_duration": 10.0
       },
       "minecraft:follow_range": {
-        "value": 160
+        "value": 86
         }
     }
     },
@@ -202,7 +202,7 @@
       "minecraft:can_climb": {
       },
       "minecraft:movement": {
-        "value": 0.31
+        "value": 0.32
       },
       "minecraft:underwater_movement": {
         "value": 0.02

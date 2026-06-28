@@ -3,7 +3,7 @@
 "controller.animation.attack":{
 "states":{
 "default":{"transitions":[
-{"attack":"query.is_delayed_attacking"}
+{"attack":"variable.attack_time >= 0.001"}
 
 ]
 
@@ -11,10 +11,12 @@
 "attack": {
 					"transitions": [
 						{
-							"default": "!query.is_delayed_attacking"
+							"default": "variable.attack_time < 0.001"
 						}
 					],
-"on_entry": ["/effect @s strength 1 1 true",
+"on_entry": [
+"/playsound att @a[r=33] ~~~ 1.8 1.2",
+"/effect @s strength 1 1 true",
 "/particle dm:kirito_att ^ ^2 ^2"
 ]
 }

@@ -8,14 +8,14 @@
 					"animations" : [ "bow_and_arrow" ],
 					"transitions" : [
 						{
-							"default" : "!query.has_target || query.is_powered"
+							"default" : "!query.has_target || query.variant == 2"
 						}
 					]
 				},
 				"default" : {
 					"transitions" : [
 						{
-							"ratt" : "query.has_target && !query.is_powered"
+							"ratt" : "query.has_target && query.variant != 2"
 						}
           ]
         }

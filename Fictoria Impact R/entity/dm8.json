@@ -5,14 +5,18 @@
       "identifier": "player:dm8",
       "materials": {
         "default": "spider",
+        "slash": "spider",
         "light": "wither_boss_armor"
+
       },
       "textures": {
         "default": "textures/entity/player/dm8_rpp/dm8",
+        "slash": "textures/entity/player/dm8_rpp/dm8",
         "light": "textures/entity/player/dm8_rpp/dm8"
       },
       "geometry": {
         "default": "geometry.dm8",
+        "slash": "geometry.dm8_slash",
         "light": "geometry.dm8_light"
       },
       "scripts": {
@@ -84,6 +88,7 @@
       },
       "render_controllers": [
         "controller.render.dm8",
+        "controller.render.dm8_slash",
         "controller.render.dm8_light"
       ],
       "enable_attachables": true

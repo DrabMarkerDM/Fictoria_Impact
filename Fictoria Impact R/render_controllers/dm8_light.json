@@ -1,9 +1,11 @@
 {
-  "format_version": "1.8.0",
+  "format_version": "1.10.0",
   "render_controllers": {
     "controller.render.dm8_light": {
       "geometry": "Geometry.light",
       "materials": [ { "*": "Material.light" } ],
+       "is_hurt_color": { "r": 0.0, "g": 0.0, "b": 0.0, "a": 0.0 },
+      "on_fire_color": { "r": 0.0, "g": 0.0, "b": 0.0, "a": 0.0 },
       "part_visibility": [
         { "*": true },
         { "Leftsword_light": "query.variant == 3" },

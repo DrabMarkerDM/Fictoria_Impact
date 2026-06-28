@@ -75,9 +75,9 @@
           "playsound dm8ratt @a[r=33] ~~~ 2.0 1.0",
           "event entity @e[type=player:dm8,c=1] dm8_ratt",
           "playanimation @e[type=player:dm8,c=1] animation.dm8_att2",
-          "scoreboard players add @e[type=player:dm8,c=1] dm8 2",
-          "execute as @e[scores={dm8=45..}] run event entity @s sss",
-          "execute as @e[scores={dm8=45..}] run scoreboard players set @s dm8 0"
+          "scoreboard players add @e[type=player:dm8,c=1] dm_skill_timer 2",
+          "execute as @e[scores={dm_skill_timer=45..},type=player:dm8,c=1] run event entity @s sss",
+          "execute as @e[scores={dm_skill_timer=45..},type=player:dm8,c=1] run scoreboard players set @s dm_skill_timer 0"
         ]
       }
     },

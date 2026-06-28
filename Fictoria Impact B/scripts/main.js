@@ -29,7 +29,9 @@ const driveMaidMuscles = () => {
         //  AI 实体 typeId 列表
         const targetTypes = ["player:dm34_1", "player:dm34", 
             "player:dm48", "player:dm35", "player:dm32", "player:dm51", 
-            "player:dm26", "player:dm50", "player:dm21", "player:dm6"]; 
+            "player:dm26", "player:dm50", "player:dm21", "player:dm6", "player:test1",
+            "player:dm31", "player:dm45", "player:dm59", "player:dm33", "player:dm24",
+            "player:dm8", "player:dm25", "player:kirito", "player:asuna"    ]; 
 
         for (const dimension of activeDimensions) {
             for (const typeId of targetTypes) {

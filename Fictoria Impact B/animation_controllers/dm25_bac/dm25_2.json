@@ -16,8 +16,8 @@
 					],
 "on_entry": [
     "/execute positioned ~~~ run execute at @e[type=!player:dm25,tag=!dm,family=monster,r=25] run summon bullet:dm25_bullet ~~1~",
-"/event entity @e[scores={dm25att=5..}] zero",
-"/execute as @s run scoreboard players set @s dm25att 0"
+"/event entity @e[scores={dm_skill_timer_2=5..}] zero",
+"/execute as @s run scoreboard players set @s dm_skill_timer_2 0"
 ]
 }
 }

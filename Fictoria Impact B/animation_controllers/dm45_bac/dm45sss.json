@@ -3,7 +3,7 @@
 "controller.animation.dm45sss":{
 "states":{
 "default":{"transitions":[
-{"att":"query.is_powered"}
+{"att":"query.variant == 2"}
 
 ]
 
@@ -11,7 +11,7 @@
 "att": {
 					"transitions": [
 						{
-							"default": "query.is_powered"
+							"default": "query.variant == 2"
 						}
 					],
 	"on_entry": [

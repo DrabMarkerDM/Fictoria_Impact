@@ -10,7 +10,8 @@
       },
       "geometry": {
         "default": "geometry.girl_1",
-        "sss": "geometry.dm25"
+        "sss": "geometry.dm25",
+        "sword": "geometry.dm25_sword"
       },
       "scripts": {
         "pre_animation": [
@@ -70,7 +71,8 @@
         "texture_index": 27
       },
       "render_controllers": [ "controller.render.dm25",
-"controller.render.dm25_1" ],
+                              "controller.render.dm25_1",
+                            "controller.render.dm25_2" ],
        "enable_attachables": true
     }
   }

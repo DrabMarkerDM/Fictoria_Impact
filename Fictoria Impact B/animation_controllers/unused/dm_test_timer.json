@@ -1,0 +1,60 @@
+{"format_version":"1.8.0",
+"animation_controllers":{
+"controller.animation.dm_test_timer":{
+"initial_state": "initialize",
+  "states": {
+    "initialize": {
+      "on_entry": [
+        "/scoreboard objectives add dm_skill_timer dummy",
+        "/scoreboard players add @s dm_skill_timer 0"
+      ],
+      "transitions": [
+        { "clock_tick_a": "query.is_alive" }
+      ]
+    },
+
+    "clock_tick_a": {
+      "on_entry": [
+        "v.tick_counter = (v.tick_counter ?? 0) + 1;"
+      ],
+      "transitions": [
+        { "add_one_point": "v.tick_counter >= 20" },
+
+        { "clock_tick_b": "true" }
+      ]
+    },
+
+    "clock_tick_b": {
+      "on_entry": [
+        "v.tick_counter = (v.tick_counter ?? 0) + 1;"
+      ],
+      "transitions": [
+        { "add_one_point": "v.tick_counter >= 20" },
+
+        { "clock_tick_a": "true" }
+      ]
+    },
+
+    "add_one_point": {
+      "on_entry": [
+        "/scoreboard players add @s dm_skill_timer 1"
+      ],
+      "transitions": [
+        
+        { "clock_reset_buffer": "true" }
+      ]
+    },
+
+    "clock_reset_buffer": {
+      "on_entry": [
+        "v.tick_counter = 0;"
+      ],
+      "transitions": [
+
+        { "clock_tick_a": "true" }
+      ]
+    }
+  }
+}
+}
+}

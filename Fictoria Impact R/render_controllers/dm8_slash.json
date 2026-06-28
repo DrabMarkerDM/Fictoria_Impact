@@ -1,0 +1,28 @@
+{
+  "format_version": "1.10.0",
+  "render_controllers": {
+    "controller.render.dm8_slash": {
+      "geometry": "Geometry.slash",
+      "materials": [ { "*": "Material.slash" } ],
+      "is_hurt_color": { "r": 0.0, "g": 0.0, "b": 0.0, "a": 0.0 },
+      "on_fire_color": { "r": 0.0, "g": 0.0, "b": 0.0, "a": 0.0 },
+      "part_visibility": [
+        { "*": true },
+        { "Leftsword_sss": "query.variant == 3" },
+        { "Rightsword_sss": "query.variant == 3" },
+        { "slash": "query.variant != 3 && variable.attack_time > 0.0" },
+        { "slash2": "query.variant != 3 && variable.attack_time > 0.0" },
+        { "circle": "query.variant == 3 && q.property('dm8:test') == 'satt'" },
+        { "wolf_L": "query.variant == 3 && q.property('dm8:test') == 'satt'" },
+        { "w1": "query.variant == 3 && q.property('dm8:test') == 'satt'" },
+        { "wolf_R": "query.variant == 3 && q.property('dm8:test') == 'satt'" },
+        { "w2": "query.variant == 3 && q.property('dm8:test') == 'satt'" },
+         { "s5": "query.variant == 3" },
+        { "s6": "query.variant == 3" },
+        { "s9": "query.variant == 3" },
+        { "s10": "query.variant == 3" }
+      ],
+      "textures": [ "Texture.slash" ]
+    }
+  }
+}

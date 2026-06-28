@@ -1,0 +1,15 @@
+{
+  "format_version": "1.10.0",
+  "render_controllers": {
+    "controller.render.dm25_2": {
+      "geometry": "Geometry.sword",
+      "part_visibility": [
+        { "*": "query.is_powered" }
+      ],
+      "materials": [ { "*": "Material.default" } ],
+      "is_hurt_color": { "r": 0.0, "g": 0.0, "b": 0.0, "a": 0.0 },
+      "on_fire_color": { "r": 0.0, "g": 0.0, "b": 0.0, "a": 0.0 },
+      "textures": [ "Texture.sss" ]
+    }
+  }
+}
