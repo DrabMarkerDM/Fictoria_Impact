@@ -14,7 +14,7 @@
 							"default": "!query.is_powered"
 						}
 					],
-"on_entry": [ "/execute as @e[scores={dm46att=30..}] run scoreboard players set @s dm46att 0"
+"on_entry": [ "/execute as @s[scores={dm_skill_timer=30..}] run scoreboard players set @s dm_skill_timer 0"
 ]
 }
 }

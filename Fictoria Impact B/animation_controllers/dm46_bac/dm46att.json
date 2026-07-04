@@ -15,8 +15,8 @@
 						}
 					],
 "on_entry": [
-"/scoreboard players add @s dm46att 1",
-"/event entity @e[scores={dm46att=30..}] sss"
+"/scoreboard players add @s dm_skill_timer 1",
+"/event entity @s[scores={dm_skill_timer=30..}] sss"
 ]
 }
 }

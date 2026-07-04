@@ -14,7 +14,8 @@ export const gunLoop = () => {
         // 遍历世界中的所有玩家
         world.getAllPlayers().forEach(player => {
             // 检查玩家对象是否有效
-            if (!player || !player.isValid()) {
+            // [2.0.0 变更] isValid 从方法变为只读属性，去掉括号
+            if (!player || !player.isValid) {
                 return;
             }
         });

@@ -15,12 +15,12 @@
 						}
 					],
 "on_entry": [
-"/scoreboard players add @e[type=player:dm0] dm0ratt 1",
-"/event entity @e[scores={dm0ratt=5..}] bow",
-"/scoreboard players set @e[scores={dm0ratt=5..}] dm0ratt 0",
-"/scoreboard players add @e[type=player:dm0] dm0skill 1",
-"/event entity @e[scores={dm0skill=55..}] sss",
-"/scoreboard players set @e[scores={dm0skill=55..}] dm0skill 0",
+"/scoreboard players add @e[type=player:dm0,c=1] dm_skill_timer_4 1",
+"/event entity @e[scores={dm_skill_timer_4=5..},type=player:dm0,c=1] bow",
+"/scoreboard players set @e[scores={dm_skill_timer_4=5..},type=player:dm0,c=1] dm_skill_timer_4 0",
+"/scoreboard players add @e[type=player:dm0,c=1] dm_skill_timer 1",
+"/event entity @e[scores={dm_skill_timer=55..},type=player:dm0,c=1] sss",
+"/scoreboard players set @e[scores={dm_skill_timer=55..},type=player:dm0,c=1] dm_skill_timer 0",
 "/effect @s absorption 5 25 true"
 ]
 }

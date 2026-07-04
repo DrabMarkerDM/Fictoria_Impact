@@ -1,3 +1,4 @@
+
 // 导入 Minecraft 服务器相关模块
 import { system, world } from '@minecraft/server';
 // 导入枪支主循环函数
@@ -18,6 +19,11 @@ import './dm_entities/common/player_attack_blocker';
 // 初始化目标管理引擎
 DmTargetEngine.init();
 
+
+const CORE_SCALE = 0.028;            
+const MAX_DYNAMIC_IMPULSE = 0.32;    
+                                     
+
 // 每 1 Tick 运行一次向量移动
 const driveMaidMuscles = () => {
     try {
@@ -26,34 +32,58 @@ const driveMaidMuscles = () => {
             if (player.dimension) activeDimensions.add(player.dimension);
         }
 
-        //  AI 实体 typeId 列表
-        const targetTypes = ["player:dm34_1", "player:dm34", 
-            "player:dm48", "player:dm35", "player:dm32", "player:dm51", 
+        // AI 实体 typeId 列表
+        const targetTypes = ["player:dm34_1", "player:dm34",
+            "player:dm48", "player:dm35", "player:dm32", "player:dm51",
             "player:dm26", "player:dm50", "player:dm21", "player:dm6", "player:test1",
             "player:dm31", "player:dm45", "player:dm59", "player:dm33", "player:dm24",
-            "player:dm8", "player:dm25", "player:kirito", "player:asuna"    ]; 
+            "player:dm8", "player:dm25", "player:kirito", "player:asuna", "player:dm49", "player:dm62",
+            "player:dm0", "player:dm63", "player:dm46", "player:dm60"    ];
 
         for (const dimension of activeDimensions) {
             for (const typeId of targetTypes) {
                 let units;
                 try {
-                    units = dimension.getEntities({ type: typeId });
+                    // [2.7.0] type → types
+                    units = dimension.getEntities({ types: typeId });
                 } catch (e) { continue; }
 
                 for (const unit of units) {
-                    if (!unit.isValid()) continue;
+                    if (!unit.isValid) continue;
 
                     const controller = unit.getComponent("minecraft:riding")?.entityRidingOn ?? unit;
-                    
-                    // 读取增量
+
+                    // 读取走位引擎解算出的速度属性
                     const velX = unit.getDynamicProperty("dm:cmd_vel_x") ?? 0;
                     const velZ = unit.getDynamicProperty("dm:cmd_vel_z") ?? 0;
                     const velY = unit.getDynamicProperty("dm:cmd_vel_y") ?? 0.02;
 
-                    if (velX !== 0 || velZ !== 0) {
-                        controller.applyImpulse({ x: velX, y: velY, z: velZ });
+                    if (velX !== 0 || velZ !== 0 || velY > 0.02) {
                         
-                        // 在 1 Tick 里触发跳跃，防止连续累加导致飞天
+                        // 1. 计算当前帧期望施加的原始横向冲量
+                        let impulseX = velX * CORE_SCALE;
+                        let impulseZ = velZ * CORE_SCALE;
+
+                        // 检查当前帧算出来的冲量是否超越了“稳态上限”（MAX_DYNAMIC_IMPULSE）
+                        // 如果因为卡坑触发了爆发后撤，将其强制钳制在安全区间内，允许快速脱坑但拒绝飞天
+                        if (Math.abs(impulseX) > MAX_DYNAMIC_IMPULSE) {
+                            impulseX = Math.sign(impulseX) * MAX_DYNAMIC_IMPULSE;
+                        }
+                        if (Math.abs(impulseZ) > MAX_DYNAMIC_IMPULSE) {
+                            impulseZ = Math.sign(impulseZ) * MAX_DYNAMIC_IMPULSE;
+                        }
+
+                        // 3. 施加微量纯净冲量
+                        controller.applyImpulse({ 
+                            x: impulseX, 
+                            y: (velY > 0.02) ? Math.max(-0.4, Math.min(0.4, velY)) : 0, // 维持安全的跳跃曲线
+                            z: impulseZ 
+                        });
+
+
+                        // 不在此处强行清零横向属性，将属性控制权100%留给 movement_ranged.js 持续更新
+
+                        // 跳跃冲量消费
                         if (velY > 0.02) {
                             unit.setDynamicProperty("dm:cmd_vel_y", 0.02);
                         }
@@ -87,10 +117,10 @@ const autoRunTick = () => {
             // 捕获并输出可能出现的错误
             console.warn(error);
         }
-    }, 1); 
+    }, 1);
 };
 
-//保持子弹管理器原本的 2 刻延迟，确保射速时序和子弹判定不发生错乱
+//子弹管理器2 刻延迟，确保射速时序和子弹判定不发生错乱
 
 const autoRunGunTick = () => {
     // 执行枪支主循环逻辑

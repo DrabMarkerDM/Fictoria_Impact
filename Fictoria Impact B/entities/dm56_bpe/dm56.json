@@ -200,7 +200,7 @@
           },
           {
             "cause": "magic",
-            "damage_multiplier": 0.9,
+            "damage_multiplier": 0.85,
             "on_damage": {
               "filters": {
                 "test": "is_family",
@@ -312,7 +312,7 @@
             },
             {
               "cause": "magic",
-              "damage_multiplier": 0.9,
+              "damage_multiplier": 0.85,
               "on_damage": {
                 "filters": {
                   "test": "is_family",
@@ -441,7 +441,7 @@
             },
             {
               "cause": "magic",
-              "damage_multiplier": 0.74,
+              "damage_multiplier": 0.85,
               "on_damage": {
                 "filters": {
                   "test": "is_family",

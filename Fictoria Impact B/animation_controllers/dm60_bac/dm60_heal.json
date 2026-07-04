@@ -18,7 +18,7 @@
 		"/effect @s absorption 4 8",
 		"/effect @s invisibility 1 255",
 		"/effect @s resistance 1 255",
-		"/scoreboard players add @s dm60 3",
+		"/scoreboard players add @s dm_skill_timer 3",
 		"/execute positioned ^ ^ ^2 run execute at @e[type=!player:dm60,tag=!dm,family=monster,r=6] run summon bullet:dm60_ex ~~0.3~",
 		"/damage @e[tag=!dm,family=monster,r=12] 48 magic entity @s",
 		"/effect @e[tag=!dm,type=!player:dm60,family=monster,r=5] weakness 4 6",

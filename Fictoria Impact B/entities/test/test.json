@@ -2,7 +2,7 @@
   "format_version": "1.8.0",
   "minecraft:entity": {
     "description": {
-      "identifier": "player:test",
+      "identifier": "demon:test",
       "is_spawnable": true,
       "is_summonable": true,
       "is_experimental": false,

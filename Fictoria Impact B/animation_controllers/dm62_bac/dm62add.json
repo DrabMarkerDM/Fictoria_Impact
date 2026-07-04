@@ -15,7 +15,7 @@
 						}
 					],
 	"on_entry": [
-		"/scoreboard players remove @s dm62_1 30"
+		"/scoreboard players remove @s dm_skill_timer_1 3"
 	]
 }
 }

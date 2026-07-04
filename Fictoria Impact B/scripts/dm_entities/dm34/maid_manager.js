@@ -5,7 +5,8 @@ world.afterEvents.entityHurt.subscribe((event) => {
     const cause = event.damageSource.cause;
 
     // 基础判定
-    if (!victim || !victim.isValid()) return; 
+    // [2.7.0] victim.isValid() → victim.isValid
+    if (!victim || !victim.isValid) return;
 
     // 特殊女仆
     const isSpecialMaid = victim.typeId === "player:dm34" || victim.typeId === "player:dm34_1";
@@ -16,7 +17,7 @@ world.afterEvents.entityHurt.subscribe((event) => {
     const isDemonEntity = victim.matches({ families: ["demon"] });
 
     // 既不是特殊女仆、不是 dm 家族、也不是 demon 家族，直接退出
-if (!isSpecialMaid && !isDmEntity && !isDemonEntity) return;
+    if (!isSpecialMaid && !isDmEntity && !isDemonEntity) return;
 
     // ======================== 【特殊女仆：完整保护流程】 ========================
     if (isSpecialMaid) {
@@ -36,7 +37,8 @@ if (!isSpecialMaid && !isDmEntity && !isDemonEntity) return;
         let realInLava = false;
         try {
             const footBlock = victim.dimension.getBlock(victim.location);
-            if (footBlock && footBlock.isValid() && footBlock.typeId.includes("lava")) {
+            // [2.7.0] footBlock.isValid() → footBlock.isValid
+            if (footBlock && footBlock.isValid && footBlock.typeId.includes("lava")) {
                 realInLava = true;
             }
         } catch (e) { return; }
@@ -46,7 +48,7 @@ if (!isSpecialMaid && !isDmEntity && !isDemonEntity) return;
         // ======================== 【验证通过，上锁并准备传送】 ========================
         try {
             victim.addTag("dm:teleport_cooldown");
-            victim.addEffect("fire_resistance", 40, { showParticles: false }); 
+            victim.addEffect("fire_resistance", 40, { showParticles: false });
             victim.extinguishFire(true);
         } catch(e) { return; }
 
@@ -76,14 +78,15 @@ if (!isSpecialMaid && !isDmEntity && !isDemonEntity) return;
         if (closestPlayer) {
             const target = closestPlayer;
             const dimension = target.dimension;
-            
+
             let safeLocation = { x: target.location.x, y: target.location.y + 0.5, z: target.location.z };
             let needFindLand = false;
 
             try {
                 const playerBlock = dimension.getBlock(target.location);
-                if (playerBlock && playerBlock.isValid() && playerBlock.typeId.includes("lava")) {
-                    needFindLand = true; 
+                // [2.7.0] playerBlock.isValid() → playerBlock.isValid
+                if (playerBlock && playerBlock.isValid && playerBlock.typeId.includes("lava")) {
+                    needFindLand = true;
                 }
             } catch (e) {}
 
@@ -97,14 +100,15 @@ if (!isSpecialMaid && !isDmEntity && !isDemonEntity) return;
                 outerLoop:
                 for (let xOffset = -3; xOffset <= 3; xOffset++) {
                     for (let zOffset = -3; zOffset <= 3; zOffset++) {
-                        for (let yOffset = -2; yOffset <= 2; yOffset++) { 
+                        for (let yOffset = -2; yOffset <= 2; yOffset++) {
                             try {
                                 const checkX = pX + xOffset;
                                 const checkY = pY + yOffset;
                                 const checkZ = pZ + zOffset;
 
                                 const currentBlock = dimension.getBlock({ x: checkX, y: checkY, z: checkZ });
-                                if (!currentBlock || !currentBlock.isValid()) continue;
+                                // [2.7.0] currentBlock.isValid() → currentBlock.isValid
+                                if (!currentBlock || !currentBlock.isValid) continue;
 
                                 // 地面绝对不能是空气、水或者岩浆
                                 if (currentBlock.isAir || currentBlock.typeId.includes("lava") || currentBlock.typeId.includes("water")) continue;
@@ -113,7 +117,8 @@ if (!isSpecialMaid && !isDmEntity && !isDemonEntity) return;
                                 const standBlock = dimension.getBlock({ x: checkX, y: checkY + 1, z: checkZ });
                                 const headBlock = dimension.getBlock({ x: checkX, y: checkY + 2, z: checkZ });
 
-                                if (standBlock && standBlock.isValid() && headBlock && headBlock.isValid()) {
+                                // [2.7.0] standBlock.isValid() / headBlock.isValid() → 属性访问
+                                if (standBlock && standBlock.isValid && headBlock && headBlock.isValid) {
                                     // 必须同时满足"脚底是空气"且"头顶也是空气"，提供足足2格高的净空人形生存空间
                                     if (standBlock.isAir && headBlock.isAir) {
                                         safeLocation = { x: checkX + 0.5, y: checkY + 1.05, z: checkZ + 0.5 };
@@ -130,11 +135,11 @@ if (!isSpecialMaid && !isDmEntity && !isDemonEntity) return;
             // 执行同步秒传，彻底断绝排队烫死
             try {
                 victim.teleport(safeLocation, { dimension: dimension });
-                victim.extinguishFire(true); 
-                
+                victim.extinguishFire(true);
+
                 target.playSound("mob.endermen.portal");
                 dimension.spawnParticle("minecraft:endrod", safeLocation);
-                
+
                 if (needFindLand) {
                     target.sendMessage("§e<女仆酱> 主人笨蛋！我先溜啦！");
                 } else {
@@ -145,7 +150,8 @@ if (!isSpecialMaid && !isDmEntity && !isDemonEntity) return;
             // 1.5秒后释放冷却锁
             system.runTimeout(() => {
                 try {
-                    if (victim && victim.isValid()) {
+                    // [2.7.0] victim.isValid() → victim.isValid
+                    if (victim && victim.isValid) {
                         victim.removeTag("dm:teleport_cooldown");
                     }
                 } catch(e) {}
@@ -156,26 +162,27 @@ if (!isSpecialMaid && !isDmEntity && !isDemonEntity) return;
     }
 
     // 通用实体部分，执行弹跳
-   else if (isDmEntity || isDemonEntity) {
-    // 基本伤害类型过滤
-    if (cause !== EntityDamageCause.lava && 
-        cause !== EntityDamageCause.fireTick && 
-        cause !== EntityDamageCause.fire) return;
+    else if (isDmEntity || isDemonEntity) {
+        // 基本伤害类型过滤
+        if (cause !== EntityDamageCause.lava &&
+            cause !== EntityDamageCause.fireTick &&
+            cause !== EntityDamageCause.fire) return;
 
-    // 带抗火时不触发弹跳
-    try {
-        if (victim.getEffect("fire_resistance")) return;
-    } catch(e) {}
+        // 带抗火时不触发弹跳
+        try {
+            if (victim.getEffect("fire_resistance")) return;
+        } catch(e) {}
 
-    // 简单环境校对：确认确实站在岩浆里
-    let realInLava = false;
-    try {
-        const footBlock = victim.dimension.getBlock(victim.location);
-        if (footBlock && footBlock.isValid() && footBlock.typeId.includes("lava")) {
-            realInLava = true;
-        }
-    } catch (e) { return; }
-    if (!realInLava) return;
+        // 简单环境校对：确认确实站在岩浆里
+        let realInLava = false;
+        try {
+            const footBlock = victim.dimension.getBlock(victim.location);
+            // [2.7.0] footBlock.isValid() → footBlock.isValid
+            if (footBlock && footBlock.isValid && footBlock.typeId.includes("lava")) {
+                realInLava = true;
+            }
+        } catch (e) { return; }
+        if (!realInLava) return;
 
 
         // 不加冷却标签、不加抗火、不灭火，直接温和弹跳挣脱
@@ -192,16 +199,18 @@ if (!isSpecialMaid && !isDmEntity && !isDemonEntity) return;
                     const checkX = Math.floor(currentPos.x) + dx;
                     const checkZ = Math.floor(currentPos.z) + dz;
                     const checkY = Math.floor(currentPos.y);
-                    
+
                     const groundBlock = victim.dimension.getBlock({ x: checkX, y: checkY, z: checkZ });
-                    if (!groundBlock || !groundBlock.isValid()) continue;
-                    
-                    if (!groundBlock.typeId.includes("lava") && 
-                        !groundBlock.isAir && 
+                    // [2.7.0] groundBlock.isValid() → groundBlock.isValid
+                    if (!groundBlock || !groundBlock.isValid) continue;
+
+                    if (!groundBlock.typeId.includes("lava") &&
+                        !groundBlock.isAir &&
                         !groundBlock.typeId.includes("water")) {
-                        
+
                         const standBlock = victim.dimension.getBlock({ x: checkX, y: checkY + 1, z: checkZ });
-                        if (standBlock && standBlock.isValid() && standBlock.isAir) {
+                        // [2.7.0] standBlock.isValid() → standBlock.isValid
+                        if (standBlock && standBlock.isValid && standBlock.isAir) {
                             safeX = checkX + 0.5 - currentPos.x;
                             safeZ = checkZ + 0.5 - currentPos.z;
                             foundSafe = true;

@@ -387,10 +387,10 @@
           "value": 36,
           "max": 36
         },
-        "minecraft:behavior.melee_box_attack": {
+        "minecraft:behavior.melee_attack": {
           "priority": 2,
           "can_spread_on_fire": true,
-          "horizontal_reach": 36.0,
+          "reach_multiplier": 36.0,
           "cooldown_time": 0.7,
           "speed_multiplier": 0.5,
           "track_target": true,

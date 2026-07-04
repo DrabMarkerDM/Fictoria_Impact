@@ -15,7 +15,7 @@
 				"default": {
 					"transitions": [
 						{
-							"attacking": "query.is_delayed_attacking && query.mark_variant == 6"
+							"attacking": "variable.attack_time > 0.0 && query.mark_variant == 6"
 						}
 					]
 				}

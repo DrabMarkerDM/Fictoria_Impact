@@ -332,7 +332,7 @@
           },
           {
             "cause": "magic",
-            "damage_multiplier": 1.0,
+            "damage_multiplier": 0.85,
             "on_damage": {
               "filters": {
                 "test": "is_family",

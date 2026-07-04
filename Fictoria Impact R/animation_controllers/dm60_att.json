@@ -13,13 +13,13 @@
 							"default": "!query.has_target || query.get_equipped_item_name != 'dm60'"
 						},
 						{
-							"att": "query.is_delayed_attacking"
+							"att": "variable.attack_time > 0.0 && query.variant != 3 "
 						},
 						{
 							"charge": "query.get_equipped_item_name == 'dm60_1'"
 						},
 						{
-							"brand": "query.variant == 3 && query.is_delayed_attacking"
+							"brand": "query.variant == 3 && variable.attack_time > 0.0"
 						}
 					]
 				},
@@ -32,13 +32,13 @@
 							"default": "!query.has_target || query.get_equipped_item_name != 'dm60_1'"
 						},
 						{
-							"att": "query.is_delayed_attacking"
+							"att": "variable.attack_time > 0.0 && query.variant != 3 "
 						},
 						{
 							"bow": "query.get_equipped_item_name == 'dm60'"
 						},
 						{
-							"brand": "query.variant == 3 && query.is_delayed_attacking"
+							"brand": "query.variant == 3 && variable.attack_time > 0.0"
 						}
 					]
 				},
@@ -58,32 +58,32 @@
 					],
 					"transitions": [
 						{
-							"bow": "query.has_target && !query.is_delayed_attacking && query.get_equipped_item_name == 'dm60'"
+							"bow": "query.has_target && variable.attack_time <= 0.0 && query.get_equipped_item_name == 'dm60'"
 						},
 						{
-							"default": "!query.is_delayed_attacking"
+							"default": "variable.attack_time <= 0.0 || query.variant == 3 "
 						},
 						{
-							"charge": "query.has_target && !query.is_delayed_attacking && query.get_equipped_item_name == 'dm60_1'"
+							"charge": "query.has_target && variable.attack_time <= 0.0 && query.get_equipped_item_name == 'dm60_1'"
 						},
 						{
-							"brand": "query.variant == 3 && query.is_delayed_attacking"
+							"brand": "query.variant == 3 && variable.attack_time > 0.0"
 						}
 					]
 				},
 				"default": {
 					"transitions": [
 						{
-							"bow": "query.has_target && !query.is_delayed_attacking && query.get_equipped_item_name == 'dm60'"
+							"bow": "query.has_target && variable.attack_time <= 0.0 && query.get_equipped_item_name == 'dm60'"
 						},
 						{
-							"att": "query.is_delayed_attacking"
+							"att": "variable.attack_time > 0.0 && query.variant != 3 "
 						},
 						{
-							"charge": "query.has_target && !query.is_delayed_attacking && query.get_equipped_item_name == 'dm60_1'"
+							"charge": "query.has_target && variable.attack_time <= 0.0 && query.get_equipped_item_name == 'dm60_1'"
 						},
 						{
-							"brand": "query.variant == 3 && query.is_delayed_attacking"
+							"brand": "query.variant == 3 && variable.attack_time > 0.0"
 
 						}
 					]

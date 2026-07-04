@@ -1,7 +1,7 @@
 import { EntityDamageCause } from '@minecraft/server';
 
 export const BulletEffects = {
-    // dm48_s_ak�ĺ���
+    // dm48_s_ak 的函数
     dm48_s_ak: (target, attacker, projectile, dimension, runEffectCommands, hitLocation) => {
         if (Math.random() < 0.05) {
             const targets = dimension.getEntities({
@@ -11,7 +11,8 @@ export const BulletEffects = {
             });
 
             for (const t of targets) {
-                if (!t.isValid()) continue;
+                // [2.7.0] isValid() 方法 → isValid 属性
+                if (!t.isValid) continue;
                 t.applyDamage(34, { cause: EntityDamageCause.override, damagingEntity: attacker });
                 t.applyDamage(34, { cause: EntityDamageCause.override, damagingEntity: attacker });
             }
@@ -26,7 +27,7 @@ export const BulletEffects = {
         }
     },
 
-    // dm48_ak�ĺ���
+    // dm48_ak 的函数
     dm48_ak: (target, attacker, projectile, dimension, runEffectCommands, hitLocation) => {
         if (Math.random() < 0.03) {
             const targets = dimension.getEntities({
@@ -36,7 +37,8 @@ export const BulletEffects = {
             });
 
             for (const t of targets) {
-                if (!t.isValid()) continue;
+                // [2.7.0] isValid() 方法 → isValid 属性
+                if (!t.isValid) continue;
                 t.applyDamage(21, { cause: EntityDamageCause.override, damagingEntity: attacker });
                 t.applyDamage(21, { cause: EntityDamageCause.override, damagingEntity: attacker });
             }

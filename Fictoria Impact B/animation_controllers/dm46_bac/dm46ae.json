@@ -3,7 +3,7 @@
 "controller.animation.dm46ae":{
 "states":{
 "default":{"transitions":[
-{"attack":"query.is_delayed_attacking"}
+{"attack":"variable.attack_time >= 0.001"}
 
 ]
 
@@ -11,11 +11,12 @@
 "attack": {
 					"transitions": [
 						{
-							"default": "!query.is_delayed_attacking"
+							"default": "variable.attack_time < 0.001"
 						}
 					],
 "on_entry": [
-"/particle dm:dm46_att ^ ^2 ^2"
+"/particle dm:dm46_att ^ ^2 ^2",
+"/playsound dm46att @a[r=33] ~~~ 1.8 1.0"
 ]
 }
 }

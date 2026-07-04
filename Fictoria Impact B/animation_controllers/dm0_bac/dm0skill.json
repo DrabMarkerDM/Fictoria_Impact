@@ -3,7 +3,7 @@
 "controller.animation.dm0skill":{
 "states":{
 "default":{"transitions":[
-{"attack":"query.is_delayed_attacking && query.variant != 5 "}
+{"attack":"variable.attack_time >= 0.001 && query.variant != 5 "}
 
 ]
 
@@ -11,13 +11,13 @@
 "attack": {
 					"transitions": [
 						{
-							"default": "!query.is_delayed_attacking || query.variant == 5 "
+							"default": "variable.attack_time < 0.001 || query.variant == 5 "
 						}
 					],
 "on_entry": [
-"/scoreboard players add @s dm0skill 1",
-"/event entity @e[scores={dm0skill=55..}] sss",
-"/scoreboard players set @e[scores={dm0skill=55..}] dm0skill 0"
+"/scoreboard players add @s dm_skill_timer 1",
+"/event entity @s[scores={dm_skill_timer=55..}] sss",
+"/scoreboard players set @s[scores={dm_skill_timer=55..}] dm_skill_timer 0"
 ]
 }
 }

@@ -3,6 +3,7 @@
   "animation_controllers": {
     "controller.animation.dm_tag": {
       "states": { "default": { "on_entry": [ "/tag @s add dm",
+       "/tag @a add dm",
        "/scoreboard objectives add dm_skill_timer dummy",
        "/scoreboard objectives add dm_skill_timer_1 dummy",
        "/scoreboard objectives add dm_skill_timer_2 dummy",

@@ -7,11 +7,12 @@ const targetTypes = ["player:dm34", "player:dm34_1"];
 
 system.runInterval(() => {
     const overworld = world.getDimension('overworld');
-    
+
     // 1. 收集当前世界中所有相关的活体实体
     let currentActiveEntities = [];
     for (const type of targetTypes) {
-        const found = overworld.getEntities({ type: type });
+        // [2.7.0] type → types（EntityQueryOptions 字段重命名）
+        const found = overworld.getEntities({ types: type });
         currentActiveEntities.push(...found);
     }
 
@@ -27,7 +28,7 @@ system.runInterval(() => {
         if (lastData && isLighting) {
             // 计算水平位移距离
             const dist = Math.sqrt(
-                Math.pow(currentPos.x - lastData.pos.x, 2) + 
+                Math.pow(currentPos.x - lastData.pos.x, 2) +
                 Math.pow(currentPos.z - lastData.pos.z, 2)
             );
 
@@ -35,14 +36,15 @@ system.runInterval(() => {
             if (dist > 2) {
                 const dim = world.getDimension(entity.dimension.id);
                 const { x, y, z } = lastData.pos;
-                dim.runCommandAsync(`fill ${Math.floor(x)-2} ${Math.floor(y)-1} ${Math.floor(z)-2} ${Math.floor(x)+2} ${Math.floor(y)+3} ${Math.floor(z)+2} air replace block:dm_light_1`);
+                // [2.7.0] runCommandAsync → runCommand（同步返回 CommandResult）
+                dim.runCommand(`fill ${Math.floor(x)-2} ${Math.floor(y)-1} ${Math.floor(z)-2} ${Math.floor(x)+2} ${Math.floor(y)+3} ${Math.floor(z)+2} air replace block:dm_light_1`);
             }
         }
 
         // 更新（或新增）缓存记录
-        lastPositions.set(entity.id, { 
-            pos: { x: currentPos.x, y: currentPos.y, z: currentPos.z }, 
-            wasLighting: isLighting 
+        lastPositions.set(entity.id, {
+            pos: { x: currentPos.x, y: currentPos.y, z: currentPos.z },
+            wasLighting: isLighting
         });
     }
 
@@ -53,7 +55,8 @@ system.runInterval(() => {
             if (data.wasLighting) {
                 const { x, y, z } = data.pos;
                 // 注意：这里默认回退到主世界清理，或者你可以根据记录的 dimensionId 优化
-                overworld.runCommandAsync(`fill ${Math.floor(x)-2} ${Math.floor(y)-1} ${Math.floor(z)-2} ${Math.floor(x)+2} ${Math.floor(y)+3} ${Math.floor(z)+2} air replace block:dm_light_1`);
+                // [2.7.0] runCommandAsync → runCommand（同步返回 CommandResult）
+                overworld.runCommand(`fill ${Math.floor(x)-2} ${Math.floor(y)-1} ${Math.floor(z)-2} ${Math.floor(x)+2} ${Math.floor(y)+3} ${Math.floor(z)+2} air replace block:dm_light_1`);
             }
             // 彻底从 Map 中删除，释放内存
             lastPositions.delete(id);

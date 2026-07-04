@@ -10,7 +10,8 @@ export class TacticalClockManager {
      * @param {boolean} _ignoredThreat （已弃用：不再信任且不再处理任何雷达威胁）
      */
     static execute(unit, _ignoredThreat) {
-        if (!unit || !unit.isValid()) return;
+        // [2.0.0 变更] isValid 从方法变为只读属性，去掉括号
+        if (!unit || !unit.isValid) return;
 
         try {
             const nowTick = system.currentTick;

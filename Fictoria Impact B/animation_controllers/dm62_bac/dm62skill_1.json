@@ -15,9 +15,9 @@
 						}
 					],
 	"on_entry": [
-		"/scoreboard players add @s dm62_2 1",
-		"/execute as @e[scores={dm62_2=5..}] run event entity @s skill",
-		"/execute as @e[scores={dm62_2=5..}] run scoreboard players set @s dm62_2 0"
+		"/scoreboard players add @s dm_skill_timer_4 1",
+		"/execute as @e[scores={dm_skill_timer_4=5..}] run event entity @s skill",
+		"/execute as @e[scores={dm_skill_timer_4=5..}] run scoreboard players set @s dm_skill_timer_4 0"
 	]
 }
 }

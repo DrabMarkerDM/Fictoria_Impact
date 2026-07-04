@@ -1,0 +1,17 @@
+ {
+  "format_version": "1.8.0",
+  "animations": {
+		"animation.dm8_ratt_target_1" : {
+			"loop" : true,
+			"bones" : {
+
+				"circle_main" : {
+					"rotation": [ "query.target_x_rotation", "query.target_y_rotation", 0.0 ]
+					},
+				"wolf_main" : {
+					"rotation": [ "query.target_x_rotation", "query.target_y_rotation", 0.0 ]
+		  }
+        }
+      }
+    }
+  }

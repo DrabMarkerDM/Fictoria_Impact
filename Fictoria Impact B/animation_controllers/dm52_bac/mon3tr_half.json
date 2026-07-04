@@ -15,7 +15,7 @@
 						}
 					],
 	"on_entry": [
-		"/event entity @e[type=mob:mon3tr,c=1,tag=mon3tr_new] mon3tr_half",
+		"/event entity @s[tag=mon3tr_new] mon3tr_half",
 		"/tag @s remove mon3tr_new"
 	]
 }

@@ -156,7 +156,7 @@
           },
           {
             "cause": "magic",
-            "damage_multiplier": 0.9,
+            "damage_multiplier": 0.8,
             "on_damage": {
               "filters": {
                 "test": "is_family",

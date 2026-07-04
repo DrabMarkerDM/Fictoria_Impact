@@ -120,10 +120,15 @@
 					{"origin": [-22, 32, -0.75], "size": [6, 2, 1.5], "uv": [214, 95], "inflate": 0.5},
 					{"origin": [-24, 34, -0.75], "size": [2, 2, 1.5], "uv": [218, 89], "inflate": 0.5}
 				]
+				},
+			{
+				"name": "wolf_main",
+				"parent": "root",
+				"pivot": [0, 20, 0]
 			},
 			{
 				"name": "wolf_L",
-				"parent": "root",
+				"parent": "wolf_main",
 				"pivot": [18, 21, -20]
 			},
 			{
@@ -157,7 +162,7 @@
 			},
 			{
 				"name": "wolf_R",
-				"parent": "root",
+				"parent": "wolf_main",
 				"pivot": [-18, 21, -20]
 			},
 			{

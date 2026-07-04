@@ -3,7 +3,7 @@
 "controller.animation.dm46satt":{
 "states":{
 "default":{"transitions":[
-	{ "att": "query.is_powered && query.is_delayed_attacking" }
+	{ "att": "query.is_powered && variable.attack_time >= 0.001" }
 
 ]
 
@@ -11,7 +11,7 @@
 "att": {
 					"transitions": [
 						{
-							"default": "!query.is_powered || !query.is_delayed_attacking"
+							"default": "variable.attack_time < 0.001 || !query.is_delayed_attacking"
 						}
 					],
 	"on_entry": [

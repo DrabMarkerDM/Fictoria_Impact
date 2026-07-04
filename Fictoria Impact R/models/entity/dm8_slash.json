@@ -126,18 +126,28 @@
 					{"origin": [-22, 32, -0.75], "size": [6, 2, 1.5], "uv": [214, 95]},
 					{"origin": [-24, 34, -0.75], "size": [2, 2, 1.5], "uv": [218, 89]}
 				]
+				},
+			{
+				"name": "circle_main",
+				"parent": "root",
+				"pivot": [0, 20, -10]
 			},
 			{
 				"name": "circle",
-				"parent": "root",
+				"parent": "circle_main",
 				"pivot": [0, 0, -39],
 				"cubes": [
 					{"origin": [-15, 0, -10], "size": [30, 30, 0], "uv": [124, 89]}
 				]
+				},
+			{
+				"name": "wolf_main",
+				"parent": "root",
+				"pivot": [0, 20, 0]
 			},
 			{
 				"name": "wolf_L",
-				"parent": "root",
+				"parent": "wolf_main",
 				"pivot": [18, 21, -20],
 				"cubes": [
 					{"origin": [11, 15, -23], "size": [8, 8, 4], "uv": [133, 0]},
@@ -169,7 +179,7 @@
 			},
 			{
 				"name": "wolf_R",
-				"parent": "root",
+				"parent": "wolf_main",
 				"pivot": [-18, 21, -20],
 				"cubes": [
 					{"origin": [-19, 15, -23], "size": [8, 8, 4], "uv": [133, 0], "mirror": true},

@@ -39,7 +39,8 @@ export const meleeImpactHandler = () => {
         const attacker = event.damagingEntity;
         const mainTarget = event.hitEntity;
 
-        if (!attacker?.isValid() || !mainTarget?.isValid()) return;
+        // [2.0.0 变更] isValid 从方法变为只读属性，去掉括号
+        if (!attacker?.isValid || !mainTarget?.isValid) return;
 
         const entityConfigs = MELEE_CONFIG[attacker.typeId];
         if (!entityConfigs) return; 

@@ -1,5 +1,5 @@
 {
-  "format_version": "1.8.0",
+  "format_version": "1.21.50",
   "minecraft:entity": {
     "description": {
       "identifier": "mob:dm60_summon",
@@ -26,8 +26,12 @@
       }
     },
     "components": {
+      "minecraft:is_hidden_when_invisible": {
+    },
       "minecraft:type_family": {
         "family": [ "player", "dm" ]
+        },
+        "minecraft:cannot_be_attacked": {
       },
       "minecraft:collision_box": {
         "width": 0.4,
@@ -40,11 +44,121 @@
       "minecraft:variant": {
         "value": 1
       },
-      "minecraft:damage_sensor": {
-        "triggers": {
-          "cause": "all",
-          "deals_damage": false
-        }
+        "minecraft:damage_sensor": {
+          "triggers": [
+            {
+              "cause": "projectile",
+              "damage_multiplier": 0.0,
+              "on_damage": {
+                "event": "hurt_by",
+                "filters": {
+                  "test": "is_family",
+                  "subject": "other",
+                  "operator": "!=",
+                  "value": "dm"
+                }
+              },
+              "deals_damage": "yes"
+            },
+            {
+              "cause": "entity_attack",
+              "damage_multiplier": 0.0,
+              "on_damage": {
+                "event": "hurt_by",
+                "filters": {
+                  "test": "is_family",
+                  "subject": "other",
+                  "operator": "!=",
+                  "value": "dm"
+                }
+              },
+              "deals_damage": "yes"
+            },
+            {
+              "cause": "entity_explosion",
+              "damage_multiplier": 0.0,
+              "on_damage": {
+                "event": "hurt_by",
+                "filters": {
+                  "test": "is_family",
+                  "subject": "other",
+                  "operator": "!=",
+                  "value": "dm"
+                }
+              },
+              "deals_damage": "yes"
+            },
+            {
+              "cause": "block_explosion",
+              "damage_multiplier": 0.0,
+              "on_damage": {
+                "event": "hurt_by",
+                "filters": {
+                  "test": "is_family",
+                  "subject": "other",
+                  "operator": "!=",
+                  "value": "dm"
+                }
+              },
+              "deals_damage": "yes"
+            },
+            {
+              "cause": "override",
+              "damage_multiplier": 0.0,
+              "on_damage": {
+                "event": "hurt_by",
+                "filters": {
+                  "test": "is_family",
+                  "subject": "other",
+                  "operator": "!=",
+                  "value": "dm"
+                }
+              },
+              "deals_damage": "yes"
+            },
+            {
+              "cause": "magic",
+              "damage_multiplier": 0.0,
+              "on_damage": {
+                "event": "hurt_by",
+                "filters": {
+                  "test": "is_family",
+                  "subject": "other",
+                  "operator": "!=",
+                  "value": "dm"
+                }
+              },
+              "deals_damage": "yes"
+              },
+            {
+              "cause": "wither",
+              "damage_multiplier": 0.0,
+              "on_damage": {
+                "event": "hurt_by",
+                "filters": {
+                  "test": "is_family",
+                  "subject": "other",
+                  "operator": "!=",
+                  "value": "dm"
+                }
+              },
+              "deals_damage": "yes"
+            },
+            {
+              "on_damage": {
+                "filters": {
+                  "test": "is_family",
+                  "subject": "other",
+                  "value": "dm"
+                }
+              },
+              "deals_damage": "no"
+            },
+            {
+              "cause": "fall",
+              "deals_damage": "no"
+            }
+          ]
       },
       "minecraft:can_climb": {
       },
@@ -110,6 +224,13 @@
             "visible": false,
             "ambient": false,
             "duration": 999999
+            },
+          {
+            "effect": "invisibility",
+            "amplifier": 255,
+            "visible": false,
+            "ambient": false,
+            "duration": 999999
           }
         ]
       },
@@ -124,6 +245,13 @@
         "add": {
           "component_groups": [
             "air"
+          ]
+        }
+        },
+      "hurt_by": {
+        "queue_command": {
+          "command": [
+            "scoreboard players add @e[type=player:dm60,c=1] dm_skill_timer 1"
           ]
         }
       }
