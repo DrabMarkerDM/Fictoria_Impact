@@ -15,8 +15,8 @@
 						}
 					],
 "on_entry": [
-"/event entity @e[type=player:dm56] attack",
-"/event entity @e[type=player:dm56] end"
+"@s attack",
+"@s end"
 ]
 }
 }

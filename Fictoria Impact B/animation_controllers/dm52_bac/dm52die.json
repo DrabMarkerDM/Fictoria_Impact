@@ -15,7 +15,7 @@
 						}
 					],
 "on_entry": [
-"/kill @e[type=mob:mon3tr]"
+"/kill @e[type=mob:mon3tr,c=1]"
 ]
 }
 }

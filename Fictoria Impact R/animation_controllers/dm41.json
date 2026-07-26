@@ -13,7 +13,7 @@
 							"default": "!query.has_target"
 						},
 						{
-							"att": "query.is_delayed_attacking"
+							"att": "variable.attack_time > 0.0"
 						}
 					]
 				},
@@ -23,14 +23,14 @@
 					],
 					"transitions": [
 						{
-							"bow": "query.has_target && !query.is_delayed_attacking"
+							"bow": "query.has_target && variable.attack_time <= 0.0"
 						}
 					]
 				},
 				"default" : {
 					"transitions" : [
 						{
-							"bow" : "query.has_target && !query.is_delayed_attacking"
+							"bow" : "query.has_target && variable.attack_time <= 0.0"
 						}
           ]
 

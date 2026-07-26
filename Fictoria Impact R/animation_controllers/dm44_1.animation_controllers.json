@@ -15,7 +15,7 @@
 				"default" : {
 					"transitions" : [
 						{
-							"attacking": "variable.attack_time >= 0.01 && query.variant == 3"
+							"attacking": "variable.attack_time > 0.0 && query.variant == 3"
 						}
           ]
         }

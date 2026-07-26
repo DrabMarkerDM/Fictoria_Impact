@@ -18,9 +18,9 @@
 	"on_entry": [
 		"/effect @s slowness 3 255 true",
 		"/damage @e[tag=!dm,family=monster,r=3] 48 magic entity @s",
-		"/scoreboard players add @s dm61_2 1",
-		"/event entity @e[scores={dm61_2=2..}] skill_off",
-		"/scoreboard players set @e[scores={dm61_2=2..}] dm61_2 0",
+		"/scoreboard players add @s dm_skill_timer_3 1",
+		"/event entity @s[scores={dm_skill_timer_3=2..}] skill_off",
+		"/scoreboard players set @s[scores={dm_skill_timer_3=2..}] dm_skill_timer_3 0",
 		"/particle minecraft:snowflake_particle ^-1^^2",
 		"/particle minecraft:snowflake_particle ^-1^^2",
 		"/particle minecraft:snowflake_particle ^-1^^2",

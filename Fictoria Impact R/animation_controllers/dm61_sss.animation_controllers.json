@@ -8,14 +8,14 @@
 					"animations": [ "sss" ],
 					"transitions": [
 						{
-							"default": "variable.attack_time < 0.0 || query.variant != 2"
+							"default": "query.variant != 2"
 						}
 					]
 				},
 				"default": {
 					"transitions": [
 						{
-							"attack": "variable.attack_time >= 0.0 && query.variant == 2"
+							"attack": "query.variant == 2"
 						}
 					]
 				}

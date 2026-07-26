@@ -1,6 +1,6 @@
 {"format_version":"1.8.0",
 	"animation_controllers": {
-		"controller.animation.dm61_equip_1": {
+		"controller.animation.dm_equip_1": {
 			"states": {
 				"default": {
 					"transitions": [

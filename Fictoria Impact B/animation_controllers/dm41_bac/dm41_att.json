@@ -3,7 +3,7 @@
 "controller.animation.dm41_att":{
 "states":{
 "default":{"transitions":[
-{"attack":"query.is_delayed_attacking && query.variant == 1"}
+{"attack":"variable.attack_time > 0.0 && query.variant == 1"}
 
 ]
 
@@ -11,11 +11,11 @@
 "attack": {
 					"transitions": [
 						{
-							"default": "!query.is_delayed_attacking || query.variant != 1"
+							"default": "variable.attack_time <= 0.0 || query.variant != 1"
 						}
 					],
-"on_entry": ["/scoreboard players add @s dm41att 1",
-"/event entity @e[scores={dm41att=6..}] a2"
+"on_entry": ["/scoreboard players add @s dm_skill_timer_2 1",
+"/event entity @s[scores={dm_skill_timer_2=6..}] a2"
 ]
 }
 }

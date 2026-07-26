@@ -3,7 +3,7 @@
 "controller.animation.asatt":{
 "states":{
 "default":{"transitions":[
-{"attack":"variable.attack_time >= 0.001 && query.mark_variant == 2 "}
+{"attack":"variable.attack_time > 0.0 && query.mark_variant == 2 "}
 
 ]
 
@@ -11,7 +11,7 @@
 "attack": {
 					"transitions": [
 						{
-							"default": "variable.attack_time < 0.001 || query.mark_variant != 2 "
+							"default": "variable.attack_time <= 0.0 || query.mark_variant != 2 "
 						}
 					],
 "on_entry": [

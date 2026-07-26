@@ -16,9 +16,9 @@
 					],
 	"on_entry": [
 		"/effect @s slowness 3 255 true",
-		"/scoreboard players add @s dm61_1 1",
-		"/event entity @e[scores={dm61_1=5..}] skill_on",
-		"/scoreboard players set @e[scores={dm61_1=5..}] dm61_1 0"
+		"/scoreboard players add @s dm_skill_timer_2 1",
+		"/event entity @s[scores={dm_skill_timer_2=5..}] skill_on",
+		"/scoreboard players set @s[scores={dm_skill_timer_2=5..}] dm_skill_timer_2 0"
 	]
 }
 }

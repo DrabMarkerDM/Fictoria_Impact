@@ -3,7 +3,7 @@
 "controller.animation.dm61att_2":{
 "states":{
 "default":{"transitions":[
-	{ "attack": "variable.attack_time >= 0.001 && query.mark_variant == 3" }
+	{ "attack": "variable.attack_time > 0.0 && query.mark_variant == 3" }
 
 ]
 
@@ -11,7 +11,7 @@
 "attack": {
 					"transitions": [
 						{
-							"default": "!variable.attack_time >= 0.001 || query.mark_variant != 3"
+							"default": "!variable.attack_time > 0.0 || query.mark_variant != 3"
 						}
 					],
 	"on_entry": [

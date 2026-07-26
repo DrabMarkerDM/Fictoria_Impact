@@ -3,7 +3,7 @@
 "controller.animation.dm25_1":{
 "states":{
 "default":{"transitions":[
-{"attack":"variable.attack_time >= 0.001"}
+{"attack":"variable.attack_time > 0.0"}
 
 ]
 
@@ -11,7 +11,7 @@
 "attack": {
 					"transitions": [
 						{
-							"default": "variable.attack_time < 0.001"
+							"default": "variable.attack_time <= 0.0"
 						}
 					],
 "on_entry": [
@@ -19,7 +19,7 @@
 "/scoreboard players add @s dm_skill_timer_2 1",
 "/particle dm:dm25 ^ ^2 ^2",
 "/execute positioned ^ ^ ^3 run execute at @e[type=!player:dm25,tag=!dm,family=monster,r=8] run summon bullet:dm25_sweep ~~0.3~",
-"/event entity @e[scores={dm_skill_timer_2=5..}] sword"
+"/event entity @s[scores={dm_skill_timer_2=5..}] sword"
 ]
 }
 }

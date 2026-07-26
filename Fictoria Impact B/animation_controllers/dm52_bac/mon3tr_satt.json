@@ -3,7 +3,7 @@
 "controller.animation.mon3tr_satt":{
 "states":{
 "default":{"transitions":[
-	{ "attack": "variable.attack_time >= 0.001 && query.variant != 1" }
+	{ "attack": "variable.attack_time > 0.0 && query.variant != 1" }
 
 ]
 
@@ -11,7 +11,7 @@
 "attack": {
 					"transitions": [
 						{
-							"default": "variable.attack_time < 0.001 || query.variant == 1"
+							"default": "variable.attack_time <= 0.0 || query.variant == 1"
 						}
 					],
 "on_entry": [ "/execute at @e[type=!mob:mon3tr,r=5,family=monster,c=1] run particle minecraft:misc_fire_vapor_particle ~~2~"

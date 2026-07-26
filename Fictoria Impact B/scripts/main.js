@@ -38,7 +38,8 @@ const driveMaidMuscles = () => {
             "player:dm26", "player:dm50", "player:dm21", "player:dm6", "player:test1",
             "player:dm31", "player:dm45", "player:dm59", "player:dm33", "player:dm24",
             "player:dm8", "player:dm25", "player:kirito", "player:asuna", "player:dm49", "player:dm62",
-            "player:dm0", "player:dm63", "player:dm46", "player:dm60"    ];
+            "player:dm0", "player:dm63", "player:dm46", "player:dm60", "player:dm41", "player:dm61",
+            "player:dm52", "player:dm56"    ];
 
         for (const dimension of activeDimensions) {
             for (const typeId of targetTypes) {

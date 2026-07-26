@@ -3,7 +3,7 @@
 "controller.animation.dm34_sword":{
 "states":{
 "default":{"transitions":[
-	{ "att": "variable.attack_time >= 0.001 && query.variant == 4 " }
+	{ "att": "variable.attack_time > 0.0 && query.variant == 4 " }
 
 ]
 
@@ -11,7 +11,7 @@
 "att": {
 					"transitions": [
 						{
-							"default": "variable.attack_time < 0.001 || query.variant != 4 "
+							"default": "variable.attack_time <= 0.0 || query.variant != 4 "
 						}
 					],
 	"on_entry": [

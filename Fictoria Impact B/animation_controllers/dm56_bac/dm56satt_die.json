@@ -14,7 +14,7 @@
 							"default": "query.mark_variant != 1"
 						}
 					],
-"on_entry": [ "/event entity @e[type=player:dm56] m_die"
+"on_entry": [ "/event entity @e[type=player:dm56,c=1] m_die"
 ]
 }
 }

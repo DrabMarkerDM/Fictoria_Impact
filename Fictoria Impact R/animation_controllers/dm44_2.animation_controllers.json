@@ -8,14 +8,14 @@
 					"animations": [ "attack.rotations" ],
 					"transitions" : [
 						{
-							"default": "variable.attack_time < 0.0 || query.variant == 3"
+							"default": "variable.attack_time <= 0.0 || query.variant == 3"
 						}
 					]
 				},
 				"default" : {
 					"transitions" : [
 						{
-							"attacking": "variable.attack_time >= 0.0 && query.variant != 3"
+							"attacking": "variable.attack_time > 0.0 && query.variant != 3"
 						}
           ]
         }

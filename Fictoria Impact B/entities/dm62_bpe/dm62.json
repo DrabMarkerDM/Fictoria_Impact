@@ -907,7 +907,8 @@
         }
       },
       "follow": {
-        "minecraft:interact": [
+        "minecraft:interact": {
+          "interactions": [
           {
             "on_interact": {
               "filters": {
@@ -927,7 +928,8 @@
               "table": "loot_tables/follow_command.json"
             }
           }
-        ],
+          ]
+        },
         "minecraft:behavior.follow_owner": {
           "priority": 3,
           "speed_multiplier": 1.0,
@@ -941,7 +943,8 @@
         }
       },
       "sit": {
-        "minecraft:interact": [
+        "minecraft:interact": {
+          "interactions": [
           {
             "on_interact": {
               "filters": {
@@ -964,7 +967,8 @@
             "interact_text": "start",
             "use_item": true
           }
-        ],
+          ]
+        },
         "minecraft:sittable": {
         },
         "minecraft:behavior.stay_while_sitting": {

@@ -1,5 +1,5 @@
 {
-  "format_version": "1.8.0",
+  "format_version": "1.21.50",
   "minecraft:entity": {
     "description": {
       "identifier": "player:dm56",
@@ -19,7 +19,7 @@
         ]
       },
       "animations": {
-        "tag": "controller.animation.tag",
+        "tag": "controller.animation.dm_tag",
         "ect": "controller.animation.ect_5",
         "equip": "controller.animation.dm56equip",
         "air": "controller.animation.air",
@@ -104,10 +104,9 @@
             "max_dist": 60
           }
         },
-        "minecraft:behavior.nearest_attackable_target": {
+      "minecraft:behavior.nearest_attackable_target": {
           "priority": 2,
-          "walk_speed_multiplier": 1.1,
-          "sprint_speed_multiplier": 1.2,
+          "must_see": true,
           "reselect_targets": true,
           "entity_types": [
             {
@@ -117,14 +116,20 @@
                     "test": "is_family",
                     "subject": "other",
                     "value": "monster"
+                    },
+                  {
+                    "test": "is_family",
+                    "subject": "other",
+                    "value": "cordyceps"
                   }
                 ]
               },
-              "max_dist": 60
+          "max_dist": 60,
+          "must_see_forget_duration": 6.0,
+          "walk_speed_multiplier": 1.1,
+          "sprint_speed_multiplier": 1.2
             }
-          ],
-          "must_see": true,
-          "must_see_forget_duration": 6.0
+          ]
         },
         "minecraft:follow_range": {
           "value": 120
@@ -144,7 +149,7 @@
                 "value": "dm"
               }
             },
-            "deals_damage": true
+            "deals_damage": "yes"
           },
           {
             "cause": "entity_attack",
@@ -157,7 +162,7 @@
                 "value": "dm"
               }
             },
-            "deals_damage": true
+            "deals_damage": "yes"
           },
           {
             "cause": "entity_explosion",
@@ -170,7 +175,7 @@
                 "value": "dm"
               }
             },
-            "deals_damage": true
+            "deals_damage": "yes"
           },
           {
             "cause": "block_explosion",
@@ -183,7 +188,7 @@
                 "value": "dm"
               }
             },
-            "deals_damage": true
+            "deals_damage": "yes"
           },
           {
             "cause": "override",
@@ -196,7 +201,7 @@
                 "value": "dm"
               }
             },
-            "deals_damage": true
+            "deals_damage": "yes"
           },
           {
             "cause": "magic",
@@ -209,7 +214,7 @@
                 "value": "dm"
               }
             },
-            "deals_damage": true
+            "deals_damage": "yes"
           },
           {
             "on_damage": {
@@ -219,7 +224,7 @@
                 "value": "dm"
               }
             },
-            "deals_damage": false
+            "deals_damage": "no"
           }
         ]
       },
@@ -242,7 +247,7 @@
         "value": 0
       }
     },
-      "senor": {
+      "sensor": {
         "minecraft:damage_sensor": {
           "triggers": [
             {
@@ -256,7 +261,7 @@
                   "value": "dm"
                 }
               },
-              "deals_damage": true
+              "deals_damage": "yes"
             },
             {
               "cause": "entity_attack",
@@ -269,7 +274,7 @@
                   "value": "dm"
                 }
               },
-              "deals_damage": true
+              "deals_damage": "yes"
             },
             {
               "cause": "entity_explosion",
@@ -282,7 +287,7 @@
                   "value": "dm"
                 }
               },
-              "deals_damage": true
+              "deals_damage": "yes"
             },
             {
               "cause": "block_explosion",
@@ -295,7 +300,7 @@
                   "value": "dm"
                 }
               },
-              "deals_damage": true
+              "deals_damage": "yes"
             },
             {
               "cause": "override",
@@ -308,7 +313,7 @@
                   "value": "dm"
                 }
               },
-              "deals_damage": true
+              "deals_damage": "yes"
             },
             {
               "cause": "magic",
@@ -321,7 +326,7 @@
                   "value": "dm"
                 }
               },
-              "deals_damage": true
+              "deals_damage": "yes"
             },
             {
               "on_damage": {
@@ -331,7 +336,7 @@
                   "value": "dm"
                 }
               },
-              "deals_damage": false
+              "deals_damage": "no"
             }
           ]
         },
@@ -346,11 +351,11 @@
       },
      "time": {
 		"minecraft:timer": {
-		  "looping": false,
+		  "looping": true,
 		  "randomInterval": false,
-		  "time": 50.0,
+		  "time": 1.0,
 		  "time_down_event": {
-		    "event": "sss"
+		    "event": "dm_scores"
 		  }
 		}
 		},
@@ -358,16 +363,6 @@
         "minecraft:equipment": {
           "table": "loot_tables/dm56_1.json"
         },
-        "minecraft:spawn_entity": [
-          {
-            "min_wait_time": 0,
-            "max_wait_time": 0,
-            "single_use": true,
-            "spawn_entity": "null:null",
-            "spawn_sound": "fire",
-            "num_to_spawn": 1
-          }
-        ],
         "minecraft:knockback_resistance": {
           "value": 1.0
         },
@@ -385,7 +380,7 @@
                   "value": "dm"
                 }
               },
-              "deals_damage": true
+              "deals_damage": "yes"
             },
             {
               "cause": "entity_attack",
@@ -398,7 +393,7 @@
                   "value": "dm"
                 }
               },
-              "deals_damage": false
+              "deals_damage": "no"
             },
             {
               "cause": "entity_explosion",
@@ -411,7 +406,7 @@
                   "value": "dm"
                 }
               },
-              "deals_damage": true
+              "deals_damage": "yes"
             },
             {
               "cause": "block_explosion",
@@ -424,7 +419,7 @@
                   "value": "dm"
                 }
               },
-              "deals_damage": true
+              "deals_damage": "yes"
             },
             {
               "cause": "override",
@@ -437,7 +432,7 @@
                   "value": "dm"
                 }
               },
-              "deals_damage": true
+              "deals_damage": "yes"
             },
             {
               "cause": "magic",
@@ -450,7 +445,7 @@
                   "value": "dm"
                 }
               },
-              "deals_damage": true
+              "deals_damage": "yes"
             },
             {
               "on_damage": {
@@ -460,7 +455,7 @@
                   "value": "dm"
                 }
               },
-              "deals_damage": false
+              "deals_damage": "no"
             }
           ]
         },
@@ -477,11 +472,11 @@
           }
         },
         "minecraft:timer": {
-          "looping": false,
+          "looping": true,
           "randomInterval": false,
-          "time": 60.0,
+          "time": 1.0,
           "time_down_event": {
-            "event": "back"
+            "event": "dm_scores_1"
           }
         },
         "minecraft:mark_variant": {
@@ -492,8 +487,9 @@
         }
       },
      "follow": {
-      		"minecraft:interact": [
-		  {
+      		"minecraft:interact": {
+		  "interactions": [
+          {
 		    "on_interact": {
 			  								"filters": {
 									"all_of": [
@@ -510,9 +506,10 @@
 							"use_item": false,
 							"spawn_items": {
 								"table": "loot_tables/follow_command.json"
-							}
-		  }
-		],
+							 }
+          }
+        ]
+      },
         "minecraft:behavior.follow_owner": {
           "priority": 4,
           "speed_multiplier": 0.94,
@@ -521,8 +518,9 @@
 		  }
      },
      "sit": {
-         "minecraft:interact": [
-		  {
+         "minecraft:interact": {
+          "interactions": [
+          {
 		    "on_interact": {
 			  "filters": {
 			    "all_of": [
@@ -534,8 +532,9 @@
 			},
 			"interact_text": "start",
 			"use_item": true
-		  }
-		],
+		   }
+        ]
+      },
     "minecraft:sittable": {
     },
     "minecraft:behavior.stay_while_sitting": {
@@ -640,6 +639,21 @@
       "minecraft:collision_box": {
         "width": 0.6,
         "height": 1.78
+      },
+    "minecraft:behavior.avoid_block": {
+    "priority": 4,           
+    "search_range": 1,       
+    "search_height": 0,      
+    "target_blocks": [
+     "minecraft:fire",
+     "minecraft:soul_fire",
+     "minecraft:magma",
+     "minecraft:sweet_berry_bush",
+     "minecraft:lava"
+    ],
+    "target_selection_method": "nearest",
+    "walk_speed_modifier": 1.0, 
+    "sprint_speed_modifier": 1.0
       },
       "minecraft:hurt_on_condition": {
         "damage_conditions": [
@@ -760,7 +774,7 @@
         "add": {
           "component_groups": [
             "on_ta",
-            "senor",
+            "sensor",
             "sit",
             "res"
           ]
@@ -776,7 +790,7 @@
         },
         "remove": {
           "component_groups": [
-            "senor",
+            "sensor",
             "zero"
           ]
         }
@@ -792,7 +806,7 @@
         "add": {
           "component_groups": [
             "air",
-            "senor",
+            "sensor",
             "zero",
             "res"
           ]
@@ -803,7 +817,7 @@
           "component_groups": [
             "attack",
             "time",
-            "senor",
+            "sensor",
             "summon",
             "zero",
             "res"
@@ -812,6 +826,11 @@
         "add": {
           "component_groups": [
             "sss"
+             ]
+        },
+         "queue_command": {
+           "command": [
+             "playsound sss @a[r=33] ~~~ 2.0 1.1"
           ]
         }
       },
@@ -820,8 +839,6 @@
           "component_groups": [
             "sss",
             "zero",
-            "sit",
-            "follow",
             "time"
           ]
         },
@@ -851,7 +868,7 @@
             "zero",
             "res",
             "air",
-            "senor"
+            "sensor"
           ]
         },
         "queue_command": {
@@ -879,9 +896,7 @@
             "zero",
             "sss",
             "attack",
-            "senor",
-            "sit",
-            "follow"
+            "sensor"
           ]
         },
         "add": {
@@ -900,9 +915,8 @@
         },
         "add": {
           "component_groups": [
-            "senor",
-            "equip",
-            "follow"
+            "sensor",
+            "equip"
           ]
         }
       },
@@ -983,6 +997,24 @@
         "queue_command": {
           "command": [
             "function dm56_roar"
+          ]
+        }
+        },
+      "dm_scores": {
+        "queue_command": {
+          "command": [
+            "scoreboard players add @s dm_skill_timer 1",
+            "execute as @s[scores={dm_skill_timer=50..}] run event entity @s sss",
+            "execute as @s[scores={dm_skill_timer=50..}] run scoreboard players set @s dm_skill_timer 0"
+          ]
+        }
+        },
+      "dm_scores_1": {
+        "queue_command": {
+          "command": [
+            "scoreboard players add @s dm_skill_timer_1 1",
+            "execute as @s[scores={dm_skill_timer_1=60..}] run event entity @s back",
+            "execute as @s[scores={dm_skill_timer_1=60..}] run scoreboard players set @s dm_skill_timer_1 0"
           ]
         }
       }

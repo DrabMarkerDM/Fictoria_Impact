@@ -18,7 +18,7 @@
 "/event entity @e[type=mob:dm56att] sss",
 "/execute positioned ^ ^ ^2 run summon mob:dm56att ~~~",
 "/execute positioned ^ ^ ^2 run summon mob:dm56att ~~~",
-"/event entity @e[type=player:dm56] summon_end",
+"/event entity @s summon_end",
 "/playsound dm56att @a[r=50] ~~~ 3.0 1.0"
 ]
 }

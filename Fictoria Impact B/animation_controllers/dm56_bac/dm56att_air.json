@@ -14,7 +14,7 @@
 							"default": "!query.is_powered"
 						}
 					],
-"on_entry": [ "/event entity @e[type=player:dm56] silent"
+"on_entry": [ "/event entity @e[type=player:dm56,c=1] silent"
 ]
 }
 }

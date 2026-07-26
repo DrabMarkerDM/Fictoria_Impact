@@ -3,7 +3,7 @@
 "controller.animation.dm56ae":{
 "states":{
 "default":{"transitions":[
-{"attack":"variable.attack_time >= 0.001"}
+{"attack":"variable.attack_time > 0.0"}
 
 ]
 
@@ -11,7 +11,7 @@
 "attack": {
 					"transitions": [
 						{
-							"default": "variable.attack_time < 0.001"
+							"default": "variable.attack_time <= 0.0"
 						}
 					],
 "on_entry": [
