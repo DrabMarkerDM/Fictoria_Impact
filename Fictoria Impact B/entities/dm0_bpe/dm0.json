@@ -866,6 +866,11 @@
             "sensor",
             "sensor",
             "knock"
+            ]
+        },
+        "queue_command": {
+          "command": [
+            "scoreboard players set @s dm_skill_timer_1 0"
           ]
            },
         "set_property": {

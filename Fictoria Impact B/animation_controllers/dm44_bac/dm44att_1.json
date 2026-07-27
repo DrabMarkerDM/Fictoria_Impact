@@ -3,7 +3,7 @@
 "controller.animation.dm44_att_1":{
 "states":{
 "default":{"transitions":[
-{"attack":"query.is_delayed_attacking && query.variant == 2"}
+{"attack":"variable.attack_time > 0.0 && query.variant == 2"}
 
 ]
 
@@ -11,10 +11,11 @@
 "attack": {
 					"transitions": [
 						{
-							"default": "!query.is_delayed_attacking || !query.variant == 2"
+							"default": "variable.attack_time <= 0.0 || !query.variant == 2"
 						}
 					],
 	"on_entry": [
+		"/playsound atthit @a[r=33] ~~~ 1.5 1.0",
 		"/damage @e[tag=!dm,family=monster,r=4,c=2] 44 entity_attack entity @s"
 	]
 }

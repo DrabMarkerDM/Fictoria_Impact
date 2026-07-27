@@ -3,7 +3,7 @@
 "controller.animation.ae":{
 "states":{
 "default":{"transitions":[
-{"attack":"query.is_delayed_attacking"}
+{"attack":"variable.attack_time > 0.0"}
 
 ]
 
@@ -11,7 +11,7 @@
 "attack": {
 					"transitions": [
 						{
-							"default": "!query.is_delayed_attacking"
+							"default": "variable.attack_time <= 0.0"
 						}
 					],
 "on_entry": ["/particle minecraft:critical_hit_emitter ^ ^1.5 ^2"

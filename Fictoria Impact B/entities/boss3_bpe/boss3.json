@@ -258,13 +258,13 @@
         "speed_multiplier": 0.78,
         "goal_radius": 0.6
       },
-      "minecraft:behavior.delayed_attack": {
-        "priority": 3,
-        "reach_multiplier": 4.5,
-        "attack_duration": 0.07,
-        "hit_delay_pct": 0.5,
-        "track_target": true,
-        "sound_event": "attack.strong"
+        "minecraft:behavior.melee_box_attack": {
+          "priority": 2,
+          "can_spread_on_fire": true,
+          "horizontal_reach": 2.25,
+          "cooldown_time": 0.14,
+          "speed_multiplier": 1.2,
+          "track_target": true
       },
       "minecraft:behavior.pickup_items": {
         "priority": 8,

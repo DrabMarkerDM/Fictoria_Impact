@@ -5,7 +5,7 @@
       "identifier": "player:steve",
       "materials": { "default": "skeleton" },
       "textures": {
-        "default": "textures/bullet/steve"
+        "default": "textures/entity/player/steve"
       },
       "geometry": {
         "default": "geometry.boy_new"

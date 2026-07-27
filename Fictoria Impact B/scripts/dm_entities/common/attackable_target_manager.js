@@ -141,6 +141,7 @@ const DmTargetRegistry = {
     "player:dm61":  { normalRange: 50, alertRange: 60, focus: 20.0, speed: 5.0, strafe: false, strafeRange: 0, strafeSpeed: 0, clock_time: true, supportEnabled: true },
     "player:dm52":  { normalRange: 51, alertRange: 51, focus: 5.0, speed: 10.0, strafe: true, strafeRange: 10, strafeSpeed: 0.2, clock_time: false, supportEnabled: true },
     "player:dm56":  { normalRange: 60, alertRange: 96, focus: 10.0, speed: 10.0, strafe: false, strafeRange: 0, strafeSpeed: 0, clock_time: false, supportEnabled: true },
+    "player:dm28":  { normalRange: 35, alertRange: 35, focus: 10.0, speed: 5.0, strafe: false, strafeRange: 0, strafeSpeed: 0, clock_time: true, supportEnabled: true },
     "player:test1":{ normalRange: 36, alertRange: 36, focus: 2.0, speed: 15, strafe: true, strafeRange: 12, strafeSpeed: 0.33, clock_time: true, supportEnabled: true }
 };
 
