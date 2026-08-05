@@ -95,7 +95,7 @@
           "priority": 1
         },
         "minecraft:behavior.owner_hurt_by_target": {
-          "priority": 2,
+          "priority": 1,
           "entity_types": {
             "filters": {
               "test": "is_family",
@@ -108,7 +108,7 @@
           }
         },
         "minecraft:behavior.hurt_by_target": {
-          "priority": 2,
+          "priority": 3,
           "entity_types": {
             "filters": {
               "test": "is_family",
@@ -120,7 +120,7 @@
           }
         },
       "minecraft:behavior.nearest_attackable_target": {
-          "priority": 2,
+          "priority": 4,
           "must_see": false,
           "reselect_targets": true,
           "entity_types": [
@@ -294,7 +294,7 @@
         "max": 20
       },
   "minecraft:behavior.avoid_block": {
-  "priority": 4,           
+  "priority": 5,           
   "search_range": 1,       
   "search_height": 0,      
   "target_blocks": [
@@ -363,7 +363,7 @@
         "private": true
       },
       "minecraft:behavior.move_to_land": {
-        "priority": 5,
+        "priority": 6,
         "speed_multiplier": 1.0,
         "search_range": 35,
         "search_height": 15,
@@ -385,18 +385,18 @@
         "value": 0.1
       },
       "minecraft:behavior.move_to_village": {
-        "priority": 7,
+        "priority": 8,
         "speed_multiplier": 0.98,
         "goal_radius": 0.8
       },
       "minecraft:behavior.pickup_items": {
-        "priority": 8,
+        "priority": 9,
         "max_dist": 3,
         "goal_radius": 2,
         "speed_multiplier": 0.5
       },
       "minecraft:behavior.random_stroll": {
-        "priority": 5,
+        "priority": 6,
         "speed_multiplier": 0.73
       },
       "minecraft:pushable": {
@@ -496,7 +496,7 @@
         ]
       },
       "minecraft:behavior.sleep": {
-        "priority": 4,
+        "priority": 5,
         "goal_radius": 2,
         "speed_multiplier": 1.2,
         "sleep_collider_height": 0.3,
@@ -505,17 +505,17 @@
         "timeout_cooldown": 10.0
       },
       "minecraft:behavior.look_at_player": {
-        "priority": 6,
+        "priority": 7,
         "look_distance": 6,
         "probability": 0.05
       },
       "minecraft:behavior.look_at_target": {
-        "priority": 5,
+        "priority": 6,
         "look_distance": 34,
         "probability": 0.06
       },
       "minecraft:behavior.look_at_entity": {
-        "priority": 7,
+        "priority": 8,
         "look_distance": 6.0,
         "probability": 0.04,
         "filters": {
@@ -559,6 +559,11 @@
             
             "remove": {
                 "component_groups": ["equip", "s_time"]
+           },
+            "queue_command": {
+                "command": [
+                    "tag @s add dm_has_target"
+                ]
             }
         },
         {
@@ -635,7 +640,9 @@
           },
         "queue_command": {
           "command": [
-            "playsound sss @a[r=33] ~~~ 1.5 0.9"
+            "playsound sss @a[r=33] ~~~ 1.5 0.9",
+            "tag @s add dm_skill_on",
+            "tag @s remove dm_has_target"
           ]
         }
       },
@@ -655,7 +662,9 @@
         "queue_command": {
           "command": [
             "effect @s absorption 0",
-            "effect @s fire_resistance 0"
+            "effect @s fire_resistance 0",
+            "tag @s remove dm_skill_on",
+            "tag @s add dm_has_target"
           ]
         }
       },
@@ -667,7 +676,8 @@
         },
        "queue_command": {
         "command": [
-        "replaceitem entity @s slot.weapon.mainhand 1 air"
+        "replaceitem entity @s slot.weapon.mainhand 1 air",
+        "tag @s remove dm_has_target"
          ]
           },
            "add": {

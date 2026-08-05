@@ -1,0 +1,21 @@
+{
+  "format_version": "1.20.80",
+  "minecraft:item": {
+    "description": {
+      "menu_category": { "category": "equipment" },
+      "identifier": "items:fictoria_ball_filled_green"
+    },
+    "components": {
+      "minecraft:icon": {
+        "textures": { "default": "fictoria_ball_filled_green" }
+      },
+      "minecraft:display_name": {
+        "value": "item.items:fictoria_ball_filled_green"
+      },
+      "minecraft:hand_equipped": false,
+      "minecraft:glint": true,
+      "minecraft:should_despawn": false,
+      "minecraft:max_stack_size": 1
+    }
+  }
+}

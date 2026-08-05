@@ -112,7 +112,7 @@
           }
         },
         "minecraft:behavior.owner_hurt_by_target": {
-          "priority": 2,
+          "priority": 1,
           "entity_types": {
             "filters": {
               "test": "is_family",
@@ -125,7 +125,7 @@
           }
         },
         "minecraft:behavior.hurt_by_target": {
-          "priority": 2,
+          "priority": 3,
           "entity_types": {
             "filters": {
               "test": "is_family",
@@ -137,7 +137,7 @@
           }
         },
       "minecraft:behavior.nearest_attackable_target": {
-          "priority": 2,
+          "priority": 4,
           "must_see": true,
           "reselect_targets": true,
           "entity_types": [
@@ -364,12 +364,12 @@
       },
       "default": {
         "minecraft:behavior.look_at_player": {
-          "priority": 5,
+          "priority": 6,
           "look_distance": 6,
           "probability": 0.07
         },
         "minecraft:behavior.look_at_entity": {
-          "priority": 7,
+          "priority": 8,
           "look_distance": 6.0,
           "probability": 0.03,
           "filters": {
@@ -424,7 +424,7 @@
         "height": 1.82
   },
     "minecraft:behavior.avoid_block": {
-    "priority": 4,           
+    "priority": 5,           
     "search_range": 1,       
     "search_height": 0,      
     "target_blocks": [
@@ -564,7 +564,7 @@
         ]
       },
       "minecraft:behavior.move_to_land": {
-        "priority": 2,
+        "priority": 6,
         "speed_multiplier": 1.0,
         "search_range": 35,
         "search_height": 15,
@@ -580,13 +580,13 @@
         "alwaysShow": true
       },
       "minecraft:behavior.pickup_items": {
-        "priority": 8,
+        "priority": 9,
         "max_dist": 3,
         "goal_radius": 2,
         "speed_multiplier": 0.5
       },
       "minecraft:behavior.random_stroll": {
-        "priority": 6,
+        "priority": 7,
         "speed_multiplier": 0.75,
         "xz_dist": 8,
         "y_dist": 5
@@ -599,7 +599,7 @@
         "is_pushable_by_piston": true
       },
       "minecraft:behavior.move_to_village": {
-        "priority": 7,
+        "priority": 8,
         "speed_multiplier": 0.93,
         "goal_radius": 0.8
       },

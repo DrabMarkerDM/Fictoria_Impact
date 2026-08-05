@@ -230,7 +230,7 @@
         "alwaysShow": true
       },
       "minecraft:behavior.move_to_village": {
-        "priority": 6,
+        "priority": 7,
         "speed_multiplier": 0.75,
         "goal_radius": 0.6
       },
@@ -242,13 +242,13 @@
         "track_target": true
       },
       "minecraft:behavior.pickup_items": {
-        "priority": 8,
+        "priority": 9,
         "max_dist": 3,
         "goal_radius": 2,
         "speed_multiplier": 0.5
       },
       "minecraft:behavior.random_stroll": {
-        "priority": 5,
+        "priority": 6,
         "speed_multiplier": 0.7,
         "xz_dist": 12,
         "y_dist": 4
@@ -258,17 +258,17 @@
         "is_pushable_by_piston": true
       },
       "minecraft:behavior.look_at_player": {
-        "priority": 6,
+        "priority": 7,
         "look_distance": 6,
         "probability": 0.04
       },
       "minecraft:behavior.look_at_target": {
-        "priority": 5,
+        "priority": 6,
         "look_distance": 40,
         "probability": 0.06
       },
       "minecraft:behavior.look_at_entity": {
-        "priority": 7,
+        "priority": 8,
         "look_distance": 6.0,
         "probability": 0.02,
         "filters": {
@@ -281,7 +281,7 @@
         "priority": 7
       },
       "minecraft:behavior.hurt_by_target": {
-        "priority": 2,
+        "priority": 1,
         "entity_types": {
           "filters": {
             "test": "is_family",

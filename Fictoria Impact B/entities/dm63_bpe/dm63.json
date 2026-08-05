@@ -92,7 +92,7 @@
           }
         },
         "minecraft:behavior.owner_hurt_by_target": {
-          "priority": 2,
+          "priority": 1,
           "entity_types": {
             "filters": {
               "test": "is_family",
@@ -105,7 +105,7 @@
           }
         },
         "minecraft:behavior.hurt_by_target": {
-          "priority": 2,
+          "priority": 3,
           "entity_types": {
             "filters": {
               "test": "is_family",
@@ -117,7 +117,7 @@
           }
          },
       "minecraft:behavior.nearest_attackable_target": {
-          "priority": 2,
+          "priority": 4,
           "must_see": true,
           "reselect_targets": true,
           "entity_types": [
@@ -456,6 +456,16 @@
             "event": "air"
           }
         }
+        },
+      "attack_reset": {
+        "minecraft:timer": {
+          "looping": true,
+          "randomInterval": false,
+          "time": 1.5,
+          "time_down_event": {
+            "event": "attack_reset"
+          }
+        }
       },
       "follow": {
         "minecraft:interact": {
@@ -551,7 +561,7 @@
         "height": 1.9
       },
     "minecraft:behavior.avoid_block": {
-  "priority": 4,           
+  "priority": 5,           
   "search_range": 1,       
   "search_height": 0,      
   "target_blocks": [
@@ -608,7 +618,7 @@
         "priority": 0
       },
       "minecraft:behavior.move_to_land": {
-        "priority": 2,
+        "priority": 6,
         "speed_multiplier": 1.0,
         "search_range": 35,
         "search_height": 15,
@@ -624,13 +634,13 @@
         "alwaysShow": true
       },
       "minecraft:behavior.pickup_items": {
-        "priority": 8,
+        "priority": 9,
         "max_dist": 3,
         "goal_radius": 2,
         "speed_multiplier": 0.5
       },
       "minecraft:behavior.random_stroll": {
-        "priority": 6,
+        "priority": 7,
         "speed_multiplier": 0.75,
         "xz_dist": 8,
         "y_dist": 5
@@ -640,22 +650,22 @@
         "is_pushable_by_piston": true
       },
       "minecraft:behavior.move_to_village": {
-        "priority": 7,
+        "priority": 8,
         "speed_multiplier": 0.93,
         "goal_radius": 0.8
       },
       "minecraft:behavior.look_at_player": {
-        "priority": 6,
+        "priority": 7,
         "look_distance": 6,
         "probability": 0.04
       },
       "minecraft:behavior.look_at_target": {
-        "priority": 5,
+        "priority": 6,
         "look_distance": 38,
         "probability": 0.06
       },
       "minecraft:behavior.look_at_entity": {
-        "priority": 7,
+        "priority": 8,
         "look_distance": 6.0,
         "probability": 0.03,
         "filters": {
@@ -700,12 +710,18 @@
           "component_groups": [
             "equip",
             "s_time",
-            "air"
+            "air",
+            "attack_reset"
           ]
         },
         "add": {
           "component_groups": [
             "attack"
+            ]
+        },
+         "queue_command": {
+           "command": [
+           "tag @s add dm_has_target"
           ]
         }
       },
@@ -718,7 +734,24 @@
         },
         "add": {
           "component_groups": [
+            "attack_reset"
+          ]
+        }
+        },
+      "attack_reset": {
+        "remove": {
+          "component_groups": [
+            "attack_reset"
+             ]
+        },
+        "add": {
+          "component_groups": [
             "s_time"
+             ]
+        },
+         "queue_command": {
+           "command": [
+           "tag @s remove dm_has_target"
           ]
         }
       },
@@ -815,7 +848,9 @@
             "effect @s absorption 8 24 true",
             "effect @s slowness 0",
             "playsound dm63 @a[r=33] ~~~ 1.8 1.0",
-            "playsound dm63_sss @a[r=33] ~~~ 2.4 1.0"
+            "playsound dm63_sss @a[r=33] ~~~ 2.4 1.0",
+            "tag @s add dm_skill_on",
+            "tag @s remove dm_has_target"
           ]
           },
         "set_property": {
@@ -834,6 +869,11 @@
             "equip",
             "sensor",
             "mode1"
+            ]
+        },
+        "queue_command": {
+          "command": [
+            "tag @s remove dm_skill_on"
           ]
           },
         "set_property": {

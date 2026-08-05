@@ -201,7 +201,7 @@
           "priority": 1
         },
         "minecraft:behavior.owner_hurt_by_target": {
-          "priority": 2,
+          "priority": 1,
           "entity_types": {
           "filters": {
             "test": "is_family",
@@ -214,7 +214,7 @@
         }
         },
       "minecraft:behavior.hurt_by_target": {
-        "priority": 2,
+        "priority": 3,
         "entity_types": {
           "filters": {
             "test": "is_family",
@@ -226,7 +226,7 @@
         }
       },
       "minecraft:behavior.nearest_attackable_target": {
-          "priority": 2,
+          "priority": 4,
           "must_see": true,
           "reselect_targets": true,
           "entity_types": [
@@ -276,6 +276,16 @@
 		  }
     }
     },
+      "attack_reset": {
+        "minecraft:timer": {
+          "looping": true,
+          "randomInterval": false,
+          "time": 1.5,
+          "time_down_event": {
+            "event": "attack_reset"
+          }
+        }
+    },
     "air": {
        "minecraft:variant": {
           "value": 1
@@ -295,7 +305,7 @@
         "max": 20
       },
     "minecraft:behavior.avoid_block": {
-    "priority": 4,           
+    "priority": 5,           
     "search_range": 1,       
     "search_height": 0,      
     "target_blocks": [
@@ -359,7 +369,7 @@
         "private": true
       },
       "minecraft:behavior.move_to_land": {
-        "priority": 5,
+        "priority": 6,
         "speed_multiplier": 1.0,
         "search_range": 35,
         "search_height": 15,
@@ -378,7 +388,7 @@
         "alwaysShow": true
       },
       "minecraft:behavior.move_to_village": {
-        "priority": 8,
+        "priority": 9,
         "speed_multiplier": 0.84,
         "goal_radius": 0.7
       },
@@ -391,13 +401,13 @@
         "sound_event": "attack.strong"
       },
       "minecraft:behavior.pickup_items": {
-        "priority": 8,
+        "priority": 9,
         "max_dist": 3,
         "goal_radius": 2,
         "speed_multiplier": 0.5
       },
       "minecraft:behavior.random_stroll": {
-        "priority": 5,
+        "priority": 6,
         "speed_multiplier": 0.64,
         "xz_dist": 18,
         "y_dist": 10
@@ -509,7 +519,7 @@
         ]
       },
       "minecraft:behavior.sleep": {
-        "priority": 4,
+        "priority": 5,
         "goal_radius": 2,
         "speed_multiplier": 1.2,
         "sleep_collider_height": 0.3,
@@ -518,17 +528,17 @@
         "timeout_cooldown": 10.0
       },
       "minecraft:behavior.look_at_player": {
-        "priority": 6,
+        "priority": 7,
         "look_distance": 6,
         "probability": 0.04
       },
       "minecraft:behavior.look_at_target": {
-        "priority": 5,
+        "priority": 6,
         "look_distance": 42,
         "probability": 0.06
       },
       "minecraft:behavior.look_at_entity": {
-        "priority": 7,
+        "priority": 8,
         "look_distance": 6.0,
         "probability": 0.02,
         "filters": {
@@ -609,35 +619,45 @@
         }
      },
       "attack": {
-    "sequence": [
-        {
-            
-            "remove": {
-                "component_groups": ["attack_reset", "s_time", "air"]
-            }
+        "remove": {
+          "component_groups": [
+            "attack_reset",
+            "s_time",
+            "air"
+          ]
         },
-        {
-            
-            "filters": {
-                "all_of": [
-                    {
-                        "test": "has_component",
-                        "subject": "self",
-                        "operator": "!=",
-                        "value": "minecraft:behavior.melee_box_attack"
-                    }
-                ]
-            },
-            "add": {
-                "component_groups": ["arm"]
-            }
+        "add": {
+          "component_groups": [
+            "arm"
+          ]
+        },
+        "queue_command": {
+          "command": [
+            "tag @s add dm_has_target"
+          ]
         }
-    ]
       },
       "silent": {
         "add": {
           "component_groups": [
+            "attack_reset"
+          ]
+        }
+        },
+      "attack_reset": {
+        "remove": {
+          "component_groups": [
+            "attack_reset"
+             ]
+        },
+        "add": {
+          "component_groups": [
             "s_time"
+             ]
+        },
+         "queue_command": {
+           "command": [
+           "tag @s remove dm_has_target"
           ]
         }
       },
@@ -654,6 +674,8 @@
         },
         "queue_command": {
           "command": [
+            "tag @s add dm_skill_on",
+            "tag @s remove dm_has_target",
             "event entity @s s1",
             "playsound sss @a[r=33] ~~~ 1.8 1.0"
          ]
@@ -672,6 +694,12 @@
           "component_groups": [
             "sword",
             "sensor"
+              ]
+        },
+         "queue_command": {
+           "command": [
+           "tag @s remove dm_skill_on",
+           "tag @s add dm_has_target"
           ]
            },
         "set_property": {

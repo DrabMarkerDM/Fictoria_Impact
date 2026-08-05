@@ -3,7 +3,7 @@
 "controller.animation.dm53att":{
 "states":{
 "default":{"transitions":[
-{"attack":"query.is_delayed_attacking && query.variant != 2"}
+{"attack":"variable.attack_time > 0.0 && query.variant != 2"}
 
 ]
 
@@ -11,10 +11,12 @@
 "attack": {
 					"transitions": [
 						{
-							"default": "!query.is_delayed_attacking || query.variant == 2"
+							"default": "variable.attack_time <= 0.0 || query.variant == 2"
 						}
 					],
 "on_entry": [
+"/particle dm:dm53 ^ ^2 ^2",
+"/playsound dm53 @a[r=33] ~~~ 1.8 1.0",
 "/effect @e[tag=!dm,type=!player:dm53,family=monster,r=5,c=5] weakness 4 8 true",
 "/effect @e[tag=!dm,type=!player:dm53,family=monster,r=5,c=5] slowness 4 8 true"
 ]

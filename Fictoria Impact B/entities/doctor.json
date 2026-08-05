@@ -172,7 +172,7 @@
       "minecraft:jump.static": {
       },
       "minecraft:behavior.tempt": {
-        "priority": 8,
+        "priority": 9,
         "speed_multiplier": 1.0,
         "items": [
           "book"
@@ -246,7 +246,7 @@
         "alwaysShow": true
       },
       "minecraft:behavior.move_to_village": {
-        "priority": 3,
+        "priority": 5,
         "speed_multiplier": 1.2,
         "goal_radius": 0.6
       },
@@ -257,7 +257,7 @@
         "speed_multiplier": 1.5
       },
       "minecraft:behavior.share_items": {
-        "priority": 7,
+        "priority": 8,
         "max_dist": 5,
         "goal_radius": 2.0,
         "speed_multiplier": 0.5,
@@ -272,13 +272,13 @@
         ]
       },
       "minecraft:behavior.pickup_items": {
-        "priority": 8,
+        "priority": 9,
         "max_dist": 3,
         "goal_radius": 2,
         "speed_multiplier": 0.5
       },
       "minecraft:behavior.random_stroll": {
-        "priority": 6,
+        "priority": 7,
         "speed_multiplier": 0.78
       },
       "minecraft:pushable": {
@@ -286,14 +286,14 @@
         "is_pushable_by_piston": true
       },
       "minecraft:behavior.move_to_land": {
-        "priority": 4,
+        "priority": 5,
         "speed_multiplier": 1.0,
         "search_range": 35,
         "search_height": 15,
         "goal_radius": 1.0
       },
       "minecraft:behavior.sleep": {
-        "priority": 4,
+        "priority": 5,
         "goal_radius": 2,
         "speed_multiplier": 1.2,
         "sleep_collider_height": 0.3,
@@ -301,12 +301,12 @@
         "sleep_y_offset": 0.6
       },
       "minecraft:behavior.look_at_player": {
-        "priority": 6,
+        "priority": 7,
         "look_distance": 8,
         "probability": 0.06
       },
       "minecraft:behavior.look_at_entity": {
-        "priority": 7,
+        "priority": 8,
         "look_distance": 6.0,
         "probability": 0.05,
         "filters": {

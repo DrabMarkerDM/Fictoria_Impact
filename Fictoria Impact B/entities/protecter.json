@@ -216,7 +216,7 @@
         "value": 0.2
       },
       "minecraft:behavior.share_items": {
-        "priority": 9,
+        "priority": 10,
         "max_dist": 5,
         "goal_radius": 2.0,
         "speed_multiplier": 0.5,
@@ -263,7 +263,7 @@
         "priority": 6
       },
       "minecraft:behavior.hurt_by_target": {
-        "priority": 2,
+        "priority": 1,
         "entity_types": {
           "filters": {
             "all_of": [

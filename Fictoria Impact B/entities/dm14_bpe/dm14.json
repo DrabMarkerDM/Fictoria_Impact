@@ -102,7 +102,7 @@
           }
         },
         "minecraft:behavior.owner_hurt_by_target": {
-          "priority": 2,
+          "priority": 1,
           "entity_types": {
           "filters": {
             "test": "is_family",
@@ -115,7 +115,7 @@
         }
         },
       "minecraft:behavior.hurt_by_target": {
-        "priority": 2,
+        "priority": 3,
         "entity_types": {
           "filters": {
             "test": "is_family",
@@ -127,7 +127,7 @@
         }
         },
       "minecraft:behavior.nearest_attackable_target": {
-        "priority": 2,
+        "priority": 4,
         "walk_speed_multiplier": 0.85,
        "sprint_speed_multiplier": 0.90,
         "reselect_targets": true,
@@ -167,7 +167,7 @@
         "max": 20
       },
       "minecraft:behavior.sleep": {
-        "priority": 4,
+        "priority": 5,
         "goal_radius": 2,
         "speed_multiplier": 1.0,
         "sleep_collider_height": 0.3,
@@ -329,7 +329,7 @@
         "value": 0.2
       },
       "minecraft:behavior.move_to_land": {
-        "priority": 5,
+        "priority": 6,
         "speed_multiplier": 1.0,
         "search_range": 35,
         "search_height": 15,
@@ -348,18 +348,18 @@
         "alwaysShow": true
       },
       "minecraft:behavior.move_to_village": {
-        "priority": 7,
+        "priority": 8,
         "speed_multiplier": 0.98,
         "goal_radius": 0.7
       },
       "minecraft:behavior.pickup_items": {
-        "priority": 8,
+        "priority": 9,
         "max_dist": 3,
         "goal_radius": 2,
         "speed_multiplier": 0.5
       },
       "minecraft:behavior.random_stroll": {
-        "priority": 5,
+        "priority": 6,
         "speed_multiplier": 0.7,
         "xz_dist": 13,
         "y_dist": 9
@@ -369,17 +369,17 @@
         "is_pushable_by_piston": true
       },
       "minecraft:behavior.look_at_player": {
-        "priority": 6,
+        "priority": 7,
         "look_distance": 6,
         "probability": 0.04
       },
       "minecraft:behavior.look_at_target": {
-        "priority": 5,
+        "priority": 6,
         "look_distance": 34,
         "probability": 0.06
       },
       "minecraft:behavior.look_at_entity": {
-        "priority": 7,
+        "priority": 8,
         "look_distance": 6.0,
         "probability": 0.02,
         "filters": {

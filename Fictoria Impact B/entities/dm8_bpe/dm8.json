@@ -33,6 +33,11 @@
           "values": [ "normal", "sss" ],
           "default": "normal",
           "client_sync": true
+        },
+        "dm:clock_time_1": {  "type": "enum",
+          "values": [ "def", "on", "off" ],
+          "default": "def",
+          "client_sync": true
           }
       }
   },
@@ -416,13 +421,6 @@
               "duration": 4
             }
           ]
-        },
-        "minecraft:timer": {
-          "looping": false,
-          "time": 20.0,
-          "time_down_event": {
-            "event": "back"
-          }
         }
       },
       "dm8_ratt": {
@@ -509,7 +507,7 @@
           "value": 0.2
         },
         "minecraft:behavior.owner_hurt_by_target": {
-          "priority": 4,
+          "priority": 1,
           "entity_types": {
             "filters": {
               "test": "is_family",
@@ -535,7 +533,7 @@
           }
         },
         "minecraft:behavior.nearest_attackable_target": {
-          "priority": 2,
+          "priority": 4,
           "must_see": false,
           "reselect_targets": true,
           "entity_types": [
@@ -572,6 +570,16 @@
             "event": "air"
           }
         }
+        },
+      "attack_reset": {
+        "minecraft:timer": {
+          "looping": true,
+          "randomInterval": false,
+          "time": 1.5,
+          "time_down_event": {
+            "event": "attack_reset"
+          }
+        }
       },
       "air": {
         "minecraft:equipment": {
@@ -595,7 +603,7 @@
         "max": 20
       },
       "minecraft:behavior.sleep": {
-        "priority": 4,
+        "priority": 5,
         "goal_radius": 2.0,
         "speed_multiplier": 1.0,
         "sleep_collider_height": 0.3,
@@ -604,7 +612,7 @@
         "timeout_cooldown": 10.0
       },
   "minecraft:behavior.avoid_block": {
-  "priority": 4,           
+  "priority": 5,           
   "search_range": 1,       
   "search_height": 0,      
   "target_blocks": [
@@ -659,7 +667,7 @@
         "private": true
       },
       "minecraft:behavior.move_to_land": {
-        "priority": 5,
+        "priority": 6,
         "speed_multiplier": 1.0,
         "search_range": 35,
         "search_height": 15,
@@ -678,18 +686,18 @@
         "always_show": true
       },
       "minecraft:behavior.move_to_village": {
-        "priority": 7,
+        "priority": 8,
         "speed_multiplier": 0.94,
         "goal_radius": 0.8
       },
       "minecraft:behavior.pickup_items": {
-        "priority": 8,
+        "priority": 9,
         "max_dist": 3.0,
         "goal_radius": 2.0,
         "speed_multiplier": 0.5
       },
       "minecraft:behavior.random_stroll": {
-        "priority": 5,
+        "priority": 6,
         "speed_multiplier": 0.74,
         "xz_dist": 18,
         "y_dist": 8
@@ -699,7 +707,7 @@
         "is_pushable_by_piston": true
       },
       "minecraft:behavior.look_at_player": {
-        "priority": 5,
+        "priority": 6,
         "look_distance": 6.0,
         "probability": 0.05
       },
@@ -709,7 +717,7 @@
         "probability": 0.06
       },
       "minecraft:behavior.look_at_entity": {
-        "priority": 6,
+        "priority": 7,
         "look_distance": 6.0,
         "probability": 0.03,
         "filters": {
@@ -737,6 +745,15 @@
         "add": {
           "component_groups": [ "on_ta", "normal", "sensor" ]
         }
+        },
+      "dm_scores_1": {
+        "queue_command": {
+          "command": [
+            "scoreboard players add @s dm_skill_timer_1 1",
+            "execute as @s[scores={dm_skill_timer_1=20..}] run event entity @s back",
+            "execute as @s[scores={dm_skill_timer_1=20..}] run scoreboard players set @s dm_skill_timer_1 0"
+          ]
+        }
       },
       "sss": {
         "remove": {
@@ -750,11 +767,14 @@
             "playsound dm8sss @a[r=33] ~~~ 2.2 1.0",
             "effect @s instant_health 1 255 true",
             "effect @s absorption 5 255 true",
-            "event entity @s sss_fix"
+            "event entity @s sss_fix",
+            "tag @s add dm_skill_on",
+            "tag @s remove dm_has_target"
           ]
           },
         "set_property": {
-          "dm:attack_state": "sss"
+          "dm:attack_state": "sss",
+          "dm:clock_time_1": "on"
         }
       },
       "sss_fix": {
@@ -770,10 +790,17 @@
           "component_groups": [ "sss", "s_sensor" ]
         },
         "add": {
-          "component_groups": [ "equip", "normal", "sensor" ]
+          "component_groups": [ "equip", "normal", "sensor"
+           ]
+        },
+         "queue_command": {
+           "command": [
+           "tag @s remove dm_skill_on" 
+        ]
            },
         "set_property": {
-          "dm:attack_state": "normal"
+          "dm:attack_state": "normal",
+          "dm:clock_time_1": "off"
         }
       },
       "air": {
@@ -884,10 +911,13 @@
       },
       "attack": {
         "remove": {
-          "component_groups": [ "air", "s_time", "equip" ]
+          "component_groups": [ "air", "s_time", "attack_reset", "equip" ]
         },
         "queue_command": {
-          "command": [ "effect @s strength 1 0 true" ]
+          "command": [
+            "effect @s strength 1 0 true",
+            "tag @s add dm_has_target"
+          ]
         }
       },
       "silent": {
@@ -895,7 +925,24 @@
           "component_groups": [ "equip" ]
         },
         "add": {
-          "component_groups": [ "s_time" ]
+          "component_groups": [ "attack_reset" ]
+        }
+        },
+      "attack_reset": {
+        "remove": {
+          "component_groups": [
+            "attack_reset"
+             ]
+        },
+        "add": {
+          "component_groups": [
+            "s_time"
+             ]
+        },
+         "queue_command": {
+           "command": [
+           "tag @s remove dm_has_target"
+          ]
         }
       },
       "test": {

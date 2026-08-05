@@ -18,8 +18,7 @@
 "/scoreboard players add @s dm_skill_timer_2 1",
 "/event entity @s[scores={dm_skill_timer_2=5..}] sword",
 "/scoreboard players set @s[scores={dm_skill_timer_2=5..}] dm_skill_timer_2 0",
-"/effect @e[tag=!dm,type=!player:dm0,family=monster,family=!undead,r=3,c=3] instant_damage 1 1 true",
-"/effect @s absorption 5 25 true"
+"/effect @e[tag=!dm,type=!player:dm0,family=monster,family=!undead,r=3,c=3] instant_damage 1 1 true"
 ]
 }
 }

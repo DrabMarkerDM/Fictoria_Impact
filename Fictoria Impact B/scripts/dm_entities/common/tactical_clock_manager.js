@@ -24,6 +24,9 @@ export class TacticalClockManager {
 
             if (entityLastSession !== CURRENT_WORLD_SESSION) {
                 trackMode = undefined; // 强行擦除历史缓存
+                // ★ [修复] 会话刷新：清除主轨熔断标记
+                //   每次重进存档 / /reload 后，重新允许主轨探测 dm_scores 事件
+                unit.setDynamicProperty("dm:clock_main_track_disabled", undefined);
             }
 
             let activeExtensionTracks = [];
@@ -88,7 +91,22 @@ export class TacticalClockManager {
                 
                 // 满 20 ticks (1秒) 平滑驱动默认 0 号轨常规得分事件
                 if (nowTick - lastClockTick0 >= 20) {
-                    unit.triggerEvent("dm_scores"); 
+                    // ★ [修复] 主轨熔断：本会话已确认 dm_scores 事件不存在 → 跳过，防空转刷错
+                    //   只有重进存档 / /reload（会话重置）后才重新探测
+                    if (unit.getDynamicProperty("dm:clock_main_track_disabled") !== 1) {
+                        try {
+                            unit.triggerEvent("dm_scores"); 
+                        } catch (e) {
+                            const errMsg = String(e && e.message ? e.message : e);
+                            if (errMsg.includes("does not exist")) {
+                                // 事件不存在（如 dm0 只有 dm_scores_1/_6 而没有 dm_scores）
+                                unit.setDynamicProperty("dm:clock_main_track_disabled", 1);
+                                console.warn(`[DM-Clock] ${unit.typeId} 缺少 dm_scores 事件 → 本会话熔断主时钟轨`);
+                            } else {
+                                console.error(`[DM-Clock] 主轨触发异常（非缺事件，不熔断）: ${errMsg}`);
+                            }
+                        }
+                    }
                     unit.setDynamicProperty("dm:last_clock_tick", nowTick);
                 }
             } else {
@@ -97,7 +115,7 @@ export class TacticalClockManager {
             }
 
             // =================================================================
-            // 1~9号扩展轨逻辑分支
+            // 1~9号扩展轨逻辑分支（保持原样，照常运行）
             // =================================================================
             if (isMultiTrack) {
                 for (const i of activeExtensionTracks) {

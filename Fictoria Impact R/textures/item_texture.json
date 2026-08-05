@@ -151,6 +151,33 @@
     },
     "dm34_gentle_maid": {
       "textures": "textures/items/dm34_gentle_maid"
+      },
+    "fictoria_ball_filled_yellow": {
+      "textures": "textures/items/fictoria_ball_filled_yellow"
+      },
+    "fictoria_ball_empty_yellow": {
+      "textures": "textures/items/fictoria_ball_empty_yellow"
+      },
+    "fictoria_ball_filled_yellow_cd": {
+      "textures": "textures/items/fictoria_ball_filled_yellow_cd"
+      },
+    "fictoria_ball_filled_blue": {
+      "textures": "textures/items/fictoria_ball_filled_blue"
+      },
+    "fictoria_ball_empty_blue": {
+      "textures": "textures/items/fictoria_ball_empty_blue"
+      },
+    "fictoria_ball_filled_blue_cd": {
+      "textures": "textures/items/fictoria_ball_filled_blue_cd"
+      },
+    "fictoria_ball_filled_green": {
+      "textures": "textures/items/fictoria_ball_filled_green"
+      },
+    "fictoria_ball_empty_green": {
+      "textures": "textures/items/fictoria_ball_empty_green"
+      },
+    "fictoria_ball_filled_green_cd": {
+      "textures": "textures/items/fictoria_ball_filled_green_cd"
 
 
 

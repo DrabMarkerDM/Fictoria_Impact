@@ -18,7 +18,7 @@
       },
       "animations": {
         "tag": "controller.animation.dm_tag",
-        "ect": "controller.animation.ect_4",
+        "ect": "controller.animation.ect_5",
         "heal": "controller.animation.dm60_heal",
         "att_3": "controller.animation.dm60att_3",
         "att_4": "controller.animation.dm60att_4",
@@ -350,6 +350,16 @@
             "event": "air"
           }
         }
+        },
+      "attack_reset": {
+        "minecraft:timer": {
+          "looping": true,
+          "randomInterval": false,
+          "time": 1.5,
+          "time_down_event": {
+            "event": "attack_reset"
+          }
+        }
       },
       "on_ta": {
         "minecraft:is_tamed": {
@@ -375,7 +385,7 @@
           "triggers": [
             {
               "cause": "projectile",
-              "damage_multiplier": 0.52,
+              "damage_multiplier": 0.50,
               "on_damage": {
                 "event": "hurt_by",
                 "filters": {
@@ -389,7 +399,7 @@
             },
             {
               "cause": "entity_attack",
-              "damage_multiplier": 0.52,
+              "damage_multiplier": 0.50,
               "on_damage": {
                 "event": "hurt_by",
                 "filters": {
@@ -403,7 +413,7 @@
             },
             {
               "cause": "entity_explosion",
-              "damage_multiplier": 0.52,
+              "damage_multiplier": 0.50,
               "on_damage": {
                 "event": "hurt_by",
                 "filters": {
@@ -417,7 +427,7 @@
             },
             {
               "cause": "block_explosion",
-              "damage_multiplier": 0.52,
+              "damage_multiplier": 0.50,
               "on_damage": {
                 "event": "hurt_by",
                 "filters": {
@@ -431,7 +441,7 @@
             },
             {
               "cause": "override",
-              "damage_multiplier": 0.52,
+              "damage_multiplier": 0.50,
               "on_damage": {
                 "event": "hurt_by",
                 "filters": {
@@ -445,7 +455,7 @@
             },
             {
               "cause": "magic",
-              "damage_multiplier": 0.75,
+              "damage_multiplier": 0.8,
               "on_damage": {
                 "event": "hurt_by",
                 "filters": {
@@ -487,7 +497,7 @@
           }
         },
         "minecraft:behavior.owner_hurt_by_target": {
-          "priority": 2,
+          "priority": 1,
           "entity_types": {
             "filters": {
               "test": "is_family",
@@ -500,7 +510,7 @@
           }
         },
         "minecraft:behavior.hurt_by_target": {
-          "priority": 2,
+          "priority": 3,
           "entity_types": {
             "filters": {
               "test": "is_family",
@@ -512,7 +522,7 @@
           }
         },
         "minecraft:behavior.nearest_attackable_target": {
-          "priority": 2,
+          "priority": 4,
           "must_see": true,
           "reselect_targets": true,
           "entity_types": [
@@ -558,7 +568,7 @@
         "max": 20
       },
       "minecraft:behavior.sleep": {
-        "priority": 4,
+        "priority": 5,
         "goal_radius": 2,
         "speed_multiplier": 1.0,
         "sleep_collider_height": 0.3,
@@ -567,7 +577,7 @@
         "timeout_cooldown": 10.0
     },
     "minecraft:behavior.avoid_block": {
-    "priority": 4,           
+    "priority": 5,           
     "search_range": 1,       
     "search_height": 0,      
     "target_blocks": [
@@ -627,7 +637,7 @@
         "value": 0.3
       },
       "minecraft:behavior.move_to_land": {
-        "priority": 5,
+        "priority": 6,
         "speed_multiplier": 1.0,
         "search_range": 35,
         "search_height": 15,
@@ -646,13 +656,13 @@
         "alwaysShow": true
       },
       "minecraft:behavior.pickup_items": {
-        "priority": 8,
+        "priority": 9,
         "max_dist": 3,
         "goal_radius": 2,
         "speed_multiplier": 0.5
       },
       "minecraft:behavior.random_stroll": {
-        "priority": 5,
+        "priority": 6,
         "speed_multiplier": 0.75,
         "xz_dist": 12,
         "y_dist": 8
@@ -662,17 +672,17 @@
         "is_pushable_by_piston": true
       },
       "minecraft:behavior.look_at_player": {
-        "priority": 6,
+        "priority": 7,
         "look_distance": 6,
         "probability": 0.04
       },
       "minecraft:behavior.look_at_target": {
-        "priority": 5,
+        "priority": 6,
         "look_distance": 32,
         "probability": 0.06
       },
       "minecraft:behavior.look_at_entity": {
-        "priority": 7,
+        "priority": 8,
         "look_distance": 6.0,
         "probability": 0.02,
         "filters": {
@@ -801,12 +811,18 @@
           "component_groups": [
             "air",
             "s_time",
-            "equip"
+            "equip",
+            "attack_reset"
           ]
         },
         "add": {
           "component_groups": [
             "attack"
+            ]
+        },
+        "queue_command": {
+          "command": [
+            "tag @s add dm_has_target"
           ]
         }
       },
@@ -818,7 +834,24 @@
         },
         "add": {
           "component_groups": [
+            "attack_reset"
+          ]
+        }
+        },
+      "attack_reset": {
+        "remove": {
+          "component_groups": [
+            "attack_reset"
+             ]
+        },
+        "add": {
+          "component_groups": [
             "s_time"
+             ]
+        },
+         "queue_command": {
+           "command": [
+           "tag @s remove dm_has_target"
           ]
         }
       },
@@ -891,7 +924,9 @@
             "scoreboard players add @s dm_skill_timer_7 1",
             "execute as @s[scores={dm_skill_timer_7=5..}] run scoreboard players remove @s dm_skill_timer_6 5",
             "execute as @s[scores={dm_skill_timer_7=5..}] run effect @s strength 6 0 true",
-            "execute as @s[scores={dm_skill_timer_7=5..}] run scoreboard players set @s dm_skill_timer_7 0"
+            "execute as @s[scores={dm_skill_timer_7=5..}] run scoreboard players set @s dm_skill_timer_7 0",
+            "tag @s add dm_skill_on",
+            "tag @s remove dm_has_target"
           ]
         }
       },
@@ -907,6 +942,11 @@
             "equip",
             "sensor",
             "s_time"
+            ]
+        },
+         "queue_command": {
+           "command": [
+           "tag @s remove dm_skill_on"
           ]
         }
         },

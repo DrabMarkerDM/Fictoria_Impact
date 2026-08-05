@@ -1,0 +1,20 @@
+{
+  "format_version": "1.20.80",
+  "minecraft:item": {
+    "description": {
+      "identifier": "items:fictoria_ball_empty_yellow",
+      "menu_category": { "category": "equipment" }
+    },
+    "components": {
+      "minecraft:icon": {
+        "textures": { "default": "fictoria_ball_empty_yellow" }
+      },
+      "minecraft:display_name": {
+        "value": "item.items:fictoria_ball_empty_yellow"
+      },
+      "minecraft:should_despawn": false,
+      "minecraft:hand_equipped": false,
+      "minecraft:max_stack_size": 1
+    }
+  }
+}

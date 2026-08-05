@@ -278,7 +278,7 @@
           "value": 0
         },
         "minecraft:behavior.owner_hurt_by_target": {
-          "priority": 2,
+          "priority": 1,
           "entity_types": {
             "filters": {
               "test": "is_family",
@@ -316,7 +316,7 @@
           }
         },
         "minecraft:behavior.nearest_attackable_target": {
-          "priority": 3,
+          "priority": 4,
           "must_see": true,
           "reselect_targets": true,
           "entity_types": [
@@ -604,7 +604,7 @@
           "value": 0
         },
         "minecraft:behavior.owner_hurt_by_target": {
-          "priority": 2,
+          "priority": 1,
           "entity_types": {
             "filters": {
               "test": "is_family",
@@ -643,7 +643,7 @@
           }
         },
         "minecraft:behavior.nearest_attackable_target": {
-          "priority": 3,
+          "priority": 4,
           "reselect_targets": true,
           "entity_types": [
             {
@@ -914,7 +914,7 @@
           "damage": 9
         },
         "minecraft:behavior.owner_hurt_by_target": {
-          "priority": 2,
+          "priority": 1,
           "entity_types": {
             "filters": {
               "test": "is_family",
@@ -952,7 +952,7 @@
           }
         },
         "minecraft:behavior.nearest_attackable_target": {
-          "priority": 3,
+          "priority": 4,
           "must_see": true,
           "reselect_targets": true,
           "entity_types": [
@@ -1227,7 +1227,7 @@
           "value": 0
         },
         "minecraft:behavior.owner_hurt_by_target": {
-          "priority": 2,
+          "priority": 1,
           "entity_types": {
             "filters": {
               "test": "is_family",
@@ -1265,7 +1265,7 @@
           }
         },
         "minecraft:behavior.nearest_attackable_target": {
-          "priority": 3,
+          "priority": 4,
           "must_see": true,
           "reselect_targets": true,
           "entity_types": [
@@ -1540,7 +1540,7 @@
           "value": 0
         },
         "minecraft:behavior.owner_hurt_by_target": {
-          "priority": 2,
+          "priority": 1,
           "entity_types": {
             "filters": {
               "test": "is_family",
@@ -1578,7 +1578,7 @@
           }
         },
         "minecraft:behavior.nearest_attackable_target": {
-          "priority": 3,
+          "priority": 4,
           "must_see": true,
           "reselect_targets": true,
           "entity_types": [
@@ -1895,7 +1895,7 @@
           "value": 0
         },
         "minecraft:behavior.panic": {
-          "priority": 4,
+          "priority": 5,
           "speed_multiplier": 1.2
         },
         "minecraft:behavior.avoid_mob_type": {
@@ -2178,7 +2178,7 @@
           "value": 0
         },
         "minecraft:behavior.panic": {
-          "priority": 4,
+          "priority": 5,
           "speed_multiplier": 1.2
         },
         "minecraft:behavior.avoid_mob_type": {
@@ -2939,7 +2939,7 @@
 
         },
         "minecraft:behavior.pickup_items": {
-          "priority": 4,
+          "priority": 5,
           "max_dist": 8,
           "goal_radius": 2,
           "speed_multiplier": 1.25,
@@ -3075,7 +3075,7 @@
       },
       "sleep": {
         "minecraft:behavior.sleep": {
-          "priority": 5,
+          "priority": 6,
           "goal_radius": 1.5,
           "speed_multiplier": 1.0,
           "sleep_collider_height": 0.3,
@@ -3092,7 +3092,7 @@
           "value": 0.06
         },
         "minecraft:behavior.random_stroll": {
-          "priority": 7,
+          "priority": 8,
           "speed_multiplier": 0.65
         },
         "minecraft:jump.static": {
@@ -3101,7 +3101,7 @@
           "priority": 1
         },
         "minecraft:behavior.look_at_player": {
-          "priority": 6,
+          "priority": 7,
           "look_distance": 6,
           "probability": 0.04
         },
@@ -3111,7 +3111,7 @@
           "probability": 1.0
         },
         "minecraft:behavior.look_at_entity": {
-          "priority": 7,
+          "priority": 8,
           "look_distance": 6.0,
           "probability": 0.02,
           "filters": {
@@ -3135,17 +3135,17 @@
           "jump_power": 0.0000000000000000001
         },
         "minecraft:behavior.look_at_player": {
-          "priority": 6,
+          "priority": 7,
           "look_distance": 6,
           "probability": 0.04
         },
         "minecraft:behavior.look_at_target": {
-          "priority": 5,
+          "priority": 6,
           "look_distance": 29,
           "probability": 0.06
         },
         "minecraft:behavior.look_at_entity": {
-          "priority": 7,
+          "priority": 8,
           "look_distance": 6.0,
           "probability": 0.02,
           "filters": {
@@ -3530,7 +3530,7 @@
         "family": [ "player", "dm", "maid" ]
         },
     "minecraft:behavior.avoid_block": {
-  "priority": 4,           
+  "priority": 5,           
   "search_range": 1,       
   "search_height": 0,      
   "target_blocks": [
@@ -3592,7 +3592,7 @@
         "max_distance": 40.0
       },
       "minecraft:behavior.move_to_land": {
-        "priority": 5,
+        "priority": 6,
         "speed_multiplier": 1.0,
         "search_range": 35,
         "search_height": 15,
@@ -3612,7 +3612,7 @@
         "is_pushable_by_piston": true
       },
       "minecraft:behavior.sleep": {
-        "priority": 4,
+        "priority": 5,
         "goal_radius": 2,
         "speed_multiplier": 1.2,
         "sleep_collider_height": 0.3,

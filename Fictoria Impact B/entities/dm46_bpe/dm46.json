@@ -40,7 +40,7 @@
           "damage": 22
         },
         "minecraft:behavior.follow_owner": {
-          "priority": 5,
+          "priority": 6,
           "speed_multiplier": 0.95,
           "start_distance": 18,
           "stop_distance": 6
@@ -177,7 +177,7 @@
             },
             {
               "cause": "magic",
-              "damage_multiplier": 0.8,
+              "damage_multiplier": 0.75,
               "on_damage": {
                 "filters": {
                   "test": "is_family",
@@ -214,7 +214,7 @@
           ]
         },
         "minecraft:behavior.follow_owner": {
-          "priority": 6,
+          "priority": 7,
           "speed_multiplier": 0.93,
           "start_distance": 27,
           "stop_distance": 9
@@ -349,7 +349,7 @@
           }
         },
         "minecraft:behavior.owner_hurt_by_target": {
-          "priority": 2,
+          "priority": 1,
           "entity_types": {
             "filters": {
               "test": "is_family",
@@ -362,7 +362,7 @@
           }
         },
         "minecraft:behavior.hurt_by_target": {
-          "priority": 2,
+          "priority": 3,
           "entity_types": {
             "filters": {
               "test": "is_family",
@@ -374,7 +374,7 @@
           }
          },
       "minecraft:behavior.nearest_attackable_target": {
-          "priority": 2,
+          "priority": 4,
           "must_see": true,
           "reselect_targets": true,
           "entity_types": [
@@ -479,7 +479,7 @@
           },
           {
             "cause": "magic",
-            "damage_multiplier": 0.9,
+            "damage_multiplier": 0.85,
             "on_damage": {
               "event": "hurt_by",
               "filters": {
@@ -527,7 +527,7 @@
     },
     "air": {
         "minecraft:behavior.move_to_village": {
-          "priority": 7,
+          "priority": 8,
           "speed_multiplier": 0.74,
           "goal_radius": 0.7
         },
@@ -552,7 +552,7 @@
           "value": 1
        },
       "minecraft:behavior.avoid_mob_type": {
-        "priority": 4,
+        "priority": 5,
         "entity_types": [
           {
             "filters": {
@@ -596,7 +596,7 @@
         "max": 20
         },
     "minecraft:behavior.avoid_block": {
-    "priority": 4,           
+    "priority": 5,           
     "search_range": 1,       
     "search_height": 0,      
     "target_blocks": [
@@ -656,7 +656,7 @@
         "private": true
       },
       "minecraft:behavior.move_to_land": {
-        "priority": 6,
+        "priority": 7,
         "speed_multiplier": 1.0,
         "search_range": 35,
         "search_height": 15,
@@ -675,13 +675,13 @@
         "alwaysShow": true
       },
       "minecraft:behavior.pickup_items": {
-        "priority": 9,
+        "priority": 10,
         "max_dist": 3,
         "goal_radius": 2,
         "speed_multiplier": 0.5
       },
       "minecraft:behavior.random_stroll": {
-        "priority": 8,
+        "priority": 9,
         "speed_multiplier": 0.68,
         "xz_dist": 10,
         "y_dist": 5
@@ -691,7 +691,7 @@
         "is_pushable_by_piston": true
       },
       "minecraft:behavior.sleep": {
-        "priority": 4,
+        "priority": 5,
         "goal_radius": 2,
         "speed_multiplier": 1.2,
         "sleep_collider_height": 0.3,
@@ -700,17 +700,17 @@
         "timeout_cooldown": 10.0
       },
       "minecraft:behavior.look_at_player": {
-        "priority": 6,
+        "priority": 7,
         "look_distance": 6,
         "probability": 0.04
       },
       "minecraft:behavior.look_at_target": {
-        "priority": 5,
+        "priority": 6,
         "look_distance": 35,
         "probability": 0.06
       },
       "minecraft:behavior.look_at_entity": {
-        "priority": 7,
+        "priority": 8,
         "look_distance": 4.0,
         "probability": 0.02,
         "filters": {
@@ -760,7 +760,9 @@
         },
        "queue_command": {
         "command": [
-        "replaceitem entity @s slot.weapon.mainhand 1 air"
+        "replaceitem entity @s slot.weapon.mainhand 1 air",
+        "tag @s remove dm_has_target",
+        "tag @s remove dm_skill_on"
           ]
         }
       },
@@ -774,6 +776,11 @@
           "component_groups": [
             "base","sword"
                   ]
+        },
+        "queue_command": {
+          "command": [
+            "tag @s add dm_has_target"
+          ]
         }
       },
       "sss": {
@@ -802,7 +809,9 @@
             "effect @e[tag=dm,r=6,c=7,family=!monster] levitation 0",
             "effect @e[tag=dm,r=6,c=7,family=!monster] instant_damage 0",
             "effect @e[tag=dm,r=6,c=7,family=!monster] fatal_poison 0",
-            "effect @e[tag=dm,r=6,c=7,family=!monster] poison 0"
+            "effect @e[tag=dm,r=6,c=7,family=!monster] poison 0",
+            "tag @s add dm_skill_on",
+            "tag @s remove dm_has_target"
           ]
           },
         "set_property": {
@@ -827,7 +836,9 @@
         "queue_command": {
           "command": [
             "effect @s speed 0",
-            "effect @s strength 0"
+            "effect @s strength 0",
+            "tag @s remove dm_skill_on",
+           "tag @s add dm_has_target"
           ]
           },
         "set_property": {

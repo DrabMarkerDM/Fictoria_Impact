@@ -15,6 +15,11 @@ import './dm_entities/dm34/maid_manager';
 import { DmTargetEngine } from './dm_entities/common/attackable_target_manager';
 // 导入友军防误伤模块
 import './dm_entities/common/player_attack_blocker';
+// 导入幻域球模块
+import { initFictoriaBall } from "./dm_entities/common/fictoria_ball.js";
+// 导入战术指挥 UI
+import "./dm_entities/common/fictoria_ui.js";
+initFictoriaBall();
 
 // 初始化目标管理引擎
 DmTargetEngine.init();
@@ -36,10 +41,10 @@ const driveMaidMuscles = () => {
         const targetTypes = ["player:dm34_1", "player:dm34",
             "player:dm48", "player:dm35", "player:dm32", "player:dm51",
             "player:dm26", "player:dm50", "player:dm21", "player:dm6", "player:test1",
-            "player:dm31", "player:dm45", "player:dm59", "player:dm33", "player:dm24",
+            "player:dm31", "player:dm45", "player:dm4", "player:dm59", "player:dm33", "player:dm24",
             "player:dm8", "player:dm25", "player:kirito", "player:asuna", "player:dm49", "player:dm62",
-            "player:dm0", "player:dm63", "player:dm46", "player:dm60", "player:dm41", "player:dm61",
-            "player:dm52", "player:dm56", "player:dm28"    ];
+            "player:dm0", "player:dm46", "player:dm60", "player:dm41", "player:dm61",
+            "player:dm52", "player:dm56", "player:dm28", "player:dm53", "player:dm63", "player:dm22"    ];
 
         for (const dimension of activeDimensions) {
             for (const typeId of targetTypes) {

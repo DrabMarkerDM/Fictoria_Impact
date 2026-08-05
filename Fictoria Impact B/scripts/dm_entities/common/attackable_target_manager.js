@@ -1,10 +1,12 @@
 import { world, system, EntityDamageCause } from "@minecraft/server";
 import { MovementRanged } from "./movement_ranged.js";
+import { MovementMelee } from "./movement_melee.js";
 import { TacticalClockManager } from "./tactical_clock_manager.js";
 import { DmSupportModule } from "./dm_support_system.js";
 
 const BlockedTargetTicks = new Map();
-const LastDamageTick = new Map();
+export const LastDamageTick = new Map(); // 导出给走位模块使用
+export const VictimDamageHistoryMap = new Map(); // 💥 新增：专门存 [受击者ID -> 伤害历史队列]
 const LastSwitchTick = new Map();
 const ForcedTargets = new Map();
 
@@ -95,54 +97,180 @@ const TargetSensorManager = {
         }
     }
 };
-
+/**
+ *  ── 基础参数（通用，所有干员必填）──
+ *  normalRange      {number}   正常索敌半径（格）
+ *  alertRange       {number}   警戒索敌半径（格），受击协同广播时使用
+ *  focus            {number}   当前目标权重倍率，越大越不容易切目标
+ *  speed            {number}   目标切换冷却因子，值越大切换越快
+ *  clock_time       {boolean}  是否启用战术时钟
+ *  supportEnabled   {boolean}  是否启用支援系统
+ *
+ *  ── 走位类型（二选一或都不填）──
+ *  combatType       {string}   "ranged" = 远程走位 | "melee" = 近战走位 | 不填 = 无走位
+ *
+ *  ── 远程专用（combatType: "ranged"）──
+ *  strafeRange      {number}   远程走位检测半径（格），也是最近威胁搜索范围
+ *  strafeSpeed      {number}   侧向移动基础速度，乘以Buff/液体系数后为最终速度
+ *
+ *  ── 近战专用（combatType: "melee"）──
+ *  meleeRange       {number}   冲刺刹车距离
+ *  strafeSpeed      {number}   移动基础速度，冲刺均基于此值缩放
+ *  chargeSpeed      {number}   冲刺速度倍率，乘以 strafeSpeed 得到冲刺速度
+ *  chargeRange      {number}   冲刺最小触发距离阈值（格），超过此距离持续3秒触发
+ *  maxChargeRange   {number}   冲刺最大触发距离阈值（格），该值不指定则为无上限
+ *  maxChargeDist    {number}   最大冲刺距离（格）
+ *  chargeDuration   {number}   冲刺最长持续 tick，超时自动取消
+ */
 // 配置表
 const DmTargetRegistry = {
     "player:dm34_1": {
         "modes": {
-            1: { normalRange: 34, alertRange: 54, focus: 2.0, speed: 8, strafe: true, strafeRange: 12, strafeSpeed: 0.35, clock_time: false, supportEnabled: true },
-            2: { normalRange: 30, alertRange: 50, focus: 10.0, speed: 10.0, strafe: true, strafeRange: 9, strafeSpeed: 0.25, clock_time: false, supportEnabled: true },
-            3: { normalRange: 58, alertRange: 78, focus: 22.0, speed: 2, strafe: true, strafeRange: 20, strafeSpeed: 0.15, clock_time: false, supportEnabled: true },
-            4: { normalRange: 32, alertRange: 52, focus: 20.0, speed: 18, strafe: false, strafeRange: 0, strafeSpeed: 0, clock_time: false, supportEnabled: true },
-            5: { normalRange: 28, alertRange: 48, focus: 4.0, speed: 15, strafe: true, strafeRange: 10, strafeSpeed: 0.45, clock_time: false, supportEnabled: true }
+            1: { normalRange: 34, alertRange: 54, focus: 2.0, speed: 8, combatType: "ranged", strafeRange: 12, strafeSpeed: 0.35, clock_time: false, supportEnabled: true },
+            2: { normalRange: 30, alertRange: 50, focus: 10.0, speed: 10.0, combatType: "ranged", strafeRange: 9, strafeSpeed: 0.25, clock_time: false, supportEnabled: true },
+            3: { normalRange: 58, alertRange: 78, focus: 22.0, speed: 2, combatType: "ranged", strafeRange: 20, strafeSpeed: 0.15, clock_time: false, supportEnabled: true },
+            4: { normalRange: 32, alertRange: 52, focus: 20.0, speed: 18, combatType: "melee", strafeSpeed: 0.3, chargeSpeed: 2.5, chargeRange: 10, maxChargeDist: 10, clock_time: false, supportEnabled: true },
+            5: { normalRange: 28, alertRange: 48, focus: 4.0, speed: 15, combatType: "ranged", strafeRange: 10, strafeSpeed: 0.45, clock_time: false, supportEnabled: true }
         }
     },
     "player:dm34": {
         "modes": {
-            1: { normalRange: 22, alertRange: 33, focus: 2.0, speed: 20, strafe: false, strafeRange: 0, strafeSpeed: 0, clock_time: false, supportEnabled: true },
-            2: { normalRange: 26, alertRange: 33, focus: 8.0, speed: 10.0, strafe: true, strafeRange: 10, strafeSpeed: 0.35, clock_time: false, supportEnabled: true },
-            3: { normalRange: 28, alertRange: 33, focus: 15.0, speed: 5, strafe: true, strafeRange: 18, strafeSpeed: 0.25, clock_time: false, supportEnabled: true },
+            1: { normalRange: 22, alertRange: 33, focus: 2.0, speed: 20, combatType: "melee", strafeSpeed: 0.3, chargeSpeed: 2.5, chargeRange: 10, maxChargeDist: 10, clock_time: false, supportEnabled: true },
+            2: { normalRange: 26, alertRange: 33, focus: 8.0, speed: 10.0, combatType: "ranged", strafeRange: 10, strafeSpeed: 0.35, clock_time: false, supportEnabled: true },
+            3: { normalRange: 28, alertRange: 33, focus: 15.0, speed: 5, combatType: "ranged", strafeRange: 18, strafeSpeed: 0.25, clock_time: false, supportEnabled: true },
         }
     },
-    "player:dm48": { normalRange: 40, alertRange: 48, focus: 4.0, speed: 12, strafe: true, strafeRange: 14, strafeSpeed: 0.4, clock_time: true, supportEnabled: true },
-    "player:dm35": { normalRange: 35, alertRange: 40, focus: 10.0, speed: 5, strafe: true, strafeRange: 12, strafeSpeed: 0.3, clock_time: false, supportEnabled: true },
-    "player:dm32": { normalRange: 39, alertRange: 46, focus: 2.0, speed: 20, strafe: true, strafeRange: 15, strafeSpeed: 0.32, clock_time: true, supportEnabled: true },
-    "player:dm51": { normalRange: 32, alertRange: 37, focus: 12.0, speed: 3, strafe: true, strafeRange: 10, strafeSpeed: 0.26, clock_time: true, supportEnabled: true },
-    "player:dm26": { normalRange: 33, alertRange: 38, focus: 5.0, speed: 18, strafe: true, strafeRange: 16, strafeSpeed: 0.35, clock_time: true, supportEnabled: true },
-    "player:dm50": { normalRange: 96, alertRange: 96, focus: 25.0, speed: 2, strafe: true, strafeRange: 24, strafeSpeed: 0.2, clock_time: true, supportEnabled: true },
-    "player:dm21": { normalRange: 36, alertRange: 36, focus: 5.0, speed: 5, strafe: true, strafeRange: 13, strafeSpeed: 0.3, clock_time: false, supportEnabled: true },
-    "player:dm6":  { normalRange: 36, alertRange: 36, focus: 2.0, speed: 15, strafe: true, strafeRange: 12, strafeSpeed: 0.33, clock_time: false, supportEnabled: true },
-    "player:dm31": { normalRange: 36, alertRange: 36, focus: 6.0, speed: 20, strafe: false, strafeRange: 0, strafeSpeed: 0, clock_time: true, supportEnabled: true },
-    "player:dm45": { normalRange: 48, alertRange: 48, focus: 12.0, speed: 5, strafe: false, strafeRange: 0, strafeSpeed: 0, clock_time: true, supportEnabled: true },
-    "player:dm59": { normalRange: 37, alertRange: 40, focus: 2.0, speed: 15, strafe: false, strafeRange: 0, strafeSpeed: 0, clock_time: true, supportEnabled: true },
-    "player:dm33": { normalRange: 36, alertRange: 46, focus: 5.0, speed: 20, strafe: false, strafeRange: 0, strafeSpeed: 0, clock_time: false, supportEnabled: true },
-    "player:dm24": { normalRange: 34, alertRange: 38, focus: 1.0, speed: 15, strafe: false, strafeRange: 0, strafeSpeed: 0, clock_time: false, supportEnabled: true },
-    "player:dm8":  { normalRange: 36, alertRange: 68, focus: 2.0, speed: 25, strafe: false, strafeRange: 0, strafeSpeed: 0, clock_time: false, supportEnabled: true },
-    "player:dm25": { normalRange: 38, alertRange: 66, focus: 5.0, speed: 25, strafe: false, strafeRange: 0, strafeSpeed: 0, clock_time: true, supportEnabled: true },
-    "player:kirito":{ normalRange: 38, alertRange: 48, focus: 3.0, speed: 30, strafe: false, strafeRange: 0, strafeSpeed: 0, clock_time: true, supportEnabled: true },
-    "player:asuna": { normalRange: 35, alertRange: 45, focus: 3.0, speed: 30, strafe: false, strafeRange: 0, strafeSpeed: 0, clock_time: true, supportEnabled: true },
-    "player:dm49": { normalRange: 42, alertRange: 66, focus: 3.0, speed: 30, strafe: false, strafeRange: 0, strafeSpeed: 0, clock_time: true, supportEnabled: true },
-    "player:dm62": { normalRange: 40, alertRange: 58, focus: 1.0, speed: 15, strafe: false, strafeRange: 0, strafeSpeed: 0, clock_time: true, supportEnabled: true },
-    "player:dm0":  { normalRange: 40, alertRange: 40, focus: 5.0, speed: 15, strafe: false, strafeRange: 0, strafeSpeed: 0, clock_time: true, supportEnabled: true },
-    "player:dm63":  { normalRange: 35, alertRange: 35, focus: 10.0, speed: 5.0, strafe: false, strafeRange: 0, strafeSpeed: 0, clock_time: true, supportEnabled: true },
-    "player:dm46":  { normalRange: 39, alertRange: 49, focus: 8.0, speed: 10.0, strafe: false, strafeRange: 0, strafeSpeed: 0, clock_time: true, supportEnabled: true },
-    "player:dm60":  { normalRange: 42, alertRange: 54, focus: 9.0, speed: 15.0, strafe: false, strafeRange: 0, strafeSpeed: 0, clock_time: true, supportEnabled: true },
-    "player:dm41":  { normalRange: 40, alertRange: 60, focus: 15.0, speed: 10.0, strafe: false, strafeRange: 0, strafeSpeed: 0, clock_time: true, supportEnabled: true },
-    "player:dm61":  { normalRange: 50, alertRange: 60, focus: 20.0, speed: 5.0, strafe: false, strafeRange: 0, strafeSpeed: 0, clock_time: true, supportEnabled: true },
-    "player:dm52":  { normalRange: 51, alertRange: 51, focus: 5.0, speed: 10.0, strafe: true, strafeRange: 10, strafeSpeed: 0.2, clock_time: false, supportEnabled: true },
-    "player:dm56":  { normalRange: 60, alertRange: 96, focus: 10.0, speed: 10.0, strafe: false, strafeRange: 0, strafeSpeed: 0, clock_time: false, supportEnabled: true },
-    "player:dm28":  { normalRange: 35, alertRange: 35, focus: 10.0, speed: 5.0, strafe: false, strafeRange: 0, strafeSpeed: 0, clock_time: true, supportEnabled: true },
-    "player:test1":{ normalRange: 36, alertRange: 36, focus: 2.0, speed: 15, strafe: true, strafeRange: 12, strafeSpeed: 0.33, clock_time: true, supportEnabled: true }
+    "player:dm48": { normalRange: 40, alertRange: 48, focus: 4.0, speed: 12, combatType: "ranged", strafeRange: 14, strafeSpeed: 0.4, clock_time: true, supportEnabled: true },
+    "player:dm35": { normalRange: 35, alertRange: 40, focus: 10.0, speed: 5, combatType: "ranged", strafeRange: 12, strafeSpeed: 0.3, clock_time: false, supportEnabled: true },
+    "player:dm32": { normalRange: 39, alertRange: 46, focus: 2.0, speed: 20, combatType: "ranged", strafeRange: 15, strafeSpeed: 0.32, clock_time: true, supportEnabled: true },
+    "player:dm51": { normalRange: 32, alertRange: 37, focus: 12.0, speed: 3, combatType: "ranged", strafeRange: 10, strafeSpeed: 0.26, clock_time: true, supportEnabled: true },
+    "player:dm26": { normalRange: 33, alertRange: 38, focus: 5.0, speed: 18, combatType: "ranged", strafeRange: 16, strafeSpeed: 0.35, clock_time: true, supportEnabled: true },
+    "player:dm50": { normalRange: 96, alertRange: 96, focus: 25.0, speed: 2, combatType: "ranged", strafeRange: 24, strafeSpeed: 0.2, clock_time: true, supportEnabled: true },
+    "player:dm21": { normalRange: 36, alertRange: 36, focus: 5.0, speed: 5, combatType: "ranged", strafeRange: 13, strafeSpeed: 0.3, clock_time: false, supportEnabled: true },
+    "player:dm6": { normalRange: 36, alertRange: 36, focus: 2.0, speed: 15, combatType: "ranged", strafeRange: 12, strafeSpeed: 0.33, clock_time: false, supportEnabled: true },
+    "player:dm31": { normalRange: 36, alertRange: 36, focus: 10.0, speed: 20, combatType: "ranged", strafeRange: 12, strafeSpeed: 0.35, clock_time: true, supportEnabled: true },
+    "player:dm45": { normalRange: 48, alertRange: 48, focus: 15.0, speed: 15.0, combatType: "ranged", strafeRange: 8, strafeSpeed: 0.25, clock_time: true, supportEnabled: true },
+    "player:dm4": { normalRange: 44, alertRange: 46, focus: 3.0, speed: 10.0, combatType: "ranged", strafeRange: 12, strafeSpeed: 0.3, clock_time: false, supportEnabled: true },
+    "player:dm59": {
+        normalRange: 37, alertRange: 40, focus: 2.0, speed: 15, combatType: "melee",
+        strafeSpeed: 0.25, chargeSpeed: 2.5,
+        chargeRange: 10, maxChargeDist: 10,
+        clock_time: true, supportEnabled: true
+    },
+    "player:dm33": { normalRange: 36, alertRange: 46, focus: 5.0, speed: 20, combatType: "melee",
+        strafeSpeed: 0.35, chargeSpeed: 2.5, chargeRange: 8,
+        maxChargeDist: 10, meleeRange: 2.0,
+        clock_time: false, supportEnabled: true
+    },
+    "player:dm24": { normalRange: 34, alertRange: 38, focus: 1.0, speed: 15, combatType: "melee",
+        strafeSpeed: 0.25, chargeSpeed: 2.5, chargeRange: 10,
+        maxChargeDist: 12, meleeRange: 2.5,
+        clock_time: false, supportEnabled: true
+    },
+    "player:dm8": {
+        normalRange: 36, alertRange: 68, focus: 2.0, speed: 25, combatType: "melee",
+        strafeSpeed: 0.3, chargeSpeed: 2.5, chargeRange: 36,
+        maxChargeDist: 20, meleeRange: 1.0,
+        clock_time: true, supportEnabled: true
+    },
+    "player:dm25": {
+        normalRange: 38, alertRange: 66, focus: 5.0, speed: 25, combatType: "melee",
+        strafeSpeed: 0.25, chargeSpeed: 2.5,
+        chargeRange: 10, maxChargeDist: 12,
+        clock_time: true, supportEnabled: true
+    },
+    "player:kirito": {
+        normalRange: 38, alertRange: 48, focus: 3.0, speed: 30, combatType: "melee",
+        strafeSpeed: 0.3, chargeSpeed: 2.0,
+        chargeRange: 9, maxChargeDist: 10,
+        clock_time: true, supportEnabled: true
+    },
+    "player:asuna": {
+        normalRange: 35, alertRange: 45, focus: 3.0, speed: 30, combatType: "melee",
+        strafeSpeed: 0.4, chargeSpeed: 2.5,
+        chargeRange: 10, maxChargeDist: 10,
+        clock_time: true, supportEnabled: true
+    },
+    "player:dm49": {
+        normalRange: 42, alertRange: 66, focus: 3.0, speed: 30, combatType: "melee",
+        strafeSpeed: 0.35, chargeSpeed: 2.5,
+        chargeRange: 8, maxChargeDist: 10,
+        clock_time: true, supportEnabled: true
+    },
+    "player:dm62": {
+        normalRange: 40, alertRange: 58, focus: 1.0, speed: 15, combatType: "melee",
+        strafeSpeed: 0.15, chargeSpeed: 3.0,
+        chargeRange: 6, maxChargeDist: 8,
+        clock_time: true, supportEnabled: true
+    },
+    "player:dm0": {
+        normalRange: 40, alertRange: 40, focus: 5.0, speed: 15, combatType: "melee",
+        strafeSpeed: 0.35, chargeSpeed: 3.0, chargeRange: 40,
+        maxChargeDist: 20, meleeRange: 1.0,
+        clock_time: true, supportEnabled: true
+    },
+    "player:dm46": {
+        normalRange: 39, alertRange: 49, focus: 8.0, speed: 10.0, combatType: "melee",
+        strafeSpeed: 0.25, chargeSpeed: 2.5,
+        chargeRange: 10, maxChargeDist: 12,
+        clock_time: true, supportEnabled: true
+    },
+    "player:dm60": {
+        normalRange: 42, alertRange: 54, focus: 9.0, speed: 15.0, combatType: "melee",
+        strafeSpeed: 0.3, chargeSpeed: 3.0,
+        chargeRange: 8, maxChargeDist: 12,
+        clock_time: true, supportEnabled: true
+    },
+    "player:dm41": {
+        normalRange: 40, alertRange: 60, focus: 15.0, speed: 10.0, combatType: "melee",
+        strafeSpeed: 0.2, chargeSpeed: 2.0,
+        chargeRange: 12, maxChargeDist: 8,
+        clock_time: true, supportEnabled: true
+    },
+    "player:dm61": { normalRange: 50, alertRange: 60, focus: 20.0, speed: 5.0, clock_time: true, supportEnabled: true },
+    "player:dm52": { normalRange: 51, alertRange: 51, focus: 5.0, speed: 10.0, combatType: "ranged", strafeRange: 10, strafeSpeed: 0.25, clock_time: false, supportEnabled: true },
+    "player:dm56": { normalRange: 60, alertRange: 96, focus: 10.0, speed: 10.0, clock_time: false, supportEnabled: true },
+    "player:dm28": {
+        normalRange: 35, alertRange: 35, focus: 10.0, speed: 5.0, combatType: "melee",
+        strafeSpeed: 0.25, chargeSpeed: 2.5, chargeRange: 35,
+        maxChargeDist: 20, meleeRange: 1.0,
+        clock_time: true, supportEnabled: true
+    },
+    "player:dm53": {
+        normalRange: 38, alertRange: 48, focus: 5.0, speed: 15.0, combatType: "melee",
+        strafeSpeed: 0.3, chargeSpeed: 2.5, chargeRange: 38,
+        maxChargeDist: 20, meleeRange: 1.0,
+        clock_time: true, supportEnabled: true
+        },
+    "player:dm63": {
+        normalRange: 35, alertRange: 35, focus: 15.0, speed: 5.0, combatType: "melee",
+        strafeSpeed: 0.25, chargeSpeed: 2.0, chargeRange: 35,
+        maxChargeDist: 10, meleeRange: 3.5,
+        clock_time: true, supportEnabled: true
+        },
+    "player:dm22": {
+        normalRange: 36, alertRange: 42, focus: 3.0, speed: 20, combatType: "melee",
+        strafeSpeed: 0.35, chargeSpeed: 2.5,
+        chargeRange: 10, maxChargeDist: 10,
+        clock_time: true, supportEnabled: true
+    },
+    "player:test1": {
+        "modes": {
+            1: {  // variant 1 → 远程示例
+                normalRange: 36, alertRange: 36, focus: 2.0, speed: 15,
+                combatType: "ranged",
+                strafeRange: 12, strafeSpeed: 0.33,
+                clock_time: true, supportEnabled: true
+            },
+            2: {  // variant 2 → 近战示例
+                normalRange: 20, alertRange: 28, focus: 3.0, speed: 5,
+                combatType: "melee",
+                meleeRange: 3.5, strafeSpeed: 0.4,
+                chargeSpeed: 2.5, chargeRange: 10, maxChargeDist: 10, chargeDuration: 80,
+                clock_time: false, supportEnabled: true
+            }
+        }
+    }
 };
 
 let GLOBAL_MAX_BROADCAST_DISTANCE = 96;
@@ -154,6 +282,9 @@ export class DmTargetEngine {
 
         // ── 新增：初始化目标传感器 ──
         TargetSensorManager.init();
+
+        // ── 新增：初始化近战格挡机制 ──
+        MovementMelee.initBlockMechanic();
 
         try {
             let maxAlert = 0;
@@ -207,29 +338,99 @@ export class DmTargetEngine {
                 const victim = event.hurtEntity;
                 if (!victim || !victim.isValid) return;
 
+                const nowTick = system.currentTick;
+                const damageVal = event.damage ?? 0;
+                const attacker = event.damageSource?.damagingEntity;  // ← 先定义attacker（v2.26.1 提前定义用于假受伤甄别）
+
+                // ── 💥 v2.26.1 假受伤甄别 ──
+                // 伤害吸收池自然消失/刷新时，游戏可能补发 entityHurt
+                //（无有效攻击者 或 攻击者==自身）。
+                // 这类事件不入伤害历史、不设威胁目标、不触发远程反击，防止策略引擎被假扣血波动。
+                const isFakeHurt = !attacker || !attacker.isValid || attacker.id === victim.id;
+                if (isFakeHurt) {
+                    if (DmTargetRegistry[victim.typeId] && damageVal >= 50) {
+                        const lastFakeLog = victim.getDynamicProperty("dm:fake_hurt_log_tick") ?? 0;
+                        if (nowTick - lastFakeLog >= 100) {
+                            victim.setDynamicProperty("dm:fake_hurt_log_tick", nowTick);
+                            console.warn(`[DM-Engine] 🧱 忽略疑似吸收池消失假受伤(伤害=${damageVal.toFixed(0)}, 无有效攻击者) | ${victim.typeId}`);
+                        }
+                    }
+                    return;
+                }
+
+                // 💥💥💥【核心补全 1】：记录受击者的历史伤害日志 (供 Predict 实时 Console 和 TTK 计算) 💥💥💥
+                let victimRecord = VictimDamageHistoryMap.get(victim.id);
+                if (!victimRecord) {
+                    victimRecord = { tick: nowTick, history: [] };
+                }
+                victimRecord.tick = nowTick;
+                if (!victimRecord.history) victimRecord.history = [];
+
+                // 压入本次受击数值
+                victimRecord.history.push({
+                    tick: nowTick,
+                    damage: damageVal
+                });
+
+                // 只保留最近 10 秒 (200 Ticks) 内的伤害记录，防止内存泄露
+                if (victimRecord.history.length > 30) {
+                    victimRecord.history = victimRecord.history.filter(h => nowTick - h.tick < 200);
+                }
+                VictimDamageHistoryMap.set(victim.id, victimRecord);
+
+                // ------------------ 以下保持你原有的逻辑 ------------------
+
                 if (DmTargetRegistry[victim.typeId]) {
-                    victim.setDynamicProperty("dm_last_hurt_tick", system.currentTick);
+                    victim.setDynamicProperty("dm_last_hurt_tick", nowTick);
                 }
-
-                const attacker = event.damageSource.damagingEntity;
-                if (!attacker) return;
-
-                const damager = event.damageSource.damagingEntity;
+                const damager = attacker;  // v2.26.1 attacker 已提前定义，damager 保持原别名
                 if (damager && DmTargetRegistry[damager.typeId]) {
-                    LastDamageTick.set(damager.id, { tick: system.currentTick, targetId: victim.id });
+                    LastDamageTick.set(damager.id, { tick: nowTick, targetId: victim.id });
+                    const dist = Math.sqrt(DmTargetEngine.getDistSq(damager.location, victim.location));
+                    damager.setDynamicProperty("dm:last_attack_dist", dist);
                 }
+                // 💥 新增：远程攻击检测（放在attacker定义之后）
+                try {
+                    if (DmTargetRegistry[victim.typeId] && attacker && attacker.isValid) {
+                        let victimConfig = DmTargetRegistry[victim.typeId];
+                        if (victimConfig.modes) {
+                            const variantComp = victim.getComponent("minecraft:variant");
+                            const variant = variantComp ? variantComp.value : 0;
+                            if (victimConfig.modes[variant]) {
+                                victimConfig = victimConfig.modes[variant];
+                            }
+                        }
+                        if (victimConfig.chargeRange) {
+                            const atkDist = Math.sqrt(DmTargetEngine.getDistSq(victim.location, attacker.location));
+                            if (atkDist >= victimConfig.chargeRange) {
+                                victim.setDynamicProperty("dm:ranged_retaliate", 1);
+                                victim.setDynamicProperty("dm:ranged_retaliate_tick", nowTick);
+                                console.warn(`[DM-Melee] 🏹 远程攻击检测! 距离=${atkDist.toFixed(1)}格 > chargeRange=${victimConfig.chargeRange}格 | 实体: ${victim.typeId}`);
+                            }
+                        }
+                    }
+                } catch (_) {}
 
                 if (DmTargetRegistry[victim.typeId] && victim.getDynamicProperty("ownerId") === undefined) {
                     const nearPlayers = victim.dimension.getPlayers({ location: victim.location, maxDistance: 16 });
                     if (nearPlayers.length > 0) {
                         victim.setDynamicProperty("ownerId", nearPlayers[0].id);
-                        console.warn(`[DM-Engine] 受伤补录主人: ${victim.typeId} 主人=${nearPlayers[0].id}`);
+                        console.warn(`[DM-Engine] 交互补录主人: ${victim.typeId} 主人=${nearPlayers[0].id}`);
                     }
                 }
 
-                if (DmTargetRegistry[victim.typeId]) {
+                if (DmTargetRegistry[victim.typeId] && attacker) {
                     console.warn(`[DM-Engine] 自身受击: ${victim.typeId} 反击目标=${attacker.typeId}`);
-                    DmTargetEngine.setForcedTarget(victim.id, attacker, 3);
+                    // ✅【v2.25】记录"威胁目标"：正在打我的目标（供走位参照，优先于索敌目标）
+                    // 修复：原版索敌可能锁着远处A，而B贴脸打你 → 走位围绕错误目标被贴脸击杀
+                    // （若你上了 v2.24 溯源，这里应写 realAttacker.id，避免锁到瞬亡弹射物）
+                    const isProj = (attacker.matches && attacker.matches({ families: ["projectile"] }))
+                        || (attacker.typeId && attacker.typeId.includes("bullet"));
+                    if (!isProj) {
+                        victim.setDynamicProperty("dm:threat_target_id", attacker.id);
+                        victim.setDynamicProperty("dm:threat_target_tick", nowTick);
+                        DmTargetEngine.setForcedTarget(victim.id, attacker, 3);
+                    }
                     DmSupportModule.processHurtSupport(victim, event, DmTargetRegistry, ForcedTargets);
                 }
 
@@ -243,10 +444,10 @@ export class DmTargetEngine {
                     const ownerId = follower.getDynamicProperty("ownerId");
                     if (!ownerId) continue;
 
-                    if (ownerId === victim.id) {
+                    if (ownerId === victim.id && attacker) {
                         DmTargetEngine.setForcedTarget(follower.id, attacker, 2);
                     }
-                    if (ownerId === attacker.id) {
+                    if (attacker && ownerId === attacker.id) {
                         DmTargetEngine.setForcedTarget(follower.id, victim, 1);
                     }
                 }
@@ -402,8 +603,30 @@ export class DmTargetEngine {
             }
         }
 
-        if (config.strafe) {
-            MovementRanged.execute(unit, config, closestThreat, closestDistSq, strafeRange, LastDamageTick);
+        // ═══ 走位引擎分发 ═══
+        const rawMode = unit.getDynamicProperty("dm:combat_mode");
+        let effectiveType = config.combatType;
+        if (rawMode === 1) effectiveType = "melee";
+        else if (rawMode === 2) effectiveType = "ranged";
+
+        // ── 近战范围自动检测 ──
+        if (effectiveType === "melee") {
+            const lastDist = unit.getDynamicProperty("dm:last_attack_dist");
+            if (lastDist && lastDist > 0) {
+                const prev = unit.getDynamicProperty("dm:melee_detected_range");
+                unit.setDynamicProperty("dm:melee_detected_range",
+                    prev ? prev * 0.8 + lastDist * 0.2 : lastDist
+                );
+                unit.setDynamicProperty("dm:last_attack_dist", undefined);
+            }
+        }
+
+        if (effectiveType === "melee") {
+            const meleeRange = unit.getDynamicProperty("dm:melee_detected_range") ?? config.meleeRange ?? 3.5;
+            // 💥 修改这里：将 VictimDamageHistoryMap 作为最后一个参数传给近战走位
+            MovementMelee.execute(unit, config, closestThreat, closestDistSq, meleeRange, VictimDamageHistoryMap);
+        } else if (effectiveType === "ranged") {
+            MovementRanged.execute(unit, config, closestThreat, closestDistSq, strafeRange, VictimDamageHistoryMap);
         }
 
         if (config.clock_time === true) {
@@ -420,7 +643,6 @@ export class DmTargetEngine {
         }
 
         // 目标传感器检测
-        // 只有 dm:target_sensor === "on" 的实体才执行检测
         TargetSensorManager.check(unit);
     }
 

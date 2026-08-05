@@ -254,7 +254,7 @@
         "alwaysShow": true
       },
       "minecraft:behavior.move_to_village": {
-        "priority": 6,
+        "priority": 7,
         "speed_multiplier": 0.78,
         "goal_radius": 0.6
       },
@@ -267,29 +267,29 @@
           "track_target": true
       },
       "minecraft:behavior.pickup_items": {
-        "priority": 8,
+        "priority": 9,
         "max_dist": 3,
         "goal_radius": 2,
         "speed_multiplier": 0.5
       },
       "minecraft:behavior.random_stroll": {
-        "priority": 5,
+        "priority": 6,
         "speed_multiplier": 0.64,
         "xz_dist": 8,
         "y_dist": 16
       },
       "minecraft:behavior.look_at_player": {
-        "priority": 6,
+        "priority": 7,
         "look_distance": 6,
         "probability": 0.04
       },
       "minecraft:behavior.look_at_target": {
-        "priority": 5,
+        "priority": 6,
         "look_distance": 57,
         "probability": 0.06
       },
       "minecraft:behavior.look_at_entity": {
-        "priority": 7,
+        "priority": 8,
         "look_distance": 6.0,
         "probability": 0.02,
         "filters": {
@@ -302,7 +302,7 @@
         "priority": 7
       },
       "minecraft:behavior.hurt_by_target": {
-        "priority": 2,
+        "priority": 1,
         "entity_types": {
           "filters": {
             "test": "is_family",
@@ -314,7 +314,7 @@
         }
       },
       "minecraft:behavior.nearest_attackable_target": {
-        "priority": 1,
+        "priority": 2,
         "walk_speed_multiplier": 1.4,
         "sprint_speed_multiplier": 1.8,
         "reselect_targets": true,
