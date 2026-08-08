@@ -148,8 +148,8 @@
         "minecraft:is_tamed": {
         },
         "minecraft:health": {
-          "value": 34,
-          "max": 34
+          "value": 33,
+          "max": 33
         },
         "minecraft:leashable": {
           "soft_distance": 4.5,
@@ -173,7 +173,7 @@
           "triggers": [
             {
               "cause": "projectile",
-              "damage_multiplier": 0.47,
+              "damage_multiplier": 0.51,
               "on_damage": {
                 "event": "hurt_by",
                 "filters": {
@@ -187,7 +187,7 @@
             },
             {
               "cause": "entity_attack",
-              "damage_multiplier": 0.47,
+              "damage_multiplier": 0.51,
               "on_damage": {
                 "event": "hurt_by",
                 "filters": {
@@ -201,7 +201,7 @@
             },
             {
               "cause": "entity_explosion",
-              "damage_multiplier": 0.47,
+              "damage_multiplier": 0.51,
               "on_damage": {
                 "event": "hurt_by",
                 "filters": {
@@ -215,7 +215,7 @@
             },
             {
               "cause": "block_explosion",
-              "damage_multiplier": 0.47,
+              "damage_multiplier": 0.51,
               "on_damage": {
                 "event": "hurt_by",
                 "filters": {
@@ -229,7 +229,7 @@
             },
             {
               "cause": "override",
-              "damage_multiplier": 0.47,
+              "damage_multiplier": 0.51,
               "on_damage": {
                 "event": "hurt_by",
                 "filters": {
@@ -243,7 +243,7 @@
             },
             {
               "cause": "magic",
-              "damage_multiplier": 0.67,
+              "damage_multiplier": 0.85,
               "on_damage": {
                 "event": "hurt_by",
                 "filters": {
@@ -338,7 +338,7 @@
           "add_effects": [
             {
               "effect": "absorption",
-              "amplifier": 10,
+              "amplifier": 12,
               "visible": false,
               "ambient": false,
               "duration": 8

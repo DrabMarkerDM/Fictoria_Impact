@@ -330,7 +330,7 @@
         "triggers": [
           {
             "cause": "projectile",
-            "damage_multiplier": 0.5,
+            "damage_multiplier": 0.53,
             "on_damage": {
               "filters": {
                 "test": "is_family",
@@ -343,7 +343,7 @@
           },
           {
             "cause": "entity_attack",
-            "damage_multiplier": 0.5,
+            "damage_multiplier": 0.53,
             "on_damage": {
               "filters": {
                 "test": "is_family",
@@ -356,7 +356,7 @@
           },
           {
             "cause": "entity_explosion",
-            "damage_multiplier": 0.5,
+            "damage_multiplier": 0.53,
             "on_damage": {
               "filters": {
                 "test": "is_family",
@@ -369,7 +369,7 @@
           },
           {
             "cause": "block_explosion",
-            "damage_multiplier": 0.5,
+            "damage_multiplier": 0.53,
             "on_damage": {
               "filters": {
                 "test": "is_family",
@@ -382,7 +382,7 @@
           },
           {
             "cause": "override",
-            "damage_multiplier": 0.5,
+            "damage_multiplier": 0.53,
             "on_damage": {
               "filters": {
                 "test": "is_family",
@@ -395,7 +395,7 @@
           },
           {
             "cause": "magic",
-            "damage_multiplier": 0.75,
+            "damage_multiplier": 0.8,
             "on_damage": {
               "filters": {
                 "test": "is_family",

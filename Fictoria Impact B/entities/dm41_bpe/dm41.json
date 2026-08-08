@@ -250,7 +250,7 @@
             },
             {
               "cause": "magic",
-              "damage_multiplier": 0.9,
+              "damage_multiplier": 0.85,
               "on_damage": {
                 "event": "hurt_by",
                 "filters": {

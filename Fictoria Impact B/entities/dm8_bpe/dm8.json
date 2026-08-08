@@ -172,7 +172,7 @@
             },
             {
               "cause": "magic",
-              "damage_multiplier": 0.75,
+              "damage_multiplier": 0.6,
               "on_damage": {
                 "event": "miss_test",
                 "target": "self",
@@ -292,7 +292,7 @@
           },
           {
             "cause": "magic",
-            "damage_multiplier": 0.55,
+            "damage_multiplier": 0.5,
             "on_damage": {
               "event": "s_miss_test",
               "target": "self",

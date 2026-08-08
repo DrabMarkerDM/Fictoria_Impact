@@ -81,8 +81,8 @@
         "minecraft:is_tamed": {
         },
         "minecraft:health": {
-          "value": 28,
-          "max": 28
+          "value": 31,
+          "max": 31
         },
         "minecraft:leashable": {
           "soft_distance": 4.5,
@@ -407,7 +407,7 @@
         "triggers": [
           {
             "cause": "projectile",
-            "damage_multiplier": 0.52,
+            "damage_multiplier": 0.51,
             "on_damage": {
               "filters": {
                 "test": "is_family",
@@ -420,7 +420,7 @@
           },
           {
             "cause": "entity_attack",
-            "damage_multiplier": 0.52,
+            "damage_multiplier": 0.51,
             "on_damage": {
               "filters": {
                 "test": "is_family",
@@ -433,7 +433,7 @@
           },
           {
             "cause": "entity_explosion",
-            "damage_multiplier": 0.52,
+            "damage_multiplier": 0.51,
             "on_damage": {
               "filters": {
                 "test": "is_family",
@@ -446,7 +446,7 @@
           },
           {
             "cause": "block_explosion",
-            "damage_multiplier": 0.52,
+            "damage_multiplier": 0.51,
             "on_damage": {
               "filters": {
                 "test": "is_family",
@@ -459,7 +459,7 @@
           },
           {
             "cause": "override",
-            "damage_multiplier": 0.52,
+            "damage_multiplier": 0.51,
             "on_damage": {
               "filters": {
                 "test": "is_family",
