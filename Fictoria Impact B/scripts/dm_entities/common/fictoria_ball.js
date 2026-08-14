@@ -1,5 +1,5 @@
 /**
- * 幻域球回收系统（类宝可梦精灵球）— 附魔/特殊物品整合修复版
+ * 幻域球回收系统（类宝可梦精灵球）— 附魔/特殊物品整合修复版 + 幻域球套娃保护
  * 适配 Fictoria Impact / SAPI 2.7.0
  *
  * 本次整合规则：
@@ -11,6 +11,13 @@
  * 5. 附魔书 enchanted_book 不再被误判为记录书，会正常保存附魔。
  * 6. 所有附魔物品都会尝试读取并保存附魔。
  * 7. 附魔恢复兼容 enchantable / stored_enchantments。
+ *
+ * 8. ★ 新增：幻域球套娃保护
+ *    - 空幻域球 items:fictoria_ball_empty_xxx 可以正常保存。
+ *    - filled 幻域球 items:fictoria_ball_filled_xxx 不能收回。
+ *    - filled_cd 冷却版满球也视为 filled，不能收回。
+ *    - 如果干员背包里有 filled 幻域球，直接原地掉落，不写入球数据。
+ *    - 旧存档里如果已经错误保存过 filled 幻域球，放置干员时也会作为掉落物丢出。
  */
 import * as Server from "@minecraft/server";
 
@@ -302,6 +309,61 @@ function isComplexDroppableItem(item) {
                 return true;
             }
         }
+
+        return false;
+    } catch (_) {
+        return false;
+    }
+}
+
+// ============================================================
+// ★ 新增：幻域球套娃保护
+//
+// 判断一个物品是不是 filled 幻域球。
+//
+// 规则：
+// - items:fictoria_ball_empty_xxx 是空球，不拦截。
+// - items:fictoria_ball_filled_xxx 是满球，拦截。
+// - items:fictoria_ball_filled_xxx_cd 是冷却版满球，拦截。
+// - 如果物品上带有 fictoria:bag_data，也视为已装载幻域球，拦截。
+// ============================================================
+function isFilledFictoriaBallTypeId(typeId) {
+    try {
+        if (!typeId) return false;
+
+        const rawId = String(typeId);
+        const trimmedId = rawId.trim();
+        const lowerId = trimmedId.toLowerCase();
+
+        if (FILLED_MAP[rawId]) return true;
+        if (FILLED_MAP[trimmedId]) return true;
+
+        if (lowerId.includes("fictoria_ball_filled")) {
+            return true;
+        }
+
+        return false;
+    } catch (_) {
+        return false;
+    }
+}
+
+function isFilledFictoriaBall(item) {
+    try {
+        if (!item || !item.typeId) return false;
+
+        if (isFilledFictoriaBallTypeId(item.typeId)) {
+            return true;
+        }
+
+        // 兜底：如果某个物品上携带幻域球背包数据，也禁止套娃保存。
+        try {
+            const bag = item.getDynamicProperty(BAG_DP_KEY);
+
+            if (typeof bag === "string" && bag.length > 0) {
+                return true;
+            }
+        } catch (_) {}
 
         return false;
     } catch (_) {
@@ -741,6 +803,7 @@ function isCapturable(entity) {
 
 function getOwnerId(entity) {
     const dpOwner = entity.getDynamicProperty(OWNER_DP_KEY);
+
     if (dpOwner !== undefined) return dpOwner;
 
     const tameable = entity.getComponent("minecraft:tameable");
@@ -907,6 +970,10 @@ function getSafeLocation(dimension, blockLocation, blockFace) {
 // - 附魔工具
 // - 其他可读取附魔的物品
 // 都会尝试保存附魔。
+//
+// ★ 幻域球套娃保护：
+// - filled 幻域球一律不写入球数据。
+// - 空幻域球可以正常保存。
 // ============================================================
 function readInventory(maid, dropComplexItems = true) {
     const container = maid.getComponent("minecraft:inventory")?.container;
@@ -920,6 +987,34 @@ function readInventory(maid, dropComplexItems = true) {
 
         if (item === undefined) {
             slots.push(null);
+            continue;
+        }
+
+        // ============================================================
+        // ★ 幻域球套娃保护
+        //
+        // filled 幻域球一律不允许被收回进另一个幻域球。
+        // 直接原地掉落。
+        //
+        // 空幻域球不会被这里拦截，因为空球 ID 是：
+        // items:fictoria_ball_empty_xxx
+        // 不包含 fictoria_ball_filled。
+        // ============================================================
+        if (isFilledFictoriaBall(item)) {
+            const dropped = dropItemEntity(maid, item);
+
+            try {
+                container.setItem(i, undefined);
+            } catch (_) {}
+
+            slots.push(null);
+
+            if (!dropped) {
+                console.warn(
+                    "[FictoriaBall] filled幻域球掉落失败，为防止套娃已强制从背包移除。"
+                );
+            }
+
             continue;
         }
 
@@ -986,6 +1081,32 @@ function restoreInventory(maid, bagData) {
         const data = slots[idx];
 
         if (data === null || data === undefined) continue;
+
+        // ============================================================
+        // ★ 旧存档套娃保护
+        //
+        // 如果旧版本曾经错误保存过 filled 幻域球，
+        // 这里不再把它放回干员背包，而是作为掉落物丢出来。
+        // ============================================================
+        if (isFilledFictoriaBallTypeId(data.i)) {
+            try {
+                const droppedItem = new ItemStack(data.i, data.n);
+
+                if (typeof data.name === "string" && data.name !== "") {
+                    try {
+                        droppedItem.nameTag = data.name;
+                    } catch (_) {}
+                }
+
+                if (Array.isArray(data.e)) {
+                    restoreEnchantments(droppedItem, data.e);
+                }
+
+                maid.dimension.spawnItem(droppedItem, maid.location);
+            } catch (_) {}
+
+            continue;
+        }
 
         try {
             const item = new ItemStack(data.i, data.n);
@@ -1070,6 +1191,8 @@ function captureMaid(player, maid, cfg) {
         // 直接掉落。
         //
         // empty_map 和 enchanted_book 会正常保存。
+        //
+        // ★ filled 幻域球会被套娃保护拦截，直接掉落。
         // ============================================================
         const bagData = readInventory(maid, true);
 
@@ -1559,7 +1682,7 @@ export function initFictoriaBall() {
         }
     }, CD_TEXTURE_SCAN_TICKS);
 
-    console.warn("[FictoriaBall] 幻域球已加载（附魔/特殊物品整合修复版）");
+    console.warn("[FictoriaBall] 幻域球已加载（附魔/特殊物品整合修复版 + 幻域球套娃保护）");
 }
 
 // ============================================================

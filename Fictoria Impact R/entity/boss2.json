@@ -23,7 +23,7 @@
       },
       "animations": {
         "root": "controller.animation.player.root",
-        "sitting": "animation.player.sneaking",
+        "sitting": "animation.dm.sneaking",
         "humanoid_big_head": "animation.humanoid.big_head",
         "humanoid_base_pose": "animation.humanoid.base_pose",
         "look_at_target_default": "animation.humanoid.look_at_target.default",

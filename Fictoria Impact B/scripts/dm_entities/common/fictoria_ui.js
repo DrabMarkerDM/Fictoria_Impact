@@ -1,12 +1,14 @@
 // ============================================================
-// fictoria_ui.js — 战术指挥 UI + 守卫（巡逻）系统（非背包实体状态同步修复版）
+// fictoria_ui.js — 战术指挥 UI + 守卫（巡逻）系统
 // 适用 SAPI：@minecraft/server 2.7.0 / @minecraft/server-ui 2.0.0
 //
 // 本次修复：
-//   · 非 maid_command 实体切换“跟随玩家”后，UI 状态显示“未知”的问题
-//   · getUnitStatus 对非 itemGated 实体增加 DP.mode === FOLLOW 兜底
-//   · 点击【状态】按钮时重新打开 UI，强制刷新状态
-//   · 新增可选配置 autoReopenAfterSwitch：切换战后可自动重新打开 UI
+//   · 退出重进后 patrolUnits 内存清空导致巡逻传送失效
+//   · DP.home 改用 JSON 字符串持久化，兼容旧版对象
+//   · 给巡逻单位加持久 tag，启动后自动扫描恢复
+//   · 守卫主循环增加 DP.mode 校验
+//   · resumeState 桥接同步加 tag
+//   · getUnitStatus 打开 UI 时自动补回 patrolUnits
 //
 // 保留原优化：
 //   · 配置字符串统一 trim
@@ -37,18 +39,6 @@ const CONFIG = {
     itemGatedEntities: ["player:dm34", "player:dm34_1"],
     maidCommandId: "item:maid_command",
     debug: false,
-
-    // ============================================================
-    // ★ 新增：
-    // 切换战术后是否自动重新打开 UI。
-    //
-    // false：
-    // 只发送聊天提示，不自动弹 UI。
-    //
-    // true：
-    // 切换战术后延迟 verifyWaitTicks + 2 tick 自动重新打开 UI，
-    // 用于同步状态按钮显示。
-    // ============================================================
     autoReopenAfterSwitch: false,
 };
 
@@ -67,6 +57,9 @@ const DP = {
     mode: "fictoria_ui:mode",
 };
 
+// 巡逻 tag，用于重进存档后恢复
+const PATROL_TAG = "fictoria_patrol";
+
 // ============================================================
 // 字符串工具
 // ============================================================
@@ -76,13 +69,10 @@ function trimString(value) {
 
 function trimArrayToSet(arr) {
     const set = new Set();
-
     if (!Array.isArray(arr)) return set;
-
     for (const value of arr) {
         set.add(trimString(value));
     }
-
     return set;
 }
 
@@ -101,10 +91,8 @@ function uiLog(...args) {
 
 // ---------- 从 globalThis 读取三张配置表（fictoria_ball.js 注册） ----------
 let FRIENDLY_TYPES = null;
-
 try {
     const t = globalThis.FICTORIA_BALL_TYPES;
-
     if (t && Array.isArray(t.gold) && Array.isArray(t.blue) && Array.isArray(t.green)) {
         FRIENDLY_TYPES = new Set(
             [...t.gold, ...t.blue, ...t.green].map(trimString)
@@ -143,27 +131,114 @@ try {
 // ============================================================
 function initFictoriaUI() {
 
-    // --- 锚点存取 ---
+    // ══════════════════════════════════════════════════════════
+    //  锚点存取（JSON 字符串持久化）
+    // ══════════════════════════════════════════════════════════
+
     function saveHome(unit) {
-        const l = unit.location;
-
-        unit.setDynamicProperty(DP.home, {
-            x: l.x,
-            y: l.y,
-            z: l.z
-        });
-
-        unit.setDynamicProperty(DP.dim, unit.dimension.id);
+        try {
+            const l = unit.location;
+            unit.setDynamicProperty(
+                DP.home,
+                JSON.stringify({ x: l.x, y: l.y, z: l.z })
+            );
+            unit.setDynamicProperty(
+                DP.dim,
+                unit.dimension.id ?? unit.dimension.typeId ?? "minecraft:overworld"
+            );
+        } catch (_) {}
     }
 
-    // --- 2D 方形范围判定 ---
+    function readHome(unit) {
+        try {
+            const raw = unit.getDynamicProperty(DP.home);
+            if (!raw) return null;
+
+            // 新版：JSON 字符串
+            if (typeof raw === "string") {
+                try {
+                    const parsed = JSON.parse(raw);
+                    if (
+                        parsed &&
+                        typeof parsed.x === "number" &&
+                        typeof parsed.y === "number" &&
+                        typeof parsed.z === "number"
+                    ) {
+                        return parsed;
+                    }
+                } catch (_) {}
+            }
+
+            // 兼容旧版：普通对象 / Vector3
+            if (
+                typeof raw === "object" &&
+                typeof raw.x === "number" &&
+                typeof raw.y === "number" &&
+                typeof raw.z === "number"
+            ) {
+                return raw;
+            }
+
+            return null;
+        } catch (_) {
+            return null;
+        }
+    }
+
+    // ══════════════════════════════════════════════════════════
+    //  巡逻 tag 管理
+    // ══════════════════════════════════════════════════════════
+
+    function markPatrol(unit) {
+        try {
+            unit.addTag(PATROL_TAG);
+        } catch (_) {}
+    }
+
+    function unmarkPatrol(unit) {
+        try {
+            unit.removeTag(PATROL_TAG);
+        } catch (_) {}
+    }
+
+    function ensurePatrol(unit) {
+        try {
+            if (!unit || !unit.isValid) return;
+
+            const mode = unit.getDynamicProperty(DP.mode);
+
+            if (mode !== MODE.PATROL) {
+                patrolUnits.delete(unit.id);
+                unmarkPatrol(unit);
+                return;
+            }
+
+            const home = readHome(unit);
+            const dim = unit.getDynamicProperty(DP.dim);
+
+            if (!home || !dim) {
+                saveHome(unit);
+            }
+
+            patrolUnits.add(unit.id);
+            markPatrol(unit);
+        } catch (_) {}
+    }
+
+    // ══════════════════════════════════════════════════════════
+    //  2D 方形范围判定
+    // ══════════════════════════════════════════════════════════
+
     function pointInArea2D(x, z, minX, minZ, maxX, maxZ) {
         return x >= minX && x <= maxX && z >= minZ && z <= maxZ;
     }
 
-    // --- 单次守卫检查 ---
+    // ══════════════════════════════════════════════════════════
+    //  单次守卫检查
+    // ══════════════════════════════════════════════════════════
+
     function guardCheck(unit) {
-        const home = unit.getDynamicProperty(DP.home);
+        const home = readHome(unit);
         const dim = unit.getDynamicProperty(DP.dim);
 
         if (!home || !dim) {
@@ -202,9 +277,90 @@ function initFictoriaUI() {
         }
     }
 
-    // --- 守卫主循环（30 tick）---
+    // ══════════════════════════════════════════════════════════
+    //  重进存档后巡逻恢复
+    // ══════════════════════════════════════════════════════════
+
+    let patrolRehydrated = false;
+
+    function rehydratePatrolUnits() {
+        try {
+            const dims = new Set();
+
+            for (const player of world.getAllPlayers()) {
+                try {
+                    if (player.dimension) {
+                        dims.add(player.dimension);
+                    }
+                } catch (_) {}
+            }
+
+            if (dims.size === 0) {
+                return;
+            }
+
+            for (const dim of dims) {
+                // ── 第一优先：通过 tag 恢复 ──
+                try {
+                    const taggedUnits = dim.getEntities({
+                        tags: [PATROL_TAG]
+                    });
+
+                    for (const unit of taggedUnits) {
+                        ensurePatrol(unit);
+                    }
+                } catch (_) {}
+
+                // ── 第二优先：兼容旧存档，按友方类型扫描 DP.mode ──
+                if (FRIENDLY_TYPES) {
+                    for (const typeId of FRIENDLY_TYPES) {
+                        try {
+                            const units = dim.getEntities({
+                                type: typeId
+                            });
+
+                            for (const unit of units) {
+                                if (!unit || !unit.isValid) continue;
+
+                                const mode = unit.getDynamicProperty(DP.mode);
+
+                                if (mode === MODE.PATROL) {
+                                    ensurePatrol(unit);
+                                }
+                            }
+                        } catch (_) {}
+                    }
+                }
+            }
+
+            patrolRehydrated = true;
+
+            uiLog(
+                `[FictoriaUI] 巡逻恢复完成，` +
+                `当前巡逻单位数: ${patrolUnits.size}`
+            );
+        } catch (_) {}
+    }
+
+    // ══════════════════════════════════════════════════════════
+    //  守卫主循环（30 tick）
+    // ══════════════════════════════════════════════════════════
+
+    let guardCounter = 0;
+
     system.runInterval(() => {
-        if (patrolUnits.size === 0) return;
+        guardCounter++;
+
+        // 如果当前内存里没有巡逻单位，偶尔尝试重建一次
+        if (patrolUnits.size === 0) {
+            if (guardCounter % 10 === 0) {
+                rehydratePatrolUnits();
+            }
+
+            if (patrolUnits.size === 0) {
+                return;
+            }
+        }
 
         for (const id of [...patrolUnits]) {
             const unit = world.getEntity(id);
@@ -214,13 +370,40 @@ function initFictoriaUI() {
                 continue;
             }
 
+            // 如果实体身上的 mode 已经不是 PATROL，就移除
+            try {
+                const mode = unit.getDynamicProperty(DP.mode);
+                if (mode !== MODE.PATROL) {
+                    patrolUnits.delete(id);
+                    unmarkPatrol(unit);
+                    continue;
+                }
+            } catch (_) {}
+
             guardCheck(unit);
         }
     }, CONFIG.checkInterval);
 
-    // ============================================================
-    // 驯服判定
-    // ============================================================
+    // ══════════════════════════════════════════════════════════
+    //  启动后延迟恢复
+    // ══════════════════════════════════════════════════════════
+
+    // 世界刚加载时可能还没有玩家 / 实体，延迟扫描
+    system.runTimeout(() => {
+        rehydratePatrolUnits();
+    }, 100);
+
+    // 如果第一次扫描时玩家还没进来，则继续尝试几次
+    system.runInterval(() => {
+        if (!patrolRehydrated && world.getAllPlayers().length > 0) {
+            rehydratePatrolUnits();
+        }
+    }, 100);
+
+    // ══════════════════════════════════════════════════════════
+    //  驯服判定
+    // ══════════════════════════════════════════════════════════
+
     function isTamed(unit) {
         if (!unit || !unit.isValid) return false;
 
@@ -232,9 +415,10 @@ function initFictoriaUI() {
         );
     }
 
-    // ============================================================
-    // 背包门控工具
-    // ============================================================
+    // ══════════════════════════════════════════════════════════
+    //  背包门控工具
+    // ══════════════════════════════════════════════════════════
+
     function isItemGated(unit) {
         return ITEM_GATED_SET.has(unit.typeId);
     }
@@ -249,12 +433,10 @@ function initFictoriaUI() {
 
         for (let i = 0; i < inv.size; i++) {
             const it = inv.getItem(i);
-
             if (it && it.typeId === CONFIG.maidCommandId) {
                 return true;
             }
         }
-
         return false;
     }
 
@@ -262,14 +444,9 @@ function initFictoriaUI() {
         if (isItemGated(unit)) {
             return inventoryHasCommand(unit);
         }
-
         return hasFollowComponent(unit);
     }
 
-    /**
-     * 放入 1 个 maid_command。
-     * 优化：一次扫描完成“已有检测 + 空槽定位”。
-     */
     function addCommandToInventory(unit) {
         const inv = unit.getComponent("minecraft:inventory")?.container;
         if (!inv) return false;
@@ -278,11 +455,9 @@ function initFictoriaUI() {
 
         for (let i = 0; i < inv.size; i++) {
             const it = inv.getItem(i);
-
             if (it && it.typeId === CONFIG.maidCommandId) {
                 return true;
             }
-
             if (emptySlot === -1 && it === undefined) {
                 emptySlot = i;
             }
@@ -296,10 +471,6 @@ function initFictoriaUI() {
         return false;
     }
 
-    /**
-     * 清空背包里的 maid_command。
-     * 优化：一次扫描完成“是否存在 + 移除”。
-     */
     function removeCommandFromInventory(unit) {
         const inv = unit.getComponent("minecraft:inventory")?.container;
         if (!inv) return false;
@@ -309,7 +480,6 @@ function initFictoriaUI() {
 
         for (let i = 0; i < inv.size; i++) {
             const it = inv.getItem(i);
-
             if (it && it.typeId === CONFIG.maidCommandId) {
                 hasCommand = true;
                 inv.setItem(i, undefined);
@@ -320,20 +490,14 @@ function initFictoriaUI() {
         return removed || !hasCommand;
     }
 
-    // ============================================================
-    // 状态检测
+    // ══════════════════════════════════════════════════════════
+    //  状态检测
     //
-    // ★ 修复核心：
-    //
-    // 非 maid_command 实体不依赖背包物品，
-    // 也不一定依赖 minecraft:behavior.follow_owner 组件。
-    //
-    // 当 UI 已经下达“跟随玩家”指令后，
-    // DP.mode 会被设置成 MODE.FOLLOW。
-    //
-    // 因此对于非 itemGated 实体，
-    // 如果 DP.mode === MODE.FOLLOW，应直接显示“跟随中”。
-    // ============================================================
+    //  ★ 修复：
+    //  打开 UI 时如果 DP.mode 是 PATROL，
+    //  自动补回 patrolUnits，防止退出重进后丢失。
+    // ══════════════════════════════════════════════════════════
+
     function getUnitStatus(unit) {
         if (!unit || !unit.isValid) return MODE.UNKNOWN;
 
@@ -341,27 +505,39 @@ function initFictoriaUI() {
 
         const jsMode = unit.getDynamicProperty(DP.mode);
 
-        // ★ 修复：非 maid_command 实体的跟随状态兜底
         if (!isItemGated(unit) && jsMode === MODE.FOLLOW) {
             return MODE.FOLLOW;
         }
 
-        if (jsMode === MODE.PATROL || patrolUnits.has(unit.id)) return MODE.PATROL;
+        if (jsMode === MODE.PATROL || patrolUnits.has(unit.id)) {
+            // ★ 打开 UI 时自动补回 patrolUnits
+            if (jsMode === MODE.PATROL) {
+                patrolUnits.add(unit.id);
+                markPatrol(unit);
+            }
+            return MODE.PATROL;
+        }
+
         if (jsMode === MODE.RANDOM) return MODE.RANDOM;
 
         return MODE.UNKNOWN;
     }
 
-    // --- JS 层状态落盘 ---
+    // ══════════════════════════════════════════════════════════
+    //  JS 层状态落盘（含 tag 管理）
+    // ══════════════════════════════════════════════════════════
+
     function applyJsState(unit, mode) {
         switch (mode) {
             case MODE.FOLLOW:
                 patrolUnits.delete(unit.id);
+                unmarkPatrol(unit);
                 unit.setDynamicProperty(DP.mode, MODE.FOLLOW);
                 break;
 
             case MODE.RANDOM:
                 patrolUnits.delete(unit.id);
+                unmarkPatrol(unit);
                 unit.setDynamicProperty(DP.mode, MODE.RANDOM);
                 break;
 
@@ -369,6 +545,7 @@ function initFictoriaUI() {
                 saveHome(unit);
                 unit.setDynamicProperty(DP.mode, MODE.PATROL);
                 patrolUnits.add(unit.id);
+                markPatrol(unit);
                 break;
 
             default:
@@ -376,13 +553,15 @@ function initFictoriaUI() {
         }
     }
 
-    // --- 周期互斥同步 ---
+    // ══════════════════════════════════════════════════════════
+    //  周期互斥同步
+    // ══════════════════════════════════════════════════════════
+
     system.runInterval(() => {
         if (patrolUnits.size === 0) return;
 
         for (const id of [...patrolUnits]) {
             const unit = world.getEntity(id);
-
             if (!unit || !unit.isValid) {
                 patrolUnits.delete(id);
                 continue;
@@ -390,18 +569,16 @@ function initFictoriaUI() {
 
             if (isFollowing(unit)) {
                 patrolUnits.delete(unit.id);
+                unmarkPatrol(unit);
                 unit.setDynamicProperty(DP.mode, MODE.FOLLOW);
             }
         }
     }, CONFIG.statusCheckTicks);
 
-    // ============================================================
-    // 全局监听 dataDrivenEntityTrigger
-    //
-    // 优化：
-    // 大量 dm_scores / attack / silent 等事件也会进入这里。
-    // 如果既没有待验证项，也不是 follow/sit 别名，直接短路。
-    // ============================================================
+    // ══════════════════════════════════════════════════════════
+    //  全局监听 dataDrivenEntityTrigger
+    // ══════════════════════════════════════════════════════════
+
     world.afterEvents.dataDrivenEntityTrigger.subscribe(({ entity, eventId }) => {
         if (!entity || !entity.isValid) return;
 
@@ -430,12 +607,14 @@ function initFictoriaUI() {
         // ② 全局互斥同步
         if (FOLLOW_ALIAS_SET.has(eventId)) {
             patrolUnits.delete(entity.id);
+            unmarkPatrol(entity);
             entity.setDynamicProperty(DP.mode, MODE.FOLLOW);
             return;
         }
 
         if (SIT_ALIAS_SET.has(eventId)) {
             patrolUnits.delete(entity.id);
+            unmarkPatrol(entity);
 
             if (entity.getDynamicProperty(DP.mode) === MODE.FOLLOW) {
                 entity.setDynamicProperty(DP.mode, MODE.RANDOM);
@@ -443,9 +622,10 @@ function initFictoriaUI() {
         }
     });
 
-    // ============================================================
-    // 切换指令 + 验证反馈
-    // ============================================================
+    // ══════════════════════════════════════════════════════════
+    //  切换指令 + 验证反馈
+    // ══════════════════════════════════════════════════════════
+
     function waitSitThenPatrol(player, unit, mode) {
         pendingVerify.set(unit.id, {
             eventIds: CONFIG.sitAliases.slice(),
@@ -456,9 +636,7 @@ function initFictoriaUI() {
 
         system.runTimeout(() => {
             const p = pendingVerify.get(unit.id);
-
             if (!p || p.mode !== mode) return;
-
             pendingVerify.delete(unit.id);
 
             player.sendMessage(
@@ -467,14 +645,6 @@ function initFictoriaUI() {
         }, CONFIG.verifyWaitTicks);
     }
 
-    // ============================================================
-    // ★ 新增：
-    // 切换战后可选自动重新打开 UI。
-    //
-    // 默认关闭。
-    // 如果你希望切换后 UI 状态按钮立刻同步，
-    // 把 CONFIG.autoReopenAfterSwitch 改成 true。
-    // ============================================================
     function scheduleStrategyMenuRefresh(player, unit) {
         if (!CONFIG.autoReopenAfterSwitch) return;
 
@@ -509,9 +679,10 @@ function initFictoriaUI() {
             return;
         }
 
-        // ============================================================
-        // 进入巡逻
-        // ============================================================
+        // ══════════════════════════════════════════════════════
+        //  进入巡逻
+        // ══════════════════════════════════════════════════════
+
         if (mode === MODE.PATROL) {
             const wasFollowing = isFollowing(unit);
 
@@ -521,7 +692,6 @@ function initFictoriaUI() {
                         player.sendMessage(`§c指令失败：无法访问该干员背包`);
                         return;
                     }
-
                     waitSitThenPatrol(player, unit, mode);
                 } else {
                     if (!addCommandToInventory(unit)) {
@@ -532,7 +702,6 @@ function initFictoriaUI() {
                     system.runTimeout(() => {
                         try {
                             if (!unit || !unit.isValid) return;
-
                             removeCommandFromInventory(unit);
                             waitSitThenPatrol(player, unit, mode);
                         } catch (_) {}
@@ -547,7 +716,6 @@ function initFictoriaUI() {
                     );
                     return;
                 }
-
                 waitSitThenPatrol(player, unit, mode);
             }
 
@@ -555,13 +723,14 @@ function initFictoriaUI() {
             return;
         }
 
-        // ============================================================
-        // 退出巡逻 / 切跟随 / 切随机
-        // ============================================================
+        // ══════════════════════════════════════════════════════
+        //  退出巡逻 / 切跟随 / 切随机
+        // ══════════════════════════════════════════════════════
+
         patrolUnits.delete(unit.id);
+        unmarkPatrol(unit);
 
         const prevMode = unit.getDynamicProperty(DP.mode);
-
         unit.setDynamicProperty(DP.mode, mode);
 
         if (itemGated) {
@@ -573,7 +742,6 @@ function initFictoriaUI() {
                 player.sendMessage(
                     `§c切换异常：${wantFollow ? "背包已满" : "无法访问背包"}（但已退出巡逻，未卡死）`
                 );
-
                 scheduleStrategyMenuRefresh(player, unit);
                 return;
             }
@@ -606,7 +774,6 @@ function initFictoriaUI() {
             }
 
             player.sendMessage(`§e提示：实体未找到事件 "${eventId}"，但已退出巡逻`);
-
             scheduleStrategyMenuRefresh(player, unit);
             return;
         }
@@ -620,9 +787,7 @@ function initFictoriaUI() {
 
         system.runTimeout(() => {
             const p = pendingVerify.get(unit.id);
-
             if (!p || p.mode !== mode) return;
-
             pendingVerify.delete(unit.id);
 
             player.sendMessage(
@@ -633,20 +798,18 @@ function initFictoriaUI() {
         scheduleStrategyMenuRefresh(player, unit);
     }
 
-    // ============================================================
-    // 战术指令 UI
-    // ============================================================
+    // ══════════════════════════════════════════════════════════
+    //  战术指令 UI
+    // ══════════════════════════════════════════════════════════
+
     function statusText(status) {
         switch (status) {
             case MODE.FOLLOW:
                 return "§a跟随中";
-
             case MODE.RANDOM:
                 return "§e自由活动";
-
             case MODE.PATROL:
                 return "§b巡逻守家中";
-
             default:
                 return "§7未知";
         }
@@ -669,14 +832,6 @@ function initFictoriaUI() {
         form.show(player).then((res) => {
             if (res.canceled) return;
 
-            // ============================================================
-            // ★ 修复：
-            // 原来点击【状态】按钮只发送聊天消息，不会刷新 UI。
-            //
-            // ActionForm 本身无法原地刷新按钮文本。
-            // 现在点击【状态】按钮会重新打开 UI，
-            // 强制读取并显示最新状态。
-            // ============================================================
             if (res.selection === 0) {
                 openStrategyMenu(player, unit);
                 return;
@@ -686,56 +841,62 @@ function initFictoriaUI() {
         }).catch(() => {});
     }
 
-    // --- 友方判定 ---
+    // ══════════════════════════════════════════════════════════
+    //  友方判定
+    // ══════════════════════════════════════════════════════════
+
     function isFriendlyUnit(entity) {
         return FRIENDLY_TYPES !== null && FRIENDLY_TYPES.has(entity.typeId);
     }
 
-    // --- 入口：shift + 左键友方干员 → 弹 UI ---
+    // ══════════════════════════════════════════════════════════
+    //  入口：shift + 左键友方干员 → 弹 UI
+    // ══════════════════════════════════════════════════════════
+
     world.afterEvents.entityHitEntity.subscribe(({ damagingEntity, hitEntity }) => {
         if (damagingEntity.typeId !== "minecraft:player") return;
 
         const player = damagingEntity;
-
         if (!player.isSneaking) return;
         if (!isFriendlyUnit(hitEntity)) return;
         if (CONFIG.requireTamed && !isTamed(hitEntity)) return;
 
         const now = system.currentTick;
-
         if ((uiCooldowns.get(player.id) ?? -Infinity) > now) return;
-
         uiCooldowns.set(player.id, now + CONFIG.uiCooldown);
 
         openStrategyMenu(player, hitEntity);
     });
 
-    // ============================================================
-    // globalThis 桥接：供 fictoria_ball.js 在精灵球放置后恢复状态
-    // ============================================================
+    // ══════════════════════════════════════════════════════════
+    //  globalThis 桥接：供 fictoria_ball.js 在精灵球放置后恢复状态
+    // ══════════════════════════════════════════════════════════
+
     globalThis.FICTORIA_UI_SYNC = {
         resumeState(unit) {
             try {
                 if (!unit || !unit.isValid) return;
 
                 const m = unit.getDynamicProperty(DP.mode);
-                const home = unit.getDynamicProperty(DP.home);
-                const dim = unit.getDynamicProperty(DP.dim);
 
                 uiLog(
                     `[FictoriaUI][桥接] 读取状态 | mode=${m} | ` +
-                    `home=${home ? "有" : "无"} | dim=${dim || "无"}`
+                    `home=${unit.getDynamicProperty(DP.home) ? "有" : "无"} | ` +
+                    `dim=${unit.getDynamicProperty(DP.dim) || "无"}`
                 );
 
                 if (m === MODE.PATROL) {
                     removeCommandFromInventory(unit);
                     saveHome(unit);
                     patrolUnits.add(unit.id);
+                    markPatrol(unit);
                 } else if (m === MODE.FOLLOW) {
                     patrolUnits.delete(unit.id);
+                    unmarkPatrol(unit);
                     addCommandToInventory(unit);
                 } else {
                     patrolUnits.delete(unit.id);
+                    unmarkPatrol(unit);
                     removeCommandFromInventory(unit);
                 }
 
@@ -746,7 +907,7 @@ function initFictoriaUI() {
         }
     };
 
-    console.warn("[FictoriaUI] 战术指挥系统已加载（非背包实体状态同步修复版）");
+    console.warn("[FictoriaUI] 战术指挥系统已加载（巡逻持久化修复版）");
 }
 
 // ============================================================

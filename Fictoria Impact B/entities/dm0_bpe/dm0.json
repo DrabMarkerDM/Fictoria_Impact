@@ -192,6 +192,19 @@
             "max_dist": 40,
             "must_see": false
           }
+          },
+        "minecraft:behavior.owner_hurt_target": {
+          "priority": 2,
+          "entity_types": {
+            "filters": {
+              "test": "is_family",
+              "subject": "other",
+              "operator": "!=",
+              "value": "dm"
+            },
+            "max_dist": 40,
+            "must_see": false
+          }
         },
         "minecraft:behavior.hurt_by_target": {
           "priority": 3,
@@ -316,8 +329,8 @@
         "minecraft:behavior.follow_owner": {
          "priority": 1,
           "speed_multiplier": 1.3,
-          "start_distance": 12,
-          "stop_distance": 3
+          "start_distance": 15,
+          "stop_distance": 5
         },
         "minecraft:sittable": {
         },

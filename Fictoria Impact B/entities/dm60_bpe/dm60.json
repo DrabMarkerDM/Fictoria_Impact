@@ -297,7 +297,7 @@
           "priority": 1,
           "speed_multiplier": 1.2,
           "start_distance": 18,
-          "stop_distance": 4
+          "stop_distance": 5
         }
       },
       "sit": {

@@ -934,7 +934,7 @@
           "priority": 3,
           "speed_multiplier": 1.0,
           "start_distance": 16,
-          "stop_distance": 4
+          "stop_distance": 5
         },
         "minecraft:sittable": {
         },

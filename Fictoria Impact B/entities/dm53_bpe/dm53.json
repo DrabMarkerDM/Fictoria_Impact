@@ -629,8 +629,7 @@
         },
          "queue_command": {
            "command": [
-           "tag @s remove dm_has_target",
-           "say yyy"
+           "tag @s remove dm_has_target"
           ]
         }
       },

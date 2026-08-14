@@ -15113,8 +15113,8 @@
         "minecraft:behavior.follow_owner": {
           "priority": 1,
           "speed_multiplier": 1.2,
-          "start_distance": 12,
-          "stop_distance": 3
+          "start_distance": 14,
+          "stop_distance": 4
         },
         "minecraft:environment_sensor": {
           "triggers": [
