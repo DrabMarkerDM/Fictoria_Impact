@@ -207,6 +207,19 @@
             "max_dist": 36,
             "must_see": false
           }
+          },
+        "minecraft:behavior.owner_hurt_target": {
+          "priority": 2,
+          "entity_types": {
+            "filters": {
+              "test": "is_family",
+              "subject": "other",
+              "operator": "!=",
+              "value": "dm"
+            },
+            "max_dist": 36,
+            "must_see": false
+          }
         },
         "minecraft:behavior.hurt_by_target": {
           "priority": 3,

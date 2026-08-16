@@ -298,7 +298,8 @@
         }
       },
       "follow": {
-        "minecraft:interact": [
+        "minecraft:interact": {
+          "interactions": [
           {
             "on_interact": {
               "filters": {
@@ -318,21 +319,18 @@
               "table": "loot_tables/follow_command.json"
             }
           }
-        ],
+        ]
+      },
         "minecraft:behavior.follow_owner": {
           "priority": 2,
           "speed_multiplier": 1.0,
           "start_distance": 19,
           "stop_distance": 7
-        },
-        "minecraft:sittable": {
-        },
-        "minecraft:behavior.stay_while_sitting": {
-          "priority": 1
         }
       },
       "sit": {
-        "minecraft:interact": [
+        "minecraft:interact": {
+          "interactions": [
           {
             "on_interact": {
               "filters": {
@@ -355,11 +353,7 @@
             "interact_text": "start",
             "use_item": true
           }
-        ],
-        "minecraft:sittable": {
-        },
-        "minecraft:behavior.stay_while_sitting": {
-          "priority": 1
+          ]
         }
       },
       "default": {
@@ -707,8 +701,8 @@
         "queue_command": {
           "command": [
             "scoreboard players add @s dm_skill_timer 1",
-            "execute as @s[scores={dm_skill_timer=30..}] run event entity @s sss",
-            "execute as @s[scores={dm_skill_timer=30..}] run scoreboard players set @s dm_skill_timer 0"
+            "event entity @s[scores={dm_skill_timer=30..}] sss",
+            "scoreboard players set @s[scores={dm_skill_timer=30..}] dm_skill_timer 0"
           ]
         }
         },
@@ -716,8 +710,8 @@
         "queue_command": {
           "command": [
             "scoreboard players add @s dm_skill_timer_1 1",
-            "execute as @s[scores={dm_skill_timer_1=8..}] run event entity @s back",
-            "execute as @s[scores={dm_skill_timer_1=8..}] run scoreboard players set @s dm_skill_timer_1 0"
+            "event entity @s[scores={dm_skill_timer_1=8..}] back",
+            "scoreboard players set @s[scores={dm_skill_timer_1=8..}] dm_skill_timer_1 0"
           ]
         }
       },

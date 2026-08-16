@@ -171,6 +171,11 @@
           "soft_distance": 4.5,
           "hard_distance": 6.0,
           "max_distance": 42.0
+          },
+        "minecraft:sittable": {
+        },
+        "minecraft:behavior.stay_while_sitting": {
+          "priority": 1
         },
         "minecraft:behavior.tempt": {
           "priority": 0,
@@ -331,11 +336,6 @@
           "speed_multiplier": 1.3,
           "start_distance": 15,
           "stop_distance": 5
-        },
-        "minecraft:sittable": {
-        },
-        "minecraft:behavior.stay_while_sitting": {
-          "priority": 1
         }
       },
       "sit": {
@@ -364,11 +364,6 @@
             "use_item": true
             }
           ]
-        },
-        "minecraft:sittable": {
-        },
-        "minecraft:behavior.stay_while_sitting": {
-          "priority": 1
         }
       },
       "sss": {
@@ -926,8 +921,8 @@
         "queue_command": {
           "command": [
             "scoreboard players add @s dm_skill_timer_1 1",
-            "execute as @s[scores={dm_skill_timer_1=10..}] run event entity @s back",
-            "execute as @s[scores={dm_skill_timer_1=10..}] run scoreboard players set @s dm_skill_timer_1 0"
+            "event entity @s[scores={dm_skill_timer_1=10..}] back",
+            "scoreboard players set @s[scores={dm_skill_timer_1=10..}] dm_skill_timer_1 0"
           ]
         }
           },
@@ -935,8 +930,8 @@
         "queue_command": {
           "command": [
             "scoreboard players add @s dm_skill_timer_6 1",
-            "execute as @s[scores={dm_skill_timer_6=10..}] run event entity @s buff",
-            "execute as @s[scores={dm_skill_timer_6=10..}] run scoreboard players set @s dm_skill_timer_6 0"
+            "event entity @s[scores={dm_skill_timer_6=10..}] buff",
+            "scoreboard players set @s[scores={dm_skill_timer_6=10..}] dm_skill_timer_6 0"
           ]
         }
          },

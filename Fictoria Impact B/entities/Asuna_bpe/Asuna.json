@@ -182,6 +182,14 @@
 	   "value": 29,
 	   "max": 29
 	},
+        "minecraft:behavior.tempt": {
+          "priority": 0,
+          "speed_multiplier": 1.3,
+          "within_radius": 18.0,
+          "items": [
+            "item:follow_command"
+          ]
+        },
         "minecraft:leashable": {
           "soft_distance": 4.5,
           "hard_distance": 6.0,
@@ -204,6 +212,19 @@
           "max_dist": 35,
           "must_see": false
         }
+        },
+        "minecraft:behavior.owner_hurt_target": {
+          "priority": 2,
+          "entity_types": {
+            "filters": {
+              "test": "is_family",
+              "subject": "other",
+              "operator": "!=",
+              "value": "dm"
+            },
+            "max_dist": 35,
+            "must_see": false
+          }
         },
       "minecraft:behavior.hurt_by_target": {
         "priority": 3,
@@ -246,6 +267,65 @@
         },
         "minecraft:follow_range": {
           "value": 45
+        }
+        },
+      "follow": {
+       "minecraft:interact": {
+          "interactions": [
+            {
+             "on_interact": {
+              "filters": {
+                "all_of": [
+                  {
+                    "test": "is_sneaking",
+                    "subject": "player"
+                  }
+                ]
+              },
+              "event": "sit",
+              "target": "self"
+            },
+            "interact_text": "stop",
+            "use_item": false,
+            "spawn_items": {
+              "table": "loot_tables/follow_command.json"
+              }
+            }
+          ]
+        },
+        "minecraft:behavior.follow_owner": {
+         "priority": 1,
+          "speed_multiplier": 1.3,
+          "start_distance": 15,
+          "stop_distance": 5
+        }
+      },
+      "sit": {
+        "minecraft:interact": {
+          "interactions": [
+            {
+              "on_interact": {
+              "filters": {
+                "all_of": [
+                  {
+                    "test": "is_family",
+                    "subject": "other",
+                    "value": "player"
+                  },
+                  {
+                    "test": "has_equipment",
+                    "subject": "other",
+                    "domain": "hand",
+                    "value": "item:follow_command"
+                  }
+                ]
+              },
+              "event": "follow"
+            },
+            "interact_text": "start",
+            "use_item": true
+            }
+          ]
         }
      },
       "sensor": {
@@ -579,7 +659,8 @@
           "add": {
             "component_groups": [
               "on_ta",
-              "sensor"
+              "sensor",
+              "sit"
             ]
           }
          },
@@ -691,6 +772,30 @@
         "set_property": {
           "dm:clock_time_1": "off"
         }
+        },
+      "sit": {
+        "add": {
+          "component_groups": [
+            "sit"
+          ]
+        },
+        "remove": {
+          "component_groups": [
+            "follow"
+          ]
+        }
+      },
+      "follow": {
+        "add": {
+          "component_groups": [
+            "follow"
+          ]
+        },
+        "remove": {
+          "component_groups": [
+            "sit"
+          ]
+        }
        },
       "air": {
           "remove": {
@@ -714,8 +819,8 @@
         "queue_command": {
           "command": [
             "scoreboard players add @s dm_skill_timer 1",
-            "execute as @s[scores={dm_skill_timer=20..}] run event entity @s sss",
-            "execute as @s[scores={dm_skill_timer=20..}] run scoreboard players set @s dm_skill_timer 0"
+            "event entity @s[scores={dm_skill_timer=20..}] sss",
+            "scoreboard players set @s[scores={dm_skill_timer=20..}] dm_skill_timer 0"
           ]
         }
         },
@@ -723,8 +828,8 @@
         "queue_command": {
           "command": [
             "scoreboard players add @s dm_skill_timer_1 1",
-            "execute as @s[scores={dm_skill_timer_1=25..}] run event entity @s back",
-            "execute as @s[scores={dm_skill_timer_1=25..}] run scoreboard players set @s dm_skill_timer_1 0"
+            "event entity @s[scores={dm_skill_timer_1=25..}] back",
+            "scoreboard players set @s[scores={dm_skill_timer_1=25..}] dm_skill_timer_1 0"
           ]
         }
         },

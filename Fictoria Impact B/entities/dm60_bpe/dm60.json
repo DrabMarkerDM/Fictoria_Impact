@@ -326,11 +326,6 @@
             "use_item": true
           }
           ]
-        },
-        "minecraft:sittable": {
-        },
-        "minecraft:behavior.stay_while_sitting": {
-          "priority": 1
         }
       },
       "air": {
@@ -372,6 +367,10 @@
           "soft_distance": 4.5,
           "hard_distance": 6.0,
           "max_distance": 42.0
+          },
+        "minecraft:sittable": {},
+        "minecraft:behavior.stay_while_sitting": {
+          "priority": 1
         },
         "minecraft:behavior.tempt": {
           "priority": 0,
@@ -749,8 +748,8 @@
         "queue_command": {
           "command": [
             "scoreboard players add @s dm_skill_timer 1",
-            "execute as @s[scores={dm_skill_timer=21..}] run event entity @s sss",
-            "execute as @s[scores={dm_skill_timer=21..}] run scoreboard players set @s dm_skill_timer 0"
+            "event entity @s[scores={dm_skill_timer=21..}] sss",
+            "scoreboard players set @s[scores={dm_skill_timer=21..}] dm_skill_timer 0"
           ]
         }
       },
@@ -771,7 +770,7 @@
           "command": [
             "scoreboard players add @s dm_skill_timer_3 1",
             "scoreboard players add @s dm_skill_timer 1",
-            "execute as @s[scores={dm_skill_timer=21..}] run event entity @s sss",
+            "event entity @s[scores={dm_skill_timer=21..}] sss",
             "effect @s speed 3 1 true"
           ]
         }
@@ -924,7 +923,7 @@
             "scoreboard players add @s dm_skill_timer_7 1",
             "execute as @s[scores={dm_skill_timer_7=5..}] run scoreboard players remove @s dm_skill_timer_6 5",
             "execute as @s[scores={dm_skill_timer_7=5..}] run effect @s strength 6 0 true",
-            "execute as @s[scores={dm_skill_timer_7=5..}] run scoreboard players set @s dm_skill_timer_7 0",
+            "scoreboard players set @s[scores={dm_skill_timer_7=5..}] dm_skill_timer_7 0",
             "tag @s add dm_skill_on",
             "tag @s remove dm_has_target"
           ]
@@ -1020,7 +1019,7 @@
             "execute as @s[scores={dm_skill_timer_3=6..}] run effect @s absorption 3 3 true",
             "execute as @s[scores={dm_skill_timer_3=6..}] run scoreboard players add @s dm_skill_timer_1 1",
             "execute as @s[scores={dm_skill_timer_3=6..}] run scoreboard players remove @s dm_skill_timer_2 1",
-            "execute as @s[scores={dm_skill_timer_3=6..}] run scoreboard players set @s dm_skill_timer_3 0"
+            "scoreboard players set @s[scores={dm_skill_timer_3=6..}] dm_skill_timer_3 0"
           ]
         }
       },

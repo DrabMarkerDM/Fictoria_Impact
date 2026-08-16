@@ -1,0 +1,25 @@
+{
+	"format_version": "1.8.0",
+	"animations": {
+		"animation.dm.standing": {
+			"loop": true,
+			"bones": {
+				"body": {
+					"rotation": ["-2.5 - this", "0 - this", "0 - this"]
+				},
+				"leftArm": {
+					"rotation": ["21.5735 - this", "-19.057 - this", "20.2084 - this"]
+				},
+				"rightArm": {
+					"rotation": ["21.0051 - this", "18.7475 - this", "-23.8586 - this"]
+				},
+				"leftLeg": {
+					"rotation": ["2.5 - this", "0 - this", "-10 - this"]
+				},
+				"rightLeg": {
+					"rotation": ["5 - this", "0 - this", "7.5 - this"]
+				}
+			}
+		}
+	}
+}

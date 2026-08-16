@@ -19,65 +19,72 @@
         "ect": "controller.animation.ect_5",
         "sss": "controller.animation.dm45sss",
         "equip": "controller.animation.dm_equip"
-     },
+      },
       "properties": {
-        "dm:clock_time_1": {  "type": "enum",
-          "values": [ "def", "on", "off" ],
+        "dm:clock_time_1": {
+          "type": "enum",
+          "values": [
+            "def",
+            "on",
+            "off"
+          ],
           "default": "def",
           "client_sync": true
         }
       }
-  },
+    },
     "component_groups": {
-     "sword":{
-      "minecraft:variant": {
+      "sword": {
+        "minecraft:variant": {
           "value": 0
-      },
-      "minecraft:equipment": {
-        "table": "loot_tables/dm45.json"
-      },
-    "minecraft:behavior.ranged_attack": {
+        },
+        "minecraft:equipment": {
+          "table": "loot_tables/dm45.json"
+        },
+        "minecraft:behavior.ranged_attack": {
           "priority": 3,
-        "speed_multiplier": 0.9,
+          "speed_multiplier": 0.9,
           "attack_interval_min": 0.7,
           "attack_interval_max": 0.9,
           "burst_shots": 20,
-          "burst_interval": 0.8,              "charge_charged_trigger": 0.0,
-        "charge_shoot_trigger": 0.1,
+          "burst_interval": 0.8,
+          "charge_charged_trigger": 0.0,
+          "charge_shoot_trigger": 0.1,
           "attack_radius": 40
-      },
+        },
         "minecraft:shooter": {
           "def": "bullet:lightball_1"
         }
-     },
-      "run":{
-      "minecraft:behavior.panic": {
-        "priority": 1,
-        "speed_multiplier": 1.8
-      }
-     },
-    "bow":{
-       "minecraft:variant": {
-          "value": 0
       },
+      "run": {
+        "minecraft:behavior.panic": {
+          "priority": 1,
+          "speed_multiplier": 1.8
+        }
+      },
+      "bow": {
+        "minecraft:variant": {
+          "value": 0
+        },
         "minecraft:behavior.ranged_attack": {
           "priority": 2,
-        "speed_multiplier": 0.92,
+          "speed_multiplier": 0.92,
           "attack_interval_min": 1.3,
           "attack_interval_max": 1.5,
           "burst_shots": 20,
-          "burst_interval": 1.4,              "charge_charged_trigger": 0.0,
-        "charge_shoot_trigger": 0.8,
+          "burst_interval": 1.4,
+          "charge_charged_trigger": 0.0,
+          "charge_shoot_trigger": 0.8,
           "attack_radius": 40
         },
-      "minecraft:equipment": {
-        "table": "loot_tables/dm45.json"
-      },
+        "minecraft:equipment": {
+          "table": "loot_tables/dm45.json"
+        },
         "minecraft:shooter": {
           "def": "bullet:lightball"
         }
-        },
-            "ta": {
+      },
+      "ta": {
         "minecraft:tameable": {
           "probability": 1.0,
           "tame_items": [
@@ -87,73 +94,92 @@
             "event": "on_tame",
             "target": "self"
           }
-      },
-      "minecraft:behavior.panic": {
-        "priority": 1,
-        "speed_multiplier": 1.4
-      },
-      "minecraft:behavior.avoid_mob_type": {
-        "priority": 3,
-        "entity_types": [
-          {
-            "filters": {
-              "test": "is_family",
-              "subject": "other",
-              "value": "monster"
-            },
-            "max_dist": 26,
-            "walk_speed_multiplier": 1.2,
-            "sprint_speed_multiplier": 1.4
-          }
-        ]
-      } 
+        },
+        "minecraft:behavior.panic": {
+          "priority": 1,
+          "speed_multiplier": 1.4
+        },
+        "minecraft:behavior.avoid_mob_type": {
+          "priority": 3,
+          "entity_types": [
+            {
+              "filters": {
+                "test": "is_family",
+                "subject": "other",
+                "value": "monster"
+              },
+              "max_dist": 26,
+              "walk_speed_multiplier": 1.2,
+              "sprint_speed_multiplier": 1.4
+            }
+          ]
+        }
       },
       "on_ta": {
-        "minecraft:is_tamed": {
+        "minecraft:is_tamed": {},
+        "minecraft:health": {
+          "value": 28,
+          "max": 28
         },
-	"minecraft:health": {
-	   "value": 28,
-	   "max": 28
-	},
-	 "minecraft:equipment": {
-     "table": "loot_tables/dm45.json"
-	},
+        "minecraft:equipment": {
+          "table": "loot_tables/dm45.json"
+        },
+        "minecraft:behavior.tempt": {
+          "priority": 0,
+          "speed_multiplier": 1.3,
+          "within_radius": 18.0,
+          "items": [
+            "item:follow_command"
+          ]
+        },
         "minecraft:leashable": {
           "soft_distance": 4.5,
           "hard_distance": 6.0,
           "max_distance": 39.0
         },
-        "minecraft:sittable": {
-        },
+        "minecraft:sittable": {},
         "minecraft:behavior.stay_while_sitting": {
           "priority": 1
-      },
+        },
         "minecraft:behavior.owner_hurt_by_target": {
           "priority": 1,
           "entity_types": {
-          "filters": {
-            "test": "is_family",
-            "subject": "other",
-            "operator": "!=",
-            "value": "dm"
+            "filters": {
+              "test": "is_family",
+              "subject": "other",
+              "operator": "!=",
+              "value": "dm"
+            },
+            "max_dist": 48,
+            "must_see": false
+          }
           },
-          "max_dist": 48,
-          "must_see": false
-        }
+        "minecraft:behavior.owner_hurt_target": {
+          "priority": 2,
+          "entity_types": {
+            "filters": {
+              "test": "is_family",
+              "subject": "other",
+              "operator": "!=",
+              "value": "dm"
+            },
+            "max_dist": 48,
+            "must_see": false
+          }
         },
-      "minecraft:behavior.hurt_by_target": {
-        "priority": 3,
-        "entity_types": {
-          "filters": {
-            "test": "is_family",
-            "subject": "other",
-            "operator": "!=",
-            "value": "dm"
-          },
-          "max_dist": 48
-        }
+        "minecraft:behavior.hurt_by_target": {
+          "priority": 3,
+          "entity_types": {
+            "filters": {
+              "test": "is_family",
+              "subject": "other",
+              "operator": "!=",
+              "value": "dm"
+            },
+            "max_dist": 48
+          }
         },
-      "minecraft:behavior.nearest_attackable_target": {
+        "minecraft:behavior.nearest_attackable_target": {
           "priority": 4,
           "must_see": true,
           "reselect_targets": true,
@@ -165,7 +191,7 @@
                     "test": "is_family",
                     "subject": "other",
                     "value": "monster"
-                    },
+                  },
                   {
                     "test": "is_family",
                     "subject": "other",
@@ -173,15 +199,74 @@
                   }
                 ]
               },
-          "max_dist": 48,
-          "must_see_forget_duration": 8.0,
-          "walk_speed_multiplier": 0.9,
-          "sprint_speed_multiplier": 1.0
+              "max_dist": 48,
+              "must_see_forget_duration": 8.0,
+              "walk_speed_multiplier": 0.9,
+              "sprint_speed_multiplier": 1.0
             }
           ]
         },
         "minecraft:follow_range": {
           "value": 48
+        }
+      },
+      "follow": {
+        "minecraft:interact": {
+          "interactions": [
+            {
+              "on_interact": {
+                "filters": {
+                  "all_of": [
+                    {
+                      "test": "is_sneaking",
+                      "subject": "player"
+                    }
+                  ]
+                },
+                "event": "sit",
+                "target": "self"
+              },
+              "interact_text": "stop",
+              "use_item": false,
+              "spawn_items": {
+                "table": "loot_tables/follow_command.json"
+              }
+            }
+          ]
+        },
+        "minecraft:behavior.follow_owner": {
+          "priority": 1,
+          "speed_multiplier": 1.3,
+          "start_distance": 15,
+          "stop_distance": 5
+        }
+      },
+      "sit": {
+        "minecraft:interact": {
+          "interactions": [
+            {
+              "on_interact": {
+                "filters": {
+                  "all_of": [
+                    {
+                      "test": "is_family",
+                      "subject": "other",
+                      "value": "player"
+                    },
+                    {
+                      "test": "has_equipment",
+                      "subject": "other",
+                      "domain": "hand",
+                      "value": "item:follow_command"
+                    }
+                  ]
+                },
+                "event": "follow"
+              },
+              "interact_text": "start",
+              "use_item": true
+            }
+          ]
         }
       },
       "sensor": {
@@ -307,7 +392,7 @@
         "minecraft:variant": {
           "value": 1
         },
-         "minecraft:spell_effects": {
+        "minecraft:spell_effects": {
           "add_effects": [
             {
               "effect": "absorption",
@@ -317,7 +402,7 @@
               "duration": 5
             }
           ]
-		  }
+        }
       },
       "back": {
         "minecraft:variant": {
@@ -331,20 +416,19 @@
         "minecraft:variant": {
           "value": 0
         }
-     },
-     "equip": {
-     "minecraft:mark_variant": {
+      },
+      "equip": {
+        "minecraft:mark_variant": {
           "value": 1
-           },
-        "minecraft:is_charged": {
-          },
+        },
+        "minecraft:is_charged": {},
         "minecraft:variant": {
           "value": 0
-     },
-      "minecraft:equipment": {
-        "table": "loot_tables/dm45.json"
-    }
-     },
+        },
+        "minecraft:equipment": {
+          "table": "loot_tables/dm45.json"
+        }
+      },
       "attack_reset": {
         "minecraft:timer": {
           "looping": true,
@@ -354,7 +438,7 @@
             "event": "attack_reset"
           }
         }
-        },
+      },
       "s_time": {
         "minecraft:timer": {
           "looping": false,
@@ -469,7 +553,10 @@
     },
     "components": {
       "minecraft:type_family": {
-        "family": [ "player", "dm" ]
+        "family": [
+          "player",
+          "dm"
+        ]
       },
       "minecraft:collision_box": {
         "width": 0.6,
@@ -478,21 +565,21 @@
       "minecraft:health": {
         "value": 20,
         "max": 20
-  },
-  "minecraft:behavior.avoid_block": {
-  "priority": 5,           
-  "search_range": 1,       
-  "search_height": 0,      
-  "target_blocks": [
-    "minecraft:fire",
-    "minecraft:soul_fire",
-    "minecraft:magma",
-    "minecraft:sweet_berry_bush",
-    "minecraft:lava"
-  ],
-  "target_selection_method": "nearest",
-  "walk_speed_modifier": 1.0, 
-  "sprint_speed_modifier": 1.0
+      },
+      "minecraft:behavior.avoid_block": {
+        "priority": 5,
+        "search_range": 1,
+        "search_height": 0,
+        "target_blocks": [
+          "minecraft:fire",
+          "minecraft:soul_fire",
+          "minecraft:magma",
+          "minecraft:sweet_berry_bush",
+          "minecraft:lava"
+        ],
+        "target_selection_method": "nearest",
+        "walk_speed_modifier": 1.0,
+        "sprint_speed_modifier": 1.0
       },
       "minecraft:behavior.sleep": {
         "priority": 5,
@@ -517,8 +604,7 @@
           }
         ]
       },
-      "minecraft:can_climb": {
-      },
+      "minecraft:can_climb": {},
       "minecraft:movement": {
         "value": 0.33
       },
@@ -528,8 +614,7 @@
       "minecraft:attack": {
         "damage": 2
       },
-      "minecraft:annotation.open_door": {
-      },
+      "minecraft:annotation.open_door": {},
       "minecraft:navigation.walk": {
         "can_path_over_water": true,
         "can_pass_doors": true,
@@ -538,12 +623,9 @@
         "avoid_water": true,
         "avoid_damage_blocks": true
       },
-      "minecraft:behavior.open_door": {
-      },
-      "minecraft:movement.basic": {
-      },
-      "minecraft:jump.static": {
-      },
+      "minecraft:behavior.open_door": {},
+      "minecraft:movement.basic": {},
+      "minecraft:jump.static": {},
       "minecraft:inventory": {
         "inventory_size": 30,
         "private": true
@@ -611,8 +693,7 @@
       "minecraft:behavior.random_look_around": {
         "priority": 7
       },
-      "minecraft:physics": {
-      },
+      "minecraft:physics": {},
       "minecraft:scaffolding_climber": {}
     },
     "events": {
@@ -632,7 +713,32 @@
         "add": {
           "component_groups": [
             "on_ta",
-            "sensor"
+            "sensor",
+            "sit"
+          ]
+        }
+        },
+      "sit": {
+        "add": {
+          "component_groups": [
+            "sit"
+          ]
+        },
+        "remove": {
+          "component_groups": [
+            "follow"
+          ]
+        }
+      },
+      "follow": {
+        "add": {
+          "component_groups": [
+            "follow"
+          ]
+        },
+        "remove": {
+          "component_groups": [
+            "sit"
           ]
         }
       },
@@ -669,12 +775,12 @@
         "remove": {
           "component_groups": [
             "att"
-        ]
+          ]
         },
-         "queue_command": {
-           "command": [
-           "summon mob:dm45roar ~~~",
-           "spreadplayers ~~ 1 5 @s"
+        "queue_command": {
+          "command": [
+            "summon mob:dm45roar ~~~",
+            "spreadplayers ~~ 1 5 @s"
           ]
         }
       },
@@ -697,13 +803,13 @@
             "sss"
           ]
         },
-         "queue_command": {
-           "command": [
-           "tag @s add dm_skill_on",
+        "queue_command": {
+          "command": [
+            "tag @s add dm_skill_on",
             "tag @s remove dm_has_target",
-             "playsound sss @a[r=33] ~~~ 1.6 1.0"
+            "playsound sss @a[r=33] ~~~ 1.6 1.0"
           ]
-           },
+        },
         "set_property": {
           "dm:clock_time_1": "on"
         }
@@ -722,30 +828,30 @@
             "equip"
           ]
         },
-         "queue_command": {
-           "command": [
-           "tag @s remove dm_skill_on"
-           ]
-           },
+        "queue_command": {
+          "command": [
+            "tag @s remove dm_skill_on"
+          ]
+        },
         "set_property": {
           "dm:clock_time_1": "off"
         }
-         },
+      },
       "dm_scores": {
         "queue_command": {
           "command": [
             "scoreboard players add @s dm_skill_timer 1",
-            "execute as @s[scores={dm_skill_timer=20..}] run event entity @s sss",
-            "execute as @s[scores={dm_skill_timer=20..}] run scoreboard players set @s dm_skill_timer 0"
+            "event entity @s[scores={dm_skill_timer=20..}] sss",
+            "scoreboard players set @s[scores={dm_skill_timer=20..}] dm_skill_timer 0"
           ]
         }
-        },
+      },
       "dm_scores_1": {
         "queue_command": {
           "command": [
             "scoreboard players add @s dm_skill_timer_1 1",
-            "execute as @s[scores={dm_skill_timer_1=10..}] run event entity @s back",
-            "execute as @s[scores={dm_skill_timer_1=10..}] run scoreboard players set @s dm_skill_timer_1 0"
+            "event entity @s[scores={dm_skill_timer_1=10..}] back",
+            "scoreboard players set @s[scores={dm_skill_timer_1=10..}] dm_skill_timer_1 0"
           ]
         }
       },
@@ -755,52 +861,52 @@
             "equip",
             "s_time",
             "attack_reset"
-         ]
+          ]
         },
-         "queue_command": {
-           "command": [
-           "tag @s add dm_has_target"
+        "queue_command": {
+          "command": [
+            "tag @s add dm_has_target"
           ]
         }
-           },
+      },
       "attack_reset": {
-      "remove": {
+        "remove": {
           "component_groups": [
             "attack_reset"
-             ]
+          ]
         },
         "add": {
           "component_groups": [
             "s_time"
-             ]
+          ]
         },
-         "queue_command": {
-           "command": [
-           "tag @s remove dm_has_target"
+        "queue_command": {
+          "command": [
+            "tag @s remove dm_has_target"
           ]
         }
-         },
+      },
       "silent": {
         "add": {
           "component_groups": [
             "attack_reset"
-           ]
+          ]
         },
         "remove": {
           "component_groups": [
             "equip"
           ]
         }
-        },
+      },
       "air": {
-       "queue_command": {
-        "command": [
-        "replaceitem entity @s slot.weapon.mainhand 1 air"
-         ]
-          },
-           "add": {
+        "queue_command": {
+          "command": [
+            "replaceitem entity @s slot.weapon.mainhand 1 air"
+          ]
+        },
+        "add": {
           "component_groups": [
-             "sensor"
+            "sensor"
           ]
         }
       }

@@ -15,7 +15,7 @@
 						}
 					],
 "on_entry": ["/replaceitem entity @s slot.weapon.mainhand 1 air",
-"/execute as @s run scoreboard players set @s dm46att 0"
+"/scoreboard players set @s dm46att 0"
 ]
 }
 }

@@ -22,6 +22,7 @@
       },
       "animations": {
         "root": "controller.animation.player.root",
+        "sitting": "animation.dm.standing",
         "humanoid_big_head": "animation.humanoid.big_head",
         "humanoid_base_pose": "animation.humanoid.base_pose",
         "look_at_target_default": "animation.humanoid.look_at_target.default",
@@ -31,6 +32,7 @@
         "look_at_target_gliding": "animation.humanoid.look_at_target.gliding",
         "look_at_target_swimming": "animation.humanoid.look_at_target.swimming",
         "riding": "animation.dm.riding",
+  
         "holding": "animation.humanoid.holding",
         "move": "animation.humanoid.move",
         "attack.rotations": "animation.humanoid.att.rotations",
@@ -49,6 +51,7 @@
         { "charging": "controller.animation.humanoid.charging" },
         { "holding": "controller.animation.humanoid.holding" },
       { "riding": "controller.animation.dm_riding" },
+      { "sitting": "controller.animation.player.sit" },
         { "attack": "controller.animation.att" },
         { "bow_and_arrow": "controller.animation.Kirito.ranged_att" },
         { "damage_nearby_mobs": "controller.animation.humanoid.damage_nearby_mobs" },

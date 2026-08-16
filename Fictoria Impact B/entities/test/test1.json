@@ -802,8 +802,8 @@
         "queue_command": {
           "command": [
             "scoreboard players add @s dm_skill_timer 1",
-            "execute as @s[scores={dm_skill_timer=10..}] run event entity @s sss",
-            "execute as @s[scores={dm_skill_timer=10..}] run scoreboard players set @s dm_skill_timer 0"
+            "event entity @s[scores={dm_skill_timer=10..}] sss",
+            "scoreboard players set @s[scores={dm_skill_timer=10..}] dm_skill_timer 0"
           ]
         }
          },
@@ -811,8 +811,8 @@
         "queue_command": {
           "command": [
             "scoreboard players add @s dm_skill_timer_1 1",
-            "execute as @s[scores={dm_skill_timer_1=5..}] run event entity @s sss_1",
-            "execute as @s[scores={dm_skill_timer_1=5..}] run scoreboard players set @s dm_skill_timer_1 0"
+            "event entity @s[scores={dm_skill_timer_1=5..}] sss_1",
+            "scoreboard players set @s[scores={dm_skill_timer_1=5..}] dm_skill_timer_1 0"
           ]
         }
          },
@@ -820,8 +820,8 @@
         "queue_command": {
           "command": [
             "scoreboard players add @s dm_skill_timer_2 1",
-            "execute as @s[scores={dm_skill_timer_2=5..}] run event entity @s back_1",
-            "execute as @s[scores={dm_skill_timer_2=5..}] run scoreboard players set @s dm_skill_timer_2 0"
+            "event entity @s[scores={dm_skill_timer_2=5..}] back_1",
+            "scoreboard players set @s[scores={dm_skill_timer_2=5..}] dm_skill_timer_2 0"
           ]
         }
       },

@@ -20,7 +20,7 @@ function getDistSq(a, b) {
 
 // ============================================================
 // 攻击者溯源：
-// Boss近战AOE以“友方位置生成弹射物”实现时，
+// Boss近战AOE以"友方位置生成弹射物"实现时，
 // 把弹射物伤害归因给真正施法者（owner → 最近怪物），
 // 防止污染 EWMA 威胁参照 / 决斗识别。
 // ============================================================
@@ -63,7 +63,6 @@ function resolveRealAttacker(attacker, victim) {
 
         for (const e of nearby) {
             if (!e.isValid) continue;
-
             const d = getDistSq(e.location, victim.location);
             if (d < minD) {
                 minD = d;
@@ -106,27 +105,32 @@ try {
 } catch (_) {}
 
 /**
- * Fictoria_Impact 近战走位动力学引擎 v2.26 性能优化版
- *
- * 保持原逻辑：
- * - EWMA 威胁目标
- * - 缓冲层栅栏
- * - 真实受击佐证
- * - 统一周期引擎
- * - 格挡机制
- * - 冲刺 / 稳健后撤
- * - 卡墙 / 卡死恢复
- *
- * 主要性能优化：
- * - 血量采样改内存 Map
- * - 复用 HP 信息
- * - 复用观测净斜率
- * - 实体移除清理缓存
- * - 格挡后实体操作延后到 system.run
- * - 高频日志可关闭
- */
-export class MovementMelee {
+Fictoria_Impact 近战走位动力学引擎 v2.27 稳健地形安全版
 
+保持原逻辑：
+EWMA 威胁目标
+缓冲层栅栏
+真实受击佐证
+统一周期引擎
+格挡机制
+冲刺 / 稳健后撤
+卡墙 / 卡死恢复
+
+★ 新增：稳健模式地形安全偏转
+- 悬崖 / 坑 / 岩浆 / 墙检测
+- 检测到危险时沿边缘切线方向滑动，不彻底掐断后撤
+- 只对 balanced phase 1 / phase 2 生效，冲刺不受影响
+- aggressive 模式完全不动
+
+主要性能优化：
+血量采样改内存 Map
+复用 HP 信息
+复用观测净斜率
+实体移除清理缓存
+格挡后实体操作延后到 system.run
+高频日志可关闭
+*/
+export class MovementMelee {
     // ══════════════════════════════════════════════════
     //  生命值工具函数
     // ══════════════════════════════════════════════════
@@ -142,7 +146,6 @@ export class MovementMelee {
         } catch (_) {}
 
         let extraHp = 0;
-
         try {
             const healthBoostEffect = unit.getEffect("health_boost");
             if (healthBoostEffect) {
@@ -238,14 +241,11 @@ export class MovementMelee {
             }
 
             const deltas = [];
-
             for (let i = 1; i < samples.length; i++) {
                 const dt = samples[i].t - samples[i - 1].t;
-
                 if (dt <= 0 || dt > 40) continue;
 
                 const perSec = (samples[i].h - samples[i - 1].h) / (dt / 20);
-
                 if (Math.abs(perSec) > 200) continue;
 
                 deltas.push(perSec);
@@ -254,7 +254,6 @@ export class MovementMelee {
             if (deltas.length < 3) return null;
 
             deltas.sort((a, b) => a - b);
-
             return deltas[Math.floor(deltas.length / 2)];
         } catch (_) {
             return null;
@@ -288,7 +287,6 @@ export class MovementMelee {
                     peakCount: 0,
                     attackerDamage: new Map()
                 };
-
                 MeleeCycleCache.set(victimId, p);
             }
 
@@ -297,7 +295,6 @@ export class MovementMelee {
             // 攻击者 EWMA 威胁分数
             try {
                 let ad = p.attackerDamage.get(attackerId);
-
                 if (!ad) {
                     ad = {
                         score: 0,
@@ -336,11 +333,9 @@ export class MovementMelee {
             // 原始单发伤害 EMA
             try {
                 const lastRawTick = p.rawSingleTick ?? 0;
-
                 p.rawSingleEma = (nowTick - lastRawTick > 60)
                     ? rawDamage
                     : Math.max(p.rawSingleEma ?? 0, rawDamage);
-
                 p.rawSingleTick = nowTick;
             } catch (_) {}
         } catch (_) {}
@@ -355,15 +350,12 @@ export class MovementMelee {
 
             for (const [id, rec] of pattern.attackerDamage) {
                 if (nowTick - rec.tick > 60) continue;
-
                 const sc = rec.score ?? 0;
                 total += sc;
-
                 if (sc > top) top = sc;
             }
 
             if (total <= 0) return true;
-
             return top / total >= 0.70;
         } catch (_) {
             return true;
@@ -393,7 +385,6 @@ export class MovementMelee {
             for (const log of history) {
                 if (nowTick - log.tick <= 10 && log.amount > 0.5) {
                     windowSum += log.amount;
-
                     if (log.amount > windowMaxSingle) {
                         windowMaxSingle = log.amount;
                     }
@@ -417,11 +408,9 @@ export class MovementMelee {
                 p.peakDmgEma = p.peakCount === 0
                     ? windowSum
                     : p.peakDmgEma * 0.7 + windowSum * 0.3;
-
                 p.peakMaxSingleEma = p.peakCount === 0
                     ? windowMaxSingle
                     : p.peakMaxSingleEma * 0.7 + windowMaxSingle * 0.3;
-
                 p.peakCount++;
             }
 
@@ -510,7 +499,6 @@ export class MovementMelee {
             // 决斗：周期 DPS 承受力
             if (isDuel) {
                 let healingHps = MovementMelee._getRegenHps(unit);
-
                 if (observedNetHps !== null && observedNetHps > healingHps) {
                     healingHps = observedNetHps;
                 }
@@ -531,10 +519,8 @@ export class MovementMelee {
                     isTTKDangerous = true;
 
                     const lastLog = unit.getDynamicProperty("dm:melee_cycle_log_tick") ?? 0;
-
                     if (nowTick - lastLog >= 40) {
                         unit.setDynamicProperty("dm:melee_cycle_log_tick", nowTick);
-
                         meleeLog(
                             `[DM-Predict] 周期判定: 每${cycleInfo.cycleSeconds.toFixed(1)}s一轮` +
                             `(DPS=${cycleInfo.cycleDps.toFixed(1)}) 一轮${cycleDamage.toFixed(0)}伤 ` +
@@ -554,7 +540,6 @@ export class MovementMelee {
                 isTTKDangerous = true;
 
                 const lastLog = unit.getDynamicProperty("dm:melee_peak_log_tick") ?? 0;
-
                 if (nowTick - lastLog >= 40) {
                     unit.setDynamicProperty("dm:melee_peak_log_tick", nowTick);
                     meleeLog(`[DM-Predict] 峰值预判: 下一波伤害高峰将至(<${Math.ceil(cycleInfo.tToNext)}tick) → 稳健`);
@@ -585,11 +570,9 @@ export class MovementMelee {
                 const spanTicks = Math.max(5, lastHitTick - firstHitTick + 1);
                 const realDps = totalActualDamage / (spanTicks / 20);
                 const initHps = MovementMelee._getInitialModelHps(unit);
-
                 netHps = initHps - realDps;
 
                 const lastColdLog = unit.getDynamicProperty("dm:melee_cold_log_tick") ?? 0;
-
                 if (nowTick - lastColdLog >= 40) {
                     unit.setDynamicProperty("dm:melee_cold_log_tick", nowTick);
                     meleeLog(`[DM-Predict] 冷启动: 回血=${initHps.toFixed(1)}HP/s 敌DPS=${realDps.toFixed(1)} → 净=${netHps.toFixed(1)}HP/s`);
@@ -601,12 +584,10 @@ export class MovementMelee {
 
         if (netHps < -1.0) {
             const timeToDeath = currentHp / Math.abs(netHps);
-
             if (timeToDeath < 4.0) {
                 isTTKDangerous = true;
 
                 const lastLog = unit.getDynamicProperty("dm:melee_slope_log_tick") ?? 0;
-
                 if (nowTick - lastLog >= 40) {
                     unit.setDynamicProperty("dm:melee_slope_log_tick", nowTick);
                     meleeLog(`[DM-Predict] 净斜率=${netHps.toFixed(1)}HP/s → 预计${timeToDeath.toFixed(1)}s死亡`);
@@ -640,7 +621,6 @@ export class MovementMelee {
             if (isTTKDangerous || hpPct < baseThreshold) {
                 return "balanced";
             }
-
             return "aggressive";
         }
     }
@@ -684,7 +664,6 @@ export class MovementMelee {
 
             // 液体 / 漂浮检测
             let isInLiquid = false;
-
             try {
                 const feet = unit.dimension.getBlock({
                     x: uLoc.x,
@@ -708,7 +687,6 @@ export class MovementMelee {
 
             // TAG 总阀门
             const isCombat = unit.hasTag("dm_has_target") || unit.hasTag("dm_skill_on");
-
             if (!isCombat) {
                 MovementMelee._clearVel(unit);
                 return;
@@ -719,7 +697,6 @@ export class MovementMelee {
 
             try {
                 const cc = MeleeCycleCache.get(unit.id);
-
                 if (cc && cc.attackerDamage && cc.attackerDamage.size > 0) {
                     let topScore = 0;
 
@@ -750,10 +727,8 @@ export class MovementMelee {
             try {
                 if (topThreatId) {
                     const threat = world.getEntity(topThreatId);
-
                     if (threat && threat.isValid) {
                         const tdsq = getDistSq(uLoc, threat.location);
-
                         if (tdsq <= detectRange ** 2) {
                             target = threat;
                             targetDistSq = tdsq;
@@ -770,10 +745,8 @@ export class MovementMelee {
 
                     if (threatId && (nowTick - threatTick) < 120) {
                         const threat = world.getEntity(threatId);
-
                         if (threat && threat.isValid) {
                             const tdsq = getDistSq(uLoc, threat.location);
-
                             if (tdsq <= detectRange ** 2) {
                                 target = threat;
                                 targetDistSq = tdsq;
@@ -802,7 +775,6 @@ export class MovementMelee {
 
             // 血量信息
             const info = MovementMelee._getHpInfo(unit);
-
             if (!info) {
                 MovementMelee._clearVel(unit);
                 return;
@@ -843,7 +815,6 @@ export class MovementMelee {
                 unit.setDynamicProperty("dm:emergency_burst", 0);
 
                 const lastFl = unit.getDynamicProperty("dm:melee_fence_log_tick") ?? 0;
-
                 if (nowTick - lastFl >= 60) {
                     unit.setDynamicProperty("dm:melee_fence_log_tick", nowTick);
                     meleeLog(`[DM-Melee] 🧱 缓冲层栅栏激活(15tick): absΔ=${absDelta.toFixed(0)} baseMaxΔ=${baseMaxDelta.toFixed(0)} | ${unit.typeId}`);
@@ -862,11 +833,9 @@ export class MovementMelee {
             // 优化：使用内存 Map，不再 JSON.stringify 到 DynamicProperty
             try {
                 let hpSamples = HpSamplesCache.get(unit.id) ?? [];
-
                 const lastSample = hpSamples[hpSamples.length - 1];
 
                 let sampledHp = info.realHp;
-
                 if ((isFenced || hpDelta >= -0.01) && lastSample) {
                     sampledHp = Math.max(info.realHp, lastSample.h);
                 }
@@ -891,7 +860,6 @@ export class MovementMelee {
 
             if (hpDelta < -0.01 && !isFenced && corroborated) {
                 const realDmg = Math.min(Math.abs(hpDelta), info.baseMax * 1.2);
-
                 MovementMelee._logDamage(unit, nowTick, realDmg);
 
                 if (Math.abs(hpDelta) > info.baseMax * 1.2) {
@@ -899,7 +867,6 @@ export class MovementMelee {
                 }
             } else if (hpDelta < -0.01 && Math.abs(hpDelta) >= 4) {
                 const lastDl = unit.getDynamicProperty("dm:melee_drop_log_tick") ?? 0;
-
                 if (nowTick - lastDl >= 60) {
                     unit.setDynamicProperty("dm:melee_drop_log_tick", nowTick);
                     meleeLog(`[DM-Melee] 🧱 丢弃未佐证扣血 ${hpDelta.toFixed(1)} (fenced=${isFenced ? "是" : "否"}, 受击=${hurtFresh ? "有" : "无"}) | ${unit.typeId}`);
@@ -910,7 +877,6 @@ export class MovementMelee {
             // 优化：把当前 info 传给 _predictSurvival，避免重复读取
             let strategy = unit.getDynamicProperty("dm:melee_strategy") ?? "aggressive";
             const lastSw = unit.getDynamicProperty("dm:melee_strategy_tick") ?? 0;
-
             const wish = MovementMelee._predictSurvival(unit, config, nowTick, info);
             const isEmergency = unit.getDynamicProperty("dm:emergency_burst") === 1;
 
@@ -921,7 +887,6 @@ export class MovementMelee {
 
                 if (!isIllegalSwitch) {
                     strategy = wish;
-
                     unit.setDynamicProperty("dm:melee_strategy", strategy);
                     unit.setDynamicProperty("dm:melee_strategy_tick", nowTick);
                     unit.setDynamicProperty("dm:emergency_burst", 0);
@@ -956,7 +921,6 @@ export class MovementMelee {
                     if (nowTick - lastZero >= 60) {
                         unit.setDynamicProperty("dm:melee_block_charges", config.blockCharges ?? 3);
                         unit.setDynamicProperty("dm:melee_charges_zero_tick", nowTick);
-
                         meleeLog(`[DM-Melee] 护盾自充能! 已补 ${config.blockCharges ?? 3} 次 | 实体: ${unit.typeId}`);
                     }
                 }
@@ -978,7 +942,6 @@ export class MovementMelee {
 
             try {
                 const mc = unit.getComponent("minecraft:movement");
-
                 if (mc && mc.defaultValue > 0) {
                     baseSpeed *= mc.currentValue / mc.defaultValue;
                 }
@@ -1043,10 +1006,10 @@ export class MovementMelee {
 
                 velX = -dirX * baseSpeed * retreatPower;
                 velZ = -dirZ * baseSpeed * retreatPower;
+
                 jumpImpulse = isEmergencyRetreat ? 0.13 : 0.10;
 
                 const lastEmergencyTick = unit.getDynamicProperty("dm:melee_emergency_tick") ?? 0;
-
                 if (nowTick - lastEmergencyTick > 40) {
                     unit.setDynamicProperty("dm:melee_emergency_tick", nowTick);
                 }
@@ -1077,7 +1040,6 @@ export class MovementMelee {
                 const dy = target.location.y - uLoc.y;
 
                 let atSurface = false;
-
                 try {
                     const sb = unit.dimension.getBlock({
                         x: uLoc.x,
@@ -1123,7 +1085,6 @@ export class MovementMelee {
                             jumpImpulse = 0.25;
                         } else {
                             let sd = (unit.getDynamicProperty("dm:melee_strafe_dir") ?? 1) * -1;
-
                             unit.setDynamicProperty("dm:melee_strafe_dir", sd);
 
                             velX *= -0.3;
@@ -1164,7 +1125,6 @@ export class MovementMelee {
                                 3,
                                 2
                             );
-
                             jumpImpulse = 0.30;
                         } else {
                             MovementMelee._safeTeleport(
@@ -1178,7 +1138,6 @@ export class MovementMelee {
                                 3,
                                 2
                             );
-
                             jumpImpulse = 0.35;
                         }
                     } catch (_) {}
@@ -1196,12 +1155,15 @@ export class MovementMelee {
             unit.setDynamicProperty("dm:cmd_vel_z", velZ);
             unit.setDynamicProperty("dm:cmd_vel_y", jumpImpulse);
         } catch (err) {
-            console.error(`[DM-Melee Engine Error] ${err}`);
-        }
+    console.error(`[DM-Melee Engine Error] ${err.name}: ${err.message}`);
+    if (err.stack) {
+        console.error(`[DM-Melee Engine Stack]\n${err.stack}`);
+    }
+}
     }
 
     // ══════════════════════════════════════════════════
-    //  激进冲锋
+    //  激进冲锋（完全不动）
     // ══════════════════════════════════════════════════
 
     static _aggressive(unit, config, target, distSq, meleeRange, dirX, dirZ, baseSpeed, nowTick, jumpImpulse) {
@@ -1250,7 +1212,6 @@ export class MovementMelee {
                             checkForBlocks: true
                         }
                     );
-
                     unit.clearVelocity();
                 } catch (_) {}
 
@@ -1357,7 +1318,156 @@ export class MovementMelee {
     }
 
     // ══════════════════════════════════════════════════
-    //  稳健走位
+    //  ★ 地形探针：探测某方向前方的地面状况
+    //
+    //  返回值：
+    //    safe  : 可安全行走
+    //    step  : 一格高台阶，可跳过
+    //    wall  : 两格高墙，需转向
+    //    pit   : 一格深坑
+    //    cliff : 深悬崖
+    //    lava  : 岩浆
+    // ══════════════════════════════════════════════════
+
+    static _probeTerrain(unit, dirX, dirZ, distance) {
+        const dim = unit.dimension;
+        const loc = unit.location;
+        const floorY = Math.floor(loc.y);
+
+        const len = Math.sqrt(dirX * dirX + dirZ * dirZ);
+        if (len < 0.0001) return "safe";
+
+        const nx = dirX / len;
+        const nz = dirZ / len;
+
+        const px = loc.x + nx * distance;
+        const pz = loc.z + nz * distance;
+
+        try {
+            const body = dim.getBlock({ x: px, y: floorY, z: pz });
+            const below = dim.getBlock({ x: px, y: floorY - 1, z: pz });
+
+            // ── 岩浆 ──
+            if (
+                (body && body.typeId && body.typeId.includes("lava")) ||
+                (below && below.typeId && below.typeId.includes("lava"))
+            ) {
+                return "lava";
+            }
+
+            // ── 脚下悬空：悬崖 or 坑 ──
+            const belowOpen = !below || below.isAir || below.isLiquid;
+            if (belowOpen) {
+                const deep = dim.getBlock({ x: px, y: floorY - 3, z: pz });
+                const deepOpen = !deep || deep.isAir || deep.isLiquid;
+                return deepOpen ? "cliff" : "pit";
+            }
+
+            // ── 前方有固体：台阶 or 高墙 ──
+            const bodySolid = body && !body.isAir && !body.isLiquid;
+            if (bodySolid) {
+                const head = dim.getBlock({ x: px, y: floorY + 1, z: pz });
+                const headSolid = head && !head.isAir && !head.isLiquid;
+                return headSolid ? "wall" : "step";
+            }
+        } catch (_) {
+            return "safe";
+        }
+
+        return "safe";
+    }
+
+    // ══════════════════════════════════════════════════
+    //  ★ 地形安全偏转：
+    //
+    //  检测到悬崖 / 坑 / 岩浆 / 墙时，
+    //  把走位向量偏转到边缘切线方向，保持移动，
+    //  不彻底掐断后撤。
+    //
+    //  preferSide：优先偏向哪一侧（用 strafeDir 传入）
+    //    strafeDir >= 0  → 优先右侧
+    //    strafeDir <  0  → 优先左侧
+    // ══════════════════════════════════════════════════
+
+    static _applyTerrainSafety(unit, velX, velZ, jumpImpulse, probeDist, preferSide) {
+        const speed = Math.sqrt(velX * velX + velZ * velZ);
+        if (speed < 0.001) {
+            return { velX, velZ, jumpImpulse };
+        }
+
+        const nx = velX / speed;
+        const nz = velZ / speed;
+
+        const status = MovementMelee._probeTerrain(unit, nx, nz, probeDist);
+
+        // 前方安全，直接走
+        if (status === "safe") {
+            return { velX, velZ, jumpImpulse };
+        }
+
+        // 一格台阶，跳过去
+        if (status === "step") {
+            return { velX, velZ, jumpImpulse: Math.max(jumpImpulse, 0.32) };
+        }
+
+        // ── cliff / pit / lava / wall：沿边缘切线滑动 ──
+        const leftX = -nz;
+        const leftZ = nx;
+        const rightX = nz;
+        const rightZ = -nx;
+
+        const leftStatus = MovementMelee._probeTerrain(unit, leftX, leftZ, probeDist);
+        const rightStatus = MovementMelee._probeTerrain(unit, rightX, rightZ, probeDist);
+
+        const leftOk = (leftStatus === "safe" || leftStatus === "step");
+        const rightOk = (rightStatus === "safe" || rightStatus === "step");
+
+        let chosenX = 0;
+        let chosenZ = 0;
+        let chosenStatus = "safe";
+
+        if (leftOk && rightOk) {
+            // 两边都安全，按 preferSide 选，保持环绕方向一致
+            if (preferSide >= 0) {
+                chosenX = rightX;
+                chosenZ = rightZ;
+                chosenStatus = rightStatus;
+            } else {
+                chosenX = leftX;
+                chosenZ = leftZ;
+                chosenStatus = leftStatus;
+            }
+        } else if (leftOk) {
+            chosenX = leftX;
+            chosenZ = leftZ;
+            chosenStatus = leftStatus;
+        } else if (rightOk) {
+            chosenX = rightX;
+            chosenZ = rightZ;
+            chosenStatus = rightStatus;
+        } else {
+            // 两边都危险：贴边大幅减速，但不彻底归零
+            return {
+                velX: velX * 0.15,
+                velZ: velZ * 0.15,
+                jumpImpulse
+            };
+        }
+
+        let newJump = jumpImpulse;
+        if (chosenStatus === "step") {
+            newJump = Math.max(jumpImpulse, 0.32);
+        }
+
+        return {
+            velX: chosenX * speed,
+            velZ: chosenZ * speed,
+            jumpImpulse: newJump
+        };
+    }
+
+    // ══════════════════════════════════════════════════
+    //  稳健走位（含地形安全偏转）
     // ══════════════════════════════════════════════════
 
     static _balanced(unit, config, target, targetDistSq, meleeRange, dirX, dirZ, tangentX, tangentZ, baseSpeed, nowTick, jumpImpulse) {
@@ -1374,7 +1484,6 @@ export class MovementMelee {
 
         const minChargeRange = config.chargeRange ?? 10;
         const maxChargeRange = config.maxChargeRange ?? Infinity;
-
         const distanceActive = distNow >= minChargeRange && distNow <= maxChargeRange;
 
         const lastChargeT = unit.getDynamicProperty("dm:melee_charge_tick") ?? 0;
@@ -1393,13 +1502,13 @@ export class MovementMelee {
             unit.setDynamicProperty("dm:ranged_retaliate", 0);
         }
 
+        // ── 冲刺中（原样保留，不做地形安全）──
         if (isCharging) {
             const chargeStart = unit.getDynamicProperty("dm:melee_charge_tick") ?? nowTick;
             const elapsed = nowTick - chargeStart;
 
             const startDist = unit.getDynamicProperty("dm:melee_charge_start_dist") ?? Math.sqrt(targetDistSq);
             const dist = Math.sqrt(targetDistSq);
-
             const traveled = startDist - dist;
 
             const extendedMaxChargeDist = (config.maxChargeDist ?? 10) * 2.5;
@@ -1413,7 +1522,6 @@ export class MovementMelee {
                 velZ = dirZ * baseSpeed * chargeSpeed;
 
                 const dy = target.location.y - unit.location.y;
-
                 jumpImpulse = dy > 0.8
                     ? Math.min(0.35, Math.max(0.15, (dy / dist) * 0.4))
                     : 0.02;
@@ -1426,6 +1534,7 @@ export class MovementMelee {
             }
         }
 
+        // ── phase 走位 ──
         let phase = unit.getDynamicProperty("dm:melee_phase") ?? 1;
         const phaseStartTick = unit.getDynamicProperty("dm:melee_phase_tick") ?? nowTick;
         const phaseElapsed = nowTick - phaseStartTick;
@@ -1455,7 +1564,6 @@ export class MovementMelee {
             const dist = Math.sqrt(targetDistSq);
 
             let radialWeight = 0;
-
             if (dist < meleeRange * 1.3) {
                 radialWeight = -0.3;
             } else if (dist > meleeRange * 2.2) {
@@ -1471,6 +1579,26 @@ export class MovementMelee {
                 unit.setDynamicProperty("dm:melee_strafe_dir", Math.random() < 0.5 ? 1 : -1);
             }
         }
+
+        // ══════════════════════════════════════════════════
+        // ★ 稳健模式地形安全偏转
+        //
+        // 只对 phase 1 / phase 2 生效，冲刺不受影响。
+        // 检测到悬崖 / 坑 / 岩浆 / 墙时，
+        // 沿边缘切线方向继续移动，不彻底掐断后撤。
+        // ══════════════════════════════════════════════════
+        const TERRAIN_PROBE_DIST = 1.3;
+        const safe = MovementMelee._applyTerrainSafety(
+            unit,
+            velX,
+            velZ,
+            jumpImpulse,
+            TERRAIN_PROBE_DIST,
+            strafeDir
+        );
+        velX = safe.velX;
+        velZ = safe.velZ;
+        jumpImpulse = safe.jumpImpulse;
 
         return {
             velX,
@@ -1570,17 +1698,14 @@ export class MovementMelee {
                         checkForBlocks: true
                     }
                 );
-
                 return true;
             }
 
             const safe = MovementMelee._findSafeSpot(unit, desired, hRange, dyUp, dyDown);
-
             if (safe) {
                 unit.teleport(safe, {
                     checkForBlocks: true
                 });
-
                 return true;
             }
 
@@ -1614,7 +1739,6 @@ export class MovementMelee {
             ];
 
             let solid = 0;
-
             for (const b of blocks) {
                 if (MovementMelee._isSolidGround(b)) solid++;
             }
@@ -1634,13 +1758,11 @@ let _blockSubscriberRegistered = false;
 
 function registerBlockSubscriber() {
     if (_blockSubscriberRegistered) return;
-
     _blockSubscriberRegistered = true;
 
     world.beforeEvents.entityHurt.subscribe((event) => {
         try {
             const victim = event.hurtEntity;
-
             if (!victim || !victim.isValid) return;
 
             const isDmUnit =
@@ -1654,7 +1776,6 @@ function registerBlockSubscriber() {
                 const atk = event.damageSource?.damagingEntity;
 
                 const existing = PendingHurtLedger.get(victim.id);
-
                 if (existing && system.currentTick - existing.tick <= 6) {
                     existing.damage += event.damage;
                     existing.tick = system.currentTick;
@@ -1681,6 +1802,7 @@ function registerBlockSubscriber() {
             // ── 攻击模式喂数据 ──
             if (isDmUnit && event.damage > 0 && hpInfo) {
                 const attacker = event.damageSource?.damagingEntity;
+
                 const isFakeHurt = !attacker || !attacker.isValid || attacker.id === victim.id;
 
                 if (!isFakeHurt) {
@@ -1698,17 +1820,14 @@ function registerBlockSubscriber() {
 
             // ── 原格挡逻辑 ──
             const charges = victim.getDynamicProperty("dm:melee_block_charges") ?? 0;
-
             if (charges <= 0) return;
 
             const isCombat = victim.hasTag("dm_has_target") || victim.hasTag("dm_skill_on");
-
             if (!isCombat) return;
 
             let minBlockDamage = Math.max((hpInfo ? hpInfo.hp : 20) * 0.05, 3);
 
             const cfgMin = victim.getDynamicProperty("dm:melee_block_min_damage");
-
             if (typeof cfgMin === "number" && cfgMin > 0) {
                 minBlockDamage = cfgMin;
             }
@@ -1734,7 +1853,6 @@ function registerBlockSubscriber() {
             system.run(() => {
                 try {
                     const v = world.getEntity(vid);
-
                     if (v && v.isValid) {
                         try {
                             v.clearVelocity();
@@ -1743,7 +1861,6 @@ function registerBlockSubscriber() {
                         meleeLog(`[DM-Melee] 格挡成功! 挡下${blockedDamage.toFixed(1)}伤害 | 剩余次数: ${remainingCharges} | 实体: ${v.typeId}`);
 
                         let log = MeleeDamageLogCache.get(v.id);
-
                         if (!log) {
                             log = [];
                             MeleeDamageLogCache.set(v.id, log);
@@ -1786,5 +1903,5 @@ registerBlockSubscriber();
 // 幂等，不会重复注册。
 MovementMelee.initBlockMechanic = function () {
     registerBlockSubscriber();
-    meleeLog("[DM-Melee] v2.26 性能优化版初始化完成");
+    meleeLog("[DM-Melee] v2.27 稳健地形安全版初始化完成");
 };

@@ -69,6 +69,11 @@
           "soft_distance": 4.0,
           "hard_distance": 6.0,
           "max_distance": 32.0
+          },
+        "minecraft:sittable": {
+        },
+        "minecraft:behavior.stay_while_sitting": {
+          "priority": 1
         },
         "minecraft:behavior.tempt": {
           "priority": 0,
@@ -496,11 +501,6 @@
           "speed_multiplier": 1.0,
           "start_distance": 17,
           "stop_distance": 5
-        },
-        "minecraft:sittable": {
-        },
-        "minecraft:behavior.stay_while_sitting": {
-          "priority": 1
         }
       },
       "sit": {
@@ -529,11 +529,6 @@
             "use_item": true
           }
           ]
-        },
-        "minecraft:sittable": {
-        },
-        "minecraft:behavior.stay_while_sitting": {
-          "priority": 1
         }
       },
       "air": {
@@ -773,8 +768,8 @@
             "scoreboard players add @s dm_skill_timer 1",
             "scoreboard players add @e[tag=dm,family=!monster,type=!minecraft:player,r=12,c=6] dm_skill_timer 1",
             "execute at @e[tag=dm,family=!monster,type=!minecraft:player,r=12,c=6] run particle dm:dm_sp ~~1.8~",
-            "execute as @s[scores={dm_skill_timer=18..}] run event entity @s sss",
-            "execute as @s[scores={dm_skill_timer=18..}] run scoreboard players set @s dm_skill_timer 0"
+            "event entity @s[scores={dm_skill_timer=18..}] sss",
+            "scoreboard players set @s[scores={dm_skill_timer=18..}] dm_skill_timer 0"
           ]
         }
       },
@@ -793,8 +788,8 @@
         "queue_command": {
           "command": [
             "scoreboard players add @s dm_skill_timer_1 1",
-            "execute as @s[scores={dm_skill_timer_1=8..}] run event entity @s back",
-            "execute as @s[scores={dm_skill_timer_1=8..}] run scoreboard players set @s dm_skill_timer_1 0"
+            "event entity @s[scores={dm_skill_timer_1=8..}] back",
+            "scoreboard players set @s[scores={dm_skill_timer_1=8..}] dm_skill_timer_1 0"
           ]
         }
       },

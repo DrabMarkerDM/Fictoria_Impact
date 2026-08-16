@@ -23,6 +23,7 @@
       },
       "animations": {
         "root": "controller.animation.player.root",
+        "sitting": 	"animation.dm.sneaking",
         "humanoid_big_head": "animation.humanoid.big_head",
         "humanoid_base_pose": "animation.humanoid.base_pose",
         "look_at_target_default": "animation.humanoid.look_at_target.default",
@@ -48,6 +49,7 @@
         { "look_at_target": "controller.animation.humanoid.look_at_target" },
         { "move": "controller.animation.humanoid.move" },
         { "riding": "controller.animation.dm_riding" },
+        { "sitting": "controller.animation.player.sit" },
         { "holding": "controller.animation.humanoid.holding" },
         { "brandish_spear": "controller.animation.humanoid.brandish_spear" },
         { "charging": "controller.animation.humanoid.charging" },

@@ -18,7 +18,7 @@
 		"/scoreboard players add @s dm_skill_timer_1 1",
 		"/damage @e[tag=!dm,family=monster,r=5,c=6] 124 entity_attack entity @s",
 		"/event entity @s[scores={dm_skill_timer_1=0..}] back",
-		"/execute as @s[scores={dm_skill_timer_1=0..}] run scoreboard players set @s dm_skill_timer_1 0",
+		"/scoreboard players set @s[scores={dm_skill_timer_1=0..}] dm_skill_timer_1 0",
 		"/playsound dm44_sss @a[r=45] ~~~ 1.8 1.0",
 		"/execute at @e[tag=!dm,family=monster,r=5,c=6] run particle dm:dm44_sss ~~2~",
 		"/effect @s instant_health 2 255",

@@ -70,7 +70,7 @@
     },
     "power": 2.6,
     "gravity": 0.00,
-    "inertia": 3.0,
+    "inertia": 2.0,
      "should_bounce": true,
     "liquid_inertia": 0.3,
     "anchor": 1,

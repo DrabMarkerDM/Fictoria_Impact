@@ -18,7 +18,7 @@
 "/playsound atthit @a[r=33] ~~~ 1.5 1.0",
 "/scoreboard players add @s dm_skill_timer_2 1",
 "/event entity @s[scores={dm_skill_timer_2=5..}] d2",
-"/execute as @s[scores={dm_skill_timer_2=5..}] run scoreboard players set @s dm_skill_timer_2 0"
+"/scoreboard players set @s[scores={dm_skill_timer_2=5..}] dm_skill_timer_2 0"
 ]
 }
 }

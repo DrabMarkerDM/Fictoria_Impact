@@ -61,7 +61,7 @@
 		"minecraft:timer": {
 		  "looping": true,
 		  "randomInterval": false,
-		  "time": 0.2,
+		  "time": 0.25,
 		  "time_down_event": {
 		    "event": "minecraft:start_despawn"
 		  }
@@ -113,9 +113,9 @@
     "power": 2.1,
     "hit_sound": "bow.hit",
     "gravity": 0.02,
-    "inertia": 5,
+    "inertia": 2,
      "should_bounce": true,
-    "liquid_inertia": 3,
+    "liquid_inertia": 1,
     "anchor": 1,
     "uncertainty_base": 1,
     "uncertainty_multiplier": 0,

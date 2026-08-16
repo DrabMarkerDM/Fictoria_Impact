@@ -1516,8 +1516,8 @@
         "queue_command": {
           "command": [
             "scoreboard players add @s dm_skill_timer_3 1",
-            "execute as @s[scores={dm_skill_timer_3=5..}] run event entity @s skill_3",
-            "execute as @s[scores={dm_skill_timer_3=5..}] run scoreboard players set @s dm_skill_timer_3 0"
+            "event entity @s[scores={dm_skill_timer_3=5..}] skill_3",
+            "scoreboard players set @s[scores={dm_skill_timer_3=5..}] dm_skill_timer_3 0"
           ]
         }
       },
@@ -1525,8 +1525,8 @@
         "queue_command": {
           "command": [
             "scoreboard players add @s dm_skill_timer 1",
-            "execute as @s[scores={dm_skill_timer=30..}] run event entity @s skill_0",
-            "execute as @s[scores={dm_skill_timer=30..}] run scoreboard players set @s dm_skill_timer 0"
+            "event entity @s[scores={dm_skill_timer=30..}] skill_0",
+            "scoreboard players set @s[scores={dm_skill_timer=30..}] dm_skill_timer 0"
           ]
         }
         },
@@ -1534,8 +1534,8 @@
         "queue_command": {
           "command": [
             "scoreboard players add @s dm_skill_timer_1 1",
-            "execute as @s[scores={dm_skill_timer_1=60..}] run event entity @s skill_1",
-            "execute as @s[scores={dm_skill_timer_1=60..}] run scoreboard players set @s dm_skill_timer_1 0"
+            "event entity @s[scores={dm_skill_timer_1=60..}] skill_1",
+            "scoreboard players set @s[scores={dm_skill_timer_1=60..}] dm_skill_timer_1 0"
           ]
         }
          },
@@ -1543,8 +1543,8 @@
         "queue_command": {
           "command": [
             "scoreboard players add @s dm_skill_timer_2 1",
-            "execute as @s[scores={dm_skill_timer_2=10..}] run event entity @s skill_2",
-            "execute as @s[scores={dm_skill_timer_2=10..}] run scoreboard players set @s dm_skill_timer_2 0"
+            "event entity @s[scores={dm_skill_timer_2=10..}] skill_2",
+            "scoreboard players set @s[scores={dm_skill_timer_2=10..}] dm_skill_timer_2 0"
           ]
         }
         },
@@ -1625,8 +1625,8 @@
       "execute as @s at @s if entity @p[dy=10] run tag @s add should_raise",
       "execute as @s at @s if entity @e[family=dm,dy=10,c=1] run tag @s add should_raise",
       "execute as @s at @s if entity @e[family=villager,dy=10,c=1] run tag @s add should_raise",
-      "execute as @s[tag=should_dig] run event entity @s start_dig",
-      "execute as @s[tag=should_raise] run event entity @s start_raise",
+      "event entity @s[tag=should_dig] start_dig",
+      "event entity @s[tag=should_raise] start_raise",
       "tag @s remove should_dig",
       "tag @s remove should_raise"
         ]

@@ -576,8 +576,8 @@
         "queue_command": {
           "command": [
             "scoreboard players add @s dm_skill_timer 1",
-            "execute as @s[scores={dm_skill_timer=14..}] run event entity @s sss",
-            "execute as @s[scores={dm_skill_timer=14..}] run scoreboard players set @s dm_skill_timer 0"
+            "event entity @s[scores={dm_skill_timer=14..}] sss",
+            "scoreboard players set @s[scores={dm_skill_timer=14..}] dm_skill_timer 0"
           ]
         }
       },
