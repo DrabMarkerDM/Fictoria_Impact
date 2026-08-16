@@ -1,4 +1,3 @@
-```md
 ![Preview](./docs/Images/14.jpeg)
 
 # ⚔️ Fictoria_Impact
