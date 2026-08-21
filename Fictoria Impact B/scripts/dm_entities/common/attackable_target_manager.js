@@ -736,6 +736,20 @@ const RAW_DmTargetRegistry = {
         maxChargeDist: 10,
         clock_time: true,
         supportEnabled: true
+        },
+
+    "player:dm54": {
+        normalRange: 36,
+        alertRange: 36,
+        focus: 10.0,
+        speed: 5.0,
+        combatType: "melee",
+        strafeSpeed: 0.25,
+        chargeSpeed: 2.5,
+        chargeRange: 9,
+        maxChargeDist: 9,
+        clock_time: true,
+        supportEnabled: true
     },
 
     "player:test1": {

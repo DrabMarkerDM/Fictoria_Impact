@@ -1,0 +1,17 @@
+{
+  "format_version": "1.10.0",
+  "render_controllers": {
+    "controller.render.dm54_2": {
+      "geometry": "Geometry.default",
+      "part_visibility": [
+        { "*": false },
+        { "weapon": "query.variant == 1 || query.variant == 2" },
+        { "bag": "query.variant != 1 && query.variant != 2" }
+      ],
+      "materials": [ { "*": "Material.default" } ],
+      "is_hurt_color": { "r": 0.0, "g": 0.0, "b": 0.0, "a": 0.0 },
+      "on_fire_color": { "r": 0.0, "g": 0.0, "b": 0.0, "a": 0.0 },
+      "textures": [ "Texture.default" ]
+    }
+  }
+}

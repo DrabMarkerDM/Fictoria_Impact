@@ -6,7 +6,8 @@
       "materials": [ { "*": "Material.default" } ],
       "part_visibility": [
         { "*": true },
-        { "qml": "query.has_target" }
+        { "qml": "query.has_target" },
+        { "qml_1": "query.has_target && query.property('dm:dm26_sss')" }
       ],
       "textures": [ "Texture.default" ]
     }

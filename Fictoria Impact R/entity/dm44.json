@@ -5,7 +5,7 @@
       "identifier": "player:dm44",
       "materials": { "default": "skeleton" },
       "textures": {
-        "default": "textures/entity/player/dm44"
+        "default": "textures/entity/player/dm44_rpp/dm44"
       },
       "geometry": {
         "default": "geometry.dm44"

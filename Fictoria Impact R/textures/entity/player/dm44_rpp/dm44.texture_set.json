@@ -1,0 +1,7 @@
+{
+	"format_version": "1.16.100",
+	"minecraft:texture_set": {
+		"color": "dm44",
+		"metalness_emissive_roughness": "dm44_mer"
+	}
+}

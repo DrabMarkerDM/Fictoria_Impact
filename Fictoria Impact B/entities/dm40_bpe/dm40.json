@@ -80,8 +80,8 @@
         "minecraft:is_tamed": {
         },
 	"minecraft:health": {
-	   "value": 36,
-	   "max": 36
+	   "value": 41,
+	   "max": 41
 	},
         "minecraft:leashable": {
           "soft_distance": 4.5,

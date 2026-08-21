@@ -158,8 +158,8 @@
         "height": 1.82
       },
       "minecraft:health": {
-        "value": 37,
-        "max": 37
+        "value": 44,
+        "max": 44
       },
       "minecraft:behavior.sleep": {
         "priority": 5,

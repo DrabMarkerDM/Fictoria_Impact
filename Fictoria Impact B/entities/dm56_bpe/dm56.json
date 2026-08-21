@@ -795,6 +795,11 @@
           "component_groups": [
             "sensor",
             "zero"
+            ]
+        },
+        "queue_command": {
+          "command": [
+            "tag @s add dm_has_target"
           ]
         }
       },
@@ -812,10 +817,23 @@
             "sensor",
             "zero",
             "res"
+            ]
+        },
+        "queue_command": {
+          "command": [
+            "tag @s remove dm_has_target"
           ]
         }
       },
       "sss": {
+        "sequence": [
+        {
+            "filters": {
+                "test": "has_tag",
+                "subject": "self",
+                "operator": "==",
+                "value": "dm_has_target"
+            },
         "remove": {
           "component_groups": [
             "attack",
@@ -835,9 +853,19 @@
           "command": [
             "playsound sss @a[r=33] ~~~ 2.0 1.1"
           ]
+            }
         }
+    ]
       },
       "back": {
+        "sequence": [
+        {
+            "filters": {
+                "test": "has_tag",
+                "subject": "self",
+                "operator": "==",
+                "value": "dm_has_target"
+            },
         "remove": {
           "component_groups": [
             "sss",
@@ -855,8 +883,10 @@
         "queue_command": {
           "command": [
             "function dm56_back"
-          ]
+         ]
+            }
         }
+    ]
       },
       "back_1": {
         "remove": {

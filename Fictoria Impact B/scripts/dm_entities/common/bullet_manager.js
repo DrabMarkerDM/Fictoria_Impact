@@ -20,7 +20,7 @@ const DAMAGE = {
     "bullet:dm48_s_ak_bullet": new BulletDamage('AK_S', "bullet_ak", 0, EntityDamageCause.override, BulletEffects.dm48_s_ak),
     "bullet:dm48_ak_bullet": new BulletDamage('AK', "bullet_ak", 0, EntityDamageCause.override, BulletEffects.dm48_ak),
     "bullet:amiya_shoot": new BulletDamage('amiya_shoot', "bullet_amiya_shoot", 29, EntityDamageCause.magic),
-    "bullet:s_amiya_shoot": new BulletDamage('s_amiya_shoot', "bullet_s_amiya_shoot", 86, EntityDamageCause.magic),
+    "bullet:s_amiya_shoot": new BulletDamage('s_amiya_shoot', "bullet_s_amiya_shoot", 106, EntityDamageCause.magic),
     "bullet:lightball": new BulletDamage('lightball', "bullet_lightball", 25, EntityDamageCause.magic),
     "bullet:lightball_1": new BulletDamage('lightball_1', "bullet_lightball_1", 30, EntityDamageCause.magic),
     "bullet:dm61_bullet_1": new BulletDamage('dm61_bullet_1', "bullet_dm61_bullet_1", 161, EntityDamageCause.magic)

@@ -1,0 +1,16 @@
+{
+	"format_version": "1.8.0",
+	"animations": {
+		"animation.dm54_target": {
+			"loop": true,
+			"bones": {
+				"rightArm": {
+					"rotation": ["21.6867 - this", "0.5779 - this", "20.6457 - this"]
+				},
+				"weapon": {
+					"rotation": ["135.7499 - this", "-2.5108 - this", "-5.7641 - this"]
+				}
+			}
+		}
+	}
+}

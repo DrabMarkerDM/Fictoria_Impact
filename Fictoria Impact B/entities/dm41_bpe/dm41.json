@@ -163,8 +163,8 @@
         "minecraft:is_tamed": {
         },
         "minecraft:health": {
-          "value": 48,
-          "max": 48
+          "value": 70,
+          "max": 70
         },
         "minecraft:leashable": {
           "soft_distance": 4.0,
@@ -790,12 +790,12 @@
         }
       },
       "silent": {
-        "remove": {
+        "add": {
           "component_groups": [
             "attack_reset"
           ]
         },
-        "add": {
+        "remove": {
           "component_groups": [
             "equip"
           ]

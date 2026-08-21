@@ -69,7 +69,7 @@
     "minecraft:projectile": {
 	"onHit": {
 	"impact_damage": {
-	"damage": [ 64 , 66 ],
+	"damage": [ 68 , 70 ],
 	"knockback": true,
 	"semirandomdiffdamage": false,
 	"destroyonhit": true

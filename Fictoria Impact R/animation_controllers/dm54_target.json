@@ -1,0 +1,44 @@
+{
+	"format_version": "1.10.0",
+	"animation_controllers": {
+		"controller.animation.dm54_target": {
+			"initial_state": "default",
+			"states": {
+				"bow": {
+					"animations": [
+						"bow_and_arrow"
+					],
+					"transitions": [
+						{
+							"default": "query.variant != 1 && query.variant != 2"
+						},
+						{
+							"att": "variable.attack_time > 0.0"
+						}
+					],
+					"blend_transition": 0.5
+				},
+				"att": {
+					"animations": [
+						"attack.rotations"
+					],
+					"transitions": [
+						{
+							"bow": "(query.variant == 1 || query.variant == 2) && variable.attack_time <= 0.0"
+						}
+					],
+					"blend_transition": 0.5
+				},
+				"default" : {
+					"transitions" : [
+						{
+							"bow" : "(query.variant == 1 || query.variant == 2) && variable.attack_time <= 0.0"
+						}
+					],
+					"blend_transition": 0.5
+
+				}
+			}    
+		}
+	}
+}

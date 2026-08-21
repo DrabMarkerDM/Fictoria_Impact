@@ -1160,5 +1160,29 @@
         "volume": 1.0
       }
     ]
+    },
+  "dm54_att": {
+    "category": "music",
+    "max_distance": 30,
+    "min_distance": null,
+    "sounds": [
+      {
+        "is3D": false,
+        "name": "sounds/attack/dm54_att",
+        "volume": 1.0
+      }
+    ]
+    },
+  "dm54_satt": {
+    "category": "music",
+    "max_distance": 30,
+    "min_distance": null,
+    "sounds": [
+      {
+        "is3D": false,
+        "name": "sounds/attack/dm54_satt",
+        "volume": 1.0
+      }
+    ]
   }
 }

@@ -4,10 +4,10 @@
     "description": {
       "identifier": "bullet:s_amiya_shoot",
       "materials": {
-        "default": "arrow"
+        "default": "spider"
       },
       "textures": {
-        "default": "textures/bullet/amiya_shoot"
+        "default": "textures/bullet/s_amiya_shoot"
       },
       "geometry": {
         "default": "geometry.arrow"

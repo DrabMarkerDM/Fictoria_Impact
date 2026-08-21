@@ -1,0 +1,14 @@
+{
+	"format_version": "1.8.0",
+	"animations": {
+		"animation.dm54_glasses": {
+			"loop": true,
+			"bones": {
+				"glasses": {
+					"position": [-14.8, -11, -5],
+					"scale": [0.42, 0.52, 0.55]
+				}
+			}
+		}
+	}
+}

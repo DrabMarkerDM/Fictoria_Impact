@@ -270,7 +270,7 @@
         "target": "self"
       },
       "minecraft:type_family": {
-        "family": [ "mon3tr" ]
+        "family": [ "mon3tr", "dm" ]
       },
       "minecraft:collision_box": {
         "width": 3,

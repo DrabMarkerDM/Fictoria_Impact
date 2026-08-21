@@ -701,23 +701,41 @@
         }
       },
       "sss": {
-        "remove": {
-          "component_groups": [
-            "attack",
-            "time",
-            "sensor",
-            "sensor_1",
-            "summon",
-            "zero"
-          ]
-        },
-        "add": {
-          "component_groups": [
-            "sss"
-          ]
+    "sequence": [
+        {
+            "filters": {
+                "test": "has_tag",
+                "subject": "self",
+                "operator": "==",
+                "value": "dm_has_target"
+            },
+            "remove": {
+                "component_groups": [
+                    "attack",
+                    "time",
+                    "sensor",
+                    "sensor_1",
+                    "summon",
+                    "zero"
+                ]
+            },
+            "add": {
+                "component_groups": [
+                    "sss"
+                ]
+            }
         }
+    ]
       },
       "back": {
+        "sequence": [
+        {
+            "filters": {
+                "test": "has_tag",
+                "subject": "self",
+                "operator": "==",
+                "value": "dm_has_target"
+            },
         "remove": {
           "component_groups": [
             "sss",
@@ -729,8 +747,10 @@
             "equip",
             "sensor_1",
             "attack"
-          ]
+           ]
+            }
         }
+    ]
       },
       "end": {
         "remove": {

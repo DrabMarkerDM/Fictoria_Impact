@@ -1,0 +1,26 @@
+{
+	"format_version": "1.8.0",
+	"animations": {
+		"animation.dm54_standing": {
+			"loop": true,
+			"bones": {
+				"body": {
+					"rotation": ["-4.9905 - this", "-0.2178 - this", "-4.9952 - this"],
+					"position": [-1, 0, 1]
+				},
+				"leftArm": {
+					"rotation": ["21.5735 - this", "-19.057 - this", "20.2084 - this"]
+				},
+				"rightArm": {
+					"rotation": ["27.5727 - this", "-4.2229 - this", "24.0993 - this"]
+				},
+				"leftLeg": {
+					"rotation": ["-5.0852 - this", "-0.6468 - this", "4.9863 - this"]
+				},
+				"rightLeg": {
+					"rotation": ["16.7232 - this", "-4.3158 - this", "14.3633 - this"]
+				}
+			}
+		}
+	}
+}

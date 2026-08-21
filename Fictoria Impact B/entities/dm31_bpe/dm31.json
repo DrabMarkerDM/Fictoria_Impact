@@ -296,7 +296,7 @@
         "minecraft:behavior.ranged_attack": {
           "priority": 1,
           "speed_multiplier": 0.95,
-          "attack_interval_min": 0.7,
+          "attack_interval_min": 0.8,
           "attack_interval_max": 0.8,
           "attack_radius": 26
         },
@@ -832,7 +832,6 @@
             "effect @s invisibility 1 255",
             "replaceitem entity @s slot.armor.chest 1 armor:dm31_armor 1",
             "playsound handgun_reload @a[r=42] ~~~ 1.8 0.9",
-            "scoreboard players set @s dm31s 0",
             "execute positioned ^ ^ ^ run execute at @e[type=!player:dm31,tag=!dm,family=monster,r=32,c=1] run summon player:dm31_1 ~~1~",
             "damage @e[tag=!dm,family=monster,r=32] 8 entity_attack entity @e[type=player:dm31_1,c=1]"
           ]

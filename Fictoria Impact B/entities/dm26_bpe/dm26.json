@@ -23,6 +23,10 @@
           "values": [ "def", "on", "off" ],
           "default": "def",
           "client_sync": true
+      },
+      "dm:dm26_sss": {  "type": "bool",
+          "default": false,
+          "client_sync": true
         }
       }
   },
@@ -247,7 +251,7 @@
         "minecraft:timer": {
           "looping": false,
           "randomInterval": false,
-          "time": 10.0,
+          "time": 5.0,
           "time_down_event": {
             "event": "back"
           }
@@ -259,7 +263,7 @@
               "amplifier": 5,
               "visible": true,
               "ambient": false,
-              "duration": 10
+              "duration": 5
             }
           ]
         }
@@ -650,7 +654,8 @@
           ]
            },
         "set_property": {
-          "dm:clock_time_1": "on"
+          "dm:clock_time_1": "on",
+          "dm:dm26_sss": true
         }
       },
       "back": {
@@ -683,7 +688,8 @@
            ]
            },
         "set_property": {
-          "dm:clock_time_1": "off"
+          "dm:clock_time_1": "off",
+          "dm:dm26_sss": false
         }
       }
     }

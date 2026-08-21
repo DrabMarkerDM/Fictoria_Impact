@@ -176,7 +176,7 @@
         "value": 0.02
       },
       "minecraft:attack": {
-        "damage": 45
+        "damage": 4
       },
       "minecraft:annotation.open_door": {
       },
@@ -221,7 +221,7 @@
       "minecraft:behavior.delayed_attack": {
         "priority": 3,
         "reach_multiplier": 3.5,
-        "attack_duration": 1.5,
+        "attack_duration": 0.5,
         "hit_delay_pct": 0.5,
         "track_target": true
         },
