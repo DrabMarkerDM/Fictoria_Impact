@@ -103,8 +103,8 @@
       "on_ta": {
         "minecraft:is_tamed": {},
         "minecraft:health": {
-          "value": 28,
-          "max": 28
+          "value": 33,
+          "max": 33
         },
         "minecraft:on_target_acquired": {
           "event": "attack",

@@ -31,6 +31,9 @@ import { initFictoriaBall } from "./dm_entities/common/fictoria_ball.js";
 // 导入战术指挥 UI
 import "./dm_entities/common/fictoria_ui.js";
 
+// 导入窒息挣脱底层模块
+import "./dm_entities/common/suffocation_escape.js";
+
 // 初始化幻域球
 initFictoriaBall();
 

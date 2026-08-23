@@ -15,7 +15,7 @@
 						}
 					],
 "on_entry": [
-"/event entity @s satt",
+"@s satt",
 "/playsound dm53 @a[r=33] ~~~ 2.0 1.1"
 ]
 }

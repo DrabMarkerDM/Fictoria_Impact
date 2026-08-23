@@ -787,7 +787,7 @@ const RAW_DmTargetRegistry = {
 const DmTargetRegistry = normalizeConfig(RAW_DmTargetRegistry);
 const REGISTRY_ENTRIES = Object.entries(DmTargetRegistry);
 
-let GLOBAL_MAX_BROADCAST_DISTANCE = 96;
+let GLOBAL_MAX_BROADCAST_DISTANCE = 64;
 
 // ============================================================
 // 敌人快照工具
@@ -1038,13 +1038,8 @@ export class DmTargetEngine {
         TargetSensorManager.init();
         MovementMelee.initBlockMechanic();
 
-        try {
-            GLOBAL_MAX_BROADCAST_DISTANCE = computeMaxBroadcastDistance();
-            engineLog(`[DM-Engine] 广播距离 = ${GLOBAL_MAX_BROADCAST_DISTANCE}`);
-        } catch (e) {
-            console.warn("[DM-Engine] 计算广播距离失败，使用默认值96");
-            GLOBAL_MAX_BROADCAST_DISTANCE = 96;
-        }
+        GLOBAL_MAX_BROADCAST_DISTANCE = 64;
+        engineLog(`[DM-Engine] 广播距离 = ${GLOBAL_MAX_BROADCAST_DISTANCE}（固定值）`);
 
         try {
             world.beforeEvents.entityRemove.subscribe((event) => {
@@ -1365,7 +1360,7 @@ export class DmTargetEngine {
         // 现在从敌人快照里取出压力半径内的敌人，
         // 传给 support，避免 support 自己再次 getEntities。
         // ============================================================
-        const pressureRadius = config.pressureRadius ?? 8;
+        const pressureRadius = config.pressureRadius ?? 12;
 
         let pressureTargets = [];
 

@@ -16,7 +16,7 @@
 						}
 					],
 					"on_entry": [
-						"/event entity @s attack_1"
+						"@s attack_1"
 					]
 				}
 			}

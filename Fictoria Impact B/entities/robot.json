@@ -137,11 +137,11 @@
         "speed_multiplier": 0.94,
         "attack_interval_min": 0.04,
         "attack_interval_max": 0.06,
-        "burst_shots": 100,
+        "burst_shots": 50,
         "burst_interval": 0.05,
         "charge_charged_trigger": 0.0,
-        "charge_shoot_trigger": 0.6,
-        "attack_radius": 44
+        "charge_shoot_trigger": 1.5,
+        "attack_radius": 34
       },
       "minecraft:shooter": {
         "def": "bullet:fast_bullet"
@@ -180,14 +180,14 @@
                 }
               ]
             },
-            "max_dist": 44
+            "max_dist": 34
           }
         ],
         "must_see": true,
         "must_see_forget_duration": 11.0
       },
       "minecraft:follow_range": {
-        "value": 44
+        "value": 34
       },
       "minecraft:behavior.look_at_target": {
         "priority": 2,

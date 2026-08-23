@@ -36,8 +36,8 @@
         "height": 1.9
       },
       "minecraft:health": {
-        "value": 35,
-        "max": 35
+        "value": 40,
+        "max": 40
       },
       "minecraft:hurt_on_condition": {
         "damage_conditions": [

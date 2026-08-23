@@ -152,7 +152,7 @@ function ensureSupportRegistryCache(sharedRegistry) {
                 maxAlert = config.alertRange;
             }
         }
-    } catch (_) {}
+    } catch (_) { }
 
     SUPPORT_MAX_ALERT = maxAlert;
     SUPPORT_CACHE_READY = true;
@@ -212,9 +212,9 @@ try {
 
             // 如果移除的是支援者，解除它名下所有仇恨锁
             releaseFollowerAggroLocks(id);
-        } catch (_) {}
+        } catch (_) { }
     });
-} catch (_) {}
+} catch (_) { }
 
 // ============================================================
 // 免疫红光与击退
@@ -246,7 +246,7 @@ export class DmSupportModule {
                 // 清理仇恨传导保护期
                 follower.setDynamicProperty("dm:support_transfer_tick", undefined);
             }
-        } catch (_) {}
+        } catch (_) { }
 
         try {
             const leader = world.getEntity(leaderId);
@@ -254,7 +254,7 @@ export class DmSupportModule {
             if (leader && leader.isValid) {
                 leader.setDynamicProperty("dm:has_supporter", undefined);
             }
-        } catch (_) {}
+        } catch (_) { }
 
         cancelHurtFollowerIds.delete(followerId);
 
@@ -280,7 +280,7 @@ export class DmSupportModule {
      * 4. 传导失败才释放支援锁。
      *
      * 范围保持不变：
-     * 仍然使用 config.pressureRadius ?? 8。
+     * 仍然使用 config.pressureRadius ?? 12。
      */
     static processMainLoopTick(unit, config) {
         if (!unit || !unit.isValid) return;
@@ -370,13 +370,13 @@ export class DmSupportModule {
      * 然后把支援目标切换过去，并重新制造仇恨。
      *
      * 范围保持不变：
-     * 仍然使用 config.pressureRadius ?? 8。
+     * 仍然使用 config.pressureRadius ?? 12。
      */
     static _transferSupportTarget(unit, config, leaderId, nowTick) {
         try {
             if (!unit || !unit.isValid) return false;
 
-            const searchRadius = config.pressureRadius ?? 8;
+            const searchRadius = Math.max(config.pressureRadius ?? 12, 24);
             const searchRadiusSq = searchRadius * searchRadius;
 
             let closestMonster = null;
@@ -465,7 +465,7 @@ export class DmSupportModule {
                                 target.runCommand(
                                     `damage @s 0 entity_attack entity "${supporter.id}"`
                                 );
-                            } catch (_) {}
+                            } catch (_) { }
                         }
 
                         system.runTimeout(() => {
@@ -474,7 +474,7 @@ export class DmSupportModule {
                     } else {
                         DmSupportModule.releaseSupportLock(followerId, leaderId);
                     }
-                } catch (_) {}
+                } catch (_) { }
             });
 
             return true;
@@ -539,10 +539,10 @@ export class DmSupportModule {
         // 空间环境压力探测逻辑
         //
         // 范围保持不变：
-        // config.pressureRadius ?? 8
+        // config.pressureRadius ?? 12
         // ============================================================
         let nearbyMonsterCount = 0;
-        const pressureRadius = config.pressureRadius ?? 8;
+        const pressureRadius = config.pressureRadius ?? 12;
 
         // 优化：如果上游已经传入目标列表，则优先复用，减少一次 getEntities
         if (Array.isArray(targets) && targets.length > 0) {
@@ -568,7 +568,7 @@ export class DmSupportModule {
                 });
 
                 nearbyMonsterCount = pressureTargets.length;
-            } catch (_) {}
+            } catch (_) { }
         }
 
         let pressureValue = Math.min(nearbyMonsterCount * 15, 60);
@@ -609,8 +609,14 @@ export class DmSupportModule {
         // 2. 核心修复：如果是已有保镖时的“后续受击”，不再发起广播抢单，
         //    但必须把它的 ID 重新塞进拦截名单，防止闪红光！
         if (victim.getDynamicProperty("dm:has_supporter")) {
-            cancelHurtFollowerIds.add(victim.id);
-            return;
+            const trueAttacker = event.damageSource?.damagingEntity;
+            if (trueAttacker && trueAttacker.isValid && !monsterAggroLock.has(trueAttacker.id)) {
+                // 当前攻击者未被锁定，允许发起新的支援呼叫
+                // 但不清除 has_supporter 标记
+            } else {
+                cancelHurtFollowerIds.add(victim.id);
+                return;
+            }
         }
 
         // 3. 以下是没有保镖时，第一次受击发起的高灵敏呼叫流
@@ -632,12 +638,12 @@ export class DmSupportModule {
                 trueAttacker.isValid &&
                 trueAttacker.matches &&
                 trueAttacker.matches({ families: ["monster"] });
-        } catch (_) {}
+        } catch (_) { }
 
         if (!attackerIsMonster) return;
         if (monsterAggroLock.has(trueAttacker.id)) return;
 
-        const broadcastDist = SUPPORT_MAX_ALERT + 18;
+        const broadcastDist = 64;
 
         let followers;
 
@@ -707,7 +713,7 @@ export class DmSupportModule {
                                 monster.runCommand(
                                     `damage @s 0 entity_attack entity "${supporter.id}"`
                                 );
-                            } catch (_) {}
+                            } catch (_) { }
                         }
 
                         system.runTimeout(() => {
@@ -722,7 +728,7 @@ export class DmSupportModule {
                     } else {
                         DmSupportModule.releaseSupportLock(followerId, victimId);
                     }
-                } catch (_) {}
+                } catch (_) { }
             });
 
             break;
@@ -871,7 +877,7 @@ export class DmSupportModule {
                                 target.runCommand(
                                     `damage @s 0 entity_attack entity "${supporter.id}"`
                                 );
-                            } catch (_) {}
+                            } catch (_) { }
                         }
 
                         system.runTimeout(() => {
@@ -886,7 +892,7 @@ export class DmSupportModule {
                     } else {
                         DmSupportModule.releaseSupportLock(followerId, caller.unit.id);
                     }
-                } catch (_) {}
+                } catch (_) { }
             });
         }
     }

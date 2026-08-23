@@ -16,7 +16,7 @@
 						}
 					],
 					"on_entry": [
-						"/event entity @s high_health",
+						"@s high_health",
 						"/scoreboard players add @s dm_skill_timer 2"
 					]
 				}

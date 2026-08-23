@@ -14,7 +14,7 @@
 							"default": "query.variant == 0"
 						}
 					],
-"on_entry": ["/execute at @e[type=!player:dm24,r=6,tag=!dm,c=6,family=monster] run summon bullet:fire_attack_1 ~~0.3~"
+"on_entry": ["/execute at @e[type=!player:dm24,r=5,tag=!dm,c=5,family=monster] run summon bullet:fire_attack_1 ~~0.3~"
 ]
 }
 }

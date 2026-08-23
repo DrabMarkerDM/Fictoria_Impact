@@ -66,8 +66,8 @@
         "minecraft:is_tamed": {
         },
         "minecraft:health": {
-          "value": 26,
-          "max": 26
+          "value": 31,
+          "max": 31
         },
         "minecraft:leashable": {
           "soft_distance": 4.0,
@@ -407,7 +407,7 @@
           },
           {
             "cause": "magic",
-            "damage_multiplier": 0.72,
+            "damage_multiplier": 0.5,
             "on_damage": {
               "filters": {
                 "test": "is_family",

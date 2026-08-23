@@ -57,13 +57,13 @@
     },
       "angry": {
           "minecraft:angry": {
-          "duration": 30,
+          "duration": 10,
           "broadcast_anger": true,
           "broadcast_anger_on_attack": true,
           "broadcast_anger_on_being_attacked": true,
-          "broadcast_range": 68,
+          "broadcast_range": 48,
           "broadcast_targets": [
-            "demon" 
+            "monster" 
           ],
           "calm_event": {
             "event": "calm",

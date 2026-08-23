@@ -76,6 +76,13 @@
         "despawer_despawning"
                     ]
       }
+      },
+     "reset": {
+      "minecraft:type_family": {
+        "family": ["despawer",
+        "despawer_despawning"
+                    ]
+      }
      },
      "die": {
       "minecraft:mark_variant": {
@@ -370,6 +377,13 @@
         "add": {
           "component_groups": [
             "air"
+          ]
+        }
+        },
+      "reset": {
+        "add": {
+          "component_groups": [
+            "reset"
           ]
         }
       },

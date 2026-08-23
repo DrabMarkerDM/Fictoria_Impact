@@ -3,7 +3,7 @@
 "controller.animation.dm62satt_1":{
 "states":{
 "default":{"transitions":[
-	{ "attack": "query.health > 72 && query.variant == 2" }
+	{ "attack": "query.health > 74 && query.variant == 2" }
 
 ]
 
@@ -11,7 +11,7 @@
 "attack": {
 					"transitions": [
 						{
-							"default": "query.health <= 72 || query.variant != 2"
+							"default": "query.health <= 74 || query.variant != 2"
 						}
 					],
 	"on_entry": [

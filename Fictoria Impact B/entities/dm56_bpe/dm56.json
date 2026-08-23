@@ -53,8 +53,8 @@
           ]
         },
         "minecraft:health": {
-          "value": 32,
-          "max": 32
+          "value": 37,
+          "max": 37
         },
         "minecraft:on_death": {
           "event": "die",

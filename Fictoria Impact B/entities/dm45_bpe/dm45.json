@@ -118,8 +118,8 @@
       "on_ta": {
         "minecraft:is_tamed": {},
         "minecraft:health": {
-          "value": 28,
-          "max": 28
+          "value": 33,
+          "max": 33
         },
         "minecraft:equipment": {
           "table": "loot_tables/dm45.json"
@@ -360,7 +360,7 @@
             },
             {
               "cause": "magic",
-              "damage_multiplier": 0.75,
+              "damage_multiplier": 0.5,
               "on_damage": {
                 "filters": {
                   "test": "is_family",
@@ -522,7 +522,7 @@
             },
             {
               "cause": "magic",
-              "damage_multiplier": 0.72,
+              "damage_multiplier": 0.48,
               "on_damage": {
                 "filters": {
                   "test": "is_family",

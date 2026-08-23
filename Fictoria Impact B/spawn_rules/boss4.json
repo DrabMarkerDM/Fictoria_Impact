@@ -20,10 +20,6 @@
         "minecraft:weight": {
           "default": 1
         },
-        "minecraft:herd": {
-          "min_size": 1,
-          "max_size": 1
-        },
         "minecraft:density_limit": {
           "surface": 1
         },

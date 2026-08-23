@@ -179,8 +179,8 @@
         "minecraft:is_tamed": {
         },
 	"minecraft:health": {
-	   "value": 29,
-	   "max": 29
+	   "value": 34,
+	   "max": 34
 	},
         "minecraft:behavior.tempt": {
           "priority": 0,
@@ -846,6 +846,18 @@
               "angry"
             ]
           }
+          },
+      "hurt_by": {
+        "add": {
+          "component_groups": [
+            "att"
+          ]
+        },
+        "remove": {
+          "component_groups": [
+            "att"
+          ]
+        }
         }
       }
     }

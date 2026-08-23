@@ -4,7 +4,7 @@
 		"states": {
 			"default": {
 				"transitions": [
-					{ "attack": "query.health > 72 && query.variant == 1" }
+					{ "attack": "query.health > 74 && query.variant == 1" }
 
 				]
 
@@ -12,7 +12,7 @@
 			"attack": {
 				"transitions": [
 					{
-						"default": "query.health <= 72 || query.variant != 1"
+						"default": "query.health <= 74 || query.variant != 1"
 					}
 				],
 				"on_entry": [

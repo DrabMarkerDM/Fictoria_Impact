@@ -40,6 +40,22 @@
         "minecraft:shooter": {
           "def": "bullet:gun_soldier_bullet"
         }
+        },
+      "angry": {
+          "minecraft:angry": {
+          "duration": 30,
+          "broadcast_anger": true,
+          "broadcast_anger_on_attack": true,
+          "broadcast_anger_on_being_attacked": true,
+          "broadcast_range": 68,
+          "broadcast_targets": [
+            "demon" 
+          ],
+          "calm_event": {
+            "event": "calm",
+            "target": "self"
+          }
+        }
     }
     },
     "components": {
@@ -360,7 +376,8 @@
        "minecraft:entity_spawned": {
             "add": {
           "component_groups": [
-            "bow"
+            "bow",
+            "angry"
           ]
         }  
        },
@@ -372,19 +389,28 @@
         },
         "add": {
           "component_groups": [
-            "sword"
+            "sword",
+            "angry"
           ]
         }
       },
       "stop": {
         "add": {
           "component_groups": [
-            "bow"
+            "bow",
+            "angry"
           ]
         },
         "remove": {
           "component_groups": [
             "sword"
+          ]
+        }
+       },
+      "calm": {
+        "remove": {
+          "component_groups": [
+            "angry"
           ]
         }
       }

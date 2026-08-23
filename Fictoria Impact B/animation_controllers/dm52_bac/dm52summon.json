@@ -15,8 +15,9 @@
 						}
 					],
 "on_entry": [
+"/event entity @e[type=mob:mon3tr] reset",
 "/execute positioned ^ ^ ^2 run summon mob:mon3tr ~~~",
-"/event entity @e[type=player:dm52,c=1] summon_end",
+"@s summon_end",
 "/playsound mon3tr @a[r=50] ~~~ 3.0 1.0"
 ]
 }

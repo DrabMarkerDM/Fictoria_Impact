@@ -190,8 +190,8 @@
           "table": "loot_tables/dm46.json"
         },
         "minecraft:health": {
-          "value": 79,
-          "max": 79
+          "value": 84,
+          "max": 84
         },
         "minecraft:variant": {
           "value": 2
@@ -266,8 +266,8 @@
       "on_ta": {
         "minecraft:is_tamed": {},
         "minecraft:health": {
-          "value": 36,
-          "max": 36
+          "value": 41,
+          "max": 41
         },
         "minecraft:leashable": {
           "soft_distance": 4.5,
@@ -472,8 +472,8 @@
           "value": 0.4
         },
         "minecraft:health": {
-          "value": 36,
-          "max": 36
+          "value": 41,
+          "max": 41
         },
         "minecraft:on_target_acquired": {
         "event": "attack",

@@ -15,7 +15,7 @@
       },
       "animations": {
         "tag": "controller.animation.dm_tag",
-        "ect": "controller.animation.ect_4",
+        "ect": "controller.animation.ect_5",
         "equip": "controller.animation.dm_equip"
       },
       "properties": {
@@ -156,7 +156,7 @@
         "minecraft:tameable": {
           "probability": 1.0,
           "tame_items": [
-            "items:card_2"
+            "items:card_3"
           ],
           "tame_event": {
             "event": "on_tame",
@@ -187,8 +187,8 @@
         "minecraft:is_tamed": {
         },
         "minecraft:health": {
-          "value": 28,
-          "max": 28
+          "value": 33,
+          "max": 33
         },
         "minecraft:leashable": {
           "soft_distance": 4.5,

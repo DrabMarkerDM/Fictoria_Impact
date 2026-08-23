@@ -47,8 +47,8 @@
         "height": 1.8
       },
       "minecraft:health": {
-        "value": 30,
-        "max": 30
+        "value": 35,
+        "max": 35
       },
       "minecraft:target_nearby_sensor": {
         "inside_range": 7.0,

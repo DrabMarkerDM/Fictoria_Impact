@@ -435,7 +435,7 @@
       "die": {
         "queue_command": {
           "command": [
-            "damage @e[family=monster,r=50] 0 entity_attack entity @e[family=dm,r=50,c=1,type=!player:dm31]",
+            "damage @e[family=monster,r=50] 1 entity_attack entity @e[family=dm,r=50,c=1]",
             "effect @e[tag=!demon,family=!monster,r=10] instant_damage 1 0",
             "effect @e[family=monster,r=10] strength 1 1"
           ]

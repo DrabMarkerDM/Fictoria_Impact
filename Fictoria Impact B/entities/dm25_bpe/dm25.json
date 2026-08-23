@@ -205,8 +205,8 @@
       "on_ta": {
         "minecraft:is_tamed": {},
         "minecraft:health": {
-          "value": 33,
-          "max": 33
+          "value": 38,
+          "max": 38
         },
         "minecraft:leashable": {
           "soft_distance": 4.5,
