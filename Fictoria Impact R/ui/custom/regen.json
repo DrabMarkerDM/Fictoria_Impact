@@ -1,0 +1,106 @@
+{
+   "namespace": "java_regen",
+
+   "regen_panel_non_centered": {
+      "$key": "!regen",
+      "$atext": "$actionbar_text",
+      "type": "panel",
+      "size": [0, 0],
+      "layer": 200,
+      "anchor_from": "top_left",
+      "anchor_to": "top_left",
+      "visible": "($atext = $key)",
+      "controls": [
+         { "0@java_regen.render_heart": { "offset": [0, 0] } },
+         { "1@java_regen.render_heart": { "offset": [8, 0] } },
+         { "2@java_regen.render_heart": { "offset": [16, 0] } },
+         { "3@java_regen.render_heart": { "offset": [24, 0] } },
+         { "4@java_regen.render_heart": { "offset": [32, 0] } },
+         { "5@java_regen.render_heart": { "offset": [40, 0] } },
+         { "6@java_regen.render_heart": { "offset": [48, 0] } },
+         { "7@java_regen.render_heart": { "offset": [56, 0] } },
+         { "8@java_regen.render_heart": { "offset": [64, 0] } },
+         { "9@java_regen.render_heart": { "offset": [72, 0] } }
+      ]
+   },
+
+   "regen_factory_non_centered": {
+      "type": "panel",
+      "factory": {
+         "name": "hud_actionbar_text_factory",
+         "control_ids": { "hud_actionbar_text": "regen_panel_non_centered@java_regen.regen_panel_non_centered" }
+      }
+   },
+
+   "regen_panel_clasic": {
+      "$key": "!regen",
+      "$atext": "$actionbar_text",
+      "type": "panel",
+      "size": ["100%c", 9],
+      "offset": [-1, -11.5],
+      "layer": 200,
+      "anchor_from": "bottom_left",
+      "anchor_to": "bottom_left",
+      "visible": "($atext = $key)",
+      "controls": [
+         { "0@java_regen.render_heart": { "offset": [0, 0] } },
+         { "1@java_regen.render_heart": { "offset": [8, 0] } },
+         { "2@java_regen.render_heart": { "offset": [16, 0] } },
+         { "3@java_regen.render_heart": { "offset": [24, 0] } },
+         { "4@java_regen.render_heart": { "offset": [32, 0] } },
+         { "5@java_regen.render_heart": { "offset": [40, 0] } },
+         { "6@java_regen.render_heart": { "offset": [48, 0] } },
+         { "7@java_regen.render_heart": { "offset": [56, 0] } },
+         { "8@java_regen.render_heart": { "offset": [64, 0] } },
+         { "9@java_regen.render_heart": { "offset": [72, 0] } }
+      ]
+   },
+
+   "regen_factory_clasic": {
+      "type": "panel",
+      "factory": {
+         "name": "hud_actionbar_text_factory",
+         "control_ids": { "hud_actionbar_text": "regen_panel_clasic@java_regen.regen_panel_clasic" }
+      }
+   },
+
+   "regen_panel": {
+      "$key": "!regen",
+      "$atext": "$actionbar_text",
+      "type": "panel",
+      "size": ["100%c", 9],
+      "offset": [-1, -11.5],
+      "layer": 200,
+      "anchor_from": "bottom_left",
+      "anchor_to": "bottom_left",
+      "visible": "($atext = $key)",
+      "controls": [
+         { "0@java_regen.render_heart": { "offset": [0, 0] } },
+         { "1@java_regen.render_heart": { "offset": [8, 0] } },
+         { "2@java_regen.render_heart": { "offset": [16, 0] } },
+         { "3@java_regen.render_heart": { "offset": [24, 0] } },
+         { "4@java_regen.render_heart": { "offset": [32, 0] } },
+         { "5@java_regen.render_heart": { "offset": [40, 0] } },
+         { "6@java_regen.render_heart": { "offset": [48, 0] } },
+         { "7@java_regen.render_heart": { "offset": [56, 0] } },
+         { "8@java_regen.render_heart": { "offset": [64, 0] } },
+         { "9@java_regen.render_heart": { "offset": [72, 0] } }
+      ]
+   },
+
+   "regen_factory": {
+      "type": "panel",
+      "factory": {
+         "name": "hud_actionbar_text_factory",
+         "control_ids": { "hud_actionbar_text": "regen_panel@java_regen.regen_panel" }
+      }
+   },
+
+   "render_heart": {
+      "type": "image",
+      "size": [9, 9],
+      "anchor_from": "left_middle",
+      "anchor_to": "left_middle",
+      "texture": "textures/ui/heart_flash"
+   }
+}

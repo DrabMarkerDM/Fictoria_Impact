@@ -1,0 +1,21 @@
+{
+  "format_version": "1.10.0",
+  "animation_controllers": {
+    "controller.animation.dm_slash_s1": {
+      "initial_state": "hidden",
+      "states": {
+        "hidden": {
+          "transitions": [
+            { "playing": "query.property('dm:is_attacking_2') == 'on'" }
+          ]
+        },
+        "playing": {
+          "animations": [ "slash_s1" ], 
+          "transitions": [
+            { "hidden": "query.any_animation_finished" }
+          ]
+        }
+      }
+    }
+  }
+}

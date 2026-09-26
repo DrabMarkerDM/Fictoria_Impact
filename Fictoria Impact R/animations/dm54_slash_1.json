@@ -1,0 +1,20 @@
+{
+	"format_version": "1.10.0",
+	"animations": {
+		"animation.dm54_slash_1": {
+			"loop": false,
+			"animation_length": 0.5,
+			"bones": {
+				"slash_main": {
+					"rotation": [-16.6384, 335.7129, -164.7932],
+					"position": [-32, 28, 14],
+					"scale": 2
+				},
+				"slash_minor": {
+					"rotation": [0, 0, -12.5],
+					"position": [13, 3, 2]
+				}
+			}
+		}
+	}
+}

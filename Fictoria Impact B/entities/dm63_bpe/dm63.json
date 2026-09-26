@@ -175,7 +175,8 @@
           "burst_interval": 0.7,
           "charge_charged_trigger": 0.0,
           "charge_shoot_trigger": 0.6,
-          "attack_radius": 22
+          "attack_radius": 22,
+          "swing": true
         },
         "minecraft:shooter": {
           "def": "bullet:dm63_bullet"
@@ -197,7 +198,8 @@
           "burst_interval": 0.5,
           "charge_charged_trigger": 0.0,
           "charge_shoot_trigger": 0.6,
-          "attack_radius": 24
+          "attack_radius": 24,
+          "swing": true
         },
         "minecraft:shooter": {
           "def": "bullet:dm63_bullet_1"

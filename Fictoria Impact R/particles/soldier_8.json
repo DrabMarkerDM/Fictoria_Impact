@@ -5,7 +5,7 @@
       "identifier": "dm:soldier_8",
       "basic_render_parameters": {
         "material": "particles_alpha",
-        "texture": "textures/particle/particles"
+        "texture": "textures/particle/dm_particles"
       }
     },
     "components": {

@@ -8,7 +8,7 @@
         "default": "textures/entity/demon/soldier_9"
       },
       "geometry": {
-        "default": "geometry.girl_new"
+        "default": "geometry.soldier_9"
       },
       "scripts": {
         "pre_animation": [
@@ -39,7 +39,10 @@
         "swimming": "animation.humanoid.swimming",
         "use_item_progress": "animation.humanoid.use_item_progress",
         "get_in_bed": "animation.get_in_bed",
-        "bob": "animation.humanoid.bob"
+        "bob": "animation.humanoid.bob",
+        "sss": "animation.soldier_9.sss",
+        "holding_1": "animation.soldier_9_hold",
+        "idle": "animation.soldier_9.idle"
       },
       "animation_controllers": [
        { "humanoid_baby_big_head": "controller.animation.humanoid.baby_big_head" },
@@ -55,9 +58,11 @@
         { "damage_nearby_mobs": "controller.animation.humanoid.damage_nearby_mobs" },
         { "swimming": "controller.animation.humanoid.swimming" },
         { "use_item_progress": "controller.animation.humanoid.use_item_progress" },
-        { "bob": "controller.animation.humanoid.bob" }
+        { "bob": "controller.animation.humanoid.bob" },
+        { "holding_1": "controller.animation.soldier_9_hold" },
+        { "idle": "controller.animation.soldier_9.idle" }
       ],
-      "render_controllers": [ "controller.render.player_dusted" ],
+      "render_controllers": [ "controller.render.soldier_9" ],
       "enable_attachables": true,
         "spawn_egg": {
         "texture": "eggs",

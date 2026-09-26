@@ -1,0 +1,18 @@
+{"format_version":"1.10.0",
+"minecraft:client_entity":{
+"description":{
+    "animations":{
+    "default":"animation.demon_uav"
+    },
+    "geometry":{"default":"geometry.demon_uav"
+    },
+    "identifier":"mob:demon_uav",
+    "materials":{"default":"spider"
+    },
+    "render_controllers":[
+    "controller.render.demon_uav"],
+    "scripts":{"animate":["default"],
+          "scale": "0.5"
+    },
+    "textures":{"default":"textures/entity/mob/demon_uav"
+    }}}}

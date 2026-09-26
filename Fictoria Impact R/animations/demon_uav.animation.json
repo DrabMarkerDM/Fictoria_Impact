@@ -1,0 +1,46 @@
+{
+	"format_version": "1.8.0",
+	"animations": {
+		"animation.demon_uav": {
+			"loop": true,
+			"animation_length": 2,
+			"bones": {
+				"root": {
+					"rotation": {
+						"0.0": [0, 0, 0],
+						"2.0": [0, 0, 0]
+					},
+					"position": {
+						"0.0": [0, 0, 0],
+						"1.0": [0, 3, 0],
+						"2.0": [0, 0, 0]
+					},
+					"scale": {
+						"0.0": [1, 1, 1],
+						"2.0": [1, 1, 1]
+					}
+				},
+				"fan1": {
+					"rotation": [0, "-query.anim_time * -2880", 0],
+					"position": [0, 0, 0],
+					"scale": 1
+				},
+				"fan2": {
+					"rotation": [0, "-query.anim_time * 2880 ", 0],
+					"position": [0, 0, 0],
+					"scale": 1
+				},
+				"fan3": {
+					"rotation": [0, "-query.anim_time * 2880 ", 0],
+					"position": [0, 0, 0],
+					"scale": 1
+				},
+				"fan4": {
+					"rotation": [0, "-query.anim_time * -2880", 0],
+					"position": [0, 0, 0],
+					"scale": 1
+				}
+			}
+		}
+	}
+}

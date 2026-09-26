@@ -165,7 +165,7 @@
       },
       "minecraft:boss": {
         "should_darken_sky": false,
-        "name": "Boss2",
+        "name": "Nieves",
         "hud_range": 35
       },
       "minecraft:hurt_on_condition": {

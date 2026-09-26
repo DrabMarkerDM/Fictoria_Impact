@@ -1,0 +1,36 @@
+{
+	"format_version": "1.10.0",
+	"render_controllers": {
+		"controller.render.dm54_slash_2": {
+			"arrays": {
+				"textures": {
+				  "array.frames": [
+					"texture.s1",
+					"texture.s2",
+					"texture.s3",
+					"texture.s4",
+					"texture.s5",
+					"texture.s6",
+					"texture.s7",
+					"texture.s8"
+
+					]
+				}
+			},
+			"geometry": "geometry.slash_s1",
+			"part_visibility": [
+  { "*": "query.property('dm:is_attacking_2') == 'on'" }
+      ],
+			"materials": [
+				{
+					"*": "material.light"
+				}
+			],
+			"is_hurt_color": { "r": 0.0, "g": 0.0, "b": 0.0, "a": 0.0 },
+            "on_fire_color": { "r": 0.0, "g": 0.0, "b": 0.0, "a": 0.0 },
+			"textures": [
+				"temp.anim_time = query.anim_time * 16.0; return temp.anim_time < 8.0 ? array.frames[temp.anim_time] : Texture.empty;"
+			]
+		}
+	}
+}

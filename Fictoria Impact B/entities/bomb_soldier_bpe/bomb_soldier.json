@@ -22,8 +22,8 @@
     "component_groups": {
       "sword": {
         "minecraft:health": {
-          "value": 48,
-          "max": 48
+          "value": 53,
+          "max": 53
         },
         "minecraft:variant": {
           "value": 1

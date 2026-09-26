@@ -42,8 +42,8 @@
         "height": 1.8
       },
       "minecraft:health": {
-        "value": 28,
-        "max": 28
+        "value": 33,
+        "max": 33
       },
       "minecraft:equipment": {
         "table": "loot_tables/bow.json"

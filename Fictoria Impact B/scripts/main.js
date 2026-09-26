@@ -34,6 +34,15 @@ import "./dm_entities/common/fictoria_ui.js";
 // 导入窒息挣脱底层模块
 import "./dm_entities/common/suffocation_escape.js";
 
+// 导入玩家剑近战相关逻辑
+import "./dm_entities/player/dm_player_sword_attack.js";
+
+// 导入buff计算器
+import "./dm_entities/common/damage_buff_calculator.js";
+
+// 导入地雷js
+import "./element/demon_landmine.js";
+
 // 初始化幻域球
 initFictoriaBall();
 
@@ -41,8 +50,7 @@ initFictoriaBall();
 DmTargetEngine.init();
 
 // ============================================================
-// 长期方案 B：彻底去重驱动
-//
+// 优化方案：
 // 原 main.js 每 tick 会遍历 34 个 TARGET_TYPES。
 // 在旧版本中，同一个实体可能被重复查询、重复读取属性、重复 applyImpulse。
 // 这会导致：
@@ -63,7 +71,7 @@ DmTargetEngine.init();
 // ============================================================
 // 校准倍率
 //
-// 你原来的 TARGET_TYPES 大约有 34 个。
+// 原来的 TARGET_TYPES 大约有 34 个。
 // 诊断日志中曾经出现：
 //
 // ticks=40

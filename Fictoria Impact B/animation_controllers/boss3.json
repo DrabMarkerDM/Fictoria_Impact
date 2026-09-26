@@ -18,7 +18,8 @@
 		"/effect @e[type=!demon:boss3,tag=!demon,family=!demon,family=!inanimate,r=8] wither 5 255 true",
 		"/execute positioned ^ ^ ^3 run execute at @e[type=!demon:boss3,tag=!demon,family=!demon,family=!inanimate,r=8] run summon bullet:boss3 ~~0.3~",
 		"/particle dm:boss3 ^ ^2 ^2",
-		"/effect @s regeneration 1 5 true"
+		"/effect @s regeneration 1 5 true",
+		"/playsound sweep @a[r=33] ~~~ 1.5 0.7"
 	]
 }
 }

@@ -5,7 +5,8 @@
       "geometry": "Geometry.default",
       "part_visibility": [
         { "*": false },
-        { "sword": "query.variant == 2" }
+        { "sword": "query.variant == 2" },
+        { "slash": false }
       ],
       "materials": [ { "*": "Material.sss" } ],
       "is_hurt_color": { "r": 0.0, "g": 0.0, "b": 0.0, "a": 0.0 },

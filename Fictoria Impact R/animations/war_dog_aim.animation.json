@@ -1,0 +1,22 @@
+{
+	"format_version": "1.8.0",
+	"animations": {
+		"animation.war_dog_aim": {
+			"loop": true,
+			"bones": {
+				"gun": {
+					"rotation": [
+						"math.clamp(query.target_x_rotation, -15, 20)",
+						"math.clamp(query.target_y_rotation, -120, 120)",
+						"math.clamp(-variable.body_rot_z, -15, 15)"
+					],
+					"position": [
+						0,
+						0,
+						0
+					]
+				}
+			}
+		}
+	}
+}

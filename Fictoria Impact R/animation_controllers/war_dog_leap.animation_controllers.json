@@ -1,0 +1,26 @@
+{
+  "format_version": "1.21.50",
+  "animation_controllers": {
+    "controller.animation.war_dog_leap": {
+      "initial_state": "default",
+      "states": {
+        "default": {
+          "transitions": [
+            {
+              "leap_attack": "variable.attack_time > 0.0"
+            }
+          ]
+        },
+        "leap_attack": {
+          "animations": ["leap"],
+          "transitions": [
+            {
+              "default": "variable.attack_time <= 0.0"
+           }
+					],
+					"blend_transition": 0.3
+        }
+      }
+    }
+  }
+}

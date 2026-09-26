@@ -1,0 +1,25 @@
+{
+	"format_version": "1.8.0",
+	"animations": {
+		"animation.dm63_target": {
+			"loop": true,
+			"bones": {
+				"leftArm": {
+					"rotation": ["-62.52006 +query.target_x_rotation - this", "47.8329 +query.target_y_rotation - this", "9.08429 - this"],
+					"position": [0, 0, 0],
+					"scale": 1
+				},
+				"rightArm": {
+					"rotation": ["-92.69887 +query.target_x_rotation - this", "-19.95132 +query.target_y_rotation - this", "0.47479 - this"],
+					"position": [0, 0, 0],
+					"scale": 1
+				},
+				"gun": {
+					"rotation": [0, 0, 12.5],
+					"position": [30, 5, -13],
+					"scale": 0.17
+				}
+			}
+		}
+	}
+}

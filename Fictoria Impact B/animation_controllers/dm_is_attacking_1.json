@@ -1,0 +1,22 @@
+{
+  "format_version": "1.10.0",
+  "animation_controllers": {
+    "controller.animation.dm_is_attacking_1": {
+      "initial_state": "idle",
+      "states": {
+        "idle": {
+          "transitions": [
+            { "attacking": "variable.attack_time > 0.2 && query.variant == 1" }
+          ]
+        },
+        "attacking": {
+          "animations": [ "att_timer" ],
+          "on_entry": [ "@s dm:is_attacking_on_1" ],
+          "transitions": [
+            { "idle": "query.property('dm:is_attacking_1') == 'off'" }
+          ]
+        }
+      }
+    }
+  }
+}

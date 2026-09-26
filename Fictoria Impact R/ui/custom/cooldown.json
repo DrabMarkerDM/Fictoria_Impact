@@ -1,0 +1,91 @@
+{
+   "namespace": "javacombat",
+
+   "cooldown_panel": {
+      "type": "panel",
+      "size": ["100%", "100%"],
+      "$update_string": "!jc.",
+      "offset": [0, 8],
+      "controls": [{ "cooldown_holder@javacombat.cooldown_holder": {} }],
+      "bindings": [
+         {
+            "binding_type": "global",
+            "binding_name": "#hud_title_text_string",
+            "binding_name_override": "#text"
+         },
+         {
+            "binding_type": "view",
+            "source_property_name": "(('%.4s' * #text) = $update_string)",
+            "target_property_name": "#visible"
+         }
+      ]
+   },
+
+   "cooldown_holder": {
+      "type": "image",
+      "layer": 1,
+      "size": [16, 4],
+      "texture": "textures/particle/jc/sword_empty",
+      "alpha": 0.4,
+      "controls": [{ "cooldown_indicator@javacombat.cooldown_indicator": {} }, { "mob_indicator@javacombat.mob_indicator": {} }]
+   },
+
+   "cooldown_indicator": {
+      "type": "image",
+      "layer": 2,
+      "size": ["100%", "100%"],
+      "texture": "textures/particle/jc/sword_full",
+      "clip_pixelperfect": false,
+      "clip_direction": "left",
+      "alpha": 0.4,
+      "$clip_max": 80.0,
+      "bindings": [
+         {
+            "binding_type": "global",
+            "binding_name": "#hud_title_text_string",
+            "binding_name_override": "#text"
+         },
+         {
+            "binding_type": "view",
+            "source_property_name": "(#text - ('%.4s' * #text))",
+            "target_property_name": "#textnumber"
+         },
+         {
+            "binding_type": "view",
+            "source_property_name": "(#textnumber * 1)",
+            "target_property_name": "#ratio"
+         },
+         {
+            "binding_type": "view",
+            "source_property_name": "(($clip_max - #ratio) / $clip_max)",
+            "target_property_name": "#clip_ratio"
+         },
+         {
+            "binding_type": "view",
+            "source_property_name": "(('%.4s' * #text) = $update_string)",
+            "target_property_name": "#visible"
+         }
+      ]
+   },
+
+   "mob_indicator": {
+      "type": "image",
+      "layer": 2,
+      "size": ["90%", "70%"],
+      "texture": "textures/particle/jc/mob",
+      "offset": [0, 3],
+      "alpha": 0.4,
+      "bindings": [
+         {
+            "binding_type": "global",
+            "binding_name": "#hud_title_text_string",
+            "binding_name_override": "#text"
+         },
+         {
+            "binding_type": "view",
+            "source_property_name": "((('%.4s' * #text) = $update_string) and ((#text - ('%.4s' * #text)) = 80))",
+            "target_property_name": "#visible"
+         }
+      ]
+   }
+}

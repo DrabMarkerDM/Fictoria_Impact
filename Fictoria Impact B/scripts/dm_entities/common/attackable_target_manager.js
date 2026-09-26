@@ -48,7 +48,7 @@ const PreviousCombatState = new Set();
 // 现在不再让每个单位单独查询附近怪物，
 // 而是每个维度根据玩家位置建立一次敌人快照。
 //
-// ENEMY_SNAPSHOT_RADIUS 默认 96，是为了兼容你配置里最大的 alertRange。
+// ENEMY_SNAPSHOT_RADIUS 默认 96，是为了兼容配置里最大的 alertRange。
 // 如果后续想进一步降低开销，可以改成 80 / 64。
 // ============================================================
 const ENEMY_FAMILY = "monster";

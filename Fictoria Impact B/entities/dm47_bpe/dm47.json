@@ -38,8 +38,8 @@
         "height": 1.78
       },
       "minecraft:health": {
-        "value": 50,
-        "max": 50
+        "value": 47,
+        "max": 47
       },
       "minecraft:leashable": {
         "soft_distance": 4.5,

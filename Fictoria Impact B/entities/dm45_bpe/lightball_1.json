@@ -100,6 +100,26 @@
         "inertia": 1.4
       },
 	    "minecraft:physics": {
+        },
+      "minecraft:area_attack": {
+        "cause": "magic",
+        "damage_cooldown": 0.1,
+        "damage_per_tick": 30,
+        "damage_range": 8,
+        "entity_filter": {
+          "any_of": [
+            {
+              "subject": "other",
+              "test": "is_family",
+              "value": "monster"
+            },
+            {
+              "subject": "other",
+              "test": "is_family",
+              "value": "demon"
+            }
+          ]
+        }
 	    }
         },
         "events": {

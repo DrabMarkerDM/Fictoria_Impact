@@ -1,0 +1,7 @@
+{
+	"format_version": "1.16.100",
+	"minecraft:texture_set": {
+		"color": "demon_landmine",
+		"metalness_emissive_roughness": "demon_landmine_mer"
+	}
+}

@@ -1,11 +1,14 @@
 {
-  "resource_pack_name": "Undefined World",
+  "resource_pack_name": "Fictoria_Impact",
   "texture_name": "atlas.terrain",
   "padding": 1,
   "num_mip_levels": 4,
   "texture_data": {
     "none": {
       "textures": "textures/block/none"
+    },
+    "demon_landmine": {
+      "textures": "textures/block/demon_landmine"
     }
   }
 }

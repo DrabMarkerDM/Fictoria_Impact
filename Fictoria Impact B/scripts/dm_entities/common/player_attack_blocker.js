@@ -62,10 +62,7 @@ const RAW_VANILLA_FAMILIES = ["horse", "wolf", "cat"];
 // "mob" 太宽泛，会把大量普通实体都误判成友方，
 // 导致玩家和友方几乎无法伤害任何实体。
 //
-// 因此这里只保留 "dm"。
-// 如果你以后需要保护更多自定义友军：
-// 1. 把它们的 typeId 加进 RAW_CUSTOM_ALLIED_TYPES
-// 2. 或者给它们加专用 family，例如 "dm_ally"
+// 这里只保留 "dm"。
 // ============================================================
 const RAW_DM_FAMILIES = ["dm"];
 

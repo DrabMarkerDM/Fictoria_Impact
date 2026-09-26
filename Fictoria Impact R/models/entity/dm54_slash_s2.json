@@ -1,0 +1,71 @@
+{
+	"format_version": "1.16.0",
+	"minecraft:geometry": [
+		{
+			"description": {
+				"identifier": "geometry.dm54_slash_s2",
+				"texture_width": 32,
+				"texture_height": 32,
+				"visible_bounds_width": 17,
+				"visible_bounds_height": 3,
+				"visible_bounds_offset": [0, 0.5, 0]
+			},
+			"bones": [
+				{
+					"name": "slash_s2",
+					"pivot": [-40, 4, -38],
+					"texture_meshes": [
+						{
+							"texture": "a1",
+							"position": [-24, 0, -22],
+							"local_pivot": [16, 0, 16],
+							"scale": [1, 0.25, 1]
+						},
+						{
+							"texture": "a2",
+							"position": [-24, 0, -22],
+							"local_pivot": [16, 0, 16],
+							"scale": [1, 0.25, 1]
+						},
+						{
+							"texture": "a3",
+							"position": [-24, 0, -22],
+							"local_pivot": [16, 0, 16],
+							"scale": [1, 0.25, 1]
+						},
+						{
+							"texture": "a4",
+							"position": [-24, 0, -22],
+							"local_pivot": [16, 0, 16],
+							"scale": [1, 0.25, 1]
+						},
+						{
+							"texture": "a5",
+							"position": [-24, 0, -22],
+							"local_pivot": [16, 0, 16],
+							"scale": [1, 0.25, 1]
+						},
+						{
+							"texture": "a6",
+							"position": [-24, 0, -22],
+							"local_pivot": [16, 0, 16],
+							"scale": [1, 0.25, 1]
+						},
+						{
+							"texture": "a7",
+							"position": [-24, 0, -22],
+							"local_pivot": [16, 0, 16],
+							"scale": [1, 0.25, 1]
+						},
+						{
+							"texture": "a8",
+							"position": [-24, 0, -22],
+							"local_pivot": [16, 0, 16],
+							"scale": [1, 0.25, 1]
+						}
+					]
+				}
+			]
+		}
+	]
+}

@@ -37,8 +37,8 @@
         "height": 1.8
       },
       "minecraft:health": {
-        "value": 58,
-        "max": 58
+        "value": 63,
+        "max": 63
       },
       "minecraft:equipment": {
         "table": "loot_tables/iron_sword.json"

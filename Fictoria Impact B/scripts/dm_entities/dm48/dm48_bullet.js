@@ -1,8 +1,8 @@
 import { EntityDamageCause } from '@minecraft/server';
+import { applyBuffModifier } from '../common/damage_buff_calculator.js';
 
 export const BulletEffects = {
-    // dm48_s_ak 的函数
-    dm48_s_ak: (target, attacker, projectile, dimension, runEffectCommands, hitLocation) => {
+    dm48_s_ak: (_target, attacker, _projectile, dimension, runEffectCommands, hitLocation) => {
         if (Math.random() < 0.05) {
             const targets = dimension.getEntities({
                 location: hitLocation,
@@ -10,13 +10,15 @@ export const BulletEffects = {
                 closest: 4
             });
 
-            for (const t of targets) {
-                // [2.7.0] isValid() 方法 → isValid 属性
-                if (!t.isValid) continue;
-                t.applyDamage(34, { cause: EntityDamageCause.override, damagingEntity: attacker });
-                t.applyDamage(34, { cause: EntityDamageCause.override, damagingEntity: attacker });
-            }
+            const buffedDamage = applyBuffModifier(34, attacker);
 
+            for (const t of targets) {
+                if (!t.isValid) continue;
+                if (t.hasTag("dm")) continue;
+                
+                t.applyDamage(buffedDamage, { cause: EntityDamageCause.override, damagingEntity: attacker });
+                t.applyDamage(buffedDamage, { cause: EntityDamageCause.override, damagingEntity: attacker });
+            }
             runEffectCommands(dimension, hitLocation, [
                 "playsound dm.ak_shoot @a[r=33] ~~~ 2.8 1.5",
                 "playsound dm.ak_shoot @a[r=33] ~~~ 2.8 1.5",
@@ -27,8 +29,7 @@ export const BulletEffects = {
         }
     },
 
-    // dm48_ak 的函数
-    dm48_ak: (target, attacker, projectile, dimension, runEffectCommands, hitLocation) => {
+    dm48_ak: (_target, attacker, _projectile, dimension, runEffectCommands, hitLocation) => {
         if (Math.random() < 0.03) {
             const targets = dimension.getEntities({
                 location: hitLocation,
@@ -36,13 +37,15 @@ export const BulletEffects = {
                 closest: 4
             });
 
-            for (const t of targets) {
-                // [2.7.0] isValid() 方法 → isValid 属性
-                if (!t.isValid) continue;
-                t.applyDamage(21, { cause: EntityDamageCause.override, damagingEntity: attacker });
-                t.applyDamage(21, { cause: EntityDamageCause.override, damagingEntity: attacker });
-            }
+            const buffedDamage = applyBuffModifier(21, attacker);
 
+            for (const t of targets) {
+                if (!t.isValid) continue;
+                if (t.hasTag("dm")) continue;
+                
+                t.applyDamage(buffedDamage, { cause: EntityDamageCause.override, damagingEntity: attacker });
+                t.applyDamage(buffedDamage, { cause: EntityDamageCause.override, damagingEntity: attacker });
+            }
             runEffectCommands(dimension, hitLocation, [
                 "playsound dm.ak_shoot @a[r=33] ~~~ 2.8 1.4",
                 "playsound dm.ak_shoot @a[r=33] ~~~ 2.8 1.4",

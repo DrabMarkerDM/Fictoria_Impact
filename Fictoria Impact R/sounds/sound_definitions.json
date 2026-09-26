@@ -522,7 +522,84 @@
       "sounds/player/dm63_2",
       "sounds/player/dm63_3",
       "sounds/player/dm63_4"
+       ]
+  },
+  "dm_parry": {
+    "category": "music",
+    "sounds": [
+      "sounds/attack/parry/parry1",
+      "sounds/attack/parry/parry2"
+      ]
+  },
+  "war_dog_bark": {
+    "category": "music",
+    "sounds": [
+      "sounds/war_dog/war_dog_bark_1",
+      "sounds/war_dog/war_dog_bark_2",
+      "sounds/war_dog/war_dog_bark_3"
+      ]
+  },
+  "war_dog_angry": {
+    "category": "music",
+    "sounds": [
+      "sounds/war_dog/war_dog_angry_1",
+      "sounds/war_dog/war_dog_angry_2",
+      "sounds/war_dog/war_dog_angry_3"
+       ]
+  },
+  "war_dog_hurt": {
+    "category": "music",
+    "sounds": [
+      "sounds/war_dog/war_dog_hurt"
+       ]
+  },
+  "war_dog_death": {
+    "category": "music",
+    "sounds": [
+      "sounds/war_dog/war_dog_death"
+      ]
+  },
+  "war_dog_panting": {
+    "category": "music",
+    "sounds": [
+      "sounds/war_dog/war_dog_panting"
+      ]
+      },
+  "war_dog_shoot": {
+    "category": "music",
+    "sounds": [
+      "sounds/gun/war_dog_shoot"
+      ]
+  },
+  "demon_uav": {
+    "category": "music",
+    "sounds": [
+      "sounds/demon_uav/demon_uav"
     ]
+    },
+    "demon_landmine": {
+      "category": "block",
+      "sounds": [
+        "sounds/block/landmine"
+      ]
+      },
+    "dm_explosion": {
+      "category": "neutral",
+      "sounds": [
+        "sounds/block/explode_0",
+        "sounds/block/explode_1",
+        "sounds/block/explode_2",
+        "sounds/block/explode_3"
+      ]
+      },
+    "dm_debris": {
+      "category": "neutral",
+      "sounds": [
+        "sounds/block/debris_0",
+        "sounds/block/debris_1",
+        "sounds/block/debris_2",
+        "sounds/block/debris_3"
+      ]
   },
   "dm34_default": {
     "category": "music",
@@ -674,7 +751,6 @@
       "sounds/littleMaid_ONE/eatSugar_MaxPower4",
       "sounds/littleMaid_ONE/eatSugar_MaxPower5",
       "sounds/littleMaid_ONE/eatSugar_MaxPower6",
-      "sounds/littleMaid_ONE/eatSugar_MaxPower7",
       "sounds/littleMaid_ONE/eatSugar_MaxPower8",
       "sounds/littleMaid_ONE/eatSugar_MaxPower9",
       "sounds/littleMaid_ONE/eatSugar_MaxPower10",
@@ -1183,6 +1259,38 @@
         "name": "sounds/attack/dm54_satt",
         "volume": 1.0
       }
+    ]
+    },
+  "sweep_attack": {
+    "category": "player",
+    "sounds": [
+      "sounds/attack/sweeping_edge/0",
+      "sounds/attack/sweeping_edge/1",
+      "sounds/attack/sweeping_edge/2",
+      "sounds/attack/sweeping_edge/3",
+      "sounds/attack/sweeping_edge/4",
+      "sounds/attack/sweeping_edge/5",
+      "sounds/attack/sweeping_edge/6"
+    ]
+    },
+  "critical_attack": {
+    "category": "player",
+    "sounds": [
+      "sounds/attack/critical_hit/0",
+      "sounds/attack/critical_hit/1",
+      "sounds/attack/critical_hit/2",
+      "sounds/attack/critical_hit/3",
+      "sounds/attack/critical_hit/4",
+      "sounds/attack/critical_hit/5"
+    ]
+    },
+  "sprint_attack": {
+    "category": "player",
+    "sounds": [
+      "sounds/attack/knockback/0",
+      "sounds/attack/knockback/1",
+      "sounds/attack/knockback/2",
+      "sounds/attack/knockback/3"
     ]
   }
 }

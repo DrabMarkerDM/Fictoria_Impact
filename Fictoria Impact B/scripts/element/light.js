@@ -3,7 +3,7 @@ import { world, system } from "@minecraft/server";
 // ============================================================
 // light.js — dm34 / dm34_1 灯光跟随清理模块（稳定版保守优化）
 //
-// 保留原逻辑：
+// 原逻辑：
 //   · 每 2 tick 检查一次
 //   · 只检查 player:dm34 / player:dm34_1
 //   · 带 is_lighting 标签的实体移动超过 2 格时清理旧位置

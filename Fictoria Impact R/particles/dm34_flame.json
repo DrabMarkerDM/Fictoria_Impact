@@ -5,7 +5,7 @@
       "identifier": "dm:dm34_flame",
       "basic_render_parameters": {
         "material": "particles_alpha",
-        "texture": "textures/particle/particles"
+        "texture": "textures/particle/dm_particles"
       }
     },
     "components": {

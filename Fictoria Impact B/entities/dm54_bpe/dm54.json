@@ -10,15 +10,46 @@
         "animate": [
           "tag",
           "ect",
-          "equip"
+          "equip",
+          "is_atk",
+          "is_satk",
+          "skill"
         ]
       },
       "animations": {
         "tag": "controller.animation.dm_tag",
         "ect": "controller.animation.ect_6",
-        "equip": "controller.animation.dm_equip"
+        "equip": "controller.animation.dm_equip",
+        "att_timer": "animation.dm54att_timer",
+        "satt_timer": "animation.dm54satt_timer",
+        "skill_timer": "animation.dm54skill_timer",
+        "is_atk": "controller.animation.dm_is_attacking_1",
+        "is_satk": "controller.animation.dm_is_attacking_2",
+        "skill": "controller.animation.dm_is_attacking_3"
+      },
+      "properties": {
+        "dm:is_attacking_1":  {  "type": "enum",
+          "values": [ "on", "off" ],
+          "default": "off",
+          "client_sync": true
+      },
+      "dm:is_attacking_2":  {  "type": "enum",
+          "values": [ "on", "off" ],
+          "default": "off",
+          "client_sync": true
+      },
+      "dm:is_attacking_3":  {  "type": "enum",
+          "values": [ "on", "off" ],
+          "default": "off",
+          "client_sync": true
+          },
+      "dm:is_attacking_4":  {  "type": "enum",
+          "values": [ "on", "off" ],
+          "default": "off",
+          "client_sync": true
+          }
       }
-    },
+  },
     "component_groups": {
       "sword": {
         "minecraft:attack": {
@@ -308,7 +339,7 @@
       },
       "sss": {
         "minecraft:attack": {
-          "damage": 28
+          "damage": 40
         },
         "minecraft:variant": {
           "value": 2
@@ -317,7 +348,7 @@
           "priority": 2,
           "can_spread_on_fire": true,
           "horizontal_reach": 2.75,
-          "cooldown_time": 0.8,
+          "cooldown_time": 1.0,
           "speed_multiplier": 1.1,
           "track_target": true,
           "on_attack": {
@@ -771,6 +802,9 @@
             "playsound sss @a[r=33] ~~~ 1.1 1.2",
             "effect @s slowness 0"
           ]
+        },
+        "set_property": { 
+          "dm:is_attacking_1": "off"
         }
       },
       "back": {
@@ -789,7 +823,32 @@
           "command": [
             "tag @s remove dm_skill_on"
           ]
+          },
+        "set_property": { 
+          "dm:is_attacking_2": "off"
         }
+      },
+      "dm:is_attacking_on_1": { 
+        "set_property": { 
+          "dm:is_attacking_1": "on"
+}
+},
+      "dm:is_attacking_off_1": { 
+        "set_property": { 
+          "dm:is_attacking_1": "off" 
+}
+},
+      "dm:is_attacking_on_2": { 
+        "set_property": { 
+          "dm:is_attacking_2": "on",
+          "dm:is_attacking_4": "on"
+}
+},
+      "dm:is_attacking_off_2": { 
+        "set_property": { 
+          "dm:is_attacking_2": "off",
+          "dm:is_attacking_4": "off"  
+}
       },
       "sit": {
         "add": {
@@ -837,19 +896,25 @@
       "skill": {
         "queue_command": {
           "command": [
-            "particle dm:dm54_2 ^ ^2.5 ^2.5",
             "playsound dm54_att @a[r=33] ~~~ 2.0 1.5",
             "damage @e[tag=!dm,family=monster,r=4,c=3] 28 override entity @s"
           ]
-        }
+        },
+        "set_property": { 
+          "dm:is_attacking_3": "on"
+}
+},
+      "skill_off": { 
+        "set_property": { 
+          "dm:is_attacking_3": "off"
+}
       },
       "on_attack": {
         "queue_command": {
           "command": [
-            "particle dm:dm54_1 ^ ^2 ^2",
             "playsound dm54_att @a[r=33] ~~~ 2.0 1.0",
             "effect @s absorption 3 5 true",
-            "effect @s strength 1 0 false",
+            "effect @s strength 2 0 false",
             "scoreboard players add @s dm_skill_timer_2 1",
             "event entity @s[scores={dm_skill_timer_2=5..}] skill",
             "scoreboard players set @s[scores={dm_skill_timer_2=5..}] dm_skill_timer_2 0",
@@ -862,14 +927,13 @@
       "on_attack_1": {
         "queue_command": {
           "command": [
-            "particle dm:dm54_att ^ ^2 ^2",
             "playsound dm54_satt @a[r=33] ~~~ 2.0 0.5",
-            "damage @e[tag=!dm,family=monster,r=4,c=3] 42 override entity @s",
+            "damage @e[tag=!dm,family=monster,r=4,c=3] 48 override entity @s",
             "scoreboard players add @s dm_skill_timer_1 1",
             "event entity @s[scores={dm_skill_timer_1=30..}] back",
             "scoreboard players set @s[scores={dm_skill_timer_1=30..}] dm_skill_timer_1 0",
             "effect @s absorption 5 10 true",
-            "effect @s strength 1 0 false",
+            "effect @s strength 2 0 false",
             "particle dm:dm54_dust ^ ^1.5 ^2",
             "particle dm:dm54_dust ^ ^2 ^1.5",
             "particle dm:dm54_dust ^ ^2.5 ^2"

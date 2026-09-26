@@ -67,8 +67,8 @@
         "height": 1.8
       },
       "minecraft:health": {
-        "value": 37,
-        "max": 37
+        "value": 42,
+        "max": 42
       },
       "minecraft:equipment": {
         "table": "loot_tables/gun_soldier_2.json"

@@ -1,0 +1,13 @@
+{
+  "format_version": "1.8.0",
+  "animations": {
+    "animation.dm54skill_timer": {
+      "timeline": {
+        "0.0": "",
+        "0.6": "@s skill_off",
+        "0.65": "@s skill_off"
+      },
+      "animation_length": 0.7
+    }
+  }
+}

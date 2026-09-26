@@ -4,7 +4,7 @@
 		"controller.animation.dm61_att_1": {
 			"initial_state": "default",
 			"states": {
-				"attacking": {
+				"attack": {
 					"animations": [ "attack.rotations" ],
 					"transitions": [
 						{

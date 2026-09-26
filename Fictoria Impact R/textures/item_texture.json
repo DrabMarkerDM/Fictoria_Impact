@@ -182,8 +182,9 @@
 
 
 
-    },
-    "gun": {
+   },
+    "demon_landmine": {
+    "textures": "textures/items/demon_landmine"
     },
     "ak47": {
       "textures": "textures/items/ak47"

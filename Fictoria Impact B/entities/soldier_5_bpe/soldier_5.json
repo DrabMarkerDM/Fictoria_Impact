@@ -62,8 +62,8 @@
         "height": 1.8
       },
       "minecraft:health": {
-        "value": 69,
-        "max": 69
+        "value": 74,
+        "max": 74
       },
       "minecraft:equipment": {
         "table": "loot_tables/soldier_5.json"

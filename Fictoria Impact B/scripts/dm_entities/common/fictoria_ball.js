@@ -2,7 +2,7 @@
  * 幻域球回收系统（类宝可梦精灵球）— 附魔/特殊物品整合修复版 + 幻域球套娃保护
  * 适配 Fictoria Impact / SAPI 2.7.0
  *
- * 本次整合规则：
+ * 本次更新内容：
  *
  * 1. 空地图 minecraft:empty_map 可以保存。
  * 2. 已探索地图 minecraft:filled_map 无法保存，直接掉落。
@@ -264,7 +264,7 @@ const INCLUDE_TYPE_SET = trimArrayToSet(INCLUDE_TYPES);
 // 4. 附魔书：
 //    - enchanted_book：不掉落，正常保存附魔
 //
-// 如果你连普通书 minecraft:book 也想稳妥掉落，
+// 普通书 minecraft:book 也稳妥掉落，
 // 可以把 "minecraft:book" 加入 COMPLEX_DROP_EXACT_TYPES。
 // 但这样会导致通过指令附魔的普通书也无法保存附魔。
 // ============================================================

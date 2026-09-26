@@ -1,0 +1,13 @@
+{
+  "format_version": "1.8.0",
+  "animations": {
+    "animation.dm54att_timer": {
+      "timeline": {
+        "0.0": "",
+        "0.5": "@s dm:is_attacking_off_1",
+        "0.55": "@s dm:is_attacking_off_1"
+      },
+      "animation_length": 0.56
+    }
+  }
+}

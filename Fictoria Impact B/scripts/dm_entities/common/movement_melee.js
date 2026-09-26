@@ -2,10 +2,8 @@ import { system, world, EntityDamageCause } from "@minecraft/server";
 
 // ============================================================
 // 日志开关
-// false：关闭高频诊断日志，性能更好
-// true：恢复输出近战预测、格挡、冲刺等日志
 // ============================================================
-const DEBUG_MELEE = true;
+const DEBUG_MELEE = false;
 
 function meleeLog(...args) {
     if (DEBUG_MELEE) {
@@ -1788,15 +1786,37 @@ function registerBlockSubscriber() {
             // 优化：格挡后的实体修改延后到 system.run，
             // 更符合 2.7.0 before 事件上下文限制。
             system.run(() => {
-                try {
-                    const v = world.getEntity(vid);
+    try {
+        const v = world.getEntity(vid);
+        if (v && v.isValid) {
+            try {
+                v.clearVelocity();
+            } catch (_) {}
 
-                    if (v && v.isValid) {
-                        try {
-                            v.clearVelocity();
-                        } catch (_) {}
+            // ===== 格挡粒子：角色身边多个随机点位 =====
+            try {
+                const particleCount = 5 + Math.floor(Math.random() * 4);
+                for (let i = 0; i < particleCount; i++) {
+                    const rx = (Math.random() - 0.5) * 1.4;
+                    const ry = 0.3 + Math.random() * 1.5;
+                    const rz = (Math.random() - 0.5) * 1.4;
+                    v.dimension.spawnParticle("minecrafts:parry_particle", {
+                        x: v.location.x + rx,
+                        y: v.location.y + ry,
+                        z: v.location.z + rz
+                    });
+                }
+            } catch (_) {}
 
-                        meleeLog(`[DM-Melee] 格挡成功! 挡下${blockedDamage.toFixed(1)}伤害 | 剩余次数: ${remainingCharges} | 实体: ${v.typeId}`);
+            // ===== 格挡音效 =====
+            try {
+                v.dimension.playSound("dm_parry", v.location, {
+                    volume: 1.2,
+                    pitch: 0.9 + Math.random() * 0.2
+                });
+            } catch (_) {}
+
+            meleeLog(`[DM-Melee] 格挡成功! 挡下${blockedDamage.toFixed(1)}伤害 | 剩余次数: ${remainingCharges} | 实体: ${v.typeId}`);
 
                         let log = MeleeDamageLogCache.get(v.id);
 

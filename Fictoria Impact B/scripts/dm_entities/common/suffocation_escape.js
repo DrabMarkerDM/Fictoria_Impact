@@ -5,13 +5,7 @@ import {
 } from "@minecraft/server";
 
 // ============================================================
-// 窒息 / 重力方块埋压 / 液体溺水挣脱模块 (最终完整版)
-//
-// 职责边界：
-// 1. 纯家族匹配：只处理 dm (友方) 和 demon (敌方) 家族。
-// 2. 方块窒息：非液体环境中的 suffocation (含沙子垂直逃生)。
-// 3. 液体窒息：drowning 或 水下 suffocation (优先向上找空气)。
-// 4. 坚决不处理岩浆/火焰 (交给 maid_manager.js)。
+// 窒息 / 重力方块埋压 / 液体溺水挣脱模块
 // ============================================================
 
 const DEBUG_SUFOCATION_ESCAPE = false;
@@ -498,4 +492,4 @@ world.afterEvents.entityHurt.subscribe((event) => {
     } catch (_) {}
 });
 
-suffocationLog("[SuffocationEscape] 最终完整版已加载 (纯家族匹配 + 沙子 + 液体溺水)");
+suffocationLog("[SuffocationEscape] 防窒息模块已加载");

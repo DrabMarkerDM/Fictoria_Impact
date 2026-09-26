@@ -1,0 +1,101 @@
+{
+  "format_version": "1.16.0",
+  "minecraft:geometry": [
+    {
+      "description": {
+        "identifier": "geometry.item_first_person",
+        "texture_width": 16,
+        "texture_height": 16,
+        "visible_bounds_width": 1,
+        "visible_bounds_height": 1,
+        "visible_bounds_offset": [0, 0, 0]
+      },
+      "bones": [
+        {
+          "name": "rightitem",
+          "pivot": [0, 0, 0],
+          "texture_meshes": [
+            {
+              "local_pivot": [9, 0, 6],
+              "position": [2.01, -0.5, -1],
+              "rotation": [0, -135, 90],
+              "texture": "default"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": {
+        "identifier": "geometry.item_third_person",
+        "texture_width": 16,
+        "texture_height": 16,
+        "visible_bounds_width": 1,
+        "visible_bounds_height": 1,
+        "visible_bounds_offset": [0, 0, 0]
+      },
+      "bones": [
+        {
+          "name": "rightitem",
+          "pivot": [0, 0, 0],
+          "texture_meshes": [
+            {
+              "texture": "default",
+              "position": [0, -5, -8],
+              "rotation": [0, 60, 90],
+              "local_pivot": [6, 0, 7]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": {
+        "identifier": "geometry.item_third_person_axe",
+        "texture_width": 16,
+        "texture_height": 16,
+        "visible_bounds_width": 1,
+        "visible_bounds_height": 1,
+        "visible_bounds_offset": [0, 0, 0]
+      },
+      "bones": [
+        {
+          "name": "rightitem",
+          "pivot": [0, 0, 0],
+          "texture_meshes": [
+            {
+              "texture": "default",
+              "position": [0, 1, -9],
+              "rotation": [-180, 150, 90],
+              "local_pivot": [5, 0, 6]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": {
+        "identifier": "geometry.left_hand_first_person",
+        "texture_width": 16,
+        "texture_height": 16,
+        "visible_bounds_width": 1,
+        "visible_bounds_height": 1,
+        "visible_bounds_offset": [0, 0, 0]
+      },
+      "bones": [
+        {
+          "name": "leftitem",
+          "pivot": [0, 0, 0],
+          "texture_meshes": [
+            {
+              "local_pivot": [-9, 0, 6],
+              "position": [-2.01, -0.5, -1],
+              "rotation": [0, 135, 90],
+              "texture": "default"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

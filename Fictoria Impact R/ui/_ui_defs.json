@@ -1,0 +1,6 @@
+{
+  "ui_defs": [
+    "ui/custom/cooldown.json",
+    "ui/custom/regen.json"
+  ]
+}

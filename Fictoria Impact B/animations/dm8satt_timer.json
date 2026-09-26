@@ -4,9 +4,9 @@
     "animation.dm8satt_timer": {
       "timeline": {
         "0.0": "",
-        "0.5": "/event entity @s dm8_satt_remove",
-        "0.6": "/event entity @s dm8_satt_remove",
-        "0.7": "/event entity @s dm8_satt_remove"
+        "0.5": "@s dm8_satt_remove",
+        "0.6": "@s dm8_satt_remove",
+        "0.7": "@s dm8_satt_remove"
       },
       "animation_length": 0.75
     }

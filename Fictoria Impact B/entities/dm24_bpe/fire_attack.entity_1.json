@@ -75,12 +75,7 @@
 	"semirandomdiffdamage": true,
 	"destroyonhit": false
           },
-          "remove_on_hit": { },
-          "particle_on_hit": {
-            "particle_type": "lava",
-            "num_particles": 2,
-            "on_entity_hit": true,
-            "on_other_hit": true
+          "remove_on_hit": { 
           }
         },
         "liquid_inertia": 1.8,
@@ -99,6 +94,13 @@
 	    }
         },
         "events": {
+            "minecraft:entity_spawned": {
+        "queue_command": {
+          "command": [
+		        "particle dm:dm24_att ~~~"
+          ]
+        }
+      },
             "minecraft:explode": {
                 "add": {
                     "component_groups": ["minecraft:exploding"]

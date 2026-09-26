@@ -85,6 +85,13 @@
           "gun.shoot": "gun_shoot",
           "gun.hit": "gun_hit"
         }
+        },
+      "bullet:war_dog_bullet": {
+        "volume": 2.7,
+        "pitch": [ 1.0, 1.1 ],
+        "events": {
+          "fire": "war_dog_shoot"
+        }
       },
       "bullet:sg_bullet": {
         "volume": 3.0,
@@ -733,6 +740,27 @@
           "fall.small": "dm34_fall.small"
 
         }
+      },
+         "demon:war_dog" : {
+            "volume": 0.7,
+            "pitch": [ 1.4, 1.5 ],
+            "events" : {
+               "ambient" : "war_dog_angry",
+               "death" : "robot_death",
+               "growl" : "war_dog_bark",
+               "hurt" : "war_dog_hurt",
+               "pant" : "war_dog_panting",
+               "step" : "mob.wolf.step"
+               }
+      },
+         "mob:demon_uav" : {
+            "volume": 0.8,
+            "pitch": [ 2.0, 2.1 ],
+            "events" : {
+               "ambient" : "demon_uav",
+               "hurt": "war_dog_hurt",
+               "death": "robot_death"
+            }
       }
     }
   }

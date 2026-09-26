@@ -1,0 +1,16 @@
+{
+  "format_version": "1.8.0",
+  "render_controllers": {
+    "controller.render.soldier_9": {
+      "geometry": "Geometry.default",
+      "materials": [ { "*": "Material.default" } ],
+      "part_visibility": [
+        { "*": true },
+        { "glasses": "query.variant != 2" },
+        { "glasses2": "query.variant == 2" },
+        { "tablet": "query.variant == 2" }
+      ],
+      "textures": [ "Texture.default" ]
+    }
+  }
+}

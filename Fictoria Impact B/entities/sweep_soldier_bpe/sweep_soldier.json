@@ -35,8 +35,8 @@
         "height": 1.78
       },
       "minecraft:health": {
-        "value": 31,
-        "max": 31
+        "value": 36,
+        "max": 36
       },
       "minecraft:equipment": {
         "table": "loot_tables/sweep_sword.json"
