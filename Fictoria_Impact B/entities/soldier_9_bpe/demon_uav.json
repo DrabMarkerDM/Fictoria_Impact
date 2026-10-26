@@ -1,0 +1,389 @@
+{
+  "format_version": "1.21.50",
+  "minecraft:entity": {
+    "description": {
+      "identifier": "mob:demon_uav",
+      "is_spawnable": false,
+      "is_summonable": true,
+      "is_experimental": false,
+      "scripts": {
+        "animate": [
+          "tag",
+          "ect"
+        ]
+      },
+      "animations": {
+        "tag": "controller.animation.demon_tag",
+        "ect": "controller.animation.ect_2"
+      }
+    },
+    "component_groups": {
+      "air": {
+        "minecraft:is_charged": {},
+        "minecraft:type_family": {
+          "family": [
+            "despawer",
+            "despawer_despawning"
+          ]
+        }
+      },
+      "sss": {
+        "minecraft:type_family": {
+          "family": [
+            "despawer",
+            "despawer_despawning"
+          ]
+        }
+      },
+      "die": {
+        "minecraft:mark_variant": {
+          "value": 1
+        }
+      },
+      "angry": {
+        "minecraft:angry": {
+          "duration": 3,
+          "broadcast_anger": true,
+          "broadcast_anger_on_attack": true,
+          "broadcast_anger_on_being_attacked": true,
+          "broadcast_range": 80,
+          "broadcast_targets": [
+            "demon",
+            "monster"
+          ],
+          "calm_event": {
+            "event": "calm",
+            "target": "self"
+          }
+        }
+      }
+    },
+    "components": {
+      "minecraft:attack": {
+        "damage": 1
+      },
+      "minecraft:despawn": {
+        "filters": {
+          "all_of": [
+            {
+              "any_of": [
+                {
+                  "test": "is_family",
+                  "subject": "self",
+                  "value": "despawer_despawning"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "minecraft:breathable": {
+        "total_supply": 53,
+        "suffocate_time": 0,
+        "breathes_air": true,
+        "breathes_water": true
+      },
+      "minecraft:timer": {
+        "looping": true,
+        "randomInterval": false,
+        "time": 60.0,
+        "time_down_event": {
+          "event": "air"
+        }
+      },
+      "minecraft:behavior.nearest_attackable_target": {
+        "priority": 2,
+        "must_see": false,
+        "reselect_targets": true,
+        "entity_types": [
+          {
+            "filters": {
+              "any_of": [
+                {
+                  "test": "is_family",
+                  "subject": "other",
+                  "value": "player"
+                },
+                {
+                  "test": "is_family",
+                  "subject": "other",
+                  "value": "dm"
+                },
+                {
+                  "test": "is_family",
+                  "subject": "other",
+                  "value": "villager"
+                },
+                {
+                  "test": "is_family",
+                  "subject": "other",
+                  "value": "snowgolem"
+                },
+                {
+                  "test": "is_family",
+                  "subject": "other",
+                  "value": "irongolem"
+                }
+              ]
+            },
+            "max_dist": 66,
+            "must_see_forget_duration": 15.0,
+            "walk_speed_multiplier": 1.0,
+            "sprint_speed_multiplier": 1.1
+          }
+        ]
+      },
+      "minecraft:follow_range": {
+        "value": 66
+      },
+      "minecraft:behavior.melee_box_attack": {
+        "priority": 2,
+        "can_spread_on_fire": true,
+        "horizontal_reach": 1.0,
+        "cooldown_time": 1.0,
+        "speed_multiplier": 1.1,
+        "track_target": true
+      },
+      "minecraft:area_attack": {
+        "cause": "override",
+        "damage_cooldown": 0.1,
+        "damage_per_tick": 1,
+        "damage_range": 2,
+        "entity_filter": {
+          "none_of": [
+            {
+              "test": "is_family",
+              "subject": "other",
+              "value": "demon"
+            },
+            {
+              "test": "is_family",
+              "subject": "other",
+              "value": "monster"
+            }
+          ]
+        }
+      },
+      "minecraft:health": {
+        "value": 40,
+        "max": 40
+      },
+      "minecraft:spell_effects": {
+        "add_effects": [
+          {
+            "effect": "slow_falling",
+            "amplifier": 255,
+            "visible": false,
+            "ambient": false,
+            "duration": 9999999
+          }
+        ]
+      },
+      "minecraft:on_death": {
+        "event": "die",
+        "target": "self"
+      },
+      "minecraft:damage_sensor": {
+        "triggers": [
+          {
+            "cause": "projectile",
+            "damage_multiplier": 0.6,
+            "on_damage": {
+              "target": "self",
+              "filters": {
+                "test": "is_family",
+                "subject": "other",
+                "operator": "!=",
+                "value": "demon"
+              }
+            },
+            "deals_damage": "yes"
+          },
+          {
+            "cause": "entity_attack",
+            "damage_multiplier": 0.6,
+            "on_damage": {
+              "target": "self",
+              "filters": {
+                "test": "is_family",
+                "subject": "other",
+                "operator": "!=",
+                "value": "demon"
+              }
+            },
+            "deals_damage": "yes"
+          },
+          {
+            "cause": "entity_explosion",
+            "damage_multiplier": 0.6,
+            "on_damage": {
+              "target": "self",
+              "filters": {
+                "test": "is_family",
+                "subject": "other",
+                "operator": "!=",
+                "value": "demon"
+              }
+            },
+            "deals_damage": "yes"
+          },
+          {
+            "cause": "block_explosion",
+            "damage_multiplier": 0.6,
+            "on_damage": {
+              "target": "self",
+              "filters": {
+                "test": "is_family",
+                "subject": "other",
+                "operator": "!=",
+                "value": "demon"
+              }
+            },
+            "deals_damage": "yes"
+          },
+          {
+            "cause": "override",
+            "damage_multiplier": 0.6,
+            "on_damage": {
+              "target": "self",
+              "filters": {
+                "test": "is_family",
+                "subject": "other",
+                "operator": "!=",
+                "value": "demon"
+              }
+            },
+            "deals_damage": "yes"
+          },
+          {
+            "cause": "magic",
+            "damage_multiplier": 0.6,
+            "on_damage": {
+              "target": "self",
+              "filters": {
+                "test": "is_family",
+                "subject": "other",
+                "operator": "!=",
+                "value": "demon"
+              }
+            },
+            "deals_damage": "yes"
+          },
+          {
+            "on_damage": {
+              "filters": {
+                "test": "is_family",
+                "subject": "other",
+                "value": "demon"
+              }
+            },
+            "deals_damage": "no"
+          },
+          {
+            "cause": "fall",
+            "deals_damage": "no"
+          }
+        ]
+      },
+      "minecraft:type_family": {
+        "family": [
+          "demon_uav",
+          "demon",
+          "monster"
+        ]
+      },
+      "minecraft:collision_box": {
+        "width": 0.4,
+        "height": 0.4
+      },
+      "minecraft:target_nearby_sensor": {
+        "inside_range": 50.5,
+        "outside_range": 51.0,
+        "on_inside_range": {
+          "event": "angry",
+          "target": "self"
+        },
+        "on_outside_range": {
+          "event": "angry",
+          "target": "self"
+        }
+      },
+      "minecraft:behavior.hurt_by_target": {
+        "priority": 1,
+        "entity_types": {
+          "filters": {
+            "test": "is_family",
+            "subject": "other",
+            "operator": "!=",
+            "value": "demon"
+          },
+          "max_dist": 66,
+          "must_see": false
+        }
+      },
+      "minecraft:knockback_resistance": {
+        "value": 0.5
+      },
+      "minecraft:fire_immune": {},
+      "minecraft:nameable": {},
+      "minecraft:movement": {
+        "value": 2.5
+      },
+      "minecraft:navigation.fly": {
+        "can_path_over_water": false,
+        "can_path_from_air": true
+      },
+      "minecraft:movement.fly": {},
+      "minecraft:jump.static": {},
+      "minecraft:can_climb": {},
+      "minecraft:can_fly": {},
+      "minecraft:behavior.look_at_target": {
+        "priority": 2
+      },
+      "minecraft:persistent": {},
+      "minecraft:physics": {},
+      "minecraft:pushable": {
+        "is_pushable": true,
+        "is_pushablton": true
+      },
+      "minecraft:scaffolding_climber": {}
+    },
+    "events": {
+      "air": {
+        "add": {
+          "component_groups": [
+            "air"
+          ]
+        }
+      },
+      "sss": {
+        "add": {
+          "component_groups": [
+            "sss"
+          ]
+        }
+      },
+      "die": {
+        "queue_command": {
+          "command": [
+            "damage @e[family=monster,r=80] 1 entity_attack entity @e[family=dm,r=80,c=1]"
+          ]
+        }
+      },
+      "angry": {
+        "add": {
+          "component_groups": [
+            "angry"
+          ]
+        }
+      },
+      "calm": {
+        "remove": {
+          "component_groups": [
+            "angry"
+          ]
+        }
+      }
+    }
+  }
+}

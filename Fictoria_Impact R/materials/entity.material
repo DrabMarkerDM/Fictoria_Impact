@@ -1,0 +1,38 @@
+{
+  "materials": {
+    "version": "1.0.0",
+    "emissive_alpha_blend:entity_emissive": {
+      "+states": [
+        "Blending",
+        "DisableCulling",
+        "DisableDepthWrite"
+      ],
+      "+defines": [
+        "USE_UV_ANIM"
+      ],
+      "-defines": [
+        "FANCY"
+      ],
+      "blendSrc": "SourceAlpha",
+      "blendDst": "OneMinusSrcAlpha"
+    },
+    "emissive_additive:entity_emissive": {
+      "+states": [
+        "Blending",
+        "DisableCulling",
+        "DisableDepthWrite"
+      ],
+      "+defines": [
+        "USE_UV_ANIM"
+      ],
+      "-defines": [
+        "FANCY"
+      ],
+      "blendSrc": "One",
+      "blendDst": "One"
+    },
+    "emissive_additive_alpha:emissive_additive": {
+      "blendSrc": "SourceAlpha"
+    }
+  }
+}
