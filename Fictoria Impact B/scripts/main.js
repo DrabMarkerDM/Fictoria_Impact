@@ -1,9 +1,6 @@
 // 导入 Minecraft 服务器相关模块
 import { system, world } from '@minecraft/server';
 
-// 导入枪支主循环函数
-import { gunLoop } from './dm_entities/common/bullet_main';
-
 // 导入子弹击中实体的处理函数
 import { bulletEntityImpact } from './dm_entities/common/bullet_manager';
 
@@ -37,17 +34,78 @@ import "./dm_entities/common/suffocation_escape.js";
 // 导入玩家剑近战相关逻辑
 import "./dm_entities/player/dm_player_sword_attack.js";
 
-// 导入buff计算器
+// 导入 buff计算器
 import "./dm_entities/common/damage_buff_calculator.js";
 
 // 导入地雷js
 import "./element/demon_landmine.js";
+
+// 导入统一事件总线
+import {
+    initEventBus,
+    registerEntityRemoveHandler,
+    REMOVE_PRIORITY
+} from "./dm_entities/common/event_bus.js";
+
+// 导入走位指令内存总线
+import {
+    peekMoveCmd,
+    consumeJumpCmd,
+    dropMoveCmd
+} from "./dm_entities/common/move_command_store.js";
+
+// 导入分级异常兜底
+import { safeRun, warnOnce } from "./dm_entities/common/safe_exec.js";
+
+// 导入性能探针
+import { PerfProbe, initPerfProbe } from "./dm_entities/common/perf_probe.js";
+
+// ============================================================
+// 性能探针总开关
+//
+// false = 完全关闭。不注册命令通道、不挂 interval，
+//         所有埋点的 now() 返回 0、lap() 立即 return，
+//         代价是每次埋点两次函数调用（约 10ns）。
+//
+// true  = 打开。初始化时自动开始采样，并注册三条自定义命令：
+//           /perf:on     先标定单次调用成本，再开始采样
+//           /perf:off    停止并输出完整报告
+//           /perf:bench  只标定，不打断正在进行的采样
+//         另有一套 scriptevent 入口，功能更全：
+//           /scriptevent perf:hud     顶栏实时显示
+//           /scriptevent perf:report  立刻打印明细
+//           /scriptevent perf:reset   清空账本
+//
+// 自定义命令基于 @minecraft/server 2.1.0 的 customCommandRegistry，
+// 属稳定 API，不需要 Beta APIs 实验开关。
+//
+// 输出走聊天栏（sendMessage），不写 console 日志。
+// 想看日志需要在 perf_probe.js 里自行加 console.warn 双写。
+//
+// ⚠ 改完必须退出世界重进，/reload 不重载脚本模块。
+// ============================================================
+const PERF_PROBE_ENABLED = false;
 
 // 初始化幻域球
 initFictoriaBall();
 
 // 初始化目标管理引擎
 DmTargetEngine.init();
+
+// 挂载性能探针（总开关关闭时这里什么都不做）
+initPerfProbe(PERF_PROBE_ENABLED);
+
+// ============================================================
+// 说明：原 2 tick 枪械逻辑动力环已移除。
+//
+// 原先它调用的 gunLoop() 定义在 bullet_main.js 里，
+// 函数体只是一个空的 world.getAllPlayers().forEach，
+// 不产生任何行为，却在每 2 tick 占用一次定时器。
+//
+// bullet_main.js 已整体删除，此处的定时器一并移除。
+// 枪械/子弹的实际结算仍在 bullet_manager.js 的
+// world.afterEvents.projectileHitEntity 中完成。
+// ============================================================
 
 // ============================================================
 // 优化方案：
@@ -132,16 +190,15 @@ function approachCmd(current, target, maxDelta) {
 }
 
 // 实体移除时清理缓存，防止泄漏
-try {
-    world.beforeEvents.entityRemove.subscribe((event) => {
-        try {
-            const id = event.removedEntity?.id;
-            if (id) {
-                DriveVelCache.delete(id);
-            }
-        } catch (_) { }
-    });
-} catch (_) { }
+registerEntityRemoveHandler("main_drive_cache", (event) => {
+    try {
+        const id = event.removedEntity?.id;
+        if (!id) return;
+
+        DriveVelCache.delete(id);
+        dropMoveCmd(id);
+    } catch (_) { }
+}, REMOVE_PRIORITY.DRIVE_CACHE);
 // 原始 CORE_SCALE 是 0.028。
 // 现在乘以旧版重复驱动倍率，形成单次等效冲量。
 const CORE_SCALE = 0.028 * LEGACY_IMPULSE_MULTIPLIER;
@@ -207,10 +264,15 @@ const driveMaidMuscles = () => {
                 continue;
             }
 
-            // 读取走位引擎解算出的速度属性
-            const velX = unit.getDynamicProperty("dm:cmd_vel_x") ?? 0;
-            const velZ = unit.getDynamicProperty("dm:cmd_vel_z") ?? 0;
-            const velY = unit.getDynamicProperty("dm:cmd_vel_y") ?? 0.02;
+            // 读取走位引擎解算出的速度指令
+            //
+            // 改造前是 3 次 getDynamicProperty（持久化通道）。
+            // 这三个键在 entities/ 与资源包中 0 引用，
+            // 只是模块间传参，改为内存表查询。
+            const cmd = peekMoveCmd(id);
+            const velX = cmd.x;
+            const velZ = cmd.z;
+            const velY = cmd.y;
 
             // ============================================================
             // 平滑驱动：
@@ -288,7 +350,7 @@ const driveMaidMuscles = () => {
 
             // 跳跃冲量消费
             if (velY > 0.02) {
-                unit.setDynamicProperty("dm:cmd_vel_y", 0.02);
+                consumeJumpCmd(unit);
             }
 
             mainDriveLog(
@@ -298,13 +360,22 @@ const driveMaidMuscles = () => {
             );
         }
     } catch (error) {
-        // 高频底层动力线，允许静默兜底
+        // 高频底层动力线：保持静默，但不能完全无痕
+        // 按 tag 去重，同一类异常只报一次，不会刷屏
+        warnOnce("main.drive", `${error?.name ?? "Error"}: ${error?.message ?? error}`);
     }
 };
 
 // 每帧要执行的函数
+//
+// 探针关闭时 now() 返回 0、lap() 立刻 return，
+// 埋点只付两次函数调用（约 10ns）。
 const tick = () => {
+    const t0 = PerfProbe.now();
+
     driveMaidMuscles();
+
+    PerfProbe.lap("main.drive", t0);
 };
 
 // 注册游戏事件监听器
@@ -317,23 +388,16 @@ const events = () => {
 // 初始化函数
 // ============================================================
 const init = () => {
-    // 启动 1 Tick 全速丝滑动力环
-    system.runInterval(() => {
-        try {
-            tick();
-        } catch (error) {
-            // 高频底层动力线，允许静默兜底
-        }
-    }, 1);
+    // 启动统一事件总线（必须在所有模块注册完成之后）
+    initEventBus();
 
-    // 启动 2 Tick 枪械逻辑动力环
+    // 启动 1 Tick 全速丝滑动力环
+    //
+    // safeRun 兜住整轮异常：出问题时按 tag 只报一次，
+    // 而不是像改造前那样被空 catch 完全吞掉。
     system.runInterval(() => {
-        try {
-            gunLoop();
-        } catch (error) {
-            // 枪械逻辑异常静默兜底
-        }
-    }, 2);
+        safeRun("main.tick", tick);
+    }, 1);
 
     // 注册事件监听器
     events();

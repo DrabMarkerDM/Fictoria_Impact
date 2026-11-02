@@ -1,4 +1,14 @@
 import { system, world } from "@minecraft/server";
+import {
+    registerEntityRemoveHandler,
+    REMOVE_PRIORITY
+} from "./event_bus.js";
+import {
+    factionOf,
+    hasTargetTag,
+    hasSkillTag
+} from "./camp_faction.js";
+import { PerfProbe } from "./perf_probe.js";
 
 // ============================================================
 // 世界会话防线
@@ -51,18 +61,16 @@ const ActiveClockEntries = new Map();
 //
 // 防止实体死亡、被幻域球收回、被 /kill 后缓存残留。
 // ============================================================
-try {
-    world.beforeEvents.entityRemove.subscribe((event) => {
-        try {
-            const id = event.removedEntity?.id;
+registerEntityRemoveHandler("tactical_clock_cache", (event) => {
+    try {
+        const id = event.removedEntity?.id;
 
-            if (!id) return;
+        if (!id) return;
 
-            ClockRegistry.delete(id);
-            ActiveClockEntries.delete(id);
-        } catch (_) {}
-    });
-} catch (_) {}
+        ClockRegistry.delete(id);
+        ActiveClockEntries.delete(id);
+    } catch (_) {}
+}, REMOVE_PRIORITY.TACTICAL_CLOCK);
 
 // ============================================================
 // 工具函数
@@ -441,6 +449,8 @@ export class TacticalClockManager {
         }
 
         try {
+            const perfT0 = PerfProbe.now();
+
             const now = system.currentTick;
             const entry = getOrCreateEntry(unit);
 
@@ -468,8 +478,13 @@ export class TacticalClockManager {
             }
 
             // 读取战斗 Tag
-            const hasTargetTag = unit.hasTag("dm_has_target");
-            const isSkillActive = unit.hasTag("dm_skill_on");
+            // 读取战斗 Tag（tag 名按阵营分派：dm_* / demon_*）
+            //
+            // 局部变量不能叫 hasTargetTag —— 会和 import 进来的函数同名，
+            // 触发 TDZ 报错（同一作用域内 const 与 import 重名）。
+            const faction = factionOf(unit);
+            const hasTarget = hasTargetTag(unit, faction);
+            const isSkillActive = hasSkillTag(unit, faction);
 
             // ============================================================
             // 0 号主轨闸门
@@ -479,8 +494,8 @@ export class TacticalClockManager {
             // ============================================================
             const mainGateActive =
                 entry.trackMode === "single"
-                    ? hasTargetTag
-                    : (hasTargetTag && !isSkillActive);
+                    ? hasTarget
+                    : (hasTarget && !isSkillActive);
 
             entry.mainActive = mainGateActive && !entry.mainDisabled;
 
@@ -512,6 +527,8 @@ export class TacticalClockManager {
                 ActiveClockEntries.delete(unit.id);
                 clearEntryDues(entry);
             }
+
+            PerfProbe.lap("clock.exec", perfT0);
         } catch (e) {
             console.error(
                 `[DM-Clock-Manager Error] 实体名(${unit.typeId}) ID(${unit.id}): ${e}`

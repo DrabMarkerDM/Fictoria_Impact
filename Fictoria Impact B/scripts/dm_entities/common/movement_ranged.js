@@ -1,4 +1,14 @@
 import { system, world } from "@minecraft/server";
+import {
+    writeMoveCmd,
+    acquireMoveCmd,
+    peekMoveCmd,
+    clearMoveCmd
+} from "./move_command_store.js";
+import {
+    factionOf,
+    isInCombat
+} from "./camp_faction.js";
 
 // ============================================================
 // 平方距离解析辅助
@@ -16,9 +26,7 @@ function getDistSq(pos1, pos2) {
 // ============================================================
 function clearRangedCmdVel(unit) {
     try {
-        unit.setDynamicProperty("dm:cmd_vel_x", 0);
-        unit.setDynamicProperty("dm:cmd_vel_z", 0);
-        unit.setDynamicProperty("dm:cmd_vel_y", 0);
+        clearMoveCmd(unit);
     } catch (_) {}
 }
 
@@ -136,7 +144,7 @@ export class MovementRanged {
      * 通用战术走位动力学引擎
      * 依靠 dm_has_target 与 dm_skill_on 双重状态机实现战术接管
      */
-    static execute(unit, config, closestThreat, closestDistSq, strafeRange, lastDamageTickMap) {
+    static execute(unit, config, closestThreat, closestDistSq, strafeRange, lastDamageTickMap, faction = null) {
         try {
             if (!unit || !unit.isValid) return;
 
@@ -144,6 +152,9 @@ export class MovementRanged {
                 clearRangedCmdVel(unit);
                 return;
             }
+
+            // 阵营：目标引擎已算过，直接传；缺省才现场查一次
+            const unitFaction = faction ?? factionOf(unit);
 
             const controller = unit.getComponent("minecraft:riding")?.entityRidingOn ?? unit;
             const nowTick = system.currentTick;
@@ -182,12 +193,12 @@ export class MovementRanged {
             // 空气阻尼衰减
             // ============================================================
             if (!controller.isOnGround && !isInLiquid) {
-                let currentVelX = unit.getDynamicProperty("dm:cmd_vel_x") ?? 0;
-                let currentVelZ = unit.getDynamicProperty("dm:cmd_vel_z") ?? 0;
+                // 就地衰减，省掉「读-改-写」三轮查表
+                const airCmd = acquireMoveCmd(unit);
 
-                unit.setDynamicProperty("dm:cmd_vel_x", currentVelX * 0.65);
-                unit.setDynamicProperty("dm:cmd_vel_z", currentVelZ * 0.65);
-                unit.setDynamicProperty("dm:cmd_vel_y", 0);
+                airCmd.x *= 0.65;
+                airCmd.z *= 0.65;
+                airCmd.y = 0;
 
                 return;
             }
@@ -196,7 +207,7 @@ export class MovementRanged {
             // 地面战术走位 或 水中战术走位核心决策
             // ============================================================
             if (controller.isOnGround || isInLiquid) {
-                const isCombat = unit.hasTag("dm_has_target") || unit.hasTag("dm_skill_on");
+                const isCombat = isInCombat(unit, unitFaction);
 
                 if (!isCombat) {
                     clearRangedCmdVel(unit);
@@ -867,8 +878,10 @@ export class MovementRanged {
 
                             unit.clearVelocity();
 
-                            unit.setDynamicProperty("dm:cmd_vel_x", 0);
-                            unit.setDynamicProperty("dm:cmd_vel_z", 0);
+                            // 只清水平分量，保留 y —— 与原 setDynamicProperty 行为一致
+                            const heldCmd = acquireMoveCmd(unit);
+                            heldCmd.x = 0;
+                            heldCmd.z = 0;
 
                             if (isCeilingBlocked) {
                                 let escapeX = -impulseX;
@@ -944,9 +957,12 @@ export class MovementRanged {
                 // ============================================================
                 // 最终解算写入物理冲量
                 // ============================================================
-                unit.setDynamicProperty("dm:cmd_vel_x", impulseX * finalSpeed * 1.0 * hurtResistance);
-                unit.setDynamicProperty("dm:cmd_vel_z", impulseZ * finalSpeed * 1.0 * hurtResistance);
-                unit.setDynamicProperty("dm:cmd_vel_y", jumpImpulse);
+                writeMoveCmd(
+                    unit,
+                    impulseX * finalSpeed * 1.0 * hurtResistance,
+                    impulseZ * finalSpeed * 1.0 * hurtResistance,
+                    jumpImpulse
+                );
             }
         } catch (strafeError) {
             console.error(`[DM-Movement Engine Error] 走位计算决策异常: ${strafeError}`);

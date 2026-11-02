@@ -1,5 +1,9 @@
-import { world, system, EntityDamageCause } from '@minecraft/server';
+import { system, EntityDamageCause } from '@minecraft/server';
 import { applyBuffModifier } from "./damage_buff_calculator.js";
+import {
+    registerEntityHitHandler,
+    ENTITY_HIT_PRIORITY
+} from "./event_bus.js";
 
 // ============================================================
 // 核心伤害配置表
@@ -38,7 +42,7 @@ const MELEE_CONFIG = {
 const PROPERTY_KEY = "dm:attack_state";
 
 export const meleeImpactHandler = () => {
-    world.afterEvents.entityHitEntity.subscribe((event) => {
+    registerEntityHitHandler("melee_impact", (event) => {
         const attacker = event.damagingEntity;
         const mainTarget = event.hitEntity;
 
@@ -110,7 +114,7 @@ export const meleeImpactHandler = () => {
                 attacker.dimension.spawnParticle("minecraft:large_explosion", mainTarget.location);
             }
         });
-    });
+    }, ENTITY_HIT_PRIORITY.MELEE_IMPACT);
 };
 
 function Vector3Distance(loc1, loc2) {

@@ -21,6 +21,14 @@
 // ============================================================
 import { world, system, ItemStack } from "@minecraft/server";
 import { ActionFormData } from "@minecraft/server-ui";
+import {
+    registerEntityRemoveHandler,
+    registerDataDrivenHandler,
+    registerEntityHitHandler,
+    REMOVE_PRIORITY,
+    DATA_DRIVEN_PRIORITY,
+    ENTITY_HIT_PRIORITY
+} from "./event_bus.js";
 
 // ---------- 配置区 ----------
 const CONFIG = {
@@ -114,17 +122,15 @@ const pendingVerify = new Map();
 // ============================================================
 // 实体移除清理
 // ============================================================
-try {
-    world.beforeEvents.entityRemove.subscribe((event) => {
-        try {
-            const id = event.removedEntity?.id;
-            if (!id) return;
+registerEntityRemoveHandler("fictoria_ui_cache", (event) => {
+    try {
+        const id = event.removedEntity?.id;
+        if (!id) return;
 
-            patrolUnits.delete(id);
-            pendingVerify.delete(id);
-        } catch (_) {}
-    });
-} catch (_) {}
+        patrolUnits.delete(id);
+        pendingVerify.delete(id);
+    } catch (_) {}
+}, REMOVE_PRIORITY.FICTORIA_UI_CACHE);
 
 // ============================================================
 // 核心逻辑
@@ -579,7 +585,7 @@ function initFictoriaUI() {
     //  全局监听 dataDrivenEntityTrigger
     // ══════════════════════════════════════════════════════════
 
-    world.afterEvents.dataDrivenEntityTrigger.subscribe(({ entity, eventId }) => {
+    registerDataDrivenHandler("fictoria_ui_data_driven", ({ entity, eventId }) => {
         if (!entity || !entity.isValid) return;
 
         if (CONFIG.debug && ITEM_GATED_SET.has(entity.typeId)) {
@@ -620,7 +626,7 @@ function initFictoriaUI() {
                 entity.setDynamicProperty(DP.mode, MODE.RANDOM);
             }
         }
-    });
+    }, DATA_DRIVEN_PRIORITY.FICTORIA_UI);
 
     // ══════════════════════════════════════════════════════════
     //  切换指令 + 验证反馈
@@ -853,7 +859,7 @@ function initFictoriaUI() {
     //  入口：shift + 左键友方干员 → 弹 UI
     // ══════════════════════════════════════════════════════════
 
-    world.afterEvents.entityHitEntity.subscribe(({ damagingEntity, hitEntity }) => {
+    registerEntityHitHandler("fictoria_ui_menu", ({ damagingEntity, hitEntity }) => {
         if (damagingEntity.typeId !== "minecraft:player") return;
 
         const player = damagingEntity;
@@ -866,7 +872,7 @@ function initFictoriaUI() {
         uiCooldowns.set(player.id, now + CONFIG.uiCooldown);
 
         openStrategyMenu(player, hitEntity);
-    });
+    }, ENTITY_HIT_PRIORITY.FICTORIA_UI);
 
     // ══════════════════════════════════════════════════════════
     //  globalThis 桥接：供 fictoria_ball.js 在精灵球放置后恢复状态

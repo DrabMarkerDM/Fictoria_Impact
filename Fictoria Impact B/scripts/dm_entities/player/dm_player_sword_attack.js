@@ -7,6 +7,15 @@ import {
     EffectTypes
 } from "@minecraft/server";
 
+import {
+    registerBeforeHurtHandler,
+    registerAfterHurtHandler,
+    registerEntityHitHandler,
+    HURT_PRIORITY,
+    AFTER_HURT_PRIORITY,
+    ENTITY_HIT_PRIORITY
+} from "../common/event_bus.js";
+
 // ==================== 调试开关 ====================
 
 const DEBUG_ENGINE = false;
@@ -610,7 +619,7 @@ function executeReflectDamage(reflectTarget, reflectDamage, hurtEntity) {
 
 // ==================== 伤害处理：蓄力倍率 + 格挡弹反 ====================
 
-world.beforeEvents.entityHurt.subscribe((event) => {
+function handlePlayerSwordBeforeHurt(event) {
     try {
         const hurtEntity = event.hurtEntity;
         const damageSource = event.damageSource;
@@ -720,7 +729,13 @@ world.beforeEvents.entityHurt.subscribe((event) => {
             }
         }
     } catch (e) {}
-});
+}
+
+registerBeforeHurtHandler(
+    "player_sword_before_hurt",
+    handlePlayerSwordBeforeHurt,
+    HURT_PRIORITY.PLAYER_SWORD
+);
 
 // ==================== 横扫激活 ====================
 
@@ -767,7 +782,7 @@ function handleSweepActivation(event) {
 
 // ==================== 命中实体事件 ====================
 
-world.afterEvents.entityHitEntity.subscribe((event) => {
+registerEntityHitHandler("player_sword_hit", (event) => {
     const damagingEntity = event.damagingEntity;
 
     if (damagingEntity instanceof Player && isValidEntity(damagingEntity)) {
@@ -791,11 +806,11 @@ world.afterEvents.entityHitEntity.subscribe((event) => {
             forceUpdateHud(damagingEntity);
         }
     }
-});
+}, ENTITY_HIT_PRIORITY.PLAYER_SWORD);
 
 // ==================== 命中粒子 + 横扫伤害结算 ====================
 
-world.afterEvents.entityHurt.subscribe((event) => {
+registerAfterHurtHandler("player_sword_sweep", (event) => {
     let sweepAttacker = null;
 
     try {
@@ -875,7 +890,7 @@ world.afterEvents.entityHurt.subscribe((event) => {
             } catch (e) {}
         }
     }
-});
+}, AFTER_HURT_PRIORITY.PLAYER_SWORD_HURT);
 
 // ==================== 玩家生成 / 离开 ====================
 

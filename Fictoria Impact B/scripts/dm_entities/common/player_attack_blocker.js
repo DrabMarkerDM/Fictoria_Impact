@@ -1,5 +1,11 @@
 // player_attack_blocker.js
 import { world, system } from "@minecraft/server";
+import {
+    registerBeforeHurtHandler,
+    registerEntityRemoveHandler,
+    HURT_PRIORITY,
+    REMOVE_PRIORITY
+} from "./event_bus.js";
 
 // ============================================================
 // 配置
@@ -186,14 +192,12 @@ function isProtectedFromPlayer(entity) {
 const DistrustedEntities = new Set();
 
 // 实体移除时清理
-try {
-    world.beforeEvents.entityRemove.subscribe((event) => {
-        try {
-            const id = event.removedEntity?.id;
-            if (id) DistrustedEntities.delete(id);
-        } catch (_) {}
-    });
-} catch (_) {}
+registerEntityRemoveHandler("friendly_fire_distrust", (event) => {
+    try {
+        const id = event.removedEntity?.id;
+        if (id) DistrustedEntities.delete(id);
+    } catch (_) {}
+}, REMOVE_PRIORITY.FRIENDLY_FIRE_CACHE);
 
 // ============================================================
 // 判断是否为原版友善生物（马/狼/猫等）
@@ -252,7 +256,7 @@ function isRealPlayer(entity) {
 // 因此 event.cancel / event.damage 仍然立即处理，
 // 但 clearVelocity / extinguishFire 延后到 system.run。
 // ============================================================
-world.beforeEvents.entityHurt.subscribe((event) => {
+export function handleFriendlyFireBlock(event) {
     try {
         const victim = event.hurtEntity;
         if (!victim || !victim.isValid) return;
@@ -332,7 +336,14 @@ world.beforeEvents.entityHurt.subscribe((event) => {
     } catch (e) {
         console.error(`[DM-Engine] 友伤拦截异常: ${e}`);
     }
-});
+}
+
+// 挂到统一受击总线（逻辑本体未改动，仅把订阅方式改成注册）
+registerBeforeHurtHandler(
+    "friendly_fire_block",
+    handleFriendlyFireBlock,
+    HURT_PRIORITY.FRIENDLY_FIRE
+);
 
 // ============================================================
 // 子弹回调出口

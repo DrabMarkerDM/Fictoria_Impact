@@ -1,11 +1,39 @@
 import { system, world, EntityDamageCause } from "@minecraft/server";
 
 // ============================================================
-// 黑名单模式：
-// 除了 demon 和 monster 家族外的所有实体都会触发爆炸。
-// item、xp_orb等非生物实体不触发。
+// demon_landmine.js — 恶魔地雷
+//
+// 本次重构：
+//   原实现是在 onPlace 里为【每一颗雷】创建一个 system.runInterval，
+//   100 颗雷 = 100 个 3 tick 定时器，定时器开销随雷数线性增长。
+//
+//   现在改为：
+//     · 全工程只有 1 个全局调度器（CHECK_INTERVAL = 3 tick）
+//     · 调度器遍历 MineTable（地雷坐标表）
+//     · 每颗雷不再持有自己的定时器
+//
+// 行为保持不变：
+//   · 触发条件仍是「实体水平 ±1 格、脚下 0.5 ~ 头顶 1.5 格」
+//   · 仍是黑名单模式：demon / monster 家族与 item / xp_orb 不触发
+//   · 仍有 180 秒半径检测熔断，之后只保留 onStepOn
+//   · 仍有连锁爆炸、爆炸 function 调用、临时光源
+//
+// 自我修复：
+//   · 雷被破坏 / 被清除后，方块校验会把它从表里摘掉
+//   · 若是旧存档里已存在、但没走过 onPlace 的雷，
+//     第一次被踩（onStepOn）时会补登记
 // ============================================================
+
+// ============================================================
+// 常量
+// ============================================================
+
+const MINE_ID = "block:demon_landmine";
+
+// 黑名单模式：除了 demon 和 monster 家族外的所有实体都会触发爆炸。
+// item、xp_orb 等非生物实体不触发。
 const EXCLUDED_FAMILIES = ["demon", "monster"];
+const EXCLUDED_TYPES = ["minecraft:item", "minecraft:xp_orb"];
 
 const EXPLOSION_RADIUS = 4.0;
 const EXPLOSION_DAMAGE = 20;
@@ -13,31 +41,145 @@ const EXPLOSION_KNOCKBACK = 1.0;
 const LIGHT_BLOCK = "block:dm_light_1";
 const LIGHT_DURATION_TICKS = 2;
 const TRIGGER_RADIUS = 1.0;
+
+// 全局调度器步长（与原每颗雷的定时器周期一致）
 const CHECK_INTERVAL = 3;
-const MAX_ACTIVE_TICKS = 180 * 20; // 180秒后熔断半径检测，只保留 onStepOn
+
+// 每颗雷的方块存活校验周期
+// 校验比半径检测便宜，但没必要每 3 tick 都做
+const VALIDATE_INTERVAL = 20;
+
+// 180 秒后熔断半径检测，只保留 onStepOn
+const MAX_ACTIVE_TICKS = 180 * 20;
 
 // ============================================================
-// 黑名单判定函数：
+// 地雷坐标表
+//
+// key = `${dimId}|${x}|${y}|${z}`
+// value = {
+//   key, dimId, x, y, z,
+//   center: { x+0.5, y+0.5, z+0.5 },
+//   expireTick,          // 半径检测熔断时间点
+//   expireFlagged,       // 熔断提示音是否已播
+//   nextValidateTick     // 下一次方块存活校验时间点
+// }
+// ============================================================
+const MineTable = new Map();
+
+// 维度缓存，避免每次 getDimensions 查表
+const DimensionCache = new Map();
+
+function getDimensionSafe(dimId) {
+    if (!dimId) return undefined;
+
+    const cached = DimensionCache.get(dimId);
+    if (cached) return cached;
+
+    try {
+        const dim = world.getDimension(dimId);
+        if (dim) {
+            DimensionCache.set(dimId, dim);
+            return dim;
+        }
+    } catch (_) { }
+
+    return undefined;
+}
+
+function makeMineKey(dimId, x, y, z) {
+    return `${dimId}|${x}|${y}|${z}`;
+}
+
+// ============================================================
+// 登记 / 注销
+// ============================================================
+function registerMine(dimension, location) {
+    try {
+        if (!dimension || !location) return undefined;
+
+        const dimId = dimension.id;
+        const x = Math.floor(location.x);
+        const y = Math.floor(location.y);
+        const z = Math.floor(location.z);
+
+        const key = makeMineKey(dimId, x, y, z);
+
+        const existing = MineTable.get(key);
+        if (existing) return existing;
+
+        const now = system.currentTick;
+
+        const entry = {
+            key,
+            dimId,
+            x,
+            y,
+            z,
+            center: {
+                x: x + 0.5,
+                y: y + 0.5,
+                z: z + 0.5
+            },
+            expireTick: now + MAX_ACTIVE_TICKS,
+            expireFlagged: false,
+            nextValidateTick: now + VALIDATE_INTERVAL
+        };
+
+        MineTable.set(key, entry);
+
+        return entry;
+    } catch (_) {
+        return undefined;
+    }
+}
+
+function unregisterMine(entry) {
+    if (!entry) return;
+    entry.removed = true;
+    MineTable.delete(entry.key);
+}
+
+function unregisterMineAt(dimension, location) {
+    try {
+        if (!dimension || !location) return;
+        const key = makeMineKey(
+            dimension.id,
+            Math.floor(location.x),
+            Math.floor(location.y),
+            Math.floor(location.z)
+        );
+        MineTable.delete(key);
+    } catch (_) { }
+}
+
+// ============================================================
+// 黑名单判定：
 // 排除 demon 和 monster 家族，其余全部触发。
 // 没有 family 组件的实体也触发。
-// 加了 try...catch 防止异常实体导致中断。
 // ============================================================
 function shouldTrigger(entity) {
     try {
         if (!entity || !entity.isValid) return false;
+
         const typeId = entity.typeId;
         if (typeId === "minecraft:item" || typeId === "minecraft:xp_orb") return false;
+
         const familyComp = entity.getComponent("minecraft:type_family");
         if (!familyComp) return true;
+
         for (const family of EXCLUDED_FAMILIES) {
             if (familyComp.hasTypeFamily(family)) return false;
         }
+
         return true;
     } catch (e) {
         return false;
     }
 }
 
+// ============================================================
+// 爆炸伤害
+// ============================================================
 function applyExplosionDamage(dimension, location) {
     const center = {
         x: location.x + 0.5,
@@ -45,22 +187,25 @@ function applyExplosionDamage(dimension, location) {
         z: location.z + 0.5
     };
 
-    // getEntities 加保护，防止异常实体导致中断
     let allEntities;
+
     try {
         allEntities = dimension.getEntities({
             location: center,
             maxDistance: EXPLOSION_RADIUS,
-            excludeTypes: ["minecraft:item", "minecraft:xp_orb"]
+            excludeTypes: EXCLUDED_TYPES
         });
-    } catch (e) { return; }
+    } catch (e) {
+        return;
+    }
 
-    // filter 中加保护，防止hasTypeFamily 抛异常
     const targets = allEntities.filter(e => {
         try {
             if (!e.isValid) return false;
             return shouldTrigger(e);
-        } catch (e) { return false; }
+        } catch (_) {
+            return false;
+        }
     });
 
     for (const target of targets) {
@@ -72,6 +217,7 @@ function applyExplosionDamage(dimension, location) {
             const dx = target.location.x - center.x;
             const dz = target.location.z - center.z;
             const dist = Math.sqrt(dx * dx + dz * dz);
+
             if (dist > 0.01) {
                 target.applyImpulse({
                     x: (dx / dist) * EXPLOSION_KNOCKBACK,
@@ -79,16 +225,24 @@ function applyExplosionDamage(dimension, location) {
                     z: (dz / dist) * EXPLOSION_KNOCKBACK
                 });
             }
-        } catch (e) {}
+        } catch (_) { }
     }
 }
 
+// ============================================================
+// 触发爆炸
+// ============================================================
 function triggerExplosion(dimension, location) {
     // 防重复：方块已不是地雷说明已经炸过
     try {
         const currentBlock = dimension.getBlock(location);
-        if (!currentBlock || currentBlock.typeId !== "block:demon_landmine") return;
-    } catch (e) { return; }
+        if (!currentBlock || currentBlock.typeId !== MINE_ID) return;
+    } catch (_) {
+        return;
+    }
+
+    // 先从坐标表摘掉，避免同一 tick 内被重复遍历到
+    unregisterMineAt(dimension, location);
 
     dimension.playSound("demon_landmine", location, { volume: 1.0, pitch: 1.0 });
 
@@ -104,12 +258,12 @@ function triggerExplosion(dimension, location) {
     dimension.spawnParticle("dm:smash_particle", particleLocation);
     dimension.spawnParticle("dm:dust_particle", particleLocation);
 
-    // 伤害逻辑加保护，即使出错也不影响后续清除
     try {
         applyExplosionDamage(dimension, location);
-    } catch (e) {}
+    } catch (e) { }
 
     const lightLocation = { x: location.x, y: location.y + 1, z: location.z };
+
     try {
         dimension.setBlockType(lightLocation, LIGHT_BLOCK);
         system.runTimeout(() => {
@@ -118,11 +272,11 @@ function triggerExplosion(dimension, location) {
                 if (currentBlock && currentBlock.typeId === LIGHT_BLOCK) {
                     dimension.setBlockType(lightLocation, "minecraft:air");
                 }
-            } catch (e) {}
+            } catch (e) { }
         }, LIGHT_DURATION_TICKS);
-    } catch (e) {}
+    } catch (e) { }
 
-        // 清除地雷（必须在连锁检测之前，防止重复触发自身）
+    // 清除地雷（必须在连锁检测之前，防止重复触发自身）
     dimension.setBlockType(location, "minecraft:air");
 
     // 搜索范围内其他地雷
@@ -131,14 +285,14 @@ function triggerExplosion(dimension, location) {
     // 保存地雷坐标，由维度直接执行，使用基岩版正确的 positioned 语法
     const capturedDimensionId = dimension.id;
     const capturedLocation = location;
-    
+
     system.run(() => {
         try {
             const dim = world.getDimension(capturedDimensionId);
             const x = Math.floor(capturedLocation.x);
             const y = Math.floor(capturedLocation.y);
             const z = Math.floor(capturedLocation.z);
-            
+
             dim.runCommand(`execute positioned ${x} ${y} ${z} run function explosion`);
         } catch (e) {
             console.error(`[DM-Landmine] 触发 function 失败: ${e}`);
@@ -146,7 +300,9 @@ function triggerExplosion(dimension, location) {
     });
 }
 
+// ============================================================
 // 连锁爆炸：搜索爆炸范围内其他地雷并延迟触发
+// ============================================================
 function chainExplode(dimension, location) {
     const chainRadius = Math.floor(EXPLOSION_RADIUS);
     const chainTargets = [];
@@ -165,10 +321,10 @@ function chainExplode(dimension, location) {
 
                 try {
                     const block = dimension.getBlock(checkPos);
-                    if (block && block.typeId === "block:demon_landmine") {
+                    if (block && block.typeId === MINE_ID) {
                         chainTargets.push({ x: checkPos.x, y: checkPos.y, z: checkPos.z });
                     }
-                } catch (e) {}
+                } catch (e) { }
             }
         }
     }
@@ -178,94 +334,168 @@ function chainExplode(dimension, location) {
             for (const target of chainTargets) {
                 try {
                     triggerExplosion(dimension, target);
-                } catch (e) {}
+                } catch (e) { }
             }
         }, 3); // 延迟3tick，连锁有视觉层次感
     }
 }
 
+// ============================================================
+// 单颗地雷的半径检测
+//
+// 返回 true 表示已触发（表项已由 triggerExplosion 摘除）
+// ============================================================
+function checkMineProximity(entry, now, dimension) {
+    // 180 秒后熔断半径检测，只保留 onStepOn
+    if (now > entry.expireTick) {
+        if (!entry.expireFlagged) {
+            entry.expireFlagged = true;
+            try {
+                dimension.playSound("demon_landmine", { x: entry.x, y: entry.y, z: entry.z }, {
+                    volume: 1.0,
+                    pitch: 1.0
+                });
+            } catch (_) { }
+        }
+        return false;
+    }
+
+    let nearbyEntities;
+
+    try {
+        nearbyEntities = dimension.getEntities({
+            location: entry.center,
+            maxDistance: TRIGGER_RADIUS,
+            excludeTypes: EXCLUDED_TYPES
+        });
+    } catch (_) {
+        return false;
+    }
+
+    for (const entity of nearbyEntities) {
+        if (!entity.isValid) continue;
+        if (!shouldTrigger(entity)) continue;
+
+        let loc;
+
+        try {
+            loc = entity.location;
+        } catch (_) {
+            continue;
+        }
+
+        if (
+            Math.abs(loc.x - entry.center.x) <= TRIGGER_RADIUS &&
+            Math.abs(loc.z - entry.center.z) <= TRIGGER_RADIUS &&
+            loc.y >= entry.y - 0.5 &&
+            loc.y <= entry.y + 1.5
+        ) {
+            triggerExplosion(dimension, { x: entry.x, y: entry.y, z: entry.z });
+            return true;
+        }
+    }
+
+    return false;
+}
+
+// ============================================================
+// 方块存活校验
+//
+// 返回 false 表示该雷已不存在，应从表里摘除
+// ============================================================
+function validateMineBlock(entry, dimension) {
+    try {
+        const block = dimension.getBlock({ x: entry.x, y: entry.y, z: entry.z });
+
+        // 区块未加载时 getBlock 可能返回 undefined，
+        // 这时无法判断，保留表项，等下次再校验
+        if (!block) return true;
+
+        return block.typeId === MINE_ID;
+    } catch (_) {
+        // 越界 / 未加载等异常，同样保留
+        return true;
+    }
+}
+
+// ============================================================
+// 全局调度器
+//
+// 全工程唯一的定时器。
+// 遍历 MineTable，按需做方块校验 + 半径检测。
+// 表为空时直接返回，零开销。
+// ============================================================
+system.runInterval(() => {
+    if (MineTable.size === 0) return;
+
+    const now = system.currentTick;
+
+    // 快照 key 列表，避免遍历时删除导致的迭代语义问题
+    for (const entry of Array.from(MineTable.values())) {
+        if (entry.removed) continue;
+        if (!MineTable.has(entry.key)) continue;
+
+        const dimension = getDimensionSafe(entry.dimId);
+        if (!dimension) continue;
+
+        // ── 1. 按周期校验方块是否还在 ──
+        if (now >= entry.nextValidateTick) {
+            entry.nextValidateTick = now + VALIDATE_INTERVAL;
+
+            if (!validateMineBlock(entry, dimension)) {
+                unregisterMine(entry);
+                continue;
+            }
+        }
+
+        // ── 2. 半径检测 ──
+        try {
+            checkMineProximity(entry, now, dimension);
+        } catch (_) { }
+    }
+}, CHECK_INTERVAL);
+
+// ============================================================
+// 自定义组件注册
+// ============================================================
 system.beforeEvents.startup.subscribe((initEvent) => {
     initEvent.blockComponentRegistry.registerCustomComponent(
         "block:demon_landmine",
         {
             onPlace(event) {
                 const { block } = event;
-                block.dimension.playSound("demon_landmine", block.location, { volume: 1.0, pitch: 1.0 });
 
-                const capturedDimensionId = block.dimension.id;
-                const capturedLocation = { x: block.location.x, y: block.location.y, z: block.location.z };
-                const placeTick = system.currentTick;
+                block.dimension.playSound("demon_landmine", block.location, {
+                    volume: 1.0,
+                    pitch: 1.0
+                });
 
-                const checkInterval = system.runInterval(() => {
-                    try {
-                        const dim = world.getDimension(capturedDimensionId);
+                // 登记到全局坐标表，由统一调度器接管
+                registerMine(block.dimension, block.location);
+            },
 
-                        // ★ 熔断：播放提示音效，停止半径检测
-                        if (system.currentTick - placeTick > MAX_ACTIVE_TICKS) {
-                            try {
-                                dim.playSound("demon_landmine", capturedLocation, { volume: 1.0, pitch: 1.0 });
-                            } catch (e) {}
-                            system.clearRun(checkInterval);
-                            return;
-                        }
-
-                        const currentBlock = dim.getBlock(capturedLocation);
-
-                        // 区块未加载：跳过本次检测，不清除定时器
-                        if (!currentBlock) {
-                            return;
-                        }
-
-                        // 方块真的被替换了，清除定时器
-                        if (currentBlock.typeId !== "block:demon_landmine") {
-                            system.clearRun(checkInterval);
-                            return;
-                        }
-
-                        const blockCenter = {
-                            x: capturedLocation.x + 0.5,
-                            y: capturedLocation.y + 0.5,
-                            z: capturedLocation.z + 0.5
-                        };
-
-                        const nearbyEntities = dim.getEntities({
-                            location: blockCenter,
-                            maxDistance: TRIGGER_RADIUS,
-                            excludeTypes: ["minecraft:item", "minecraft:xp_orb"]
-                        });
-
-                        for (const entity of nearbyEntities) {
-                            if (!entity.isValid) continue;
-                            if (!shouldTrigger(entity)) continue;
-
-                            const ex = entity.location.x;
-                            const ey = entity.location.y;
-                            const ez = entity.location.z;
-
-                            if (Math.abs(ex - blockCenter.x) <= TRIGGER_RADIUS &&
-                                Math.abs(ez - blockCenter.z) <= TRIGGER_RADIUS &&
-                                ey >= capturedLocation.y - 0.5 &&
-                                ey <= capturedLocation.y + 1.5) {
-                                system.clearRun(checkInterval);
-                                triggerExplosion(dim, capturedLocation);
-                                return;
-                            }
-                        }
-                    } catch (e) {
-                        // 异常不清除定时器，可能是区块卸载导致的临时错误
-                    }
-                }, CHECK_INTERVAL);
+            onBreak(event) {
+                // 被玩家/爆炸/指令移除时立刻摘除，不等校验周期
+                try {
+                    unregisterMineAt(event.block.dimension, event.block.location);
+                } catch (_) { }
             },
 
             onStepOn(event) {
                 const { block, entity } = event;
+
                 if (!entity || !entity.isValid) return;
                 if (!shouldTrigger(entity)) return;
 
+                // 自我修复：旧存档里没走过 onPlace 的雷，在这里补登记
+                registerMine(block.dimension, block.location);
+
                 try {
                     const currentBlock = block.dimension.getBlock(block.location);
-                    if (!currentBlock || currentBlock.typeId !== "block:demon_landmine") return;
-                } catch (e) { return; }
+                    if (!currentBlock || currentBlock.typeId !== MINE_ID) return;
+                } catch (_) {
+                    return;
+                }
 
                 triggerExplosion(block.dimension, block.location);
             }

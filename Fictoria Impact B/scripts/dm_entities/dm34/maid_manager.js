@@ -1,6 +1,10 @@
-import { world, EntityDamageCause, system } from "@minecraft/server";
+import { EntityDamageCause, system } from "@minecraft/server";
+import {
+    registerAfterHurtHandler,
+    AFTER_HURT_PRIORITY
+} from "../common/event_bus.js";
 
-world.afterEvents.entityHurt.subscribe((event) => {
+registerAfterHurtHandler("maid_hurt_protect", (event) => {
     const victim = event.hurtEntity;
     const cause = event.damageSource.cause;
 
@@ -239,4 +243,4 @@ world.afterEvents.entityHurt.subscribe((event) => {
             });
         } catch(e) {}
     }
-});
+}, AFTER_HURT_PRIORITY.MAID_HURT);

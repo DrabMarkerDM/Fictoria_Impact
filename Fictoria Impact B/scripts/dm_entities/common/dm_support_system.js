@@ -1,4 +1,10 @@
 import { world, system, EntityDamageCause } from "@minecraft/server";
+import {
+    registerBeforeHurtHandler,
+    registerEntityRemoveHandler,
+    HURT_PRIORITY,
+    REMOVE_PRIORITY
+} from "./event_bus.js";
 
 // ============================================================
 // 日志开关
@@ -42,6 +48,131 @@ const PressureOffsetCache = new Map();
 
 // 压力更新周期：10 tick
 const PRESSURE_UPDATE_INTERVAL = 10;
+
+// ============================================================
+// 索敌状态闸门（压力系统用）
+//
+// ── 为什么需要 ────────────────────────────────────────────
+// 压力只看「压力半径内有多少怪」，从不看「这些怪看不看得见」。
+// 结果：干员站在墙后，隔壁房间 4 只怪就能把它顶到 60 压，
+// 它自己也会被算成「正在交战的人」，不该求援的求援，
+// 该去支援别人时又因为压力过高被拦在门外。
+//
+// 现在加一道闸门：没在索敌 → 身边有多少怪都不升压。
+// 它的压力长期接近 0，于是仍然满足「响应别人求援」的条件
+// （processHurtSupport 要求 followerPressure <= 25）。
+//
+// ── 索敌状态从哪来 ───────────────────────────────────────
+// 直接读 Entity.target：有目标且 isValid 就算在索敌。
+//
+// 为什么不用 tag dm_has_target：
+//   那条 tag 依赖实体 JSON 里配链路（30 个干员靠 on_target_acquired 直连，
+//   dm0 靠 dm:target_sensor 走 JS 中转），dm6 / dm21 两条都没有，
+//   拿不到 tag 就永远算作没在索敌。
+//   改用 target 之后全实体通用，不用动任何 JSON。
+//   而且 tag 本来就是从 target 派生的，两者语义等价。
+//
+// Entity.target 是 experimental API（文档整段包在
+// `::: moniker range="=minecraft-bedrock-experimental"` 里，
+// 2.13.0-beta 才进 changelog 的正式变更记录），
+// 但本工程世界开了 Beta APIs 实验，运行时可读
+// （dm0 在游戏里能拿到 dm_has_target，就是同一个 target 派生出来的）。
+//
+// 只判断「目标是不是敌人」，不关心具体是谁 —— 口径与目标引擎一致：
+//   敌人 = monster 家族（attackable_target_manager.js 的 ENEMY_FAMILY）。
+//   全工程 26 个 monster 实体恰好就是全部可战斗敌人
+//   （demon:* 全部 + mob:demon_uav + demon:war_dog），
+//   demon 家族里剩下的 bullet / roar 不带 monster，本来就不该当目标。
+//
+//   顺带把玩家和己方排掉了，这一层必须有：
+//   JSON 里 owner_hurt_by_target / owner_hurt_target / hurt_by_target 的过滤器
+//   是 is_family: other != dm，玩家不属于 dm 家族，这个条件对玩家恒成立，
+//   等于没过滤。玩家拿剑敲一下干员，hurt_by_target 就会把玩家写成 target。
+//   若不排，误敲会让干员压力直接拉满 60 去找人应援。
+//   干员互殴同理（dm 家族不带 monster）。
+//
+// 不做视线检测：getBlockFromRay 每个单位每轮都要打射线，
+// 干员一多就是成百上千次方块查询，成本远超收益。
+// ============================================================
+
+// 脱战方向的 JS 防抖：多目标来回切换时索敌状态会跳，连续 2 秒没命中才认脱战
+const ENGAGE_HOLD_TICKS = 40;
+
+// 缓存上限，超出后淘汰最久未更新的
+const ENGAGE_CACHE_MAX = 256;
+
+// unitId -> { engaged, lastSeen }
+const EngagementCache = new Map();
+
+// ============================================================
+// 索敌判定（带防抖）
+//
+// 上升沿立即生效：锁上目标就能涨压，不延迟。
+// 下降沿延迟 ENGAGE_HOLD_TICKS：换目标的瞬间 target 会短暂变空，
+// 靠这 2 秒兜住，防止压力抖动。
+//
+// target 可能抛 InvalidEntityError，必须包 try。
+// 只有 monster 家族的目标才算威胁（见上方说明）。
+// ============================================================
+function resolveEngagement(unit, nowTick) {
+    const id = unit.id;
+
+    let state = EngagementCache.get(id);
+
+    if (!state) {
+        if (EngagementCache.size >= ENGAGE_CACHE_MAX) {
+            // 满表时淘汰最久未更新的，防长期运行泄漏
+            let oldestId = null;
+            let oldestTick = Infinity;
+
+            for (const [key, value] of EngagementCache) {
+                if (value.lastSeen < oldestTick) {
+                    oldestTick = value.lastSeen;
+                    oldestId = key;
+                }
+            }
+
+            if (oldestId !== null) {
+                EngagementCache.delete(oldestId);
+            }
+        }
+
+        state = {
+            engaged: false,
+            lastSeen: 0
+        };
+
+        EngagementCache.set(id, state);
+    }
+
+    let raw = false;
+
+    try {
+        const target = unit.target;
+
+        // 口径与目标引擎一致：monster 家族才是敌人。
+        // 玩家、己方干员、demon 家的弹药/吼叫都不带 monster，自然排除。
+        if (target && target.isValid && target.matches({ families: ["monster"] })) {
+            raw = true;
+        }
+    } catch (_) { }
+
+    if (raw) {
+        state.engaged = true;
+        state.lastSeen = nowTick;
+
+        return true;
+    }
+
+    // 防抖保持
+    if (state.engaged && nowTick - state.lastSeen < ENGAGE_HOLD_TICKS) {
+        return true;
+    }
+
+    state.engaged = false;
+
+    return false;
+}
 
 // 优化：支援模式配置缓存
 // key: `${typeId}:${variant}`
@@ -196,30 +327,31 @@ function resolveSupportModeConfig(sharedRegistry, follower) {
 //
 // 不改变支援逻辑，只清理内存资产，降低长期运行泄漏风险。
 // ============================================================
-try {
-    world.beforeEvents.entityRemove.subscribe((event) => {
-        try {
-            const id = event.removedEntity?.id;
-            if (!id) return;
+registerEntityRemoveHandler("support_cache", (event) => {
+    try {
+        const id = event.removedEntity?.id;
+        if (!id) return;
 
-            cancelHurtFollowerIds.delete(id);
-            PressureOffsetCache.delete(id);
+        cancelHurtFollowerIds.delete(id);
+        PressureOffsetCache.delete(id);
+        EngagementCache.delete(id);
 
-            // 如果移除的是怪物，解除该怪物的仇恨锁
-            if (monsterAggroLock.has(id)) {
-                removeAggroLock(id);
-            }
+        // 如果移除的是怪物，解除该怪物的仇恨锁
+        if (monsterAggroLock.has(id)) {
+            removeAggroLock(id);
+        }
 
-            // 如果移除的是支援者，解除它名下所有仇恨锁
-            releaseFollowerAggroLocks(id);
-        } catch (_) { }
-    });
-} catch (_) { }
+        // 如果移除的是支援者，解除它名下所有仇恨锁
+        releaseFollowerAggroLocks(id);
+    } catch (_) { }
+}, REMOVE_PRIORITY.SUPPORT_CACHE);
 
 // ============================================================
 // 免疫红光与击退
+//
+// 改为注册到统一受击总线，不再自己订阅 entityHurt。
 // ============================================================
-world.beforeEvents.entityHurt.subscribe((event) => {
+function handleSupportSilence(event) {
     const { hurtEntity } = event;
 
     if (!hurtEntity || !hurtEntity.isValid) return;
@@ -228,7 +360,13 @@ world.beforeEvents.entityHurt.subscribe((event) => {
         event.cancel = true;
         cancelHurtFollowerIds.delete(hurtEntity.id);
     }
-});
+}
+
+registerBeforeHurtHandler(
+    "support_silence",
+    handleSupportSilence,
+    HURT_PRIORITY.SUPPORT_SILENCE
+);
 
 export class DmSupportModule {
     /**
@@ -540,14 +678,18 @@ export class DmSupportModule {
         //
         // 范围保持不变：
         // config.pressureRadius ?? 12
+        //
+        // 新增索敌闸门：先数出半径内的敌人个数，
+        // 再看这个单位到底在不在索敌。不在索敌就一个都不算。
         // ============================================================
-        let nearbyMonsterCount = 0;
         const pressureRadius = config.pressureRadius ?? 12;
+        const pressureRadiusSq = pressureRadius * pressureRadius;
+
+        // 只数个数，不保留实体引用（避免每轮建数组）
+        let nearbyMonsterCount = 0;
 
         // 优化：如果上游已经传入目标列表，则优先复用，减少一次 getEntities
         if (Array.isArray(targets) && targets.length > 0) {
-            const pressureRadiusSq = pressureRadius * pressureRadius;
-
             for (const target of targets) {
                 if (!target || !target.isValid) continue;
 
@@ -555,7 +697,9 @@ export class DmSupportModule {
                 const dy = target.location.y - unit.location.y;
                 const dz = target.location.z - unit.location.z;
 
-                if (dx * dx + dy * dy + dz * dz <= pressureRadiusSq) {
+                const distSq = dx * dx + dy * dy + dz * dz;
+
+                if (distSq <= pressureRadiusSq) {
                     nearbyMonsterCount++;
                 }
             }
@@ -567,8 +711,30 @@ export class DmSupportModule {
                     families: ["monster"]
                 });
 
-                nearbyMonsterCount = pressureTargets.length;
+                for (const enemy of pressureTargets) {
+                    if (!enemy || !enemy.isValid) continue;
+
+                    nearbyMonsterCount++;
+                }
             } catch (_) { }
+        }
+
+        // ============================================================
+        // 索敌闸门
+        //
+        // 没在索敌说明敌人隔在墙那边，看不见也不构成威胁。
+        // 这种单位身边有多少怪都不升压，压力留在低位，
+        // 于是它仍然是「可以响应别人求援的人」，
+        // 而不是被误判成「自己也在挨打的人」。
+        //
+        // 注意：挨打加的那 60 点不受这道闸门影响（见下方 tickSinceHurt），
+        // 真被打了照样立刻拉满，闸门只管「身边数量」这一项。
+        // ============================================================
+        if (
+            nearbyMonsterCount > 0 &&
+            !resolveEngagement(unit, nowTick)
+        ) {
+            nearbyMonsterCount = 0;
         }
 
         let pressureValue = Math.min(nearbyMonsterCount * 15, 60);

@@ -1,4 +1,21 @@
 import { system, world, EntityDamageCause } from "@minecraft/server";
+import {
+    registerBeforeHurtHandler,
+    registerEntityRemoveHandler,
+    HURT_PRIORITY,
+    REMOVE_PRIORITY
+} from "./event_bus.js";
+import {
+    writeMoveCmd,
+    acquireMoveCmd,
+    peekMoveCmd,
+    clearMoveCmd
+} from "./move_command_store.js";
+import {
+    FACTION,
+    factionOf,
+    isInCombat
+} from "./camp_faction.js";
 
 // ============================================================
 // 日志开关
@@ -76,6 +93,106 @@ function resolveRealAttacker(attacker, victim) {
 }
 
 // ============================================================
+// 友方攻击者判定
+//
+// 格挡是「对敌防御」，不该被自己人的攻击消耗护盾次数。
+//
+// 为什么要在这里单独判一次：
+//   受击总线按优先级分发（100 格挡 → 300 友伤拦截），
+//   且刻意保留「不因 event.cancel 提前中断」的语义，
+//   所以友伤拦截 cancel 的时候，格挡处理器已经跑完了。
+//   结论：格挡必须在自己的处理器里先判一次阵营。
+//
+// 说明：判定口径与 player_attack_blocker.js 对齐，但兜底用 dm 家族而非白名单，
+// 因为 mob: 命名空间下混着敌人：
+//   mob:demon_uav / mob:bomb_roar -> ['demon', 'monster']  ← 敌方
+//   mob:hug_maid / mob:mon3tr ... -> 含 'dm'                ← 友方
+//
+// 已核实：全工程 25 个带 monster 家族的敌方实体，没有任何一个同时带 dm 家族，
+// 所以「有 dm 家族 = 友方」不会误放敌人。
+//
+// 导出：attackable_target_manager.js 的受击后处理器也要用同一套口径，
+// 判定「这个攻击者该不该被记成威胁目标」。
+// ============================================================
+export const ALLIED_ATTACKER_TYPES = new Set([
+    // 真人玩家：不带 dm 家族，阵营兜底会判成中立 → 必须白名单
+    "minecraft:player",
+
+    // ── 以下 4 个带 dm 家族，白名单只是快路径 ──
+    // 实测 minecraft:type_family：
+    //   mob:protecter  -> ["villager", "dm"]
+    //   mob:doctor     -> ["villager", "dm"]
+    //   mob:robot      -> ["robot", "dm", "inanimate", "mp"]
+    //   mob:mon3tr     -> ["mon3tr", "dm"]
+    // 不写这几行也会被下面的阵营兜底判成友，留着只为省掉
+    // 一次 factionOf（内部两次 matches，比 Set.has 贵一个量级）。
+    "mob:protecter",
+    "mob:robot",
+    "mob:doctor",
+    "mob:mon3tr",
+
+    // ── 原版友善 / 驯服生物：工程未覆盖，确无 dm 家族 ──
+    // 这几个是白名单真正不可拆的部分：拆掉就会被判成敌人。
+    "minecraft:horse",
+    "minecraft:donkey",
+    "minecraft:mule",
+    "minecraft:skeleton_horse",
+    "minecraft:zombie_horse",
+    "minecraft:wolf",
+    "minecraft:cat",
+    "minecraft:parrot"
+]);
+
+export function isAlliedAttacker(entity, victim, victimFaction) {
+    // 攻击者不可用（摔落 / 火焰 / 中毒 / 虚空 / 已移除实体）→ 不算格挡对象
+    if (!entity || !entity.isValid) return true;
+
+    // 自伤不消耗护盾
+    if (victim && entity.id === victim.id) return true;
+
+    const tid = entity.typeId;
+
+    if (!tid) return true;
+
+    // 快路径：常见友军直接命中，省掉一次 family 查询
+    if (ALLIED_ATTACKER_TYPES.has(tid)) return true;
+
+    // player 命名空间：dm0~dm63 / asuna / kirito / steve / test1
+    // 已核实 73 个实体全部是干员与友军，没有敌人混用此前缀
+    if (tid.startsWith("player:")) return true;
+
+    // 兜底：同阵营 → 友
+    //
+    // 这里替换掉原来的 matches({ families: ["dm"] })。
+    // 那个写法把「带 dm 家族」写死成友，demon 接进来后会判错：
+    // demon 打 demon 应算友军，而 demon 不带 dm 家族。
+    //
+    // 白名单与 player: 前缀**保留**，但性质变了：
+    //   · mob:protecter / robot / doctor / mon3tr —— 实测带 dm 家族
+    //     （见 ALLIED_ATTACKER_TYPES 注释），留白名单是省一次家族查询
+    //   · 原版 horse / wolf / cat 等 + 真人玩家 —— 确无 dm 家族，
+    //     白名单是唯一正确来源，拆掉就会被判成敌人
+    //
+    // victimFaction 由调用方传入时不再重复求值（走位主循环里
+    // victm 恒为同一个单位，每 tick 算 4 次纯属浪费）。
+    try {
+        const attackerFaction = factionOf(entity);
+
+        if (attackerFaction !== FACTION.NEUTRAL) {
+            if (!victim || !victim.isValid) return false;
+
+            const fv = victimFaction === undefined
+                ? factionOf(victim)
+                : victimFaction;
+
+            return attackerFaction === fv;
+        }
+    } catch (_) {}
+
+    return false;
+}
+
+// ============================================================
 // 缓存区
 // ============================================================
 const MeleeDamageLogCache = new Map();
@@ -89,19 +206,17 @@ const HpSamplesCache = new Map();
 // ============================================================
 // 实体移除时统一清理缓存，降低内存泄漏风险
 // ============================================================
-try {
-    world.beforeEvents.entityRemove.subscribe((event) => {
-        try {
-            const id = event.removedEntity?.id;
-            if (!id) return;
+registerEntityRemoveHandler("melee_cache", (event) => {
+    try {
+        const id = event.removedEntity?.id;
+        if (!id) return;
 
-            MeleeDamageLogCache.delete(id);
-            PendingHurtLedger.delete(id);
-            MeleeCycleCache.delete(id);
-            HpSamplesCache.delete(id);
-        } catch (_) {}
-    });
-} catch (_) {}
+        MeleeDamageLogCache.delete(id);
+        PendingHurtLedger.delete(id);
+        MeleeCycleCache.delete(id);
+        HpSamplesCache.delete(id);
+    } catch (_) {}
+}, REMOVE_PRIORITY.MELEE_CACHE);
 
 /**
 Fictoria_Impact 近战走位动力学引擎 v2.28 冲刺墙检测整理版
@@ -671,9 +786,21 @@ export class MovementMelee {
     }
 
     // ══════════════════════════════════════════════════
+    //  目标阵营校验
+    //
+    //  受击账本 / 动态属性 / 原版索敌都可能残留友军，
+    //  走位前统一用格挡同一套口径过一遍。
+    // ══════════════════════════════════════════════════
+    static _isHostileTarget(unit, candidate, unitFaction) {
+        if (!candidate || !candidate.isValid) return false;
+
+        return !isAlliedAttacker(candidate, unit, unitFaction);
+    }
+
+    // ══════════════════════════════════════════════════
     //  主执行
     // ══════════════════════════════════════════════════
-    static execute(unit, config, closestThreat, closestDistSq, meleeRange, lastDamageTickMap) {
+    static execute(unit, config, closestThreat, closestDistSq, meleeRange, lastDamageTickMap, faction = null) {
         try {
             if (!unit || !unit.isValid) {
                 if (unit) {
@@ -695,6 +822,11 @@ export class MovementMelee {
 
             const nowTick = system.currentTick;
             const uLoc = unit.location;
+
+            // 阵营：目标引擎在 entry 里已经算过，直接传进来。
+            // 缺省（其它调用点）才现场查一次 —— matches 比 hasTag 贵一个数量级，
+            // 不要放在下面的循环里重复求值。
+            const unitFaction = faction ?? factionOf(unit);
 
             // 液体 / 漂浮检测
             let isInLiquid = false;
@@ -720,8 +852,8 @@ export class MovementMelee {
             const isFloating = isInLiquid && !controller.isOnGround;
             const isAirborne = !controller.isOnGround && !isInLiquid;
 
-            // TAG 总阀门
-            const isCombat = unit.hasTag("dm_has_target") || unit.hasTag("dm_skill_on");
+            // TAG 总阀门（tag 名按阵营分派：dm_* / demon_*）
+            const isCombat = isInCombat(unit, unitFaction);
 
             if (!isCombat) {
                 MovementMelee._clearVel(unit);
@@ -760,12 +892,25 @@ export class MovementMelee {
             let target = null;
             let targetDistSq = 99999;
 
+            // ══════════════════════════════════════════════════════
+            // 候选目标必须真的是敌人
+            //
+            // 四个来源都可能被友伤污染：
+            //   ① EWMA 威胁账本 —— 友方攻击的原始伤害（友伤拦截归零之前）会写进去
+            //   ② dm:threat_target_id —— 受击后处理器写入的攻击者，同样是原始伤害
+            //   ④ unit.target —— 原版索敌兜底
+            //
+            // 用与格挡同一套口径（isAlliedAttacker）过滤，
+            // 避免单位把误伤它的玩家 / 友军当成敌人绕着走位。
+            // ③ 的敌人快照本身只查 monster 家族，仍过一遍闸门做兜底。
+            // ══════════════════════════════════════════════════════
+
             // ① 最高威胁分数目标
             try {
                 if (topThreatId) {
                     const threat = world.getEntity(topThreatId);
 
-                    if (threat && threat.isValid) {
+                    if (MovementMelee._isHostileTarget(unit, threat, unitFaction)) {
                         const tdsq = getDistSq(uLoc, threat.location);
 
                         if (tdsq <= detectRange ** 2) {
@@ -785,26 +930,34 @@ export class MovementMelee {
                     if (threatId && (nowTick - threatTick) < 120) {
                         const threat = world.getEntity(threatId);
 
-                        if (threat && threat.isValid) {
+                        if (MovementMelee._isHostileTarget(unit, threat, unitFaction)) {
                             const tdsq = getDistSq(uLoc, threat.location);
 
                             if (tdsq <= detectRange ** 2) {
                                 target = threat;
                                 targetDistSq = tdsq;
                             }
+                        } else if (threat && threat.isValid) {
+                            // 被友伤写脏的历史目标：一次性清掉，
+                            // 顺带让 movement_ranged 的受击回退也不再引用它。
+                            unit.setDynamicProperty("dm:threat_target_id", undefined);
+                            unit.setDynamicProperty("dm:threat_target_tick", 0);
                         }
                     }
                 } catch (_) {}
             }
 
             // ③ 雷达最近威胁
-            if (!target) {
+            if (!target && MovementMelee._isHostileTarget(unit, closestThreat, unitFaction)) {
                 target = closestThreat;
                 targetDistSq = closestDistSq;
             }
 
             // ④ 原版索敌兜底
-            if ((!target || !target.isValid || targetDistSq > detectRange ** 2) && unit.target?.isValid) {
+            if (
+                (!target || !target.isValid || targetDistSq > detectRange ** 2) &&
+                MovementMelee._isHostileTarget(unit, unit.target, unitFaction)
+            ) {
                 target = unit.target;
                 targetDistSq = getDistSq(uLoc, target.location);
             }
@@ -1080,8 +1233,9 @@ export class MovementMelee {
 
             // 速度惯性平滑
             if (strategy === "balanced" && !isEmergencyRetreat && !isPanicRetreat) {
-                const prevVelX = unit.getDynamicProperty("dm:cmd_vel_x") ?? 0;
-                const prevVelZ = unit.getDynamicProperty("dm:cmd_vel_z") ?? 0;
+                const prevCmd = peekMoveCmd(unit.id);
+                const prevVelX = prevCmd.x;
+                const prevVelZ = prevCmd.z;
 
                 const SMOOTHING = 0.3;
 
@@ -1119,9 +1273,11 @@ export class MovementMelee {
             }
 
             // 写入指令速度
-            unit.setDynamicProperty("dm:cmd_vel_x", velX);
-            unit.setDynamicProperty("dm:cmd_vel_z", velZ);
-            unit.setDynamicProperty("dm:cmd_vel_y", jumpImpulse);
+            //
+            // 改造前是 3 次 setDynamicProperty（持久化通道）。
+            // 这三个键在 entities/ 与资源包中 0 引用，
+            // 只是给 main.js 驱动环读的瞬时指令，改为内存写入。
+            writeMoveCmd(unit, velX, velZ, jumpImpulse);
         } catch (err) {
             console.error(`[DM-Melee Engine Error] ${err.name}: ${err.message}`);
 
@@ -1673,9 +1829,7 @@ export class MovementMelee {
 
     // 清速
     static _clearVel(unit) {
-        unit.setDynamicProperty("dm:cmd_vel_x", 0);
-        unit.setDynamicProperty("dm:cmd_vel_z", 0);
-        unit.setDynamicProperty("dm:cmd_vel_y", 0);
+        clearMoveCmd(unit);
         unit.setDynamicProperty("dm:melee_charging", 0);
     }
 }
@@ -1690,7 +1844,7 @@ function registerBlockSubscriber() {
 
     _blockSubscriberRegistered = true;
 
-    world.beforeEvents.entityHurt.subscribe((event) => {
+    function handleMeleeBeforeHurt(event) {
         try {
             const victim = event.hurtEntity;
 
@@ -1702,8 +1856,52 @@ function registerBlockSubscriber() {
 
             const hpInfo = isDmUnit ? MovementMelee._getHpInfo(victim) : null;
 
+            // ══════════════════════════════════════════════════════
+            // 阵营闸门（惰性求值，每次受击最多算一次）
+            //
+            // 友伤 —— 玩家 / 干员 / 友军 / 驯服生物 —— 不是威胁：
+            //   · 不进真实受击账本
+            //   · 不进 EWMA 威胁账本（MeleeCycleCache.attackerDamage）
+            //   · 不消耗格挡次数
+            //
+            // 为什么必须判：
+            //   总线按优先级分发（100 格挡 → 300 友伤拦截），
+            //   友伤拦截把 event.damage 归零之前，这里读到的还是原始伤害。
+            //   若不判阵营，攻击者会以「真实伤害分数」写进 attackerDamage，
+            //   而 MovementMelee.execute 的「① 最高威胁目标」是第一条命中即用，
+            //   于是怪物死光之后，单位会把误伤它的玩家当成敌人绕着走位。
+            //
+            // 为什么用惰性：
+            //   resolveRealAttacker 对投射物会做一次 24 格 getEntities 溯源。
+            //   只有「伤害 > 0」和「走到格挡分支」才需要它，
+            //   零伤害受击（摔落 / 火焰 / 友伤已归零）保持原开销不变。
+            // ══════════════════════════════════════════════════════
+            let gateReady = false;
+            let resolvedAttacker = null;
+            let attackerIsAllied = false;
+
+            const resolveAttackerGate = () => {
+                if (gateReady) return;
+
+                gateReady = true;
+
+                if (!isDmUnit) return;
+
+                try {
+                    const rawAtk = event.damageSource?.damagingEntity;
+
+                    if (rawAtk && rawAtk.isValid && rawAtk.id !== victim.id) {
+                        resolvedAttacker = resolveRealAttacker(rawAtk, victim);
+                        attackerIsAllied = isAlliedAttacker(resolvedAttacker, victim);
+                    }
+                } catch (_) {}
+            };
+
+            // 账本与喂数据都要求 damage > 0，这里统一先算一次
+            if (isDmUnit && event.damage > 0) resolveAttackerGate();
+
             // ── 真实受击账本 ──
-            if (isDmUnit && event.damage > 0) {
+            if (isDmUnit && event.damage > 0 && !attackerIsAllied) {
                 const atk = event.damageSource?.damagingEntity;
 
                 const existing = PendingHurtLedger.get(victim.id);
@@ -1732,14 +1930,18 @@ function registerBlockSubscriber() {
             }
 
             // ── 攻击模式喂数据 ──
-            if (isDmUnit && event.damage > 0 && hpInfo) {
-                const attacker = event.damageSource?.damagingEntity;
+            //
+            // 友方攻击不喂：EWMA 威胁账本是「谁真的在打我」的账本，
+            // 混进友军后，① 最高威胁目标会优先选中友军。
+            if (isDmUnit && event.damage > 0 && hpInfo && !attackerIsAllied) {
+                const realAttacker = resolvedAttacker;
 
-                const isFakeHurt = !attacker || !attacker.isValid || attacker.id === victim.id;
+                const isFakeHurt =
+                    !realAttacker ||
+                    !realAttacker.isValid ||
+                    realAttacker.id === victim.id;
 
                 if (!isFakeHurt) {
-                    const realAttacker = resolveRealAttacker(attacker, victim);
-
                     MovementMelee._updateMeleePattern(
                         realAttacker.id,
                         victim.id,
@@ -1755,9 +1957,33 @@ function registerBlockSubscriber() {
 
             if (charges <= 0) return;
 
-            const isCombat = victim.hasTag("dm_has_target") || victim.hasTag("dm_skill_on");
+            // 受击方阵营：这条链路拿不到 entry，现场判定一次。
+            // 受击事件是低频路径，一次 matches 可以忽略。
+            const isCombat = isInCombat(victim, factionOf(victim));
 
             if (!isCombat) return;
+
+            // ── 阵营闸门：只有真实敌方的攻击才消耗格挡次数 ──
+            //
+            // 修复：玩家 / 友军的攻击也会触发格挡并扣次数。
+            // 成因是总线按优先级分发，格挡(100) 先于友伤拦截(300)，
+            // 且不因 event.cancel 提前中断，所以友伤拦截拦不住已经发生的格挡。
+            //
+            // 放在 charges / isCombat 之后：没有护盾的实体开销完全不变。
+            //
+            // 阵营判定若上面已经算过（damage > 0）直接复用；
+            // damage = 0 时这里才第一次求值，不会重复做 family 查询与投射物溯源。
+            resolveAttackerGate();
+
+            if (!resolvedAttacker || !resolvedAttacker.isValid) return;
+
+            if (attackerIsAllied) {
+                meleeLog(
+                    `[DM-Melee] 友方攻击，跳过格挡 | 攻击者: ${resolvedAttacker.typeId ?? "unknown"} | 实体: ${victim.typeId}`
+                );
+
+                return;
+            }
 
             let minBlockDamage = Math.max((hpInfo ? hpInfo.hp : 20) * 0.05, 3);
 
@@ -1853,7 +2079,13 @@ function registerBlockSubscriber() {
                 } catch (_) {}
             });
         } catch (_) {}
-    });
+    }
+
+    registerBeforeHurtHandler(
+        "melee_block",
+        handleMeleeBeforeHurt,
+        HURT_PRIORITY.MELEE_BLOCK
+    );
 
     meleeLog("[DM-Melee] 格挡已注册 (顶层注册, tag总阀门+统一周期+EWMA威胁+攻击者溯源)");
 }

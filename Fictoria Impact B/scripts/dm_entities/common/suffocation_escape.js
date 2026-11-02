@@ -1,8 +1,18 @@
 import {
-    world,
     system,
     EntityDamageCause
 } from "@minecraft/server";
+import {
+    registerEntityRemoveHandler,
+    registerAfterHurtHandler,
+    REMOVE_PRIORITY,
+    AFTER_HURT_PRIORITY
+} from "./event_bus.js";
+import {
+    writeMoveCmd,
+    peekMoveCmd,
+    clearMoveCmd
+} from "./move_command_store.js";
 
 // ============================================================
 // 窒息 / 重力方块埋压 / 液体溺水挣脱模块
@@ -75,20 +85,18 @@ const LiquidFailState = new Map();
 // ============================================================
 // 实体移除清理
 // ============================================================
-try {
-    world.beforeEvents.entityRemove.subscribe((event) => {
-        try {
-            const id = event.removedEntity?.id;
-            if (!id) return;
-            EscapeLastTick.delete(id);
-            EscapeFailCount.delete(id);
-            EscapeFuseState.delete(id);
-            LiquidEscapeLastTick.delete(id);
-            LiquidHitMap.delete(id);
-            LiquidFailState.delete(id);
-        } catch (_) {}
-    });
-} catch (_) {}
+registerEntityRemoveHandler("suffocation_cache", (event) => {
+    try {
+        const id = event.removedEntity?.id;
+        if (!id) return;
+        EscapeLastTick.delete(id);
+        EscapeFailCount.delete(id);
+        EscapeFuseState.delete(id);
+        LiquidEscapeLastTick.delete(id);
+        LiquidHitMap.delete(id);
+        LiquidFailState.delete(id);
+    } catch (_) {}
+}, REMOVE_PRIORITY.SUFFOCATION_CACHE);
 
 // ============================================================
 // 工具：纯家族匹配 (dm 和 demon)
@@ -181,7 +189,11 @@ function isEntityStandableHere(entity) {
 // ============================================================
 function getEscapeDirection(entity) {
     let dirX = 0, dirZ = 0;
-    try { dirX = entity.getDynamicProperty("dm:cmd_vel_x") ?? 0; dirZ = entity.getDynamicProperty("dm:cmd_vel_z") ?? 0; } catch (_) {}
+    try {
+        const escapeCmd = peekMoveCmd(entity.id);
+        dirX = escapeCmd.x;
+        dirZ = escapeCmd.z;
+    } catch (_) {}
     if (Math.abs(dirX) < 0.01 && Math.abs(dirZ) < 0.01) {
         try { const vel = entity.getVelocity(); dirX = vel.x ?? 0; dirZ = vel.z ?? 0; } catch (_) {}
     }
@@ -195,9 +207,7 @@ function getEscapeDirection(entity) {
 
 function clearDmMovementCommands(entity) {
     try {
-        entity.setDynamicProperty("dm:cmd_vel_x", 0);
-        entity.setDynamicProperty("dm:cmd_vel_z", 0);
-        entity.setDynamicProperty("dm:cmd_vel_y", 0);
+        clearMoveCmd(entity);
         entity.setDynamicProperty("dm:melee_charging", 0);
     } catch (_) {}
 }
@@ -425,7 +435,7 @@ function tryLiquidEscape(entity) {
 // ============================================================
 // 事件入口：伤害检测与分流
 // ============================================================
-world.afterEvents.entityHurt.subscribe((event) => {
+registerAfterHurtHandler("suffocation_escape", (event) => {
     try {
         const victim = event.hurtEntity;
         if (!shouldHandle(victim)) return;
@@ -490,6 +500,6 @@ world.afterEvents.entityHurt.subscribe((event) => {
 
         system.run(() => { try { if (victim && victim.isValid) tryEscape(victim); } catch (_) {} });
     } catch (_) {}
-});
+}, AFTER_HURT_PRIORITY.SUFFOCATION_HURT);
 
 suffocationLog("[SuffocationEscape] 防窒息模块已加载");
