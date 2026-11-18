@@ -1,63 +1,30 @@
-// ============================================================
-// event_bus.js — 全局事件统一总线
-//
-// （原 damage_event_bus.js，因职责从「受击」扩展到全部重复订阅而更名）
-//
-// ── 解决的问题 ────────────────────────────────────────────
-// 改造前全工程共有 30 处 .subscribe()，其中大量是「同一事件被
-// 多个模块各自订阅一遍」：
-//
-//   beforeEvents.entityRemove     × 9
-//   afterEvents.entityHurt        × 4
-//   afterEvents.entityHitEntity   × 3
-//   afterEvents.dataDrivenEntityTrigger × 2
-//
-// 后果：
-//   1. 每次事件触发要跨 9 次 JS↔原生边界，跑 9 遍
-//      `if (map.has(id)) map.delete(id)` 这种一模一样的清理。
-//   2. 执行顺序完全取决于 main.js 的 import 顺序 ——
-//      任何一次 import 位置调整都可能悄悄改变战斗结果。
-//
-// ── 现在的模型 ────────────────────────────────────────────
-//   · 每个事件全工程只订阅 1 次
-//   · 各模块只登记处理函数 + 优先级数字
-//   · 分发顺序由 priority 写死，与 import 顺序彻底解耦
-//
-// ── 行为等价性（三条硬约束）────────────────────────────────
-//   1. 不因 event.cancel 提前中断
-//      原实现里前面的处理器 cancel 之后，后面的照样跑。
-//      例如友伤拦截 cancel 后，蓄力倍率/弹反仍然执行。
-//
-//   2. 单处理器异常隔离
-//      一个 handler 抛异常只影响它自己，后续继续分发。
-//
-//   3. 分发顺序 = 改造前的实际注册顺序
-//      每个优先级数值都是照原 import 图推算出来的，注释里标了出处。
-// ============================================================
+// event_bus.js — 全局事件统一总线。
+
+// 原来同一事件被多个模块各自订阅（entityRemove ×9、entityHurt ×4…），每次触发要跨 9 次
+// JS↔原生边界，且执行顺序取决于 import 顺序。现在每个事件只订阅一次，
+// 模块登记处理函数 + 优先级，分发顺序由 priority 写死。
+
+// 三条硬约束：不因 event.cancel 提前中断；单处理器异常隔离；
+// 顺序 = 改造前的实际注册顺序。
 
 import { world } from "@minecraft/server";
 
-// ============================================================
-// 优先级表
-//
-// 数字小的先执行。
-// ============================================================
+// 优先级表：数字小的先执行。
 
 // ── beforeEvents.entityHurt ──────────────────────────────
 export const HURT_PRIORITY = {
+    SHIELD_BLOCK: 50,       // dm_entities/common/shield_block.js 盾牌格挡（先于近战格挡，盾挡下的不扣后撤次数）
     MELEE_BLOCK: 100,       // movement_melee.js    受击账本 + 近战格挡
     SUPPORT_SILENCE: 200,   // dm_support_system.js 支援者消音
     FRIENDLY_FIRE: 300,     // player_attack_blocker 友伤拦截
     PLAYER_SWORD: 400       // dm_player_sword_attack 蓄力倍率 + 弹反
 };
 
-// ── beforeEvents.entityRemove ────────────────────────────
-//
-// 主体是各模块的缓存清理，彼此独立，顺序无实质影响。
-// 数值仍按改造前的注册先后排列，便于对照。
+// ── beforeEvents.entityRemove ── 缓存清理，彼此独立，顺序无实质影响。
 export const REMOVE_PRIORITY = {
     MELEE_CACHE: 100,           // movement_melee.js
     TACTICAL_CLOCK: 200,        // tactical_clock_manager.js
+    SHIELD_CACHE: 250,          // dm_entities/common/shield_block.js 举盾状态表
     SUPPORT_CACHE: 300,         // dm_support_system.js
     TARGET_CACHE: 400,          // attackable_target_manager.js（模块顶层）
     FRIENDLY_FIRE_CACHE: 500,   // player_attack_blocker.js
@@ -65,21 +32,18 @@ export const REMOVE_PRIORITY = {
     SUFFOCATION_CACHE: 700,     // suffocation_escape.js
     ENGINE_STATE: 800,          // attackable_target_manager.js（init 阶段）
     DRIVE_CACHE: 900,           // main.js DriveVelCache
-    MOVE_COMMAND: 950           // move_command_store.js 走位指令表
+    MOVE_COMMAND: 950,          // move_command_store.js 走位指令表
+    DROWNING_GUARD: 960         // water_traversal.js 溺水换气表
 };
 
-// ── afterEvents.entityHurt ───────────────────────────────
-//
-// 改造前实际注册顺序：
-//   maid_manager:3        （import 阶段，main.js 第 14 行）
-//   suffocation_escape:428（import 阶段，第 32 行）
-//   dm_player_sword:806   （import 阶段，第 35 行）
-//   target_manager:1153   （init 阶段，第 50 行）
+// ── afterEvents.entityHurt ── 顺序照改造前的注册次序排列。
 export const AFTER_HURT_PRIORITY = {
     MAID_HURT: 100,
     SUFFOCATION_HURT: 200,
-    PLAYER_SWORD_HURT: 300,
-    TARGET_ENGINE_HURT: 400
+    MELEE_IMPACT: 300,      // melee_manager.js 长矛戳刺动画 + 小范围群攻
+    FRIENDLY_WARY_MARK: 350,  // player_attack_blocker.js 误伤友军 → 给受害者打 dm_wary 标签
+    TARGET_ENGINE_HURT: 400,
+    DROWNING_GUARD: 500     // water_traversal.js 溺水换气标记
 };
 
 // ── afterEvents.dataDrivenEntityTrigger ──────────────────
@@ -90,17 +54,10 @@ export const DATA_DRIVEN_PRIORITY = {
 
 // ── afterEvents.entityHitEntity ──────────────────────────
 export const ENTITY_HIT_PRIORITY = {
-    FICTORIA_UI: 100,       // fictoria_ui.js（import 阶段，第 29 行）
-    PLAYER_SWORD: 200,      // dm_player_sword_attack.js（第 35 行）
-    MELEE_IMPACT: 300       // melee_manager.js（events() 内，init 最后）
+    FICTORIA_UI: 100        // fictoria_ui.js（import 阶段，潜行+左键弹指挥菜单）
 };
 
-// ============================================================
-// 通道定义
-//
-// resolve 用函数包一层，避免模块加载早期访问 world.beforeEvents
-// 触发不必要的原生调用。
-// ============================================================
+// 通道定义。resolve 用函数包一层，避免加载早期访问 world.beforeEvents。
 const CHANNELS = [
     {
         key: "beforeHurt",
@@ -148,9 +105,7 @@ for (const def of CHANNELS) {
 
 let initialized = false;
 
-// ============================================================
 // 注册（内部）
-// ============================================================
 function register(channelKey, name, handler, priority) {
     const state = ChannelState.get(channelKey);
 
@@ -183,9 +138,7 @@ function register(channelKey, name, handler, priority) {
     return true;
 }
 
-// ============================================================
 // 对外注册接口
-// ============================================================
 
 /** 受击前（beforeEvents.entityHurt）：可修改 damage / cancel */
 export function registerBeforeHurtHandler(name, handler, priority) {
@@ -212,12 +165,7 @@ export function registerEntityHitHandler(name, handler, priority) {
     return register("entityHit", name, handler, priority);
 }
 
-// ============================================================
-// 启动
-//
-// 必须在所有模块 import 完成之后调用（main.js 的 init 里）。
-// 幂等：重复调用不会重复订阅。
-// ============================================================
+// 启动：必须在所有模块 import 完成后调用（main.js 的 init），幂等。
 export function initEventBus() {
     if (initialized) return;
 
@@ -276,9 +224,7 @@ export function initEventBus() {
     );
 }
 
-// ============================================================
 // 诊断
-// ============================================================
 export function listHandlers(channelKey) {
     const state = ChannelState.get(channelKey);
 
@@ -300,11 +246,6 @@ export function listAllHandlers() {
     return out;
 }
 
-// ============================================================
-// 兼容别名
-//
-// 旧代码里写的是 initDamageEventBus / listBeforeHurtHandlers。
-// 保留别名，避免改造过程中漏改一处就整包启动失败。
-// ============================================================
+// 兼容别名：旧代码用 initDamageEventBus / listBeforeHurtHandlers。
 export const initDamageEventBus = initEventBus;
 export const listBeforeHurtHandlers = () => listHandlers("beforeHurt");

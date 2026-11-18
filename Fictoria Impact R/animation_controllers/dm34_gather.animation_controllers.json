@@ -1,0 +1,28 @@
+{
+	"format_version": "1.10.0",
+	"animation_controllers": {
+		// 采集的挥击不再走控制器：控制器只能在状态切换时换动画，无法"每敲一下播一次"，
+		// 而且它的持具姿势会和 playAnimation 抢同一根 rightArm。
+		// 现在整个控制器只剩一个空状态机（保留定义是为了老存档/旧引用不至于报缺文件），
+		// 真正的挥击在 gather.js 里用 Entity.playAnimation 播 animation.dm34_gather_swing。
+		"controller.animation.dm34_gather": {
+			"initial_state": "off",
+			"states": {
+				"off": {
+					"transitions": [
+						{
+							"gather": "(query.variant == 6 || query.variant == 7)"
+						}
+					]
+				},
+				"gather": {
+					"transitions": [
+						{
+							"off": "!(query.variant == 6 || query.variant == 7)"
+						}
+					]
+				}
+			}
+		}
+	}
+}

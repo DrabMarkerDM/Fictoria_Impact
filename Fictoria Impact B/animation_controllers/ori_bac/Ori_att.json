@@ -16,7 +16,7 @@
 					],
 	"on_entry": [
 		"/particle dm:Ori_att ^ ^2 ^2",
-		"/playsound sweep @a[r=12] ~~~ 2.4 1.0",
+		"/playsound sweep @a[r=12] ~~~ 1.25 1.0",
 		"/damage @e[tag=!dm,family=monster,r=12] 18 entity_attack entity @s",
 		"/effect @e[tag=dm,r=12,family=!monster] absorption 5 50 true",
 		"/effect @e[tag=dm,r=12,family=!monster] instant_health 5 1 true",

@@ -78,7 +78,7 @@
         "queue_command": {
           "command": [
             "playanimation @e[type=player:dm63,c=1] animation.dm63_shoot",
-            "playsound dm63_shoot @a[r=33] ~~~ 3.0 1.0"
+            "playsound dm63_shoot @a[r=100] ~~~ 1.4 1.0"
           ]
         }
       },

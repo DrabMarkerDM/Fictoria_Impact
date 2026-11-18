@@ -1,0 +1,43 @@
+{
+	"format_version": "1.10.0",
+	"animations": {
+		// 采集时"头看向正在敲的方块"。
+		//
+		// 以前靠 entity.setRotation()，实测头完全不动：default 组件组里一直挂着
+		// look_at_player / look_at_target / look_at_entity / random_look_around
+		// 四条行为，引擎每 tick 都按它们重算实体朝向，脚本写进去的活不过一帧。
+		//
+		// 这里改由**属性**驱动（dm34:look_pitch / dm34:look_yaw，client_sync），
+		// 转的是 head 骨骼，和实体 yaw 完全无关 —— AI 抢不走。
+		//
+		// 符号（模型正面朝 +Z，右臂在 -X，据此推的）：
+		//   x 轴正数 = 低头，所以直接吃 SAPI 口径的 pitch（负数 = 抬头）
+		//   y 轴正数 = 往 MC yaw 减小的方向转，所以要取负
+		//
+		// 注意：原版 `animation.humanoid.look_at_target.default` 里是
+		// query.target_x_rotation / query.target_y_rotation，**必须原样加回来** ——
+		// 否则换掉这条动画会顺手废掉她打架时"盯着目标"的头部跟随。
+		//
+		// 🔴 `dm34:look_hold` 是"谁说了算"的开关（2026-11-13）：
+		//    1 = 引擎说了算（原版行为，打架时盯目标）
+		//    0 = 脚本说了算（采集时 JS 精确算好 look_pitch / look_yaw）
+		//
+		//    以前这两个角度是**直接相加**的。采集时引擎锁着裂痕壳（就摆在目标方块
+		//    中心、离她一两格），引擎先低头 30~45°，JS 又按"眼睛 → 方块中心"算一遍
+		//    再低头 30~45°，加起来 clamp 到 65° —— 表现就是**脑袋一直朝着地面**。
+		//    同一件事被算了两次，角度翻倍。现在用 look_hold 二选一，不再叠加。
+		"animation.dm34_look.default": {
+			"loop": true,
+			"bones": {
+				"head": {
+					"relative_to": { "rotation": "entity" },
+					"rotation": [
+						"math.clamp(query.target_x_rotation * query.property('dm34:look_hold') + query.property('dm34:look_pitch'), -55, 55)",
+						"math.clamp(query.target_y_rotation * query.property('dm34:look_hold') - query.property('dm34:look_yaw'), -80, 80)",
+						0
+					]
+				}
+			}
+		}
+	}
+}

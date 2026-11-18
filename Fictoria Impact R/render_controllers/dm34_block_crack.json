@@ -1,0 +1,17 @@
+{
+  "format_version": "1.10.0",
+  "render_controllers": {
+    "controller.render.dm34_block_crack": {
+      "geometry": "Geometry.default",
+      "materials": [ { "*": "Material.default" } ],
+      "textures": [ "Texture.default" ],
+      "uv_anim": {
+        "offset": [
+          0,
+          "math.min(0.9, math.floor((query.life_time * 20 / math.max(1, query.property('dm34:crack_duration'))) * 10) / 10)"
+        ],
+        "scale": [ 1, "1/10" ]
+      }
+    }
+  }
+}

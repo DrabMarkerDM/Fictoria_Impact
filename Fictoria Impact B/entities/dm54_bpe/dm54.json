@@ -896,7 +896,7 @@
       "skill": {
         "queue_command": {
           "command": [
-            "playsound dm54_att @a[r=33] ~~~ 2.0 1.5",
+            "playsound dm54_att @a[r=33] ~~~ 1.1 1.5",
             "damage @e[tag=!dm,family=monster,r=4,c=3] 28 override entity @s"
           ]
         },
@@ -912,7 +912,7 @@
       "on_attack": {
         "queue_command": {
           "command": [
-            "playsound dm54_att @a[r=33] ~~~ 2.0 1.0",
+            "playsound dm54_att @a[r=33] ~~~ 1.1 1.0",
             "effect @s absorption 3 5 true",
             "effect @s strength 2 0 false",
             "scoreboard players add @s dm_skill_timer_2 1",
@@ -927,7 +927,7 @@
       "on_attack_1": {
         "queue_command": {
           "command": [
-            "playsound dm54_satt @a[r=33] ~~~ 2.0 0.5",
+            "playsound dm54_satt @a[r=33] ~~~ 1.1 0.5",
             "damage @e[tag=!dm,family=monster,r=4,c=3] 48 override entity @s",
             "scoreboard players add @s dm_skill_timer_1 1",
             "event entity @s[scores={dm_skill_timer_1=30..}] back",

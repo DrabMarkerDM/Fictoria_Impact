@@ -1,0 +1,456 @@
+/*
+ * interact_tables.js — 【自动生成，勿手改】
+ * 由 tools/dm34/gen_js_tables.js 从 dm34.json / dm34_1.json 的 585 条原生 minecraft:interact
+ * 条目编译而来，并通过 17424 条上下文用例与原生逐条对拍。
+ * 元组格式（数组顺序即语义，第一条命中者胜出）：
+ * ['h', 手持物 id, 事件, 消耗1个, 掉落]  手持物匹配且未骑乘
+ * ['H', 手持物 id, 事件, 消耗1个, 掉落]  手持物匹配、不约束骑乘（烹饪态的历史缺陷，原样保留）
+ * ['b', 事件, 消耗1个, 掉落]             主人潜行
+ * ['r', 事件, 消耗1个, 掉落]             手持鞍
+ * ['n']                                  骑乘中 → 静默兜底
+ * ['s', 事件, 消耗1个, 掉落]             手持任意非拴绳物（含空手）→ 坐下/起身
+ * 掉落 = 命中时是否把「状态自身物品」掉在原地（原生 spawn_items 只挂在会离开该状态的条目上：
+ * buff(吃面包)、ride_test(鞍) 在武装态就没有掉落）。
+ * sp = 该状态「自身物品」（y_offset 恒为 0），仅当命中条目「掉落=1」时才真正掉落；
+ * spKind = 烹饪态专用，自身物品随食材变，运行时按 cookN 查 FOODS[n].raw / .cooked；
+ * skipSelf = 仅 cook_a，运行时先跳过「正在烹饪的那份食材」自己的条目。
+ */
+'use strict';
+
+export const ENTITIES = {
+  "player:dm34": {
+    variants: {"in1":[0,0],"in2":[0,1],"sword":[1,0],"bow":[2,0],"crossbow":[3,0],"farm":[5,0],"dm_mine":[6,0],"dm_chop":[7,0],"spear":[8,0]},
+    cookVariant: 4,
+    states: {
+      "in1": { srcGroup: "in1", sp: null, spTable: null,
+      rules: [
+        ["h","minecraft:crossbow","crossbow",1,0],
+        ["h","minecraft:bow","bow",1,0],
+        ["h","minecraft:iron_sword","sword",1,0],
+        ["h","minecraft:beef","cook_1a",1,0],
+        ["h","minecraft:porkchop","cook_2a",1,0],
+        ["h","minecraft:chicken","cook_3a",1,0],
+        ["h","minecraft:cod","cook_4a",1,0],
+        ["h","minecraft:salmon","cook_5a",1,0],
+        ["h","minecraft:potato","cook_6a",1,0],
+        ["h","minecraft:mutton","cook_7a",1,0],
+        ["h","minecraft:rabbit","cook_8a",1,0],
+        ["h","minecraft:kelp","cook_9a",1,0],
+        ["h","minecraft:chorus_fruit","cook_10a",1,0],
+        ["h","minecraft:iron_hoe","farm",1,0],
+        ["h","minecraft:bread","buff",1,0],
+        ["h","item:dm34_war_maid","war_maid",1,0],
+        ["h","minecraft:iron_helmet","helmet_1",1,0],
+        ["h","minecraft:iron_chestplate","chestplate_1",1,0],
+        ["h","minecraft:iron_leggings","leggings_1",1,0],
+        ["h","minecraft:iron_boots","boots_1",1,0],
+        ["h","item:maid_command","remove_armor",0,0],
+        ["r","ride_test",0,0],
+        ["s","sit_1",0,0],
+        ["n"]
+      ] },
+      "in2": { srcGroup: "in2", sp: null, spTable: null,
+      rules: [
+        ["h","minecraft:crossbow","crossbow",1,0],
+        ["h","minecraft:bow","bow",1,0],
+        ["h","minecraft:iron_sword","sword",1,0],
+        ["h","minecraft:beef","cook_1a",1,0],
+        ["h","minecraft:porkchop","cook_2a",1,0],
+        ["h","minecraft:chicken","cook_3a",1,0],
+        ["h","minecraft:cod","cook_4a",1,0],
+        ["h","minecraft:salmon","cook_5a",1,0],
+        ["h","minecraft:potato","cook_6a",1,0],
+        ["h","minecraft:mutton","cook_7a",1,0],
+        ["h","minecraft:rabbit","cook_8a",1,0],
+        ["h","minecraft:kelp","cook_9a",1,0],
+        ["h","minecraft:chorus_fruit","cook_10a",1,0],
+        ["h","minecraft:iron_hoe","farm",1,0],
+        ["h","minecraft:bread","buff",1,0],
+        ["h","item:dm34_war_maid","war_maid",1,0],
+        ["h","minecraft:iron_helmet","helmet_1",1,0],
+        ["h","minecraft:iron_chestplate","chestplate_1",1,0],
+        ["h","minecraft:iron_leggings","leggings_1",1,0],
+        ["h","minecraft:iron_boots","boots_1",1,0],
+        ["h","item:maid_command","remove_armor",0,0],
+        ["r","ride_test",0,0],
+        ["s","sit_2",0,0],
+        ["n"]
+      ] },
+      "sword": { srcGroup: "sword", sp: "minecraft:iron_sword", spTable: "loot_tables/iron_sword.json", spKind: "weapon",
+      rules: [
+        ["h","minecraft:crossbow","crossbow",1,1],
+        ["h","minecraft:bow","bow",1,1],
+        ["b","back",0,1],
+        ["h","minecraft:beef","cook_1a",1,1],
+        ["h","minecraft:porkchop","cook_2a",1,1],
+        ["h","minecraft:chicken","cook_3a",1,1],
+        ["h","minecraft:cod","cook_4a",1,1],
+        ["h","minecraft:salmon","cook_5a",1,1],
+        ["h","minecraft:potato","cook_6a",1,1],
+        ["h","minecraft:mutton","cook_7a",1,1],
+        ["h","minecraft:rabbit","cook_8a",1,1],
+        ["h","minecraft:kelp","cook_9a",1,1],
+        ["h","minecraft:chorus_fruit","cook_10a",1,1],
+        ["h","minecraft:iron_hoe","farm",1,1],
+        ["h","minecraft:bread","buff",1,0],
+        ["r","ride_test",0,0],
+        ["n"]
+      ] },
+      "bow": { srcGroup: "bow", sp: "minecraft:bow", spTable: "loot_tables/bow.json", spKind: "weapon",
+      rules: [
+        ["h","minecraft:crossbow","crossbow",1,1],
+        ["h","minecraft:iron_sword","sword",1,1],
+        ["b","back",0,1],
+        ["h","minecraft:beef","cook_1a",1,1],
+        ["h","minecraft:porkchop","cook_2a",1,1],
+        ["h","minecraft:chicken","cook_3a",1,1],
+        ["h","minecraft:cod","cook_4a",1,1],
+        ["h","minecraft:salmon","cook_5a",1,1],
+        ["h","minecraft:potato","cook_6a",1,1],
+        ["h","minecraft:mutton","cook_7a",1,1],
+        ["h","minecraft:rabbit","cook_8a",1,1],
+        ["h","minecraft:kelp","cook_9a",1,1],
+        ["h","minecraft:chorus_fruit","cook_10a",1,1],
+        ["h","minecraft:iron_hoe","farm",1,1],
+        ["h","minecraft:bread","buff",1,0],
+        ["r","ride_test",0,0],
+        ["n"]
+      ] },
+      "crossbow": { srcGroup: "crossbow", sp: "minecraft:crossbow", spTable: "loot_tables/crossbow.json", spKind: "weapon",
+      rules: [
+        ["h","minecraft:bow","bow",1,1],
+        ["h","minecraft:iron_sword","sword",1,1],
+        ["b","back",0,1],
+        ["h","minecraft:beef","cook_1a",1,1],
+        ["h","minecraft:porkchop","cook_2a",1,1],
+        ["h","minecraft:chicken","cook_3a",1,1],
+        ["h","minecraft:cod","cook_4a",1,1],
+        ["h","minecraft:salmon","cook_5a",1,1],
+        ["h","minecraft:potato","cook_6a",1,1],
+        ["h","minecraft:mutton","cook_7a",1,1],
+        ["h","minecraft:rabbit","cook_8a",1,1],
+        ["h","minecraft:kelp","cook_9a",1,1],
+        ["h","minecraft:chorus_fruit","cook_10a",1,1],
+        ["h","minecraft:iron_hoe","farm",1,1],
+        ["h","minecraft:bread","buff",1,0],
+        ["r","ride_test",0,0],
+        ["n"]
+      ] },
+      "farm": { srcGroup: "farm", sp: "minecraft:iron_hoe", spTable: "loot_tables/iron_hoe.json",
+      rules: [
+        ["h","minecraft:crossbow","crossbow",1,1],
+        ["h","minecraft:iron_sword","sword",1,1],
+        ["h","minecraft:bow","bow",1,1],
+        ["h","minecraft:porkchop","cook_2a",1,1],
+        ["h","minecraft:beef","cook_1a",1,1],
+        ["h","minecraft:chicken","cook_3a",1,1],
+        ["h","minecraft:cod","cook_4a",1,1],
+        ["h","minecraft:salmon","cook_5a",1,1],
+        ["h","minecraft:potato","cook_6a",1,1],
+        ["h","minecraft:mutton","cook_7a",1,1],
+        ["h","minecraft:rabbit","cook_8a",1,1],
+        ["h","minecraft:kelp","cook_9a",1,1],
+        ["h","minecraft:chorus_fruit","cook_10a",1,1],
+        ["b","back",0,1],
+        ["h","minecraft:bread","buff",1,0],
+        ["r","ride_test",0,0],
+        ["n"]
+      ] },
+      "dm_mine": { srcGroup: "in1", sp: null, spTable: null,
+      rules: [
+        ["h","minecraft:crossbow","crossbow",1,0],
+        ["h","minecraft:bow","bow",1,0],
+        ["h","minecraft:iron_sword","sword",1,0],
+        ["h","minecraft:beef","cook_1a",1,0],
+        ["h","minecraft:porkchop","cook_2a",1,0],
+        ["h","minecraft:chicken","cook_3a",1,0],
+        ["h","minecraft:cod","cook_4a",1,0],
+        ["h","minecraft:salmon","cook_5a",1,0],
+        ["h","minecraft:potato","cook_6a",1,0],
+        ["h","minecraft:mutton","cook_7a",1,0],
+        ["h","minecraft:rabbit","cook_8a",1,0],
+        ["h","minecraft:kelp","cook_9a",1,0],
+        ["h","minecraft:chorus_fruit","cook_10a",1,0],
+        ["h","minecraft:iron_hoe","farm",1,0],
+        ["h","minecraft:bread","buff",1,0],
+        ["h","item:dm34_war_maid","war_maid",1,0],
+        ["h","minecraft:iron_helmet","helmet_1",1,0],
+        ["h","minecraft:iron_chestplate","chestplate_1",1,0],
+        ["h","minecraft:iron_leggings","leggings_1",1,0],
+        ["h","minecraft:iron_boots","boots_1",1,0],
+        ["h","item:maid_command","remove_armor",0,0],
+        ["r","ride_test",0,0],
+        ["s","sit_1",0,0],
+        ["n"]
+      ] },
+      "dm_chop": { srcGroup: "in1", sp: null, spTable: null,
+      rules: [
+        ["h","minecraft:crossbow","crossbow",1,0],
+        ["h","minecraft:bow","bow",1,0],
+        ["h","minecraft:iron_sword","sword",1,0],
+        ["h","minecraft:beef","cook_1a",1,0],
+        ["h","minecraft:porkchop","cook_2a",1,0],
+        ["h","minecraft:chicken","cook_3a",1,0],
+        ["h","minecraft:cod","cook_4a",1,0],
+        ["h","minecraft:salmon","cook_5a",1,0],
+        ["h","minecraft:potato","cook_6a",1,0],
+        ["h","minecraft:mutton","cook_7a",1,0],
+        ["h","minecraft:rabbit","cook_8a",1,0],
+        ["h","minecraft:kelp","cook_9a",1,0],
+        ["h","minecraft:chorus_fruit","cook_10a",1,0],
+        ["h","minecraft:iron_hoe","farm",1,0],
+        ["h","minecraft:bread","buff",1,0],
+        ["h","item:dm34_war_maid","war_maid",1,0],
+        ["h","minecraft:iron_helmet","helmet_1",1,0],
+        ["h","minecraft:iron_chestplate","chestplate_1",1,0],
+        ["h","minecraft:iron_leggings","leggings_1",1,0],
+        ["h","minecraft:iron_boots","boots_1",1,0],
+        ["h","item:maid_command","remove_armor",0,0],
+        ["r","ride_test",0,0],
+        ["s","sit_1",0,0],
+        ["n"]
+      ] },
+      "spear": { srcGroup: "sword", sp: "minecraft:iron_sword", spTable: "loot_tables/iron_sword.json", spKind: "weapon",
+      rules: [
+        ["h","minecraft:crossbow","crossbow",1,1],
+        ["h","minecraft:bow","bow",1,1],
+        ["b","back",0,1],
+        ["h","minecraft:beef","cook_1a",1,1],
+        ["h","minecraft:porkchop","cook_2a",1,1],
+        ["h","minecraft:chicken","cook_3a",1,1],
+        ["h","minecraft:cod","cook_4a",1,1],
+        ["h","minecraft:salmon","cook_5a",1,1],
+        ["h","minecraft:potato","cook_6a",1,1],
+        ["h","minecraft:mutton","cook_7a",1,1],
+        ["h","minecraft:rabbit","cook_8a",1,1],
+        ["h","minecraft:kelp","cook_9a",1,1],
+        ["h","minecraft:chorus_fruit","cook_10a",1,1],
+        ["h","minecraft:iron_hoe","farm",1,1],
+        ["h","minecraft:bread","buff",1,0],
+        ["r","ride_test",0,0],
+        ["n"]
+      ] },
+      "cook_a": { srcGroup: "cook_1a", sp: null, spTable: null, skipSelf: true, spKind: "raw",
+      rules: [
+        ["h","minecraft:crossbow","crossbow",1,1],
+        ["h","minecraft:iron_sword","sword",1,1],
+        ["h","minecraft:bow","bow",1,1],
+        ["H","minecraft:beef","cook_1a",1,1],
+        ["H","minecraft:porkchop","cook_2a",1,1],
+        ["H","minecraft:chicken","cook_3a",1,1],
+        ["H","minecraft:cod","cook_4a",1,1],
+        ["H","minecraft:salmon","cook_5a",1,1],
+        ["H","minecraft:potato","cook_6a",1,1],
+        ["H","minecraft:mutton","cook_7a",1,1],
+        ["H","minecraft:rabbit","cook_8a",1,1],
+        ["H","minecraft:kelp","cook_9a",1,1],
+        ["H","minecraft:chorus_fruit","cook_10a",1,1],
+        ["h","minecraft:iron_hoe","farm",1,1],
+        ["b","back",0,1],
+        ["H","minecraft:bread","buff",1,0],
+        ["r","ride_test",0,0],
+        ["n"]
+      ] },
+      "cook_b": { srcGroup: "cook_1b", sp: null, spTable: null, spKind: "cooked",
+      rules: [
+        ["h","minecraft:crossbow","crossbow",1,1],
+        ["h","minecraft:iron_sword","sword",1,1],
+        ["h","minecraft:bow","bow",1,1],
+        ["H","minecraft:beef","cook_1a",1,1],
+        ["H","minecraft:porkchop","cook_2a",1,1],
+        ["H","minecraft:chicken","cook_3a",1,1],
+        ["H","minecraft:cod","cook_4a",1,1],
+        ["H","minecraft:salmon","cook_5a",1,1],
+        ["H","minecraft:potato","cook_6a",1,1],
+        ["H","minecraft:mutton","cook_7a",1,1],
+        ["H","minecraft:rabbit","cook_8a",1,1],
+        ["H","minecraft:kelp","cook_9a",1,1],
+        ["H","minecraft:chorus_fruit","cook_10a",1,1],
+        ["h","minecraft:iron_hoe","farm",1,1],
+        ["b","back",0,1],
+        ["H","minecraft:bread","buff",1,0],
+        ["r","ride_test",0,0],
+        ["n"]
+      ] }
+  }
+  },
+  "player:dm34_1": {
+    variants: {"in1":[0,0],"in2":[0,1],"m4a1":[1,0],"glock":[5,0],"sword":[4,0],"moss":[2,0],"awp":[3,0]},
+    cookVariant: null,
+    states: {
+      "in1": { srcGroup: "in1", sp: null, spTable: null,
+      rules: [
+        ["h","item:mode_awp","awp",1,0],
+        ["h","item:mode_mossberg","moss",1,0],
+        ["h","item:mode_m4a1","m4a1",1,0],
+        ["h","item:mode_glock","glock",1,0],
+        ["h","item:mode_sword","sword",1,0],
+        ["h","item:dm34_gentle_maid","gentle_maid",1,0],
+        ["h","minecraft:bread","buff",1,0],
+        ["r","ride_test",0,0],
+        ["s","sit_1",0,0],
+        ["n"]
+      ] },
+      "in2": { srcGroup: "in2", sp: null, spTable: null,
+      rules: [
+        ["h","item:mode_awp","awp",1,0],
+        ["h","item:mode_mossberg","moss",1,0],
+        ["h","item:mode_m4a1","m4a1",1,0],
+        ["h","item:mode_glock","glock",1,0],
+        ["h","item:mode_sword","sword",1,0],
+        ["h","item:dm34_gentle_maid","gentle_maid",1,0],
+        ["r","ride_test",0,0],
+        ["s","sit_2",0,0],
+        ["n"]
+      ] },
+      "m4a1": { srcGroup: "m4a1", sp: "item:mode_m4a1", spTable: "loot_tables/m4a1.json",
+      rules: [
+        ["h","item:mode_awp","awp",1,1],
+        ["h","item:mode_mossberg","moss",1,1],
+        ["h","item:mode_glock","glock",1,1],
+        ["h","item:mode_sword","sword",1,1],
+        ["b","back",0,1],
+        ["h","minecraft:bread","buff",1,0],
+        ["r","ride_test",0,0],
+        ["n"]
+      ] },
+      "glock": { srcGroup: "glock", sp: "item:mode_glock", spTable: "loot_tables/glock.json",
+      rules: [
+        ["h","item:mode_awp","awp",1,1],
+        ["h","item:mode_mossberg","moss",1,1],
+        ["h","item:mode_m4a1","m4a1",1,1],
+        ["h","item:mode_sword","sword",1,1],
+        ["b","back",0,1],
+        ["h","minecraft:bread","buff",1,0],
+        ["r","ride_test",0,0],
+        ["n"]
+      ] },
+      "sword": { srcGroup: "sword", sp: "item:mode_sword", spTable: "loot_tables/mode_sword.json",
+      rules: [
+        ["h","item:mode_awp","awp",1,1],
+        ["h","item:mode_mossberg","moss",1,1],
+        ["h","item:mode_m4a1","m4a1",1,1],
+        ["h","item:mode_glock","glock",1,1],
+        ["b","back",0,1],
+        ["h","minecraft:bread","buff",1,0],
+        ["r","ride_test",0,0],
+        ["n"]
+      ] },
+      "moss": { srcGroup: "moss", sp: "item:mode_mossberg", spTable: "loot_tables/moss.json",
+      rules: [
+        ["h","item:mode_awp","awp",1,1],
+        ["h","item:mode_m4a1","m4a1",1,1],
+        ["h","item:mode_glock","glock",1,1],
+        ["h","item:mode_sword","sword",1,1],
+        ["b","back",0,1],
+        ["h","minecraft:bread","buff",1,0],
+        ["r","ride_test",0,0],
+        ["n"]
+      ] },
+      "awp": { srcGroup: "awp", sp: "item:mode_awp", spTable: "loot_tables/awp.json",
+      rules: [
+        ["h","item:mode_mossberg","moss",1,1],
+        ["h","item:mode_m4a1","m4a1",1,1],
+        ["h","item:mode_glock","glock",1,1],
+        ["h","item:mode_sword","sword",1,1],
+        ["b","back",0,1],
+        ["h","minecraft:bread","buff",1,0],
+        ["r","ride_test",0,0],
+        ["n"]
+      ] }
+  }
+  }
+};
+
+export const FOODS = [
+ {
+  "n": 1,
+  "raw": "minecraft:beef",
+  "cooked": "minecraft:cooked_beef",
+  "rawTable": "loot_tables/beef.json",
+  "cookedTable": "loot_tables/cooked_beef.json",
+  "evStart": "cook_1a",
+  "evDone": "cook_1b"
+ },
+ {
+  "n": 2,
+  "raw": "minecraft:porkchop",
+  "cooked": "minecraft:cooked_porkchop",
+  "rawTable": "loot_tables/porkchop.json",
+  "cookedTable": "loot_tables/cooked_porkchop.json",
+  "evStart": "cook_2a",
+  "evDone": "cook_2b"
+ },
+ {
+  "n": 3,
+  "raw": "minecraft:chicken",
+  "cooked": "minecraft:cooked_chicken",
+  "rawTable": "loot_tables/chicken.json",
+  "cookedTable": "loot_tables/cooked_chicken.json",
+  "evStart": "cook_3a",
+  "evDone": "cook_3b"
+ },
+ {
+  "n": 4,
+  "raw": "minecraft:cod",
+  "cooked": "minecraft:cooked_cod",
+  "rawTable": "loot_tables/cod.json",
+  "cookedTable": "loot_tables/cooked_cod.json",
+  "evStart": "cook_4a",
+  "evDone": "cook_4b"
+ },
+ {
+  "n": 5,
+  "raw": "minecraft:salmon",
+  "cooked": "minecraft:cooked_salmon",
+  "rawTable": "loot_tables/salmon.json",
+  "cookedTable": "loot_tables/cooked_salmon.json",
+  "evStart": "cook_5a",
+  "evDone": "cook_5b"
+ },
+ {
+  "n": 6,
+  "raw": "minecraft:potato",
+  "cooked": "minecraft:baked_potato",
+  "rawTable": "loot_tables/potato.json",
+  "cookedTable": "loot_tables/baked_potato.json",
+  "evStart": "cook_6a",
+  "evDone": "cook_6b"
+ },
+ {
+  "n": 7,
+  "raw": "minecraft:mutton",
+  "cooked": "minecraft:cooked_mutton",
+  "rawTable": "loot_tables/mutton.json",
+  "cookedTable": "loot_tables/cooked_mutton.json",
+  "evStart": "cook_7a",
+  "evDone": "cook_7b"
+ },
+ {
+  "n": 8,
+  "raw": "minecraft:rabbit",
+  "cooked": "minecraft:cooked_rabbit",
+  "rawTable": "loot_tables/rabbit.json",
+  "cookedTable": "loot_tables/cooked_rabbit.json",
+  "evStart": "cook_8a",
+  "evDone": "cook_8b"
+ },
+ {
+  "n": 9,
+  "raw": "minecraft:kelp",
+  "cooked": "minecraft:dried_kelp",
+  "rawTable": "loot_tables/kelp.json",
+  "cookedTable": "loot_tables/dried_kelp.json",
+  "evStart": "cook_9a",
+  "evDone": "cook_9b"
+ },
+ {
+  "n": 10,
+  "raw": "minecraft:chorus_fruit",
+  "cooked": "minecraft:popped_chorus_fruit",
+  "rawTable": "loot_tables/chorus_fruit.json",
+  "cookedTable": "loot_tables/popped_chorus_fruit.json",
+  "evStart": "cook_10a",
+  "evDone": "cook_10b"
+ }
+];

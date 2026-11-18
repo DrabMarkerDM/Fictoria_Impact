@@ -18,7 +18,7 @@
         "*": {
           "ambient_occlusion": false,
           "face_dimming": false,
-          "render_method": "opaque",
+          "render_method": "blend",
           "texture": "none"
         }
       },

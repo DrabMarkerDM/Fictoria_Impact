@@ -398,8 +398,8 @@
         "queue_command": {
           "command": [
             "execute at @e[type=!mob:mon3tr,tag=!dm,family=monster,r=11] run particle minecraft:huge_explosion_emitter ~~~",
-            "playsound random.explode @a[r=24] ~~~ 2.2 1.0",
-            "playsound mon3tr_half @a[r=24] ~~~ 2.4 1.0",
+            "playsound random.explode @a[r=24] ~~~ 1.2 1.0",
+            "playsound mon3tr_half @a[r=24] ~~~ 1.25 1.0",
             "damage @e[type=!mob:mon3tr,tag=!dm,family=monster,r=11] 510 self_destruct entity @s",
             "effect @s resistance 5 5",
             "effect @e[tag=!dm,type=!mob:mon3tr,family=monster,r=11] weakness 50 255",

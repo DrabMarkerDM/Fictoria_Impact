@@ -94,7 +94,7 @@
         "minecraft:entity_spawned": {
           "queue_command": {
             "command": [
-              "playsound dm.ak_shoot @a[r=33] ~~~ 2.8 1.2"
+              "playsound dm.ak_shoot @a[r=100] ~~~ 1.35 1.2"
             ]
           }
             }

@@ -1,24 +1,9 @@
-// ============================================================
-// fictoria_ui.js — 战术指挥 UI + 守卫（巡逻）系统
-// 适用 SAPI：@minecraft/server 2.7.0 / @minecraft/server-ui 2.0.0
-//
-// 本次修复：
-//   · 退出重进后 patrolUnits 内存清空导致巡逻传送失效
-//   · DP.home 改用 JSON 字符串持久化，兼容旧版对象
-//   · 给巡逻单位加持久 tag，启动后自动扫描恢复
-//   · 守卫主循环增加 DP.mode 校验
-//   · resumeState 桥接同步加 tag
-//   · getUnitStatus 打开 UI 时自动补回 patrolUnits
-//
-// 保留原优化：
-//   · 配置字符串统一 trim
-//   · itemGatedEntities / followAliases / sitAliases 改 Set
-//   · dataDrivenEntityTrigger 快速短路
-//   · 背包门控减少重复扫描
-//   · unit.isRemoved 改 unit.isValid
-//   · 实体移除清理 patrolUnits / pendingVerify
-//   · 高频诊断日志接入 CONFIG.debug
-// ============================================================
+// fictoria_ui.js — 战术指挥 UI + 守卫（巡逻）系统。
+
+// 巡逻单位靠 DP.home（JSON 字符串）与持久 tag 恢复，重进后自动扫描重建 patrolUnits。
+// 守卫主循环校验 DP.mode；getUnitStatus 打开 UI 时补回 patrolUnits。
+// 性能：配置字符串 trim、别名改 Set、背包门控去重、isRemoved → isValid、
+// 实体移除时清 patrolUnits / pendingVerify、诊断日志接 CONFIG.debug。
 import { world, system, ItemStack } from "@minecraft/server";
 import { ActionFormData } from "@minecraft/server-ui";
 import {
@@ -29,6 +14,7 @@ import {
     DATA_DRIVEN_PRIORITY,
     ENTITY_HIT_PRIORITY
 } from "./event_bus.js";
+import { dismountNow } from "../player/mount_follow.js";
 
 // ---------- 配置区 ----------
 const CONFIG = {
@@ -68,9 +54,11 @@ const DP = {
 // 巡逻 tag，用于重进存档后恢复
 const PATROL_TAG = "fictoria_patrol";
 
-// ============================================================
+// 骑乘 tag：和「跟随 / 随机 / 巡逻」是**不同维度**，三者不互斥，可并存。
+// 只由 mount_on / mount_off 两个实体事件写入，UI 只读不写。
+const RIDE_TAG = "maid:mount_ride";
+
 // 字符串工具
-// ============================================================
 function trimString(value) {
     return typeof value === "string" ? value.trim() : value;
 }
@@ -84,9 +72,7 @@ function trimArrayToSet(arr) {
     return set;
 }
 
-// ============================================================
 // 常用 Set
-// ============================================================
 const ITEM_GATED_SET = trimArrayToSet(CONFIG.itemGatedEntities);
 const FOLLOW_ALIAS_SET = trimArrayToSet(CONFIG.followAliases);
 const SIT_ALIAS_SET = trimArrayToSet(CONFIG.sitAliases);
@@ -119,9 +105,7 @@ const patrolUnits = new Set();
 const uiCooldowns = new Map();
 const pendingVerify = new Map();
 
-// ============================================================
 // 实体移除清理
-// ============================================================
 registerEntityRemoveHandler("fictoria_ui_cache", (event) => {
     try {
         const id = event.removedEntity?.id;
@@ -132,14 +116,10 @@ registerEntityRemoveHandler("fictoria_ui_cache", (event) => {
     } catch (_) {}
 }, REMOVE_PRIORITY.FICTORIA_UI_CACHE);
 
-// ============================================================
 // 核心逻辑
-// ============================================================
 function initFictoriaUI() {
 
-    // ══════════════════════════════════════════════════════════
     //  锚点存取（JSON 字符串持久化）
-    // ══════════════════════════════════════════════════════════
 
     function saveHome(unit) {
         try {
@@ -191,9 +171,7 @@ function initFictoriaUI() {
         }
     }
 
-    // ══════════════════════════════════════════════════════════
     //  巡逻 tag 管理
-    // ══════════════════════════════════════════════════════════
 
     function markPatrol(unit) {
         try {
@@ -231,17 +209,13 @@ function initFictoriaUI() {
         } catch (_) {}
     }
 
-    // ══════════════════════════════════════════════════════════
     //  2D 方形范围判定
-    // ══════════════════════════════════════════════════════════
 
     function pointInArea2D(x, z, minX, minZ, maxX, maxZ) {
         return x >= minX && x <= maxX && z >= minZ && z <= maxZ;
     }
 
-    // ══════════════════════════════════════════════════════════
     //  单次守卫检查
-    // ══════════════════════════════════════════════════════════
 
     function guardCheck(unit) {
         const home = readHome(unit);
@@ -266,8 +240,19 @@ function initFictoriaUI() {
         }
 
         if (!inHome) {
+            // 骑乘时传坐骑：对骑手 teleport 会直接打断骑乘关系（她自己掉下马）
+            let tpTarget = unit;
+
             try {
-                unit.teleport(
+                const rideMount = unit.getComponent("minecraft:riding")?.entityRidingOn;
+
+                if (rideMount && rideMount.isValid) {
+                    tpTarget = rideMount;
+                }
+            } catch (_) { }
+
+            try {
+                tpTarget.teleport(
                     {
                         x: home.x,
                         y: home.y,
@@ -283,9 +268,7 @@ function initFictoriaUI() {
         }
     }
 
-    // ══════════════════════════════════════════════════════════
     //  重进存档后巡逻恢复
-    // ══════════════════════════════════════════════════════════
 
     let patrolRehydrated = false;
 
@@ -333,6 +316,15 @@ function initFictoriaUI() {
                                 if (mode === MODE.PATROL) {
                                     ensurePatrol(unit);
                                 }
+
+                                // tag 是持久的，mount_ride 组件组不持久：重进世界后
+                                // tag 还在、组没了 → UI 显示「骑乘中」却根本不找马。
+                                // 这里补一次 mount_on（重复 add 同一组无副作用）。
+                                if (isRidingMount(unit)) {
+                                    try {
+                                        unit.triggerEvent("mount_on");
+                                    } catch (_) {}
+                                }
                             }
                         } catch (_) {}
                     }
@@ -348,9 +340,7 @@ function initFictoriaUI() {
         } catch (_) {}
     }
 
-    // ══════════════════════════════════════════════════════════
     //  守卫主循环（30 tick）
-    // ══════════════════════════════════════════════════════════
 
     let guardCounter = 0;
 
@@ -390,9 +380,7 @@ function initFictoriaUI() {
         }
     }, CONFIG.checkInterval);
 
-    // ══════════════════════════════════════════════════════════
     //  启动后延迟恢复
-    // ══════════════════════════════════════════════════════════
 
     // 世界刚加载时可能还没有玩家 / 实体，延迟扫描
     system.runTimeout(() => {
@@ -406,9 +394,7 @@ function initFictoriaUI() {
         }
     }, 100);
 
-    // ══════════════════════════════════════════════════════════
     //  驯服判定
-    // ══════════════════════════════════════════════════════════
 
     function isTamed(unit) {
         if (!unit || !unit.isValid) return false;
@@ -421,9 +407,7 @@ function initFictoriaUI() {
         );
     }
 
-    // ══════════════════════════════════════════════════════════
     //  背包门控工具
-    // ══════════════════════════════════════════════════════════
 
     function isItemGated(unit) {
         return ITEM_GATED_SET.has(unit.typeId);
@@ -453,6 +437,7 @@ function initFictoriaUI() {
         return hasFollowComponent(unit);
     }
 
+    // 跟随判据就是包里这枚道具，取走后切回「跟随」必须补发一枚。
     function addCommandToInventory(unit) {
         const inv = unit.getComponent("minecraft:inventory")?.container;
         if (!inv) return false;
@@ -477,6 +462,7 @@ function initFictoriaUI() {
         return false;
     }
 
+    // 扣掉包里全部命令道具（沿用旧包行为：逐格扫，命中即清空整格）。
     function removeCommandFromInventory(unit) {
         const inv = unit.getComponent("minecraft:inventory")?.container;
         if (!inv) return false;
@@ -496,13 +482,8 @@ function initFictoriaUI() {
         return removed || !hasCommand;
     }
 
-    // ══════════════════════════════════════════════════════════
     //  状态检测
-    //
-    //  ★ 修复：
-    //  打开 UI 时如果 DP.mode 是 PATROL，
-    //  自动补回 patrolUnits，防止退出重进后丢失。
-    // ══════════════════════════════════════════════════════════
+    //  打开 UI 时如果 DP.mode 是 PATROL 而 patrolUnits 里没有它，补回一次，防止重进后丢失。
 
     function getUnitStatus(unit) {
         if (!unit || !unit.isValid) return MODE.UNKNOWN;
@@ -516,7 +497,7 @@ function initFictoriaUI() {
         }
 
         if (jsMode === MODE.PATROL || patrolUnits.has(unit.id)) {
-            // ★ 打开 UI 时自动补回 patrolUnits
+            // 打开 UI 时补回 patrolUnits
             if (jsMode === MODE.PATROL) {
                 patrolUnits.add(unit.id);
                 markPatrol(unit);
@@ -529,9 +510,56 @@ function initFictoriaUI() {
         return MODE.UNKNOWN;
     }
 
-    // ══════════════════════════════════════════════════════════
+    //  骑乘（独立维度）
+    //  和 MODE（跟随/随机/巡逻）是两条正交的轴：可以「跟随中 + 骑乘中」。
+    //  开关只碰 mount_ride 组件组，**不写 DP.mode**，所以不会互相覆盖。
+
+    function isRidingMount(unit) {
+        if (!unit || !unit.isValid) return false;
+        try {
+            return unit.hasTag(RIDE_TAG);
+        } catch (_) {
+            return false;
+        }
+    }
+
+    function toggleRide(player, unit) {
+        if (!unit || !unit.isValid) {
+            player.sendMessage("§c骑乘切换失败：目标已失效");
+            return;
+        }
+
+        const on = isRidingMount(unit);
+
+        try {
+            unit.triggerEvent(on ? "mount_off" : "mount_on");
+        } catch (e) {
+            player.sendMessage(`§c骑乘切换失败：实体未找到事件（${e.message}）`);
+            return;
+        }
+
+        if (on) {
+            // mount_off 里的 `ride @s stop_riding` 走 queue_command，单发一次有失败可能
+            // （马身旁没落点、区块刚加载）。这里在下马指令之外再兜一层重试，
+            // 否则表现就是「点了解除，她还在马上」。
+            dismountNow(unit);
+            player.sendMessage("§7[骑乘] 已解除，她不再主动寻找坐骑");
+        } else {
+            player.sendMessage("§b[骑乘] 已启用，附近 16 格内有可骑的生物（马 / 驴 / 猪 / 羊驼…）就会骑上去");
+        }
+
+        //  tag 由 mount_on 的 queue_command 写入，下一 tick 才落地，
+        //  所以要等几 tick 再重开，否则菜单读到的还是旧状态。
+        system.runTimeout(() => {
+            try {
+                if (player && player.isValid && unit && unit.isValid) {
+                    openStrategyMenu(player, unit);
+                }
+            } catch (_) {}
+        }, 3);
+    }
+
     //  JS 层状态落盘（含 tag 管理）
-    // ══════════════════════════════════════════════════════════
 
     function applyJsState(unit, mode) {
         switch (mode) {
@@ -559,9 +587,7 @@ function initFictoriaUI() {
         }
     }
 
-    // ══════════════════════════════════════════════════════════
     //  周期互斥同步
-    // ══════════════════════════════════════════════════════════
 
     system.runInterval(() => {
         if (patrolUnits.size === 0) return;
@@ -581,9 +607,7 @@ function initFictoriaUI() {
         }
     }, CONFIG.statusCheckTicks);
 
-    // ══════════════════════════════════════════════════════════
     //  全局监听 dataDrivenEntityTrigger
-    // ══════════════════════════════════════════════════════════
 
     registerDataDrivenHandler("fictoria_ui_data_driven", ({ entity, eventId }) => {
         if (!entity || !entity.isValid) return;
@@ -628,9 +652,7 @@ function initFictoriaUI() {
         }
     }, DATA_DRIVEN_PRIORITY.FICTORIA_UI);
 
-    // ══════════════════════════════════════════════════════════
     //  切换指令 + 验证反馈
-    // ══════════════════════════════════════════════════════════
 
     function waitSitThenPatrol(player, unit, mode) {
         pendingVerify.set(unit.id, {
@@ -685,9 +707,7 @@ function initFictoriaUI() {
             return;
         }
 
-        // ══════════════════════════════════════════════════════
         //  进入巡逻
-        // ══════════════════════════════════════════════════════
 
         if (mode === MODE.PATROL) {
             const wasFollowing = isFollowing(unit);
@@ -729,9 +749,7 @@ function initFictoriaUI() {
             return;
         }
 
-        // ══════════════════════════════════════════════════════
         //  退出巡逻 / 切跟随 / 切随机
-        // ══════════════════════════════════════════════════════
 
         patrolUnits.delete(unit.id);
         unmarkPatrol(unit);
@@ -804,9 +822,7 @@ function initFictoriaUI() {
         scheduleStrategyMenuRefresh(player, unit);
     }
 
-    // ══════════════════════════════════════════════════════════
     //  战术指令 UI
-    // ══════════════════════════════════════════════════════════
 
     function statusText(status) {
         switch (status) {
@@ -823,17 +839,21 @@ function initFictoriaUI() {
 
     function openStrategyMenu(player, unit) {
         const status = getUnitStatus(unit);
+        const riding = isRidingMount(unit);
 
         const form = new ActionFormData()
             .title("战术指令")
             .body(
                 `正在指挥：${unit.nameTag || unit.typeId}\n` +
-                `当前状态：${statusText(status)}`
+                `当前状态：${statusText(status)}\n` +
+                `骑乘模式：${riding ? "§b骑乘中" : "§7未启用"}\n` +
+                `§8（骑乘是独立开关，与上面三项互不冲突，可同时存在）`
             )
             .button(`§8【状态】${statusText(status)}`)
-            .button("-跟随玩家-")
-            .button("-随机移动-")
-            .button("-巡逻守家-");
+            .button("-跟随玩家-", "textures/ui/follow_mode")
+            .button("-随机移动-", "textures/ui/random_mode")
+            .button("-巡逻守家-", "textures/ui/patrol_mode")
+            .button(riding ? "§8-解除骑乘-" : "§b-骑乘模式-", "textures/ui/ride_mode");
 
         form.show(player).then((res) => {
             if (res.canceled) return;
@@ -843,21 +863,23 @@ function initFictoriaUI() {
                 return;
             }
 
+            // 第 5 个按钮是骑乘开关：不走 assignStrategy，不碰 MODE。
+            if (res.selection === 4) {
+                toggleRide(player, unit);
+                return;
+            }
+
             assignStrategy(player, unit, res.selection - 1);
         }).catch(() => {});
     }
 
-    // ══════════════════════════════════════════════════════════
     //  友方判定
-    // ══════════════════════════════════════════════════════════
 
     function isFriendlyUnit(entity) {
         return FRIENDLY_TYPES !== null && FRIENDLY_TYPES.has(entity.typeId);
     }
 
-    // ══════════════════════════════════════════════════════════
     //  入口：shift + 左键友方干员 → 弹 UI
-    // ══════════════════════════════════════════════════════════
 
     registerEntityHitHandler("fictoria_ui_menu", ({ damagingEntity, hitEntity }) => {
         if (damagingEntity.typeId !== "minecraft:player") return;
@@ -874,9 +896,7 @@ function initFictoriaUI() {
         openStrategyMenu(player, hitEntity);
     }, ENTITY_HIT_PRIORITY.FICTORIA_UI);
 
-    // ══════════════════════════════════════════════════════════
     //  globalThis 桥接：供 fictoria_ball.js 在精灵球放置后恢复状态
-    // ══════════════════════════════════════════════════════════
 
     globalThis.FICTORIA_UI_SYNC = {
         resumeState(unit) {
@@ -916,9 +936,7 @@ function initFictoriaUI() {
     console.warn("[FictoriaUI] 战术指挥系统已加载（巡逻持久化修复版）");
 }
 
-// ============================================================
 // 顶层只调用一次初始化
-// ============================================================
 try {
     initFictoriaUI();
 } catch (e) {

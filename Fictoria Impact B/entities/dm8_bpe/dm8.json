@@ -743,7 +743,7 @@
       "minecraft:movement.basic": {},
       "minecraft:jump.static": {},
       "minecraft:inventory": {
-        "inventory_size": 16,
+        "inventory_size": 26,
         "private": true
       },
       "minecraft:behavior.move_to_land": {
@@ -844,7 +844,7 @@
         },
         "queue_command": {
           "command": [
-            "playsound dm8sss @a[r=33] ~~~ 2.2 1.0",
+            "playsound dm8sss @a[r=33] ~~~ 1.2 1.0",
             "effect @s instant_health 1 255 true",
             "effect @s absorption 5 255 true",
             "event entity @s sss_fix",

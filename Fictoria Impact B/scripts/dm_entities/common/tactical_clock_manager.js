@@ -8,19 +8,14 @@ import {
     hasTargetTag,
     hasSkillTag
 } from "./camp_faction.js";
-import { PerfProbe } from "./perf_probe.js";
 
-// ============================================================
 // 世界会话防线
-//
+
 // 每次重进存档、或者执行 /reload，这个变量都会被重新初始化。
 // 用于清理旧会话缓存，重新探测时钟轨道。
-// ============================================================
 const CURRENT_WORLD_SESSION = Math.floor(Math.random() * 1000000) + 1;
 
-// ============================================================
 // 日志开关
-// ============================================================
 const DEBUG_CLOCK = false;
 
 function clockLog(...args) {
@@ -29,9 +24,7 @@ function clockLog(...args) {
     }
 }
 
-// ============================================================
 // 时钟常量
-// ============================================================
 
 // 每个轨道触发周期：20 tick = 1 秒
 const TRIGGER_INTERVAL = 20;
@@ -44,9 +37,7 @@ const SCHEDULER_STEP = 5;
 // 20 tick / 5 tick = 4 个相位
 const PHASE_COUNT = 4;
 
-// ============================================================
 // 缓存区
-// ============================================================
 
 // 所有注册过的时钟实体缓存
 // key: unit.id
@@ -56,11 +47,9 @@ const ClockRegistry = new Map();
 // key: unit.id
 const ActiveClockEntries = new Map();
 
-// ============================================================
 // 实体移除清理
-//
+
 // 防止实体死亡、被幻域球收回、被 /kill 后缓存残留。
-// ============================================================
 registerEntityRemoveHandler("tactical_clock_cache", (event) => {
     try {
         const id = event.removedEntity?.id;
@@ -72,9 +61,7 @@ registerEntityRemoveHandler("tactical_clock_cache", (event) => {
     } catch (_) {}
 }, REMOVE_PRIORITY.TACTICAL_CLOCK);
 
-// ============================================================
 // 工具函数
-// ============================================================
 
 function hashPhase(id) {
     try {
@@ -164,11 +151,9 @@ function getOrCreateEntry(unit) {
     return entry;
 }
 
-// ============================================================
 // 轨道探测
-//
+
 // 用于首次会话刷新时判断 single / multi。
-// ============================================================
 function detectTracks(unit) {
     const activeTracks = [];
     const trackStates = {};
@@ -195,20 +180,8 @@ function detectTracks(unit) {
     };
 }
 
-// ============================================================
-// 修复核心：
-// 每次 execute 都刷新扩展轨状态。
-//
-// 原版逻辑就是每 5 tick 重新读取：
-// dm:clock_time_1 ~ dm:clock_time_9
-//
-// 上一版优化把这里缓存了，
-// 导致行为包运行中把轨道从 off 切成 on 时，
-// JS 层仍然认为它是 off，扩展轨全部不运行。
-//
-// 现在恢复为：
-// 多轨实体每次 execute 都重新读取扩展轨状态。
-// ============================================================
+// 每次 execute 都重新读扩展轨状态（dm:clock_time_1~9）。
+// 上一版把它缓存了，行为包运行中把轨道切 on 时 JS 仍以为 off，扩展轨全不跑。
 function refreshExtensionTracks(unit, entry) {
     if (entry.trackMode !== "multi") {
         entry.activeTracks = [];
@@ -236,9 +209,7 @@ function refreshExtensionTracks(unit, entry) {
     entry.trackStates = trackStates;
 }
 
-// ============================================================
 // 会话与轨道缓存刷新
-// ============================================================
 function ensureSession(unit, entry) {
     try {
         const entityLastSession = unit.getDynamicProperty("dm:last_session_id");
@@ -281,9 +252,7 @@ function ensureSession(unit, entry) {
     }
 }
 
-// ============================================================
 // 主轨触发
-// ============================================================
 function triggerMainTrack(unit, entry) {
     try {
         unit.triggerEvent("dm_scores");
@@ -307,9 +276,7 @@ function triggerMainTrack(unit, entry) {
     }
 }
 
-// ============================================================
 // 扩展轨触发
-// ============================================================
 function triggerExtensionTrack(unit, entry, trackIndex) {
     try {
         unit.triggerEvent(`dm_scores_${trackIndex}`);
@@ -333,12 +300,10 @@ function triggerExtensionTrack(unit, entry, trackIndex) {
     }
 }
 
-// ============================================================
 // 全局时钟调度器
-//
+
 // 每 5 tick 运行一次。
 // 只处理最近被 DmTargetEngine 驱动过、并且当前有时钟任务的实体。
-// ============================================================
 system.runInterval(() => {
     try {
         const now = system.currentTick;
@@ -364,9 +329,7 @@ system.runInterval(() => {
                 continue;
             }
 
-            // ============================================================
             // 0 号主轨
-            // ============================================================
             if (entry.mainActive && !entry.mainDisabled) {
                 if (entry.mainDue === undefined) {
                     // 首次激活：
@@ -389,9 +352,7 @@ system.runInterval(() => {
                 entry.mainDue = undefined;
             }
 
-            // ============================================================
             // 1 ~ 9 号扩展轨
-            // ============================================================
             if (entry.trackMode === "multi") {
                 for (const trackIndex of entry.activeTracks) {
                     const isOn =
@@ -427,18 +388,16 @@ system.runInterval(() => {
     }
 }, SCHEDULER_STEP);
 
-// ============================================================
 // TacticalClockManager
-//
+
 // 对外仍然保留 execute(unit, _ignoredThreat)。
 // 调用方不需要修改。
-// ============================================================
 export class TacticalClockManager {
 
-    /**
+        /*
      * 自适应多轨战斗时钟引擎（全局调度修复版）
      * @param {Entity} unit 目标实体对象
-     * @param {boolean} _ignoredThreat （已弃用：不再信任且不再处理任何雷达威胁）
+     * @param {boolean} _ignoredThreat 已弃用：不再信任且不再处理任何雷达威胁
      */
     static execute(unit, _ignoredThreat) {
         if (!unit || !unit.isValid) {
@@ -449,7 +408,6 @@ export class TacticalClockManager {
         }
 
         try {
-            const perfT0 = PerfProbe.now();
 
             const now = system.currentTick;
             const entry = getOrCreateEntry(unit);
@@ -461,15 +419,7 @@ export class TacticalClockManager {
             // 会话刷新 + 首次轨道模式判定
             ensureSession(unit, entry);
 
-            // ============================================================
-            // 修复：
-            // 多轨实体每次 execute 都重新读取扩展轨状态。
-            //
-            // 这样才能保证行为包运行中切换：
-            // dm:clock_time_1 ~ dm:clock_time_9
-            // 从 off 到 on，或者从 on 到 off 时，
-            // JS 层能立即感知。
-            // ============================================================
+                        // 多轨实体每次 execute 重读扩展轨状态，才能感知运行中的 on/off 切换。
             if (entry.trackMode === "multi") {
                 refreshExtensionTracks(unit, entry);
             } else {
@@ -479,19 +429,17 @@ export class TacticalClockManager {
 
             // 读取战斗 Tag
             // 读取战斗 Tag（tag 名按阵营分派：dm_* / demon_*）
-            //
+
             // 局部变量不能叫 hasTargetTag —— 会和 import 进来的函数同名，
             // 触发 TDZ 报错（同一作用域内 const 与 import 重名）。
             const faction = factionOf(unit);
             const hasTarget = hasTargetTag(unit, faction);
             const isSkillActive = hasSkillTag(unit, faction);
 
-            // ============================================================
             // 0 号主轨闸门
-            //
+
             // 单轨：完全看有没有进战 Tag
             // 多轨：有进战 Tag，且不能处于大招期间
-            // ============================================================
             const mainGateActive =
                 entry.trackMode === "single"
                     ? hasTarget
@@ -499,12 +447,10 @@ export class TacticalClockManager {
 
             entry.mainActive = mainGateActive && !entry.mainDisabled;
 
-            // ============================================================
             // 扩展轨激活状态
-            //
+
             // 扩展轨保持原逻辑：
             // 只要轨道属性为 "on"，就允许参与时钟调度。
-            // ============================================================
             entry.extOn = [];
 
             if (entry.trackMode === "multi") {
@@ -518,9 +464,7 @@ export class TacticalClockManager {
                 }
             }
 
-            // ============================================================
             // 加入 / 移出全局调度器
-            // ============================================================
             if (entry.mainActive || entry.extOn.length > 0) {
                 ActiveClockEntries.set(unit.id, entry);
             } else {
@@ -528,7 +472,6 @@ export class TacticalClockManager {
                 clearEntryDues(entry);
             }
 
-            PerfProbe.lap("clock.exec", perfT0);
         } catch (e) {
             console.error(
                 `[DM-Clock-Manager Error] 实体名(${unit.typeId}) ID(${unit.id}): ${e}`

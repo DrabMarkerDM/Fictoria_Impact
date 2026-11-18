@@ -33,6 +33,18 @@
     },
     "emissive_additive_alpha:emissive_additive": {
       "blendSrc": "SourceAlpha"
+    },
+    "dm34_crack:entity_alphablend": {
+      "+defines": [
+        "USE_UV_ANIM"
+      ],
+      "+samplerStates": [
+        {
+          "samplerIndex": 0,
+          "textureWrap": "Repeat"
+        }
+      ],
+      "msaaSupport": "Both"
     }
   }
 }

@@ -16,11 +16,27 @@ import {
     factionOf,
     isInCombat
 } from "./camp_faction.js";
+import {
+    detectLiquid,
+    applyLiquidSpeed,
+    resolveFloatImpulse,
+    isDrowningRecovering
+} from "./water_traversal.js";
+import { isPlayerMounted } from "../player/ride_guard.js";
 
-// ============================================================
 // 日志开关
-// ============================================================
 const DEBUG_MELEE = false;
+
+// 水下冲刺（Aqua Charge）：水下浮游只有 20% 速度，贴不到近战 reach。
+// 冲刺是唯一带 teleport 的路径，且 teleport 的 y 取目标位置 ——
+// 水下放开冲刺门槛 == 垂直瞬移对齐深度，不新增任何机制。
+// AQUA_CHARGE_H_DIST_FACTOR 限制水平距离，避免变成水下远程突进；
+// 冲刺速度不豁免液体减速（试过，水下像贴地飞行，已回退）。
+const AQUA_CHARGE_H_DIST_FACTOR = 3;
+
+// 冲刺落点向上搜索层数。teleport 的 checkForBlocks 对水体判得松，
+// 会传进海底方块卡住窒息，所以落点自己判一次（最多抬 3 格）。
+const TELEPORT_UP_SEARCH = 3;
 
 function meleeLog(...args) {
     if (DEBUG_MELEE) {
@@ -33,12 +49,7 @@ function getDistSq(a, b) {
     return (a.x - b.x) ** 2 + (a.y - b.y) ** 2 + (a.z - b.z) ** 2;
 }
 
-// ============================================================
-// 攻击者溯源：
-// Boss近战AOE以"友方位置生成弹射物"实现时，
-// 把弹射物伤害归因给真正施法者（owner → 最近怪物），
-// 防止污染 EWMA 威胁参照 / 决斗识别。
-// ============================================================
+// 攻击者溯源：Boss AOE 以友方位置生成弹射物时，把伤害归因给真正施法者。
 function resolveRealAttacker(attacker, victim) {
     try {
         if (!attacker || !attacker.isValid) return attacker;
@@ -92,44 +103,14 @@ function resolveRealAttacker(attacker, victim) {
     return attacker;
 }
 
-// ============================================================
-// 友方攻击者判定
-//
-// 格挡是「对敌防御」，不该被自己人的攻击消耗护盾次数。
-//
-// 为什么要在这里单独判一次：
-//   受击总线按优先级分发（100 格挡 → 300 友伤拦截），
-//   且刻意保留「不因 event.cancel 提前中断」的语义，
-//   所以友伤拦截 cancel 的时候，格挡处理器已经跑完了。
-//   结论：格挡必须在自己的处理器里先判一次阵营。
-//
-// 说明：判定口径与 player_attack_blocker.js 对齐，但兜底用 dm 家族而非白名单，
-// 因为 mob: 命名空间下混着敌人：
-//   mob:demon_uav / mob:bomb_roar -> ['demon', 'monster']  ← 敌方
-//   mob:hug_maid / mob:mon3tr ... -> 含 'dm'                ← 友方
-//
-// 已核实：全工程 25 个带 monster 家族的敌方实体，没有任何一个同时带 dm 家族，
-// 所以「有 dm 家族 = 友方」不会误放敌人。
-//
-// 导出：attackable_target_manager.js 的受击后处理器也要用同一套口径，
-// 判定「这个攻击者该不该被记成威胁目标」。
-// ============================================================
+// 友方攻击者判定：格挡是对敌防御，不该被自己人消耗。
+// 总线按优先级分发（100 格挡 → 300 友伤拦截）且不因 cancel 中断，
+// 所以格挡必须在自己的处理器里先判一次阵营。
+// 口径与 player_attack_blocker 一致，兜底用 dm 家族（mob: 下混着敌人）。
 export const ALLIED_ATTACKER_TYPES = new Set([
     // 真人玩家：不带 dm 家族，阵营兜底会判成中立 → 必须白名单
     "minecraft:player",
 
-    // ── 以下 4 个带 dm 家族，白名单只是快路径 ──
-    // 实测 minecraft:type_family：
-    //   mob:protecter  -> ["villager", "dm"]
-    //   mob:doctor     -> ["villager", "dm"]
-    //   mob:robot      -> ["robot", "dm", "inanimate", "mp"]
-    //   mob:mon3tr     -> ["mon3tr", "dm"]
-    // 不写这几行也会被下面的阵营兜底判成友，留着只为省掉
-    // 一次 factionOf（内部两次 matches，比 Set.has 贵一个量级）。
-    "mob:protecter",
-    "mob:robot",
-    "mob:doctor",
-    "mob:mon3tr",
 
     // ── 原版友善 / 驯服生物：工程未覆盖，确无 dm 家族 ──
     // 这几个是白名单真正不可拆的部分：拆掉就会被判成敌人。
@@ -161,20 +142,9 @@ export function isAlliedAttacker(entity, victim, victimFaction) {
     // 已核实 73 个实体全部是干员与友军，没有敌人混用此前缀
     if (tid.startsWith("player:")) return true;
 
-    // 兜底：同阵营 → 友
-    //
-    // 这里替换掉原来的 matches({ families: ["dm"] })。
-    // 那个写法把「带 dm 家族」写死成友，demon 接进来后会判错：
-    // demon 打 demon 应算友军，而 demon 不带 dm 家族。
-    //
-    // 白名单与 player: 前缀**保留**，但性质变了：
-    //   · mob:protecter / robot / doctor / mon3tr —— 实测带 dm 家族
-    //     （见 ALLIED_ATTACKER_TYPES 注释），留白名单是省一次家族查询
-    //   · 原版 horse / wolf / cat 等 + 真人玩家 —— 确无 dm 家族，
-    //     白名单是唯一正确来源，拆掉就会被判成敌人
-    //
-    // victimFaction 由调用方传入时不再重复求值（走位主循环里
-    // victm 恒为同一个单位，每 tick 算 4 次纯属浪费）。
+        // 兜底：同阵营 → 友（替代原来的 matches({ families: ["dm"] })，demon 接入后会判错）。
+        // 白名单与 player: 前缀保留：带 dm 家族的省一次查询，原版马/狼只认白名单。
+        // victimFaction 由调用方传入时不重复求值。
     try {
         const attackerFaction = factionOf(entity);
 
@@ -192,9 +162,7 @@ export function isAlliedAttacker(entity, victim, victimFaction) {
     return false;
 }
 
-// ============================================================
 // 缓存区
-// ============================================================
 const MeleeDamageLogCache = new Map();
 const PendingHurtLedger = new Map();
 const MeleeCycleCache = new Map();
@@ -203,9 +171,30 @@ const MeleeCycleCache = new Map();
 // 改为纯内存缓存，降低每 5 tick 的 JSON.parse / JSON.stringify 开销。
 const HpSamplesCache = new Map();
 
-// ============================================================
+// 战斗瞬态：每 5 tick 必读必写的一批状态。放动态属性等于每轮 8 次实体 NBT IO，
+// 而且存的是绝对 tick —— currentTick 每次进世界从 0 重计，存档里上一局的
+// fence_until 会让近战永久停手（nowTick <= fenceUntil 恒真）。按 entityId
+// 对齐实体实例：重载即视为初次见面，宁可少触发一次栅栏，也不要拿旧快照误判。
+const MeleeSnap = new Map();
+
+function msGet(unit, key, dflt) {
+    try {
+        const s = MeleeSnap.get(unit.id);
+        if (s && s[key] !== undefined) return s[key];
+    } catch (_) { }
+    return dflt;
+}
+
+function msSet(unit, key, val) {
+    try {
+        let s = MeleeSnap.get(unit.id);
+        if (s === undefined) { s = {}; MeleeSnap.set(unit.id, s); }
+        if (val === undefined) delete s[key];
+        else s[key] = val;
+    } catch (_) { }
+}
+
 // 实体移除时统一清理缓存，降低内存泄漏风险
-// ============================================================
 registerEntityRemoveHandler("melee_cache", (event) => {
     try {
         const id = event.removedEntity?.id;
@@ -215,46 +204,26 @@ registerEntityRemoveHandler("melee_cache", (event) => {
         PendingHurtLedger.delete(id);
         MeleeCycleCache.delete(id);
         HpSamplesCache.delete(id);
+        MeleeSnap.delete(id);
     } catch (_) {}
 }, REMOVE_PRIORITY.MELEE_CACHE);
 
-/**
-Fictoria_Impact 近战走位动力学引擎 v2.28 冲刺墙检测整理版
+// 区块卸载重载后 MeleeSnap 里的快照属于"上一次加载"，不可信 —— 直接丢。
+try {
+    world.afterEvents.entityLoad.subscribe((ev) => {
+        try { MeleeSnap.delete(ev.entity.id); } catch (_) { }
+    });
+} catch (_) { }
 
-保持原逻辑：
-EWMA 威胁目标
-缓冲层栅栏
-真实受击佐证
-统一周期引擎
-格挡机制
-冲刺 / 稳健后撤
-
-保留：
-稳健模式地形安全偏转
-悬崖 / 坑 / 岩浆 / 墙检测
-检测到危险时沿边缘切线方向滑动，不彻底掐断后撤
-只对 balanced phase 1 / phase 2 生效，冲刺不受影响
-
-本版整理：
-删除：旧版事前 _isInsideWall 卡墙瞬移
-删除：旧版墙面检测
-删除：旧版卡死检测
-保留：稳健后撤地形安全偏转
-保留：冲刺原有三维冲刺 / Teleport / AOE
-新增：冲刺专用墙体检测，只检测真正两格高墙体
-
-主要性能优化：
-血量采样改内存 Map
-复用 HP 信息
-复用观测净斜率
-实体移除清理缓存
-格挡后实体操作延后到 system.run
-高频日志可关闭
-*/
+/*
+ * Fictoria_Impact 近战走位动力学引擎。
+ * EWMA 威胁目标 / 缓冲层栅栏 / 真实受击佐证 / 统一周期引擎 / 格挡 / 冲刺 / 稳健后撤。
+ * 稳健模式保留地形安全偏转（悬崖、坑、岩浆、墙），只对 balanced phase 1/2 生效；卡墙处理只做
+ * 冲刺专用的两格检测，不做事前瞬移与卡死检测。性能：血量采样走内存 Map、实体移除清缓存、
+ * 格挡后的实体操作延后到 system.run。
+ */
 export class MovementMelee {
-    // ══════════════════════════════════════════════════
     //  生命值工具函数
-    // ══════════════════════════════════════════════════
     static _getEffectiveMaxHp(unit) {
         let baseMaxHp = 20;
 
@@ -333,9 +302,7 @@ export class MovementMelee {
         }
     }
 
-    // ══════════════════════════════════════════════════
     //  回血速率工具函数
-    // ══════════════════════════════════════════════════
     static _getRegenHps(unit) {
         try {
             const regen = unit.getEffect("regeneration");
@@ -387,9 +354,7 @@ export class MovementMelee {
         }
     }
 
-    // ══════════════════════════════════════════════════
     //  攻击模式识别工具函数
-    // ══════════════════════════════════════════════════
     static _updateMeleePattern(attackerId, victimId, rawDamage, nowTick, currentHp) {
         try {
             let p = MeleeCycleCache.get(victimId);
@@ -580,10 +545,8 @@ export class MovementMelee {
         }
     }
 
-    // ══════════════════════════════════════════════════
     //  生存预测
     //  优化：允许外部传入 hpInfo，并复用 observedNetHps
-    // ══════════════════════════════════════════════════
     static _predictSurvival(unit, config, nowTick, hpInfo = null) {
         const info = hpInfo ?? MovementMelee._getHpInfo(unit);
 
@@ -608,7 +571,7 @@ export class MovementMelee {
         }
 
         // ① 爆发判定
-        const fenceUntil = unit.getDynamicProperty("dm:melee_fence_until") ?? 0;
+        const fenceUntil = msGet(unit, "dm:melee_fence_until", 0);
         const isInFence = nowTick <= fenceUntil;
 
         let recentBurstDamage = 0;
@@ -627,7 +590,7 @@ export class MovementMelee {
         const isBalancedBurst = currentStrategy === "balanced" && recentHits >= 3;
 
         if (isBalancedBurst || isHeavyDamage) {
-            unit.setDynamicProperty("dm:emergency_burst", 1);
+            msSet(unit, "dm:emergency_burst", 1);
 
             meleeLog(`[DM-Predict] 触发紧急避险! 0.5s受击=${recentHits}次, 扣血=${recentBurstDamage.toFixed(1)}`);
 
@@ -667,10 +630,10 @@ export class MovementMelee {
                 if (!canSurviveAverage || !canSurviveSingleHit) {
                     isTTKDangerous = true;
 
-                    const lastLog = unit.getDynamicProperty("dm:melee_cycle_log_tick") ?? 0;
+                    const lastLog = msGet(unit, "dm:melee_cycle_log_tick", 0);
 
                     if (nowTick - lastLog >= 40) {
-                        unit.setDynamicProperty("dm:melee_cycle_log_tick", nowTick);
+                        msSet(unit, "dm:melee_cycle_log_tick", nowTick);
 
                         meleeLog(
                             `[DM-Predict] 周期判定: 每${cycleInfo.cycleSeconds.toFixed(1)}s一轮` +
@@ -690,10 +653,10 @@ export class MovementMelee {
             if (cycleInfo.tToNext > 0 && cycleInfo.tToNext <= 8 && cycleInfo.waveLethal) {
                 isTTKDangerous = true;
 
-                const lastLog = unit.getDynamicProperty("dm:melee_peak_log_tick") ?? 0;
+                const lastLog = msGet(unit, "dm:melee_peak_log_tick", 0);
 
                 if (nowTick - lastLog >= 40) {
-                    unit.setDynamicProperty("dm:melee_peak_log_tick", nowTick);
+                    msSet(unit, "dm:melee_peak_log_tick", nowTick);
 
                     meleeLog(`[DM-Predict] 峰值预判: 下一波伤害高峰将至(<${Math.ceil(cycleInfo.tToNext)}tick) → 稳健`);
                 }
@@ -726,10 +689,10 @@ export class MovementMelee {
 
                 netHps = initHps - realDps;
 
-                const lastColdLog = unit.getDynamicProperty("dm:melee_cold_log_tick") ?? 0;
+                const lastColdLog = msGet(unit, "dm:melee_cold_log_tick", 0);
 
                 if (nowTick - lastColdLog >= 40) {
-                    unit.setDynamicProperty("dm:melee_cold_log_tick", nowTick);
+                    msSet(unit, "dm:melee_cold_log_tick", nowTick);
 
                     meleeLog(`[DM-Predict] 冷启动: 回血=${initHps.toFixed(1)}HP/s 敌DPS=${realDps.toFixed(1)} → 净=${netHps.toFixed(1)}HP/s`);
                 }
@@ -744,17 +707,17 @@ export class MovementMelee {
             if (timeToDeath < 4.0) {
                 isTTKDangerous = true;
 
-                const lastLog = unit.getDynamicProperty("dm:melee_slope_log_tick") ?? 0;
+                const lastLog = msGet(unit, "dm:melee_slope_log_tick", 0);
 
                 if (nowTick - lastLog >= 40) {
-                    unit.setDynamicProperty("dm:melee_slope_log_tick", nowTick);
+                    msSet(unit, "dm:melee_slope_log_tick", nowTick);
 
                     meleeLog(`[DM-Predict] 净斜率=${netHps.toFixed(1)}HP/s → 预计${timeToDeath.toFixed(1)}s死亡`);
                 }
             }
         }
 
-        const blockRetreatTick = unit.getDynamicProperty("dm:block_retreat_tick") ?? 0;
+        const blockRetreatTick = msGet(unit, "dm:block_retreat_tick", 0);
         const isBlockRetreatActive = (nowTick - blockRetreatTick) < 30;
 
         if (isBlockRetreatActive && currentStrategy === "balanced") {
@@ -765,7 +728,7 @@ export class MovementMelee {
         const lastHitFromLog = history[history.length - 1]?.tick ?? 0;
 
         if (currentStrategy === "balanced") {
-            const blockCharges = unit.getDynamicProperty("dm:melee_block_charges") ?? 0;
+            const blockCharges = msGet(unit, "dm:melee_block_charges", 0);
 
             if (blockCharges <= 0 && hpPct >= 0.50 && !isTTKDangerous && (nowTick - lastSw >= 40)) {
                 return "aggressive";
@@ -785,21 +748,56 @@ export class MovementMelee {
         }
     }
 
-    // ══════════════════════════════════════════════════
-    //  目标阵营校验
-    //
-    //  受击账本 / 动态属性 / 原版索敌都可能残留友军，
-    //  走位前统一用格挡同一套口径过一遍。
-    // ══════════════════════════════════════════════════
+        /*
+     * 重载钳制：战斗瞬态里有一批动态属性（跨存档）存的是绝对 tick。进世界后 `system.currentTick`
+     * 从 0 重计 → `nowTick - 旧tick` 变成大负数 →
+     * · `dm:melee_charging == 1` 永远不满足 `elapsed > chargeDur` → 每 tick 继续施加冲刺冲量；
+     * · `dm:melee_phase_tick` 陈旧 → `phaseElapsed >= X` 恒假 → 卡死在 phase 1（-dir 后撤）；
+     * · `dm:ranged_retaliate` 同理。
+     * 空中无摩擦、`applyImpulse` 每 tick 累加 → 表现是一直往天上后撤，飞几百格摔死。
+     * MeleeSnap 里没有这条 id = 本次加载后第一次见（`entityLoad` 会清它）→ 归零再跑。只动战斗瞬态，
+     * 不动策略/协议本身。
+     * @returns {boolean} 是否做了归零
+     */
+    static _sanitizeOnFirstSight(unit) {
+        try {
+            if (MeleeSnap.has(unit.id)) return false;
+            MeleeSnap.set(unit.id, {});
+        } catch (_) {
+            return false;
+        }
+
+        // 布尔型：置 0（冲刺中 / 远程反击待发）
+        const ZERO_PROPS = ["dm:melee_charging", "dm:ranged_retaliate"];
+        // 绝对 tick 型：抹掉 → 读到 `?? 0` → 当"很久以前"，冷却立刻通过
+        const TICK_PROPS = [
+            "dm:melee_charge_tick",
+            "dm:melee_charge_start_dist",
+            "dm:melee_strategy_tick",
+            "dm:melee_phase_tick",
+            "dm:melee_charges_zero_tick",
+            "dm:melee_emergency_tick",
+            "dm:ranged_retaliate_tick",
+            "dm:threat_target_tick"
+        ];
+
+        try {
+            for (const k of ZERO_PROPS) unit.setDynamicProperty(k, 0);
+            for (const k of TICK_PROPS) unit.setDynamicProperty(k, undefined);
+            unit.setDynamicProperty("dm:threat_target_id", undefined);
+        } catch (_) { /* 实体刚消失 / 只读快照 */ }
+
+        return true;
+    }
+
+        // 目标阵营校验：受击账本 / 动态属性 / 原版索敌都可能残留友军，统一过一遍。
     static _isHostileTarget(unit, candidate, unitFaction) {
         if (!candidate || !candidate.isValid) return false;
 
         return !isAlliedAttacker(candidate, unit, unitFaction);
     }
 
-    // ══════════════════════════════════════════════════
     //  主执行
-    // ══════════════════════════════════════════════════
     static execute(unit, config, closestThreat, closestDistSq, meleeRange, lastDamageTickMap, faction = null) {
         try {
             if (!unit || !unit.isValid) {
@@ -812,8 +810,21 @@ export class MovementMelee {
                 return;
             }
 
+                        // 本次加载后第一次见到她 → 把上一局存档里的战斗瞬态归零。
+                        // 必须排在所有早退与冲量计算之前：charging/phase 一旦残留，
+                        // 这一帧就会把「停不下来」的冲量再叠一次。
+            MovementMelee._sanitizeOnFirstSight(unit);
+
             // 特殊骑乘状态硬拦截
             if (unit.hasTag("maid:ride_player")) {
+                MovementMelee._clearVel(unit);
+                return;
+            }
+
+                        // 玩家骑着她 → 熔断走位，方向交给玩家。
+                        // 只停"移动"：攻击、格挡、受击反应照常。骑在马上还能挥刀才是玩法，
+                        // 但一具身体不能有两个方向盘 —— 引擎一施力，坐骑就开始和玩家对抗。
+            if (isPlayerMounted(unit)) {
                 MovementMelee._clearVel(unit);
                 return;
             }
@@ -823,32 +834,26 @@ export class MovementMelee {
             const nowTick = system.currentTick;
             const uLoc = unit.location;
 
+                        // 溺水换气：清空走位指令后 main.js 会把它从 ActiveMovers 摘除，
+                        // 由 behavior.float 自行上浮，到期恢复接管。
+                        // 传实体不是 id —— 解除条件要看是否出水 / 露头。
+            if (isDrowningRecovering(unit, nowTick)) {
+                clearMoveCmd(unit);
+                return;
+            }
+
             // 阵营：目标引擎在 entry 里已经算过，直接传进来。
             // 缺省（其它调用点）才现场查一次 —— matches 比 hasTag 贵一个数量级，
             // 不要放在下面的循环里重复求值。
             const unitFaction = faction ?? factionOf(unit);
 
-            // 液体 / 漂浮检测
-            let isInLiquid = false;
+            // 液体 / 漂浮检测（统一走 water_traversal）
 
-            try {
-                const feet = unit.dimension.getBlock({
-                    x: uLoc.x,
-                    y: Math.floor(uLoc.y),
-                    z: uLoc.z
-                });
-
-                const waist = unit.dimension.getBlock({
-                    x: uLoc.x,
-                    y: Math.floor(uLoc.y + 1),
-                    z: uLoc.z
-                });
-
-                if ((feet && feet.isLiquid) || (waist && waist.isLiquid)) {
-                    isInLiquid = true;
-                }
-            } catch (_) {}
-
+            // waterProbe 是「本帧本单位的方块回执」：detectLiquid 把查到的
+            // 脚格 / 腰格填进去，后面 resolveFloatImpulse 命中就复用，
+            // 省一次水面探针的 getBlock。必须每帧新建，不要跨 tick 缓存。
+            const waterProbe = {};
+            const isInLiquid = detectLiquid(unit.dimension, uLoc, waterProbe);
             const isFloating = isInLiquid && !controller.isOnGround;
             const isAirborne = !controller.isOnGround && !isInLiquid;
 
@@ -892,20 +897,11 @@ export class MovementMelee {
             let target = null;
             let targetDistSq = 99999;
 
-            // ══════════════════════════════════════════════════════
-            // 候选目标必须真的是敌人
-            //
-            // 四个来源都可能被友伤污染：
-            //   ① EWMA 威胁账本 —— 友方攻击的原始伤害（友伤拦截归零之前）会写进去
-            //   ② dm:threat_target_id —— 受击后处理器写入的攻击者，同样是原始伤害
-            //   ④ unit.target —— 原版索敌兜底
-            //
-            // 用与格挡同一套口径（isAlliedAttacker）过滤，
-            // 避免单位把误伤它的玩家 / 友军当成敌人绕着走位。
-            // ③ 的敌人快照本身只查 monster 家族，仍过一遍闸门做兜底。
-            // ══════════════════════════════════════════════════════
+                        // 候选目标必须真的是敌人：四个来源都可能被友伤污染
+                        // （EWMA 账本 / dm:threat_target_id / 原版索敌），
+                        // 用与格挡同一套 isAlliedAttacker 过滤。
 
-            // ① 最高威胁分数目标
+                        // ① 最高威胁分数目标
             try {
                 if (topThreatId) {
                     const threat = world.getEntity(topThreatId);
@@ -978,13 +974,11 @@ export class MovementMelee {
             const hp = info.hp;
             const maxHp = info.maxHp;
 
-            // ═══════════════════════════════════════════════════════════
             // 缓冲层栅栏 + 真实受击佐证
-            // ═══════════════════════════════════════════════════════════
-            const lastHp = unit.getDynamicProperty("dm:melee_last_hp") ?? hp;
-            const lastAbs = unit.getDynamicProperty("dm:melee_last_abs") ?? info.absHp;
-            const lastBaseMax = unit.getDynamicProperty("dm:melee_last_base_max") ?? info.baseMax;
-            const lastSnapTick = unit.getDynamicProperty("dm:melee_last_snap_tick") ?? 0;
+            const lastHp = msGet(unit, "dm:melee_last_hp", hp);
+            const lastAbs = msGet(unit, "dm:melee_last_abs", info.absHp);
+            const lastBaseMax = msGet(unit, "dm:melee_last_base_max", info.baseMax);
+            const lastSnapTick = msGet(unit, "dm:melee_last_snap_tick", 0);
 
             const absDelta = info.absHp - lastAbs;
             const baseMaxDelta = info.baseMax - lastBaseMax;
@@ -1001,18 +995,18 @@ export class MovementMelee {
                 Math.abs(baseMaxDelta) >= 4 ||
                 (absDelta <= -4 && !absConsumedByHurt);
 
-            let fenceUntil = unit.getDynamicProperty("dm:melee_fence_until") ?? 0;
+            let fenceUntil = msGet(unit, "dm:melee_fence_until", 0);
 
             if (buffTransition) {
                 fenceUntil = nowTick + 15;
 
-                unit.setDynamicProperty("dm:melee_fence_until", fenceUntil);
-                unit.setDynamicProperty("dm:emergency_burst", 0);
+                msSet(unit, "dm:melee_fence_until", fenceUntil);
+                msSet(unit, "dm:emergency_burst", 0);
 
-                const lastFl = unit.getDynamicProperty("dm:melee_fence_log_tick") ?? 0;
+                const lastFl = msGet(unit, "dm:melee_fence_log_tick", 0);
 
                 if (nowTick - lastFl >= 60) {
-                    unit.setDynamicProperty("dm:melee_fence_log_tick", nowTick);
+                    msSet(unit, "dm:melee_fence_log_tick", nowTick);
 
                     meleeLog(`[DM-Melee] 🧱 缓冲层栅栏激活(15tick): absΔ=${absDelta.toFixed(0)} baseMaxΔ=${baseMaxDelta.toFixed(0)} | ${unit.typeId}`);
                 }
@@ -1021,10 +1015,10 @@ export class MovementMelee {
             const isFenced = nowTick <= fenceUntil;
 
             // 快照推进
-            unit.setDynamicProperty("dm:melee_last_hp", hp);
-            unit.setDynamicProperty("dm:melee_last_abs", info.absHp);
-            unit.setDynamicProperty("dm:melee_last_base_max", info.baseMax);
-            unit.setDynamicProperty("dm:melee_last_snap_tick", nowTick);
+            msSet(unit, "dm:melee_last_hp", hp);
+            msSet(unit, "dm:melee_last_abs", info.absHp);
+            msSet(unit, "dm:melee_last_base_max", info.baseMax);
+            msSet(unit, "dm:melee_last_snap_tick", nowTick);
 
             // 生命值采样
             // 优化：使用内存 Map，不再 JSON.stringify 到 DynamicProperty
@@ -1066,10 +1060,10 @@ export class MovementMelee {
                     meleeLog(`[DM-Melee] 血量异常扣血已钳制: ${hpDelta.toFixed(0)} → ${realDmg.toFixed(0)} | ${unit.typeId}`);
                 }
             } else if (hpDelta < -0.01 && Math.abs(hpDelta) >= 4) {
-                const lastDl = unit.getDynamicProperty("dm:melee_drop_log_tick") ?? 0;
+                const lastDl = msGet(unit, "dm:melee_drop_log_tick", 0);
 
                 if (nowTick - lastDl >= 60) {
-                    unit.setDynamicProperty("dm:melee_drop_log_tick", nowTick);
+                    msSet(unit, "dm:melee_drop_log_tick", nowTick);
 
                     meleeLog(`[DM-Melee] 🧱 丢弃未佐证扣血 ${hpDelta.toFixed(1)} (fenced=${isFenced ? "是" : "否"}, 受击=${hurtFresh ? "有" : "无"}) | ${unit.typeId}`);
                 }
@@ -1082,10 +1076,10 @@ export class MovementMelee {
 
             const wish = MovementMelee._predictSurvival(unit, config, nowTick, info);
 
-            const isEmergency = unit.getDynamicProperty("dm:emergency_burst") === 1;
+            const isEmergency = msGet(unit, "dm:emergency_burst", 0) === 1;
 
             if (wish !== strategy && ((nowTick - lastSw > 40) || (wish === "balanced" && isEmergency))) {
-                const blockRetreatTick = unit.getDynamicProperty("dm:block_retreat_tick") ?? 0;
+                const blockRetreatTick = msGet(unit, "dm:block_retreat_tick", 0);
                 const isBlockProtected = (nowTick - blockRetreatTick) < 30;
                 const isIllegalSwitch = isBlockProtected && strategy === "balanced" && wish === "aggressive";
 
@@ -1094,12 +1088,12 @@ export class MovementMelee {
 
                     unit.setDynamicProperty("dm:melee_strategy", strategy);
                     unit.setDynamicProperty("dm:melee_strategy_tick", nowTick);
-                    unit.setDynamicProperty("dm:emergency_burst", 0);
+                    msSet(unit, "dm:emergency_burst", 0);
 
                     if (strategy === "balanced") {
                         unit.setDynamicProperty("dm:melee_phase", 1);
                         unit.setDynamicProperty("dm:melee_phase_tick", nowTick);
-                        unit.setDynamicProperty("dm:melee_block_charges", config.blockCharges ?? 3);
+                        msSet(unit, "dm:melee_block_charges", config.blockCharges ?? 3);
 
                         if (typeof config.blockMinDamage === "number" && config.blockMinDamage > 0) {
                             unit.setDynamicProperty("dm:melee_block_min_damage", config.blockMinDamage);
@@ -1109,7 +1103,7 @@ export class MovementMelee {
 
                         meleeLog(`[DM-Melee] 战术后撤! 已激活 ${config.blockCharges ?? 3} 次稳健格挡护盾 | 实体: ${unit.typeId}`);
                     } else if (strategy === "aggressive") {
-                        unit.setDynamicProperty("dm:melee_block_charges", 0);
+                        msSet(unit, "dm:melee_block_charges", 0);
                     }
 
                     meleeLog(`[DM-Melee] 策略切换: ${strategy === "balanced" ? "稳健后撤" : "激进冲锋"}`);
@@ -1118,13 +1112,13 @@ export class MovementMelee {
 
             // 护盾自充能
             if (strategy === "balanced" && (hp / maxHp) >= 0.50) {
-                const bCharges = unit.getDynamicProperty("dm:melee_block_charges") ?? 0;
+                const bCharges = msGet(unit, "dm:melee_block_charges", 0);
 
                 if (bCharges <= 0) {
                     const lastZero = unit.getDynamicProperty("dm:melee_charges_zero_tick") ?? 0;
 
                     if (nowTick - lastZero >= 60) {
-                        unit.setDynamicProperty("dm:melee_block_charges", config.blockCharges ?? 3);
+                        msSet(unit, "dm:melee_block_charges", config.blockCharges ?? 3);
                         unit.setDynamicProperty("dm:melee_charges_zero_tick", nowTick);
 
                         meleeLog(`[DM-Melee] 护盾自充能! 已补 ${config.blockCharges ?? 3} 次 | 实体: ${unit.typeId}`);
@@ -1154,9 +1148,14 @@ export class MovementMelee {
                 }
             } catch (_) {}
 
-            if (isInLiquid) {
-                baseSpeed *= isFloating ? 0.20 : 0.60;
-            }
+            // 液体减速只结算一次（water_traversal 统一口径）
+
+            // 冲刺同样吃这个减速，不做豁免：把冲刺速度提到陆地量级会变成水下贴地飞行，
+            // 加成只保留配置里的 chargeSpeed。
+            baseSpeed = applyLiquidSpeed(baseSpeed, isInLiquid, isFloating);
+
+            // 水下冲刺豁免直接传布尔：isFloating 来自上方已有的双层查询，
+            // 子引擎内再查会每 tick 多两次 getBlock。
 
             // 走位计算
             let velX = 0;
@@ -1178,7 +1177,8 @@ export class MovementMelee {
                     dirZ,
                     baseSpeed,
                     nowTick,
-                    jumpImpulse
+                    jumpImpulse,
+                    isFloating
                 ));
             } else {
                 ({
@@ -1197,7 +1197,8 @@ export class MovementMelee {
                     tangentZ,
                     baseSpeed,
                     nowTick,
-                    jumpImpulse
+                    jumpImpulse,
+                    isFloating
                 ));
             }
 
@@ -1245,35 +1246,21 @@ export class MovementMelee {
                 }
             }
 
-            // 水中浮潜
+            // 水中浮潜（统一走 water_traversal）
+
+            // 传 waterProbe：用的就是本次 execute 开头 detectLiquid 查到的
+            // 那两格，命中水面探针时省一次 getBlock。
             if (isFloating) {
-                const dy = target.location.y - uLoc.y;
-
-                let atSurface = false;
-
-                try {
-                    const sb = unit.dimension.getBlock({
-                        x: uLoc.x,
-                        y: Math.floor(uLoc.y + 1.6),
-                        z: uLoc.z
-                    });
-
-                    if (sb && sb.isAir) {
-                        atSurface = true;
-                    }
-                } catch (_) {}
-
-                if (dy > 0.5 && !atSurface) {
-                    jumpImpulse = 0.18;
-                } else if (dy < -0.5) {
-                    jumpImpulse = -0.20;
-                } else {
-                    jumpImpulse = atSurface ? -0.08 : 0.05;
-                }
+                jumpImpulse = resolveFloatImpulse(
+                    unit.dimension,
+                    uLoc,
+                    target.location.y - uLoc.y,
+                    waterProbe
+                );
             }
 
             // 写入指令速度
-            //
+
             // 改造前是 3 次 setDynamicProperty（持久化通道）。
             // 这三个键在 entities/ 与资源包中 0 引用，
             // 只是给 main.js 驱动环读的瞬时指令，改为内存写入。
@@ -1287,17 +1274,11 @@ export class MovementMelee {
         }
     }
 
-    // ══════════════════════════════════════════════════
-    //  激进冲锋
-    //
-    //  原三维冲刺 / Teleport / AOE 保持不动。
-    //  只在启动前和冲刺中加入真正墙体检测。
-    // ══════════════════════════════════════════════════
-    static _aggressive(unit, config, target, distSq, meleeRange, dirX, dirZ, baseSpeed, nowTick, jumpImpulse) {
+        // 激进冲锋：原三维冲刺 / Teleport / AOE 不动，只在启动前与冲刺中加墙体检测。
+    static _aggressive(unit, config, target, distSq, meleeRange, dirX, dirZ, baseSpeed, nowTick, jumpImpulse, isFloating = false) {
         let velX = 0;
         let velZ = 0;
 
-        const chargeRange = config.chargeRange ?? 10;
         const maxChargeDist = config.maxChargeDist ?? 10;
         const chargeSpeed = config.chargeSpeed ?? 1.4;
         const chargeDur = config.chargeDuration ?? 40;
@@ -1312,6 +1293,10 @@ export class MovementMelee {
         const dz = tLoc.z - uLoc.z;
 
         const dist3D = Math.sqrt(dx * dx + dy * dy + dz * dz) || 0.001;
+
+        // 水平距离：水下冲刺豁免只看水平，不看三维。
+        // 三维距离在目标沉到深水时会被 dy 撑大，正是要绕过的那个门槛。
+        const hDistNow = Math.sqrt(dx * dx + dz * dz);
 
         if (isCharging) {
             // 冲刺中撞墙保护：
@@ -1341,19 +1326,54 @@ export class MovementMelee {
                 const stopX = tLoc.x - dirX * (meleeRange * 0.8);
                 const stopZ = tLoc.z - dirZ * (meleeRange * 0.8);
 
+                // 落点先自己判一次。
+
+                // 不合格时必须整段放弃：不 teleport、不结算 AOE。
+                // 硬传进去的后果是被挤进海底方块内部持续窒息，
+                // 而防窒息模块的脱困检索在水下也未必能及时找到出口。
+                const landing = MovementMelee._findSafeLanding(
+                    unit.dimension,
+                    stopX,
+                    tLoc.y,
+                    stopZ
+                );
+
+                if (!landing) {
+                    meleeLog(`[DM-Melee] 冲刺落点无空位，放弃 teleport | 实体: ${unit.typeId}`);
+
+                    return {
+                        velX: 0,
+                        velZ: 0,
+                        jumpImpulse: 0.02
+                    };
+                }
+
+                // 骑乘时位移必须落在坐骑身上：对骑手 teleport 会直接打断骑乘关系，
+                // 表现就是「一冲刺她就从马上掉下来」。冲量那边 main.js 早就打到
+                // entityRidingOn 了，只有 teleport 漏了这一层。
+                let dashTarget = unit;
+
                 try {
-                    unit.teleport(
+                    const rideMount = unit.getComponent("minecraft:riding")?.entityRidingOn;
+
+                    if (rideMount && rideMount.isValid) {
+                        dashTarget = rideMount;
+                    }
+                } catch (_) { }
+
+                try {
+                    dashTarget.teleport(
                         {
-                            x: stopX,
-                            y: tLoc.y,
-                            z: stopZ
+                            x: landing.x,
+                            y: landing.y,
+                            z: landing.z
                         },
                         {
                             checkForBlocks: true
                         }
                     );
 
-                    unit.clearVelocity();
+                    dashTarget.clearVelocity();
                 } catch (_) {}
 
                 const unitMaxHp = MovementMelee._getEffectiveMaxHp(unit);
@@ -1434,8 +1454,15 @@ export class MovementMelee {
         } else {
             const lastChargeTick = unit.getDynamicProperty("dm:melee_charge_tick") ?? 0;
 
-            const minChargeRange = config.chargeRange ?? 10;
+            const baseMinChargeRange = config.chargeRange ?? 10;
             const maxChargeRange = config.maxChargeRange ?? Infinity;
+
+                        // 水下 + 水平已贴近 → 取消远距离门槛。冲刺内 hDist < meleeRange*1.5 走 teleport，
+                        // 其 y 取目标位置 = 垂直对齐深度。陆地 isFloating 为 false，行为零变化。
+            const aquaCharge = isFloating &&
+                hDistNow <= meleeRange * AQUA_CHARGE_H_DIST_FACTOR;
+
+            const minChargeRange = aquaCharge ? 0 : baseMinChargeRange;
 
             const inRange = dist3D >= minChargeRange && dist3D <= maxChargeRange;
 
@@ -1458,15 +1485,83 @@ export class MovementMelee {
         };
     }
 
-    // ══════════════════════════════════════════════════
-    //  冲刺专用墙体检测：
-    //
-    //  只检测正前方是否为真正的两格实体墙。
-    //  半砖、楼梯、活板门、地毯等非完整方块通常不会
-    //  同时填满下半身和头部两个方块格，因此不会误判。
-    //
-    //  冲刺原有三维冲刺 / Teleport 完全不动。
-    // ══════════════════════════════════════════════════
+        // 冲刺落点安全检查：checkForBlocks 只保证不是完整固体，水下会落进海底。
+        // 可通行 = 空气或液体（水下必须放行液体，否则海底附近永远找不到落点）。
+        // 顺序：原位 → 上 1~3 → 下 1 → 四邻 1；都不行返回 null，放弃本次 teleport。
+    static _findSafeLanding(dim, x, y, z) {
+        try {
+            if (!dim) return null;
+
+                        // 一次性缓存去重：13 个候选位置反复查同一批格子，26 次 getBlock 降到约 14 次。
+                        // 只在单次调用内有效（方块会变，跨冲刺复用会给出陈旧落点）。
+            const blockCache = new Map();
+
+            const getBlockAt = (bx, by, bz) => {
+                const key = `${bx},${by},${bz}`;
+
+                const hit = blockCache.get(key);
+
+                if (hit !== undefined) return hit;
+
+                let block = null;
+
+                try {
+                    // ?? null：未加载区块时 getBlock 返回 undefined，
+                    // 归一成 null，否则缓存命中判断（!== undefined）会失效。
+                    block = dim.getBlock({ x: bx, y: by, z: bz }) ?? null;
+                } catch (_) {}
+
+                blockCache.set(key, block);
+
+                return block;
+            };
+
+            const passable = (bx, by, bz) => {
+                const body = getBlockAt(bx, by, bz);
+                if (!body) return false;
+                if (!body.isAir && !body.isLiquid) return false;
+
+                const head = getBlockAt(bx, by + 1, bz);
+                if (!head) return false;
+                if (!head.isAir && !head.isLiquid) return false;
+
+                return true;
+            };
+
+            const bx = Math.floor(x);
+            const by = Math.floor(y);
+            const bz = Math.floor(z);
+
+            if (passable(bx, by, bz)) return { x, y, z };
+
+            // 水下卡底时通常只差一两格，垂直优先
+            for (let dy = 1; dy <= TELEPORT_UP_SEARCH; dy++) {
+                if (passable(bx, by + dy, bz)) return { x, y: by + dy, z };
+            }
+
+            if (passable(bx, by - 1, bz)) return { x, y: by - 1, z };
+
+            // 目标贴着墙时侧移一格，落点取格子中心
+            const offsets = [[1, 0], [-1, 0], [0, 1], [0, -1]];
+
+            for (let i = 0; i < offsets.length; i++) {
+                const ox = offsets[i][0];
+                const oz = offsets[i][1];
+
+                if (passable(bx + ox, by, bz + oz)) {
+                    return { x: bx + ox + 0.5, y: by, z: bz + oz + 0.5 };
+                }
+
+                if (passable(bx + ox, by + 1, bz + oz)) {
+                    return { x: bx + ox + 0.5, y: by + 1, z: bz + oz + 0.5 };
+                }
+            }
+
+            return null;
+        } catch (_) { return null; }
+    }
+
+        // 冲刺专用墙体检测：只判正前方是否真正两格实体墙（半砖/楼梯/地毯不会同时填满两格）。
     static _isRealWallAhead(unit, dirX, dirZ) {
         try {
             if (!unit || !unit.isValid) return false;
@@ -1512,17 +1607,7 @@ export class MovementMelee {
         }
     }
 
-    // ══════════════════════════════════════════════════
-    //  地形探针：探测某方向前方的地面状况
-    //
-    //  返回值：
-    //    safe  : 可安全行走
-    //    step  : 一格高台阶，可跳过
-    //    wall  : 两格高墙，需转向
-    //    pit   : 一格深坑
-    //    cliff : 深悬崖
-    //    lava  : 岩浆
-    // ══════════════════════════════════════════════════
+        // 地形探针：safe / step / wall / pit / cliff / lava
     static _probeTerrain(unit, dirX, dirZ, distance) {
         const dim = unit.dimension;
         const loc = unit.location;
@@ -1575,18 +1660,16 @@ export class MovementMelee {
         return "safe";
     }
 
-    // ══════════════════════════════════════════════════
-    //  地形安全偏转：
-    //
-    //  检测到悬崖 / 坑 / 岩浆 / 墙时，
-    //  把走位向量偏转到边缘切线方向，保持移动，
-    //  不彻底掐断后撤。
-    //
-    //  preferSide：优先偏向哪一侧（用 strafeDir 传入）
-    //    strafeDir >= 0  → 优先右侧
-    //    strafeDir <  0  → 优先左侧
-    // ══════════════════════════════════════════════════
-    static _applyTerrainSafety(unit, velX, velZ, jumpImpulse, probeDist, preferSide) {
+        // 地形安全偏转：撞到悬崖 / 坑 / 岩浆 / 墙时把走位切到边缘切线，保持移动。
+        // preferSide 由 strafeDir 决定；isFloating 时直接返回，一次方块都不查。
+        // 水体必须短路：脚下是液体 → 三个方向恒判 cliff → 水平速度被砍到 3%，像原地磨蹭，
+        // 而且 9 次 getBlock 换来的永远是「危险」。
+    static _applyTerrainSafety(unit, velX, velZ, jumpImpulse, probeDist, preferSide, isFloating = false) {
+        // 浮游：地形探针的语义不成立（见上方说明），原样返回
+        if (isFloating) {
+            return { velX, velZ, jumpImpulse };
+        }
+
         const speed = Math.sqrt(velX * velX + velZ * velZ);
 
         if (speed < 0.001) {
@@ -1666,10 +1749,8 @@ export class MovementMelee {
         };
     }
 
-    // ══════════════════════════════════════════════════
     //  稳健走位（含地形安全偏转）
-    // ══════════════════════════════════════════════════
-    static _balanced(unit, config, target, targetDistSq, meleeRange, dirX, dirZ, tangentX, tangentZ, baseSpeed, nowTick, jumpImpulse) {
+    static _balanced(unit, config, target, targetDistSq, meleeRange, dirX, dirZ, tangentX, tangentZ, baseSpeed, nowTick, jumpImpulse, isFloating = false) {
         let velX = 0;
         let velZ = 0;
 
@@ -1798,13 +1879,7 @@ export class MovementMelee {
             }
         }
 
-        // ══════════════════════════════════════════════════
-        // 稳健模式地形安全偏转
-        //
-        // 只对 phase 1 / phase 2 生效，冲刺不受影响。
-        // 检测到悬崖 / 坑 / 岩浆 / 墙时，
-        // 沿边缘切线方向继续移动，不彻底掐断后撤。
-        // ══════════════════════════════════════════════════
+                // 稳健模式地形安全偏转：只对 phase 1/2 生效，冲刺不受影响；浮游时整段跳过。
         const TERRAIN_PROBE_DIST = 1.3;
 
         const safe = MovementMelee._applyTerrainSafety(
@@ -1813,7 +1888,8 @@ export class MovementMelee {
             velZ,
             jumpImpulse,
             TERRAIN_PROBE_DIST,
-            strafeDir
+            strafeDir,
+            isFloating
         );
 
         velX = safe.velX;
@@ -1834,9 +1910,7 @@ export class MovementMelee {
     }
 }
 
-// ════════════════════════════════════════════════════════════
 // 格挡：模块顶层注册
-// ════════════════════════════════════════════════════════════
 let _blockSubscriberRegistered = false;
 
 function registerBlockSubscriber() {
@@ -1856,26 +1930,11 @@ function registerBlockSubscriber() {
 
             const hpInfo = isDmUnit ? MovementMelee._getHpInfo(victim) : null;
 
-            // ══════════════════════════════════════════════════════
-            // 阵营闸门（惰性求值，每次受击最多算一次）
-            //
-            // 友伤 —— 玩家 / 干员 / 友军 / 驯服生物 —— 不是威胁：
-            //   · 不进真实受击账本
-            //   · 不进 EWMA 威胁账本（MeleeCycleCache.attackerDamage）
-            //   · 不消耗格挡次数
-            //
-            // 为什么必须判：
-            //   总线按优先级分发（100 格挡 → 300 友伤拦截），
-            //   友伤拦截把 event.damage 归零之前，这里读到的还是原始伤害。
-            //   若不判阵营，攻击者会以「真实伤害分数」写进 attackerDamage，
-            //   而 MovementMelee.execute 的「① 最高威胁目标」是第一条命中即用，
-            //   于是怪物死光之后，单位会把误伤它的玩家当成敌人绕着走位。
-            //
-            // 为什么用惰性：
-            //   resolveRealAttacker 对投射物会做一次 24 格 getEntities 溯源。
-            //   只有「伤害 > 0」和「走到格挡分支」才需要它，
-            //   零伤害受击（摔落 / 火焰 / 友伤已归零）保持原开销不变。
-            // ══════════════════════════════════════════════════════
+                        // 阵营闸门（惰性求值，每次受击最多算一次）：友伤不进受击账本、
+                        // 不进 EWMA 威胁账本、不消耗格挡次数。
+                        // 必须判：友伤拦截把 damage 归零之前，这里读到的还是原始伤害，
+                        // 不判就会把误伤它的玩家当成威胁目标。
+                        // 惰性：resolveRealAttacker 对投射物要做 24 格溯源，零伤害受击不需要。
             let gateReady = false;
             let resolvedAttacker = null;
             let attackerIsAllied = false;
@@ -1930,7 +1989,7 @@ function registerBlockSubscriber() {
             }
 
             // ── 攻击模式喂数据 ──
-            //
+
             // 友方攻击不喂：EWMA 威胁账本是「谁真的在打我」的账本，
             // 混进友军后，① 最高威胁目标会优先选中友军。
             if (isDmUnit && event.damage > 0 && hpInfo && !attackerIsAllied) {
@@ -1953,7 +2012,7 @@ function registerBlockSubscriber() {
             }
 
             // ── 原格挡逻辑 ──
-            const charges = victim.getDynamicProperty("dm:melee_block_charges") ?? 0;
+            const charges = msGet(victim, "dm:melee_block_charges", 0);
 
             if (charges <= 0) return;
 
@@ -1963,16 +2022,8 @@ function registerBlockSubscriber() {
 
             if (!isCombat) return;
 
-            // ── 阵营闸门：只有真实敌方的攻击才消耗格挡次数 ──
-            //
-            // 修复：玩家 / 友军的攻击也会触发格挡并扣次数。
-            // 成因是总线按优先级分发，格挡(100) 先于友伤拦截(300)，
-            // 且不因 event.cancel 提前中断，所以友伤拦截拦不住已经发生的格挡。
-            //
-            // 放在 charges / isCombat 之后：没有护盾的实体开销完全不变。
-            //
-            // 阵营判定若上面已经算过（damage > 0）直接复用；
-            // damage = 0 时这里才第一次求值，不会重复做 family 查询与投射物溯源。
+                        // 阵营闸门：只有真实敌方的攻击才消耗格挡次数（玩家/友军也会触发格挡）。
+                        // 放在 charges / isCombat 之后：没护盾的实体开销不变。
             resolveAttackerGate();
 
             if (!resolvedAttacker || !resolvedAttacker.isValid) return;
@@ -1998,7 +2049,7 @@ function registerBlockSubscriber() {
             const blockedDamage = event.damage;
             const remainingCharges = charges - 1;
 
-            victim.setDynamicProperty("dm:melee_block_charges", remainingCharges);
+            msSet(victim, "dm:melee_block_charges", remainingCharges);
 
             if (remainingCharges <= 0) {
                 victim.setDynamicProperty("dm:melee_charges_zero_tick", system.currentTick);
@@ -2069,8 +2120,8 @@ function registerBlockSubscriber() {
                         v.setDynamicProperty("dm:melee_phase", 1);
                         v.setDynamicProperty("dm:melee_phase_tick", system.currentTick);
 
-                        v.setDynamicProperty("dm:emergency_burst", 1);
-                        v.setDynamicProperty("dm:block_retreat_tick", system.currentTick);
+                        msSet(v, "dm:emergency_burst", 1);
+                        msSet(v, "dm:block_retreat_tick", system.currentTick);
 
                         try {
                             v.triggerEvent("dm:block_parry");

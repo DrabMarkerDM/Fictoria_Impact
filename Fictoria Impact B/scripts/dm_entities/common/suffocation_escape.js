@@ -14,9 +14,7 @@ import {
     clearMoveCmd
 } from "./move_command_store.js";
 
-// ============================================================
 // 窒息 / 重力方块埋压 / 液体溺水挣脱模块
-// ============================================================
 
 const DEBUG_SUFOCATION_ESCAPE = false;
 
@@ -26,18 +24,14 @@ function suffocationLog(...args) {
     }
 }
 
-// ============================================================
 // 伤害原因常量
-// ============================================================
 const SUFFOCATION_CAUSE = EntityDamageCause?.suffocation ?? "suffocation";
 const DROWNING_CAUSE = EntityDamageCause?.drowning ?? "drowning";
 const LAVA_CAUSE = EntityDamageCause?.lava ?? "lava";
 const FIRE_CAUSE = EntityDamageCause?.fire ?? "fire";
 const FIRE_TICK_CAUSE = EntityDamageCause?.fireTick ?? "fireTick";
 
-// ============================================================
 // 配置
-// ============================================================
 const CONFIG = {
     // --- 通用 ---
     onlyFamilyUnits: true, // 是否只处理 dm/demon 家族
@@ -59,9 +53,12 @@ const CONFIG = {
     gravityVerticalMaxUp: 32,
 
     // --- 液体窒息 ---
+    // 与 water_traversal 并存：本模块只在「连续 N 次溺水」后做**粗粒度救援**
+    // （传送 / 上推），water_traversal 负责每 tick 的换气跟随。
+    // 想关掉这里（避免两套同时作用）把 handleLiquidSuffocation 置 false。
     handleLiquidSuffocation: true,
     liquidCooldownTicks: 40,
-    liquidHitThreshold: 2, // 连续2次溺水才救，防误触
+    liquidHitThreshold: 2,        // 连续 2 次溺水才救，防误触
     liquidWindowTicks: 80,
     liquidVerticalMaxUp: 16,
     liquidHorizontalRadius: 2,
@@ -71,20 +68,17 @@ const CONFIG = {
     liquidFuseMoveDistSq: 2.25
 };
 
-// ============================================================
 // 缓存区
-// ============================================================
 const EscapeLastTick = new Map();
 const EscapeFailCount = new Map();
 const EscapeFuseState = new Map();
 
+// 液体救援账本（旧 F 版的能力，D 版当年删掉了）
 const LiquidEscapeLastTick = new Map();
 const LiquidHitMap = new Map();
 const LiquidFailState = new Map();
 
-// ============================================================
 // 实体移除清理
-// ============================================================
 registerEntityRemoveHandler("suffocation_cache", (event) => {
     try {
         const id = event.removedEntity?.id;
@@ -98,9 +92,7 @@ registerEntityRemoveHandler("suffocation_cache", (event) => {
     } catch (_) {}
 }, REMOVE_PRIORITY.SUFFOCATION_CACHE);
 
-// ============================================================
 // 工具：纯家族匹配 (dm 和 demon)
-// ============================================================
 function shouldHandle(entity) {
     try {
         if (!entity || !entity.isValid) return false;
@@ -128,9 +120,7 @@ function shouldHandle(entity) {
     }
 }
 
-// ============================================================
 // 工具：获取液体状态
-// ============================================================
 function getLiquidState(entity) {
     const state = { inLiquid: false, inLava: false };
     try {
@@ -161,21 +151,48 @@ function getLiquidState(entity) {
     return state;
 }
 
-// ============================================================
 // 工具：方块判定
-// ============================================================
-function isAirLike(block) { return !block || block.isAir; }
 function isGroundLike(block) { return !!block && !block.isAir && !block.isLiquid; }
+
+// 可通行 = 空气或液体。
+
+// 液体也算「能站」，是为了水下脱困：
+// 被 teleport 挤进海底方块时，脱困落点必然还在水体里，
+// 如果坚持要求空气，水下永远找不到落点，脱困会静默失败。
+function isPassableLike(block) { return !block || block.isAir || block.isLiquid; }
 
 function isStandable(dim, x, y, z) {
     try {
         const bx = Math.floor(x), by = Math.floor(y), bz = Math.floor(z);
         const body = dim.getBlock({ x: bx, y: by, z: bz });
-        if (!isAirLike(body)) return false;
+        if (!isPassableLike(body)) return false;
         const head = dim.getBlock({ x: bx, y: by + 1, z: bz });
-        if (!isAirLike(head)) return false;
+        if (!isPassableLike(head)) return false;
+
+        // 身体格是液体 → 悬浮在水中，不要求脚下有固体。
+        // 水柱中间本来就没有「地面」，坚持要地面会让水下脱困全线找不到落点。
+        if (body && body.isLiquid) return true;
+
         const ground = dim.getBlock({ x: bx, y: by - 1, z: bz });
         return isGroundLike(ground);
+    } catch (_) { return false; }
+}
+
+// 脚部所在格是否为固体 —— 即「已被挤进方块内部」。
+
+// 用来区分两种同时成立的状态：
+//   · 在水里正常溺水（脚格是水）      → 不该走方块脱困
+//   · 卡进水底方块里（脚格是石头沙子）→ 必须走方块脱困
+function isEntityInsideSolid(entity) {
+    try {
+        const dim = entity.dimension;
+        const loc = entity.location;
+        const feet = dim.getBlock({
+            x: Math.floor(loc.x),
+            y: Math.floor(loc.y + 0.2),
+            z: Math.floor(loc.z)
+        });
+        return isGroundLike(feet);
     } catch (_) { return false; }
 }
 
@@ -184,9 +201,7 @@ function isEntityStandableHere(entity) {
     catch (_) { return false; }
 }
 
-// ============================================================
 // 工具：获取挣脱方向
-// ============================================================
 function getEscapeDirection(entity) {
     let dirX = 0, dirZ = 0;
     try {
@@ -212,9 +227,7 @@ function clearDmMovementCommands(entity) {
     } catch (_) {}
 }
 
-// ============================================================
 // 重力方块 (沙子) 判定与垂直逃生
-// ============================================================
 function isGravityBlock(block) {
     try {
         if (!block || block.isAir || block.isLiquid) return false;
@@ -249,9 +262,7 @@ function findVerticalEscapeSpot(entity, maxUp) {
     } catch (_) { return null; }
 }
 
-// ============================================================
 // 普通方块窒息：寻找挣脱点 (带缓存和稀疏采样)
-// ============================================================
 function findEscapeSpot(entity, maxUp = 1) {
     try {
         const dim = entity.dimension, loc = entity.location, dir = getEscapeDirection(entity);
@@ -265,8 +276,12 @@ function findEscapeSpot(entity, maxUp = 1) {
             blockCache.set(key, b); return b;
         }
         function isStandableCached(x, y, z) {
-            const body = getBlockCached(x, y, z); if (!body || !body.isAir) return false;
-            const head = getBlockCached(x, y + 1, z); if (!head || !head.isAir) return false;
+            // 与模块级 isStandable 同口径：液体也算可通行，
+            // 否则水下卡方块时这条搜索路径永远返回 null。
+            const body = getBlockCached(x, y, z); if (!isPassableLike(body)) return false;
+            const head = getBlockCached(x, y + 1, z); if (!isPassableLike(head)) return false;
+            // 悬浮在水中时不要求脚下有固体
+            if (body && body.isLiquid) return true;
             const ground = getBlockCached(x, y - 1, z); return !!ground && !ground.isAir && !ground.isLiquid;
         }
         function makeSpot(x, y, z) { return { x: x + 0.5, y: y, z: z + 0.5 }; }
@@ -307,7 +322,10 @@ function findEscapeSpot(entity, maxUp = 1) {
 }
 
 // ============================================================
-// 液体窒息：可呼吸点与寻找逃生点
+// 液体窒息：可呼吸点 → 逃生点 → 救援
+//
+// 与 water_traversal 的分工：那边每 tick 管换气跟随，这边只在**连续溺水**后
+// 做粗粒度救援（找一个能呼吸的落点直接传过去）。两套都留着，见 CONFIG 注释。
 // ============================================================
 function isBreathableSpot(dim, x, y, z) {
     try {
@@ -347,9 +365,76 @@ function findLiquidEscapeSpot(entity) {
     } catch (_) { return null; }
 }
 
-// ============================================================
+function tryLiquidEscape(entity) {
+    try {
+        if (!entity || !entity.isValid) return;
+        const ls = getLiquidState(entity);
+        if (!ls.inLiquid || ls.inLava) return;
+
+        const nowTick = system.currentTick, loc = entity.location;
+        let failState = LiquidFailState.get(entity.id);
+
+        // 连续失败太多次：只在「挪窝了」或「冷静期过了」之后才重试，
+        // 期间给一点点浮力，别让她沉底。
+        if (failState && failState.count >= CONFIG.liquidMaxFailCount) {
+            const moved = (loc.x - failState.x) ** 2 + (loc.y - failState.y) ** 2 + (loc.z - failState.z) ** 2 >= CONFIG.liquidFuseMoveDistSq;
+            const expired = nowTick - failState.tick >= CONFIG.liquidFuseRecoverTicks;
+            if (!moved && !expired) {
+                try { entity.applyImpulse({ x: 0, y: 0.10, z: 0 }); } catch (_) {}
+                return;
+            }
+            LiquidFailState.delete(entity.id); failState = undefined;
+        }
+
+        const spot = findLiquidEscapeSpot(entity);
+        if (spot) {
+            try {
+                // 骑乘时连载具一起送走（teleportEscapeTarget 内部处理降级）
+                teleportEscapeTarget(entity, spot, { checkForBlocks: true });
+                clearDmMovementCommands(entity);
+                LiquidFailState.delete(entity.id); LiquidHitMap.delete(entity.id);
+                suffocationLog(`[SuffocationEscape] ${entity.typeId} 液体窒息救援成功`);
+                return;
+            } catch (_) {}
+        }
+
+        const newCount = (failState?.count ?? 0) + 1;
+        LiquidFailState.set(entity.id, { count: newCount, tick: nowTick, x: loc.x, y: loc.y, z: loc.z });
+        try { entity.applyImpulse({ x: 0, y: 0.16, z: 0 }); } catch (_) {}
+    } catch (_) {}
+}
+
+/*
+ * 脱困传送：骑乘时把载具一起送走。
+ * 对她本人 teleport 会直接断掉骑乘关系（人掉下来、载具留在原地），所以骑乘时目标是
+ * `entityRidingOn` —— 她作为骑手会跟着载具过去，两个一起脱困。
+ * 载具体积比她大，同一个落点可能放不下（teleport 的 checkForBlocks 会抛错），这时退化为她本人
+ * 脱困：会下马，但先保命。
+ */
+function teleportEscapeTarget(entity, spot, options) {
+    let mount;
+
+    try {
+        mount = entity.getComponent("minecraft:riding")?.entityRidingOn;
+    } catch (_) {
+        mount = undefined;
+    }
+
+    if (mount && mount.isValid) {
+        try {
+            mount.teleport(spot, options);
+            try { mount.clearVelocity(); } catch (_) { }
+            return;
+        } catch (_) {
+            // 落点放不下载具 → 走下面的降级路径
+        }
+    }
+
+    entity.teleport(spot, options);
+    try { entity.clearVelocity(); } catch (_) { }
+}
+
 // 核心执行逻辑
-// ============================================================
 function tryEscape(entity) {
     try {
         if (!entity || !entity.isValid) return;
@@ -360,8 +445,7 @@ function tryEscape(entity) {
             const vSpot = findVerticalEscapeSpot(entity, CONFIG.gravityVerticalMaxUp ?? 32);
             if (vSpot) {
                 try {
-                    entity.teleport(vSpot, { checkForBlocks: true });
-                    try { entity.clearVelocity(); } catch (_) {}
+                    teleportEscapeTarget(entity, vSpot, { checkForBlocks: true });
                     clearDmMovementCommands(entity);
                     EscapeFailCount.set(entity.id, 0); EscapeFuseState.delete(entity.id);
                     suffocationLog(`[SuffocationEscape] ${entity.typeId} 沙子垂直挣脱成功`);
@@ -375,8 +459,7 @@ function tryEscape(entity) {
         const spot = findEscapeSpot(entity, maxUp);
         if (spot) {
             try {
-                entity.teleport(spot, { checkForBlocks: true });
-                try { entity.clearVelocity(); } catch (_) {}
+                teleportEscapeTarget(entity, spot, { checkForBlocks: true });
                 clearDmMovementCommands(entity);
                 EscapeFailCount.set(entity.id, 0); EscapeFuseState.delete(entity.id);
                 return;
@@ -395,46 +478,7 @@ function tryEscape(entity) {
     } catch (_) {}
 }
 
-function tryLiquidEscape(entity) {
-    try {
-        if (!entity || !entity.isValid) return;
-        const ls = getLiquidState(entity);
-        if (!ls.inLiquid || ls.inLava) return;
-
-        const nowTick = system.currentTick, loc = entity.location;
-        let failState = LiquidFailState.get(entity.id);
-
-        if (failState && failState.count >= CONFIG.liquidMaxFailCount) {
-            const moved = (loc.x - failState.x) ** 2 + (loc.y - failState.y) ** 2 + (loc.z - failState.z) ** 2 >= CONFIG.liquidFuseMoveDistSq;
-            const expired = nowTick - failState.tick >= CONFIG.liquidFuseRecoverTicks;
-            if (!moved && !expired) {
-                try { entity.applyImpulse({ x: 0, y: 0.10, z: 0 }); } catch (_) {}
-                return;
-            }
-            LiquidFailState.delete(entity.id); failState = undefined;
-        }
-
-        const spot = findLiquidEscapeSpot(entity);
-        if (spot) {
-            try {
-                entity.teleport(spot, { checkForBlocks: true });
-                try { entity.clearVelocity(); } catch (_) {}
-                clearDmMovementCommands(entity);
-                LiquidFailState.delete(entity.id); LiquidHitMap.delete(entity.id);
-                suffocationLog(`[SuffocationEscape] ${entity.typeId} 液体窒息救援成功`);
-                return;
-            } catch (_) {}
-        }
-
-        const newCount = (failState?.count ?? 0) + 1;
-        LiquidFailState.set(entity.id, { count: newCount, tick: nowTick, x: loc.x, y: loc.y, z: loc.z });
-        try { entity.applyImpulse({ x: 0, y: 0.16, z: 0 }); } catch (_) {}
-    } catch (_) {}
-}
-
-// ============================================================
 // 事件入口：伤害检测与分流
-// ============================================================
 registerAfterHurtHandler("suffocation_escape", (event) => {
     try {
         const victim = event.hurtEntity;
@@ -450,18 +494,31 @@ registerAfterHurtHandler("suffocation_escape", (event) => {
 
         const nowTick = system.currentTick;
 
-        // ============================================================
-        // 2. 液体窒息 / 溺水分支 (必须放在普通窒息前面，且不能被 isInLiquid 拦截)
-        // ============================================================
-        if (CONFIG.handleLiquidSuffocation) {
-            const isLiquidSuffocation = (cause === DROWNING_CAUSE) || (cause === SUFFOCATION_CAUSE && liquidState.inLiquid);
-            
+        // 脚格是否为固体 —— 液体分支与方块分支共用，只算一次。
+        // 只有溺水 / 窒息两种 cause 用得到，其它伤害（箭、摔落、爆炸）不浪费 getBlock。
+        const needSolidProbe = (cause === DROWNING_CAUSE || cause === SUFFOCATION_CAUSE);
+        const insideSolid = needSolidProbe ? isEntityInsideSolid(victim) : false;
+
+        // 2. 液体窒息 / 溺水
+        //
+        // 🔴 脚格是固体（`insideSolid`）时**一律不走这里**：那是「被挤进方块」，
+        //    上浮永远出不来，只能走下面的方块脱困分支去找空位钻出去。
+        //    这也是 D 版当初加的 isEntityInsideSolid 存在的意义。
+        if (CONFIG.handleLiquidSuffocation && needSolidProbe) {
+            const isLiquidSuffocation = !insideSolid
+                && (cause === DROWNING_CAUSE
+                    || (cause === SUFFOCATION_CAUSE && liquidState.inLiquid));
+
             if (isLiquidSuffocation) {
                 let record = LiquidHitMap.get(victim.id);
-                if (!record || nowTick - record.tick > CONFIG.liquidWindowTicks) record = { count: 0, tick: nowTick };
-                record.count += 1; record.tick = nowTick;
+                if (!record || nowTick - record.tick > CONFIG.liquidWindowTicks) {
+                    record = { count: 0, tick: nowTick };
+                }
+                record.count += 1;
+                record.tick = nowTick;
                 LiquidHitMap.set(victim.id, record);
 
+                // 连击不够就放着 —— 单次溺水交给 water_traversal 的换气
                 if (record.count < CONFIG.liquidHitThreshold) return;
 
                 const lastL = LiquidEscapeLastTick.get(victim.id) ?? -9999;
@@ -469,16 +526,34 @@ registerAfterHurtHandler("suffocation_escape", (event) => {
                 LiquidEscapeLastTick.set(victim.id, nowTick);
                 LiquidHitMap.set(victim.id, { count: 0, tick: nowTick });
 
-                system.run(() => { try { if (victim && victim.isValid) tryLiquidEscape(victim); } catch (_) {} });
-                return; // 液体分支结束，直接 return
+                system.run(() => {
+                    try { if (victim && victim.isValid) tryLiquidEscape(victim); } catch (_) {}
+                });
+                return;
             }
         }
 
-        // ============================================================
+        // 2b. 单纯溺水但不救（开关关掉时）→ 交 water_traversal
+        if (cause === DROWNING_CAUSE) return;
+
         // 3. 普通方块窒息分支
-        // ============================================================
         if (cause !== SUFFOCATION_CAUSE) return;
-        if (liquidState.inLiquid) return; // 只有普通窒息才排除液体
+
+        // 是否已经被挤进固体方块内部。
+        //
+        // 「在水里」和「卡在方块里」会同时成立：近战水下冲刺 teleport
+        // 落点被方块占据就是这种状态。方块窒息必须找空位钻出去，
+        // 靠上浮是出不来的。（insideSolid 在上面已算过，这里直接复用）
+
+        // 这里原先是 `if (liquidState.inLiquid) return;`
+
+        // 那条短路会把「水下被挤进方块」整个挡在门外：
+        // 近战水下冲刺 teleport 落点被方块占据时，
+        // 实体同时满足 inLiquid（周围是水）和 suffocation（身在方块里），
+        // 于是被当成普通溺水跳过，卡在里面一路窒息到死。
+
+        // 改为：只有「确实没卡在固体方块里」才短路。
+        if (liquidState.inLiquid && !insideSolid) return;
 
         // 熔断检查
         const fuse = EscapeFuseState.get(victim.id);

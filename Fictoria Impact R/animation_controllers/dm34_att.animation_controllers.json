@@ -1,0 +1,39 @@
+{
+	"format_version": "1.10.0",
+	"animation_controllers": {
+		// 这条控制器是 controller.animation.att 的"可关版"。
+		//
+		// 为什么要另起一条：controller.animation.att 是全实体共用的原版近战挥砍控制器，
+		// 它只看 variable.attack_time > 0 就进 attacking、播 animation.humanoid.att.rotations。
+		// 女仆的 melee_box_attack 在长矛模式下同样会推 attack_time，于是剑的下劈动画
+		// 会跟长矛戳刺同时作用在 rightArm 上 —— 两套动作按不同周期混在一起，
+		// 实测观感就是"挥长矛跟 0.1 倍速慢动作一样"。override_previous_animation
+		// 压不住控制器之间的叠加，只能在源头上不让它播。
+		//
+		// variant 8 = 长矛档（见 common/attackable_target_manager.js 的 modes 8）。
+		// 其余档位走 default / attacking，行为和原来的 controller.animation.att 完全一致。
+		"controller.animation.dm34_att": {
+			"initial_state": "default",
+			"states": {
+				"default": {
+					"transitions": [
+						{ "spear": "query.variant == 8" },
+						{ "attacking": "variable.attack_time > 0.0" }
+					]
+				},
+				"attacking": {
+					"animations": [ "attack.rotations" ],
+					"transitions": [
+						{ "default": "variable.attack_time <= 0.0" },
+						{ "spear": "query.variant == 8" }
+					]
+				},
+				"spear": {
+					"transitions": [
+						{ "default": "query.variant != 8" }
+					]
+				}
+			}
+		}
+	}
+}

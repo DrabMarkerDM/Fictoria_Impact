@@ -1,40 +1,9 @@
-// ============================================================
-// perf_probe.js — 本地性能探针
-//
-// ── 它和官方 /script profiler 的分工 ──────────────────────
-//
-// 官方 profiler（/script profiler start|stop → .cpuprofile）：
-//   采样式，手动起停，落盘后用 VSCode 看 self / total time
-//   和 call count。适合「事后定位热点」。
-//   1.19.10 起还覆盖核心 Bedrock API 调用 —— 正好对应
-//   我们关心的 native 调用次数。
-//
-// 本模块补的是另一件事：游戏内实时、零落盘、可长期挂着。
-//   测 tick 漂移、分段平均耗时、调用计数、native 单次成本。
-//   两者互补，不是替代。
-//
-// ── 能测什么 / 不能测什么（别抱错期望）────────────────────
-//
-// 能测：
-//   · tick 漂移   → 真实 mspt / tps。跟不跟得上，这里说了算。
-//   · 分段耗时    → 成对打点，累计平均。单次测不准，但
-//                   Date.now() 的取整在相位均匀时无偏，
-//                   几千次之后平均值是可用的。
-//   · 调用计数    → 整数累加，绝对精确。
-//   · 微基准      → 标定「一次 native 调用 ≈ 多少 μs」，
-//                   用来把「省了 8 次 getProperty」换算成
-//                   「省了 X μs / tick」。
-//
-// 不能测：
-//   单次调用的绝对耗时。Date.now() 分辨率 1ms，量不出
-//   0.3μs 的调用。要那个精度只能看 profiler 的 call count，
-//   用调用次数反推。
-//
-// ── 成本 ─────────────────────────────────────────────────
-// 关闭状态：零。不挂 interval，不读时钟。
-// 开启状态：每 tick 一次自增，每 20 tick 一次 Date.now()
-//           和一次 system.currentTick。
-// ============================================================
+// perf_probe.js — 本地性能探针。
+
+// 补官方 /script profiler 之外的事：游戏内实时、零落盘、可长期挂着。
+// 能测：tick 漂移（真实 mspt/tps）、分段平均耗时、调用计数、native 单次成本。
+// 不能测：单次调用的绝对耗时（Date.now 分辨率 1ms）。
+// 成本：关闭时为零；开启时每 tick 一次自增 + 每 20 tick 一次取时钟。
 
 import {
     system,
@@ -43,9 +12,7 @@ import {
     CustomCommandStatus
 } from "@minecraft/server";
 
-// ============================================================
 // 常量
-// ============================================================
 
 // 采样窗口（tick）。20 tick = 1 秒
 const SAMPLE_WINDOW_TICKS = 20;
@@ -57,7 +24,7 @@ const TICK_BUDGET_MS = 50;
 const SPIKE_MS = 55;
 
 // dw/dt 超过这个值判定为暂停 / 切后台，丢弃该窗口
-//
+
 // 打开菜单、切出游戏时 system.currentTick 会停，
 // 但 wall clock 照走，不丢弃会得到一个巨大的假值。
 const SUSPEND_RATIO = 500;
@@ -72,9 +39,7 @@ const BENCH_BUDGET_MS = 60;
 // 微基准预热时长
 const BENCH_WARMUP_MS = 5;
 
-// ============================================================
 // 状态
-// ============================================================
 
 let active = false;
 let intervalHandle = null;
@@ -103,7 +68,7 @@ const Counters = new Map();
 const Sink = { v: 0 };
 
 // 微基准用的 dynamic property 键
-//
+
 // 必须是业务代码完全不认识的独立名字。
 // 借用 dm:cmd_vel_* 会让「改造前通道」被测试自己写脏，
 // 测出来的数就不能代表真实业务成本了。
@@ -112,9 +77,7 @@ const BENCH_DP_KEY = "perf:bench_dp";
 // 微基准挂靠的实体（由 buildBenchCases 写入，跑完清理键）
 let benchDpEntity = null;
 
-// ============================================================
 // 采样
-// ============================================================
 
 function sample() {
     if (++windowTicks < SAMPLE_WINDOW_TICKS) return;
@@ -155,15 +118,13 @@ function sample() {
     if (ratio > SPIKE_MS) spikeCount++;
 }
 
-// ============================================================
 // 对外 API
-// ============================================================
 
 export const PerfProbe = {
 
     // --------------------------------------------------------
     // 总开关状态（由 initPerfProbe 写入 main.js 的常量）
-    //
+
     // master = false 时：
     //   · 不注册 scriptevent，命令完全无响应
     //   · active 永远 false，所有埋点零开销
@@ -227,7 +188,7 @@ export const PerfProbe = {
         tps = 20;
 
         // 采样窗口必须跟着一起重置。
-        //
+
         // 只清账本不清窗口的话，start() 在 active 时直接 return，
         // windowStartWall 仍是旧的 —— 下一个窗口会把 reset 之前
         // 那段时长算进 dWall，得到一个偏高的假 mspt。
@@ -242,16 +203,9 @@ export const PerfProbe = {
         }
     },
 
-    // --------------------------------------------------------
-    // 埋点：成对使用
-    //
-    //   const t = PerfProbe.now();
-    //   doSomething();
-    //   PerfProbe.lap("engine.update", t);
-    //
-    // 关闭状态 now() 返回 0、lap() 立刻 return，
-    // 埋点代码在关闭时只付两次函数调用（约 10ns）。
-    // --------------------------------------------------------
+        // 埋点成对使用：
+        //   const t = PerfProbe.now();  doSomething();  PerfProbe.lap("engine.update", t);
+        // 关闭时 now() 返回 0、lap() 直接 return，只付两次函数调用。
     now() {
         return active ? Date.now() : 0;
     },
@@ -277,7 +231,7 @@ export const PerfProbe = {
 
     // --------------------------------------------------------
     // 计数：调用次数是确定性指标，比耗时更硬
-    //
+
     //   PerfProbe.count("getEntities");
     // --------------------------------------------------------
     count(tag, n) {
@@ -359,15 +313,8 @@ export const PerfProbe = {
     }
 };
 
-// ============================================================
-// 聊天栏简报（一行）
-//
-// 给 /perf:on 用。每个简报周期打一行，只留最关键的几个数：
-//   · mspt / tps / 丢帧        —— 跟不跟得上
-//   · /tick 最高的两段         —— 谁在吃预算
-//
-// 完整明细仍然走 /perf:off 或 /scriptevent perf:report。
-// ============================================================
+// 聊天栏简报（一行）：mspt / tps / 丢帧 + 最贵的两段。
+// 完整明细走 /perf:off 或 /scriptevent perf:report。
 
 // 简报里最多显示几段
 const BRIEF_TOP_SECTIONS = 2;
@@ -408,16 +355,8 @@ function briefLine() {
     return parts.join(" §8| ");
 }
 
-// ============================================================
-// 微基准
-//
-// 目的不是「测出绝对耗时」，而是拿到换算系数：
-//   一次 entity.hasTag() 到底值多少钱？
-//   把字面量 filter 提成常量到底省多少？
-//
-// 每个 case 单独占一个 tick，最多跑 BENCH_BUDGET_MS 毫秒，
-// 不会把主线程堵死。
-// ============================================================
+// 微基准：目的不是绝对耗时，而是换算系数（一次 hasTag 值多少钱）。
+// 每个 case 单独占一个 tick，最多跑 BENCH_BUDGET_MS 毫秒。
 
 // 模块常量 filter —— 和调用点用的一模一样
 const FILTER_DM = { families: ["dm"] };
@@ -530,14 +469,8 @@ function buildBenchCases() {
         fn: () => player.matches({ families: ["dm"] })
     });
 
-    // 11 / 12. dynamic property 读写 —— move_command_store 改造前的通道
-    //
-    // 走位指令原来走 dm:cmd_vel_x/y/z，每单位每 tick 3 读 + 不定期 1 写。
-    // 这两个 case 给出「一次 DP 访问折算成多少次 Map.get」，
-    // 是这轮改造收益的直接度量，不受 mspt 50 封顶影响。
-    //
-    // 先写一个初值：读一个从未存在的键可能走短路径，
-    // 那测出来的就不是业务里真实命中的那条路了。
+        // 11/12. dynamic property 读写 —— 走位指令改造前的通道。
+        // 先写初值：读不存在的键可能走短路径，测出来的不是业务真实路径。
     try {
         player.setDynamicProperty(BENCH_DP_KEY, 0);
     } catch (_) { }
@@ -550,10 +483,10 @@ function buildBenchCases() {
     });
 
     // 写：值交替 0/1。
-    //
+
     // 反复写同一个值可能被引擎的脏检查吃掉，而业务里
     // 速度每 tick 都在变，必须让值真的发生变化。
-    //
+
     // 必须 return true：benchOne 用 `if (fn(i)) Sink.v++` 防 JIT 消除，
     // setDynamicProperty 本身返回 undefined，直接返回会被优化掉。
     cases.push({
@@ -567,9 +500,8 @@ function buildBenchCases() {
     return cases;
 }
 
-/**
+/*
  * 跑一遍微基准。每个 case 占一个 tick，跑完回调。
- *
  * @param {(lines: string[]) => void} done
  */
 export function runBenchmark(done) {
@@ -598,13 +530,11 @@ export function runBenchmark(done) {
     step();
 }
 
-// ============================================================
 // 清掉微基准写进实体的键
-//
+
 // setDynamicProperty(key, undefined) 等价于删除。
 // 不清的话玩家实体上会永久挂一个 perf:bench_dp，
 // 之后每次存档都多带一个无意义的键。
-// ============================================================
 function dropBenchDp() {
     const e = benchDpEntity;
 
@@ -655,7 +585,7 @@ function formatBenchResults(results) {
 
     // --------------------------------------------------------
     // 走位指令通道：动态属性 vs 内存表
-    //
+
     // 这是 move_command_store 改造的收益口径。
     // 旧路径：每单位每 tick 3 次 getDynamicProperty（x/y/z）。
     // 新路径：1 次 Map.get + 3 次普通字段读。
@@ -671,7 +601,7 @@ function formatBenchResults(results) {
         );
 
         // 净节省：3 次 DP 读 换成 1 次 Map.get
-        //
+
         // 100 单位 × 20tps = 2000 次/秒，
         // μs → ms 要再除 1000，合起来就是 ×2。
         const saved = dpRead.us * 3 - mapGet.us;
@@ -696,31 +626,11 @@ function formatBenchResults(results) {
     return out;
 }
 
-// ============================================================
-// 控制通道
-//
-// ── 日常用这 2 条自定义命令 ────────────────────────────────
-//   /perf:on      先标定单次调用成本，再开始采样
-//   /perf:off     停止采样并输出完整报告
-//
-// 顺序：on → 等 30 秒 → off
-//
-// on 自动串一次 bench：停采样 → 跑标定（约 1 秒）→ 出成本表
-// → 再从干净账本起跑。顺序反过来就等于把 bench 自己测进账本。
-//
-// /perf:bench 保留，用于「只想标定、不打断正在进行的采样」。
-//
-// ── /scriptevent 备用通道（功能更全）──────────────────────
-//   /scriptevent perf:on       开始采样（不清账本）
-//   /scriptevent perf:off      停止并打印报告
-//   /scriptevent perf:report   立刻打印报告（不停采样）
-//   /scriptevent perf:reset    清空账本
-//   /scriptevent perf:bench    跑微基准
-//   /scriptevent perf:hud      切换 actionbar 实时显示
-//
-// 自定义命令只在 system.beforeEvents.startup 时注册，
-// 改完总开关必须退出世界重进才生效。
-// ============================================================
+// 控制通道：
+//   /perf:on   标定单次成本 → 开始采样      /perf:off  停止并出报告
+//   /perf:bench 只标定，不打断采样
+//   /scriptevent perf:on|off|report|reset|bench|hud（功能更全，共享同一账本）
+// 自定义命令只在 startup 注册，改完总开关必须退出世界重进。
 
 let hudEnabled = false;
 let hudHandle = null;
@@ -757,15 +667,8 @@ function updateHud() {
     } catch (_) { }
 }
 
-/**
- * 挂载探针。
- *
- * @param {boolean} masterEnabled
- *   main.js 里的总开关。为 false 时直接返回：
- *   不注册 scriptevent、不挂 interval、所有埋点保持零开销。
- *   为 true 时注册命令通道并立刻开始采样，
- *   之后仍可用 /scriptevent perf:off 临时停止。
- */
+/** 挂载探针。masterEnabled = false 时直接返回：不注册命令、不挂 interval，埋点零开销。
+ *  @param {boolean} masterEnabled main.js 的总开关 */
 export function initPerfProbe(masterEnabled) {
     PerfProbe.master = (masterEnabled === true);
 
@@ -849,22 +752,9 @@ function handleCommand(ev) {
     }
 }
 
-// ============================================================
-// 自定义命令 /perf:on、/perf:off
-//
-// 依据：@minecraft/server 2.1.0 起提供 customCommandRegistry，
-// 文档无 experimental 标记 → 稳定 API。项目钉 2.7.0，够用，
-// 不需要 Beta APIs 开关。
-//
-// 三条硬约束（决定了下面的写法）：
-//   1. 只能在 system.beforeEvents.startup 里注册，且整个进程
-//      只允许注册一次 —— 所以订阅写在模块顶层，不放 init 里。
-//   2. 命令名必须带命名空间 → 是 /perf:on，不是 /perf on。
-//   3. registerCommand 在 restricted-execution 模式下会抛错。
-//
-// 与 /scriptevent perf:* 并存：两套入口，共享同一份账本。
-// 总开关关闭时这里直接 return，命令在游戏里根本不存在。
-// ============================================================
+// 自定义命令 /perf:on、/perf:off（customCommandRegistry，2.1.0 起是稳定 API）。
+// 三条约束：只能在 system.beforeEvents.startup 注册且全进程一次（订阅写在模块顶层）；
+// 命令名必须带命名空间；restricted-execution 下 registerCommand 会抛错。
 
 // 简报周期（tick）。100 tick = 5 秒
 const CHAT_BRIEF_TICKS = 100;
@@ -875,13 +765,13 @@ let chatBriefHandle = null;
 let chatBriefPlayer = null;
 
 // /perf:on 正在跑微基准
-//
+
 // bench 要等约 1 秒才回调，这期间再打一次 /perf:on
 // 会起第二串 bench，两边抢 tick 而且账本会被清两次。
 let onPending = false;
 
 // on 的代次
-//
+
 // 场景：/perf:on 之后 1 秒内又打了 /perf:off。
 // off 只能停掉当前采样，拦不住已经在排队的那串 bench ——
 // 回调跑完还会把采样重新拉起来，玩家以为停了其实在跑。
@@ -924,7 +814,7 @@ function pickTarget(origin) {
 }
 
 // 单行发送：收件人失效就退回广播
-//
+
 // 异步回调用这个而不是 sendLines —— 那边要 origin，
 // 而 origin 在命令返回后就不保证可用了。
 function tell(target, text) {
@@ -1026,7 +916,7 @@ system.beforeEvents.startup.subscribe((init) => {
                 const gen = ++onGen;
 
                 // 先停采样。
-                //
+
                 // bench 的 13 个 case 各占一个 tick，如果让它
                 // 和采样并行，这 1 秒里的窗口会全部变成坏样本。
                 PerfProbe.stop();
@@ -1103,7 +993,7 @@ system.beforeEvents.startup.subscribe((init) => {
 
         // --------------------------------------------------------
         // /perf:bench —— 微基准
-        //
+
         // 与采样互不干扰：bench 不写账本，只占 tick。
         // 顺序建议先 bench 再 /perf:on —— reset() 会把
         // bench 期间产生的采样窗口一并清掉。

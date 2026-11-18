@@ -684,7 +684,7 @@
           "command": [
             "tag @s add dm_skill_on",
             "tag @s remove dm_has_target",
-            "playsound sss @a[r=33] ~~~ 2.0 0.9"
+            "playsound sss @a[r=33] ~~~ 1.1 0.9"
           ]
         },
         "set_property": {

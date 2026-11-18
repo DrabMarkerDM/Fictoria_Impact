@@ -798,7 +798,7 @@
       "satt": {
         "queue_command": {
           "command": [
-            "playsound dm60a @a[r=60] ~~~ 2.0 1.0",
+            "playsound dm60a @a[r=60] ~~~ 1.1 1.0",
             "particle dm:dm60_att_6 ^ ^2.2 ^2.2",
             "damage @e[tag=!dm,family=monster,r=18] 209 magic entity @s",
             "execute at @e[type=!player:dm60,tag=!dm,family=monster,r=18] run particle dm:dm60_att_5 ~~1.4~0.2"

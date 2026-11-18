@@ -1,4 +1,4 @@
-import { world, system, EntityDamageCause } from "@minecraft/server";
+import { world, system } from "@minecraft/server";
 import { MovementRanged } from "./movement_ranged.js";
 import { MovementMelee, isAlliedAttacker } from "./movement_melee.js";
 import { TacticalClockManager } from "./tactical_clock_manager.js";
@@ -14,19 +14,22 @@ import {
 import {
     peekMoveCmd,
     clearMoveCmd,
-    gcMoveCmd
+    gcMoveCmd,
+    JUMP_IDLE
 } from "./move_command_store.js";
+import { gcDrowningState } from "./water_traversal.js";
 import {
     FACTION,
     factionOf,
     isInCombat,
     isCombatCapable
 } from "./camp_faction.js";
-import { PerfProbe } from "./perf_probe.js";
+// 骑乘熔断：玩家骑着她时跳过整个走位分发
+import { isPlayerMounted } from "../player/ride_guard.js";
+// 女仆登记表：本引擎每周期扫 dm 家族时顺手登记，dm34 侧直接复用，不再各扫一遍
+import { clearMaids, registerMaid, isMaidTypeId } from "../dm34/maid_registry.js";
 
-// ============================================================
 // 日志开关
-// ============================================================
 const DEBUG_ENGINE = false;
 
 function engineLog(...args) {
@@ -35,75 +38,34 @@ function engineLog(...args) {
     }
 }
 
-// ============================================================
 // 缓存区
-// ============================================================
 const BlockedTargetTicks = new Map();
 export const LastDamageTick = new Map();
 export const VictimDamageHistoryMap = new Map();
 const LastSwitchTick = new Map();
 const ForcedTargets = new Map();
 
-// ============================================================
-// ActiveMovers
-//
-// 长期方案 B：
-// main.js 不再查询所有 DM 实体。
-// manager 在 movement 执行后，把当前有速度的单位同步到这里。
-// main.js 每 tick 只遍历这个 Map。
-// ============================================================
+// ActiveMovers：manager 在 movement 执行后把有速度的单位同步到这里，main.js 每 tick 只遍历它。
 export const ActiveMovers = new Map();
 
-// ============================================================
-// 非战斗清速状态
-//
-// 用于记录上一轮是否处于战斗。
-// 当 tag 被 JSON 层移除后，只清理一次速度，避免反复写 0。
-// ============================================================
+// 非战斗清速状态：tag 被 JSON 移除后只清一次速度，避免反复写 0。
 const PreviousCombatState = new Set();
 
-// ============================================================
-// 敌人快照常量
-//
-// 现在不再让每个单位单独查询附近怪物，
-// 而是每个维度根据玩家位置建立一次敌人快照。
-//
-// ENEMY_SNAPSHOT_RADIUS 默认 96，是为了兼容配置里最大的 alertRange。
-// 如果后续想进一步降低开销，可以改成 80 / 64。
-// ============================================================
+// 敌人快照：每维度按玩家位置建一次（不再每个单位各自查询）。半径 96 兼容最大的 alertRange。
 const ENEMY_FAMILY = "monster";
 const ENEMY_SNAPSHOT_RADIUS = 96;
 const ENEMY_CELL = 24;
 const ANCHOR_CELL = 32;
 const MAX_ENEMY_ANCHORS = 24;
 
-// ============================================================
-// 受管单位的家族标签
-//
-// 原实现按 REGISTRY_ENTRIES 逐个 typeId 调 getEntities({type})，
-// 35 个注册项 = 每个维度每 5 tick 35 次查询。
-//
-// 现在改为按家族查询，再用 typeId 在配置表里查配置。
-// dm     = 友方干员 player:dm0 ~ dm63 / asuna / kirito / test1
-// demon  = 恶魔军团（当前不在配置表内，会走熔断分支）
-//
-// ⚠ 每个家族单独查一次，不能合并成一个数组：
-//   EntityFilter.families 是 AND 语义，合并会导致一个都匹配不到。
-//
-// 已验证：35 个注册实体全部带 dm 家族，
-// 且没有任何 component_group 会覆盖掉 dm 家族，
-// 所以家族查询不会漏掉注册单位。
-// ============================================================
+// 受管单位按家族查询（原来 35 个 typeId 各查一次 = 每维度每 5 tick 35 次）。
+//   dm    = 干员 player:dm0~dm63 / asuna / kirito / test1
+//   demon = 恶魔军团（不在配置表内，走熔断分支）
+// families 是 AND 语义，每个家族必须单独查一次。
 const UNIT_FAMILIES = ["dm", "demon"];
 
-// 每个家族的查询过滤器。
-//
-// 必须是模块级常量：写在调用点的 { families: [family] } 每次都是
-// 新对象 + 新数组，而这里是每周期 × 每维度都要发一次的查询。
-//
-// demon 侧加 excludeFamilies 是防御性去重：实测 205 个实体里没有
-// 同时带 dm 与 demon 的，但万一将来出现，不排除会被扫进两个桶、
-// 每周期解算两次。excludeFamilies 是 OR 语义，单个值无歧义。
+// 家族查询过滤器（必须模块级常量：每周期每维度都发一次）。
+// demon 侧的 excludeFamilies 是防御性去重，OR 语义，单值无歧义。
 const UNIT_QUERY_FILTERS = {
     dm: { families: ["dm"] },
     demon: { families: ["demon"], excludeFamilies: ["dm"] }
@@ -113,15 +75,60 @@ const UNIT_QUERY_FILTERS = {
 const UnregisteredUnitReported = new Set();
 const MAX_UNREGISTERED_REPORT = 64;
 
-// ============================================================
+// 这些实体带 dm 家族 **不是为了被索敌**，而是让 `owner_hurt_target` / 友伤判定
+// 能认出"自己人"（子弹不打死友军）。它们不是可索敌单位：
+//   bullet:  子弹 / 投掷物 / 横扫特效 / 爆点（F 包 83 个）
+//   mob:     咆哮特效、召唤物（roar / ex / mon3tr / protecter …）
+// 熔断跳过是对的（不跑 AI、不写属性），但没必要 warn —— 上百个 typeId 每个报一条
+// 会把日志刷满，真正要看的信息会被埋掉。
+const NON_UNIT_PREFIXES = ["bullet:", "mob:"];
+
+function isNonUnitType(typeId) {
+    for (const prefix of NON_UNIT_PREFIXES) {
+        if (typeId.startsWith(prefix)) return true;
+    }
+    return false;
+}
+
+// 未配置的干员（player: 前缀）单独攒起来，合成**一条**汇总再报，
+// 不再逐个 typeId 一条 warn。
+const UnregisteredDmUnits = new Set();
+let unregReportScheduled = false;
+
+function flushUnregisteredDmUnits() {
+    unregReportScheduled = false;
+    const list = Array.from(UnregisteredDmUnits);
+    if (!list.length) return;
+    console.warn(
+        `[DM-Engine] ${list.length} 个干员没有索敌配置（按各自 JSON 原生 AI 运行）：` +
+        list.join(", ")
+    );
+}
+
 // 熔断：实体带 dm / demon 家族，但配置表里没有它
-//
+
 // 直接跳过，不跑任何 AI 分支，也不写任何 DynamicProperty。
-// ============================================================
 function reportUnregisteredUnit(typeId) {
     try {
         if (!typeId) return false;
+
+        // 子弹 / 特效 / 召唤物：静默跳过（见 NON_UNIT_PREFIXES）
+        if (isNonUnitType(typeId)) return false;
+
         if (UnregisteredUnitReported.has(typeId)) return false;
+
+        // 干员：攒成一条汇总，避免 28 条独立 warning
+        if (typeId.startsWith("player:")) {
+            UnregisteredUnitReported.add(typeId);
+            UnregisteredDmUnits.add(typeId);
+            if (!unregReportScheduled) {
+                unregReportScheduled = true;
+                try { system.run(flushUnregisteredDmUnits); }
+                catch (_) { flushUnregisteredDmUnits(); }
+            }
+            return true;
+        }
+
         if (UnregisteredUnitReported.size >= MAX_UNREGISTERED_REPORT) return false;
 
         UnregisteredUnitReported.add(typeId);
@@ -138,9 +145,7 @@ function reportUnregisteredUnit(typeId) {
     }
 }
 
-// ============================================================
 // 配置规范化工具
-// ============================================================
 function normalizeConfig(value) {
     if (Array.isArray(value)) {
         return value.map(normalizeConfig);
@@ -164,9 +169,7 @@ function normalizeConfig(value) {
     return value;
 }
 
-// ============================================================
 // TargetSensorManager
-// ============================================================
 const TargetSensorManager = {
     _tracking: new Map(),
     _byTarget: new Map(),
@@ -304,9 +307,7 @@ const TargetSensorManager = {
     }
 };
 
-// ============================================================
 // 配置表
-// ============================================================
 const RAW_DmTargetRegistry = {
     "player:dm34_1": {
         modes: {
@@ -404,6 +405,22 @@ const RAW_DmTargetRegistry = {
                 combatType: "ranged",
                 strafeRange: 18,
                 strafeSpeed: 0.25,
+                clock_time: false,
+                supportEnabled: true
+            },
+            // 长矛（spear 组，variant 8）。没有 8 档 → resolveStrictConfig 返回 null，
+            // 长矛形态进不了战斗引擎。reach 3.2 配 3.8 接敌距离。
+            8: {
+                normalRange: 22,
+                alertRange: 33,
+                focus: 3.8,
+                speed: 20,
+                combatType: "melee",
+                strafeSpeed: 0.22,
+                chargeSpeed: 2.5,
+                chargeRange: 10,
+                maxChargeDist: 10,
+                meleeRange: 3.8,
                 clock_time: false,
                 supportEnabled: true
             }
@@ -863,19 +880,9 @@ const RAW_DmTargetRegistry = {
     }
 };
 
-// ============================================================
-// demon 默认档（宽进策略）
-//
-// ⚠ 绝对不要把它塞进 DmTargetRegistry。
-//   processHurtSupport 的触发条件是 DmTargetRegistry[victim.typeId] 存在
-//   （见下面的受击链路），一旦注册表里有 demon 项，所有 demon 挨打都会
-//   走支援广播 —— 而 demon 明确不接支援系统（自然生成、数量大）。
-//   保持注册表里只有 dm 项，受击链路对 demon 自动短路。
-//
-// supportEnabled: false 是整条支援链路的总闸门：
-//   processUnit 里的压力查询 / updateUnitPressure / processMainLoopTick
-//   全部包在这个开关里，false 等于完全不跑。
-// ============================================================
+// demon 默认档（宽进）。绝对不要塞进 DmTargetRegistry：
+// processHurtSupport 按注册表触发，一旦有 demon 项，所有 demon 挨打都会广播支援。
+// supportEnabled: false 是整条支援链路的总闸门。
 const DEMON_DEFAULT_MODE = normalizeConfig({
     faction: "demon",
 
@@ -897,21 +904,8 @@ const DEMON_DEFAULT_MODE = normalizeConfig({
     pressureRadius: 0
 });
 
-// ============================================================
-// demon 精确配置（现在留空）
-//
-// 将来给个别 demon 单独特调时写在这里，格式与 dm 完全一致：
-//
-//   "demon:boss1_1": {
-//       modes: {
-//           0: { ...DEMON_DEFAULT_MODE, speed: 4 },
-//           1: { ...DEMON_DEFAULT_MODE, speed: 3, combatType: "ranged" }
-//       }
-//   }
-//
-// 有 modes 就按 minecraft:variant 分档；没 modes 就是平铺一档。
-// 分档取不到（variant 不在表里）时 demon 退回默认档，不像 dm 那样熔断。
-// ============================================================
+// demon 精确配置（当前留空）。格式与 dm 相同；有 modes 按 variant 分档，
+// 分档取不到时退回默认档，不像 dm 那样熔断。
 const RAW_DemonRegistry = {};
 
 const DmTargetRegistry = normalizeConfig({
@@ -926,9 +920,7 @@ const REGISTRY_ENTRIES = Object.entries(DmTargetRegistry);
 
 let GLOBAL_MAX_BROADCAST_DISTANCE = 64;
 
-// ============================================================
 // 敌人快照工具
-// ============================================================
 function collectEnemySnapshot(dimension, players) {
     const enemyMap = new Map();
     const anchorMap = new Map();
@@ -1057,16 +1049,8 @@ function queryNearbyEnemies(snapshot, location, range) {
     return result;
 }
 
-// ============================================================
-// demon 侧的敌人表查询
-//
-// demon 的敌人是 player 家族，这批实体已经在内存里（见
-// buildPlayerSideIndex），不做空间网格快照。
-//
-// 这里只过滤有效性，距离过滤交给 processUnit 统一做 ——
-// 与 dm 侧「快照给候选、processUnit 再按 currentRange 判距」的
-// 语义保持一致，避免两处规则不一致导致目标时而可见时而不见。
-// ============================================================
+// demon 的敌人表：player 家族已在内存里，不做空间快照。
+// 这里只过滤有效性，距离交给 processUnit 统一判（与 dm 侧语义一致）。
 function queryNearbyFromList(list, location, range) {
     if (!list || list.length === 0 || !location || range <= 0) {
         return [];
@@ -1085,9 +1069,7 @@ function queryNearbyFromList(list, location, range) {
     return result;
 }
 
-// ============================================================
 // ActiveMovers 同步器
-// ============================================================
 function syncActiveMover(unit) {
     try {
         if (!unit || !unit.isValid) {
@@ -1102,7 +1084,9 @@ function syncActiveMover(unit) {
         const velZ = cmd.z;
         const velY = cmd.y;
 
-        if (velX !== 0 || velZ !== 0 || velY > 0.02) {
+        // 纵向判据用绝对值：纯垂直下潜（velX=velZ=0, velY=-0.20）
+        // 也必须注册成 mover，否则 main.js 遍历不到、冲量根本不施加。
+        if (velX !== 0 || velZ !== 0 || Math.abs(velY) > JUMP_IDLE) {
             ActiveMovers.set(unit.id, {
                 unit,
                 tick: system.currentTick
@@ -1123,9 +1107,7 @@ function syncActiveMover(unit) {
     }
 }
 
-// ============================================================
 // 清速工具
-// ============================================================
 function clearMovementCommands(unit) {
     try {
         clearMoveCmd(unit);
@@ -1133,9 +1115,7 @@ function clearMovementCommands(unit) {
     } catch (_) { }
 }
 
-// ============================================================
 // 配置解析辅助
-// ============================================================
 function resolveStrictConfig(globalConfig, unit) {
     if (!globalConfig) return null;
 
@@ -1174,17 +1154,8 @@ function resolveConfigWithFallback(globalConfig, unit) {
     }
 }
 
-// ============================================================
-// 按阵营解析配置（三档）
-//
-// dm   ：严格。查不到 → 报警 + 熔断；variant 不命中 → 熔断。
-//        35 项注册是人工维护的，漏配 / 拼错必须暴露。
-// demon：宽进。查不到 → 默认档接管；有精确配置但 variant 不命中
-//        → 也退回默认档。自然生成的杂兵逐个配没意义。
-//
-// 这里的两处 faction 判断是设计允许的「数据来源不同」，
-// 不是行为分叉 —— 拿到的 config 之后走同一套引擎逻辑。
-// ============================================================
+// 按阵营解析配置：dm 严格（查不到 / variant 不命中 → 熔断 + 报警），
+// demon 宽进（都退回默认档）。两侧拿到的 config 之后走同一套逻辑。
 function resolveUnitConfig(typeId, unit, faction) {
     const globalConfig = DmTargetRegistry[typeId];
 
@@ -1224,43 +1195,10 @@ function computeMaxBroadcastDistance() {
     return maxAlert + 18;
 }
 
-// ============================================================
-// 分帧调度（第四优先级优化）
-//
-// ── 问题 ─────────────────────────────────────────────────
-// 原实现每 5 tick 在「同一个 tick」里把所有受管单位全解算完：
-// 索敌 + EWMA + 走位 + 姿态 + applyImpulse 准备。
-//
-// 60 个单位同屏时，那一个 tick 的开销是其余 4 个 tick 的
-// 几十倍，表现是周期性掉帧，而不是整体卡顿。
-//
-// ── 方案 ─────────────────────────────────────────────────
-// 周期仍是 5 tick，但把单位分成 5 组，每 tick 只处理 1 组。
-//   总开销不变（每个单位仍然每 5 tick 解算一次）
-//   尖峰被摊平到 5 个 tick
-//
-// 每 5 tick 的「重量级全局工作」仍集中在 frame 0：
-//   · 全量家族查询（重建受管单位表）
-//   · 敌人快照重建
-//   · 支援压力配对评估
-//   · 走位指令表回收
-//
-// frame 1~4 只做一件事：遍历自己那一桶单位并解算。
-//
-// ── 分组为什么用 entity.id 而不是 typeId ──────────────────
-// 同一个 typeId（例如 player:dm8）同屏可能有很多个实例，
-// 按 typeId 分组会让它们全部落进同一桶 —— 那一桶照样爆，
-// 其余 4 桶空转，分帧完全失效。
-//
-// entity.id 是运行时唯一数值 ID，不同实例必然不同。
-//
-// 但为了应对「id 相同或高度聚集」的极端情况，
-// 再叠两层保护：
-//   1. 乘法散列：即使 id 连续分配，低位规律也会被打散
-//   2. 遍历序号二次偏移：id 完全相同时靠序号分开
-//   3. 桶容量上限：任何一桶超过 MAX_UNITS_PER_FRAME 就顺延
-//      （宁可某桶多跑几个，也不能漏单位）
-// ============================================================
+// 分帧调度：周期仍 5 tick，但把单位分成 5 组，每 tick 只解算 1 组。
+// 总开销不变，把原来集中在单个 tick 的尖峰摊平（否则表现为周期性掉帧）。
+// 重量级全局工作（家族查询 / 敌人快照 / 支援配对 / 回收）仍集中在 frame 0。
+// 分组用 entity.id（同 typeId 多实例会全挤进一桶），再叠散列 + 序号偏移 + 桶容量上限。
 
 // 一个完整周期的 tick 数（与原 runInterval 周期一致）
 const UPDATE_INTERVAL = 5;
@@ -1268,17 +1206,11 @@ const UPDATE_INTERVAL = 5;
 // 分帧数
 const FRAME_COUNT = UPDATE_INTERVAL;
 
-// 单桶容量下限
-//
-// 实际上限是「max(此值, 单位总数/帧数 × 1.25)」，
-// 见 rebuildManagedUnits 里的 cap 计算。
-//
-// 写死常量的意义：单位很少时（十来个干员）不让个别桶
-// 因为散列运气差而多扛几个相对成本高的单位。
+// 单桶容量下限。实际上限 = max(此值, 总数/帧数 × 1.25)。
 const MAX_UNITS_PER_FRAME = 24;
 
 // 单桶容量的动态系数
-//
+
 // 单位总数超过「帧数 × MAX_UNITS_PER_FRAME」时，
 // 上限跟着总量水涨船高，否则溢出保护会退化成
 // 「全部塞回首选桶」，分帧直接失效。
@@ -1292,7 +1224,7 @@ for (let i = 0; i < FRAME_COUNT; i++) {
 }
 
 // 本周期的受管单位全表
-//
+
 // 用数组而不是 Map：同一个 id 万一对应多个实体实例，
 // 用 Map 会互相覆盖导致漏怪。数组允许重复。
 const ManagedUnits = [];
@@ -1328,16 +1260,11 @@ function assignBucket(entry, preferredSlot, cap) {
     FrameBuckets[preferredSlot].push(entry);
 }
 
-// ============================================================
-// 重建受管单位表（每周期一次）
-//
-// 这一步承担原来 update() 里的全部查询工作：
-// 家族查询 + 熔断 + 配置解析 + 敌人快照 + 分桶。
-// ============================================================
+// 重建受管单位表（每周期一次）：家族查询 + 熔断 + 配置解析 + 敌人快照 + 分桶。
 function rebuildManagedUnits(dimStates) {
-    const perfT0 = PerfProbe.now();
 
     ManagedUnits.length = 0;
+    clearMaids();
 
     for (let i = 0; i < FRAME_COUNT; i++) {
         FrameBuckets[i].length = 0;
@@ -1357,24 +1284,11 @@ function rebuildManagedUnits(dimStates) {
 
         SnapshotCache.set(dimKey, enemySnapshot);
 
-        // ============================================================
-        // 按家族查询，取代原先的 N 次 typeId 查询
-        //
-        // ⚠ SAPI 语义注意：
-        //   EntityFilter.families 是「AND」语义
-        //   （官方原文：includes entities that match ALL of the specified families）
-        //   所以写成 { families: ["dm","demon"] } 会要求实体同时属于两个家族，
-        //   结果一个都匹配不到。
-        //   正确做法是一个家族一次查询，逐个取。
-        //
-        // 旧：for (typeId of REGISTRY_ENTRIES) getEntities({ type: typeId })  → 35 次
-        // 新：for (family of UNIT_FAMILIES) getEntities({ families: [family] }) → 2 次
-        //
-        // 覆盖范围不变：注册表 35 项全部带 dm 家族。
-        // ============================================================
+                // 按家族查询取代 N 次 typeId 查询（35 次 → 2 次）。
+                // families 是 AND 语义，写 { families: ["dm","demon"] } 会一个都匹配不到。
         for (const family of UNIT_FAMILIES) {
             // 家族决定阵营。dm 家族只可能是 dm，demon 家族只可能是 demon，
-            // 两个家族实测互斥，所以这一步不需要再跑 factionOf。
+            // 两个家族互斥，所以这一步不需要再跑 factionOf。
             const faction = family === "dm" ? FACTION.DM : FACTION.DEMON;
 
             let candidates = [];
@@ -1390,21 +1304,16 @@ function rebuildManagedUnits(dimStates) {
 
                 const typeId = unit.typeId;
 
-                // ============================================================
-                // demon 家族里的非战斗单位
-                //
-                // 13 个 bullet:* 和 mob:bomb_roar 带 demon 家族但不带 monster，
-                // 它们不是战斗单位。挡在配置解析之前，省掉每周期的无用功。
-                // （dm 家族不需要这道：35 个注册项全部是干员）
-                // ============================================================
+                // 女仆顺手登记：必须在下面的阵营 / 配置判定之前，
+                // 否则 variant=0（待命）会被严格熔断挡掉（见 maid_registry.js）
+                if (family === "dm" && isMaidTypeId(typeId)) {
+                    registerMaid(unit);
+                }
+
+                                // demon 家族里的非战斗单位（bullet:* / bomb_roar）：挡在配置解析之前省掉无用功。
                 if (faction === FACTION.DEMON && !isCombatCapable(unit)) continue;
 
-                // ============================================================
-                // 配置解析（按阵营三档，见 resolveUnitConfig）
-                //
-                // dm   ：查不到 / variant 不命中 → null（熔断 + 报警一次）
-                // demon：查不到 / variant 不命中 → 默认档接管
-                // ============================================================
+                                // 配置解析（dm 熔断 / demon 默认档，见 resolveUnitConfig）
                 const activeConfig = resolveUnitConfig(typeId, unit, faction);
 
                 if (!activeConfig) continue;
@@ -1421,7 +1330,7 @@ function rebuildManagedUnits(dimStates) {
     }
 
     // 分桶
-    //
+
     // 上限随总量自适应：单位多时按均值放宽，
     // 单位少时用 MAX_UNITS_PER_FRAME 兜底。
     const unitCount = ManagedUnits.length;
@@ -1436,28 +1345,10 @@ function rebuildManagedUnits(dimStates) {
         assignBucket(entry, frameSlotOf(entry.unit.id, i), cap);
     }
 
-    // 这一轮重建出来的单位数。配合 engine.rebuild 的耗时
-    // 能算出「每单位查询成本」
-    PerfProbe.count("unit.total", unitCount);
-
-    PerfProbe.lap("engine.rebuild", perfT0);
 }
 
-// ============================================================
-// 玩家侧索引 —— demon 的敌人表
-//
-// demon 的敌人集合是 player 家族，而这批实体本来就都在内存里：
-//   · ManagedUnits 里 faction === DM 的（全部已注册干员）
-//   · dimStates[].players（每帧已有的 getAllPlayers）
-// 两者拼起来就是完整清单，一次 getEntities 都不用发。
-//
-// ⚠ 必须在 rebuildManagedUnits 之后调用：它依赖 entry.faction。
-//
-// 已知边界：不在注册表里的 player 家族实体（例如 mob:dm60_summon）
-// 进不了这张表，demon 也就看不到它。当前无害；将来若出现
-// 「不注册但该被 demon 打」的实体，这里要退回
-// getEntities({ families: ["player"] })。
-// ============================================================
+// 玩家侧索引 —— demon 的敌人表：ManagedUnits 里的 dm + dimStates[].players，零查询。
+// 必须在 rebuildManagedUnits 之后调用（依赖 entry.faction）。
 const PlayerSideIndex = new Map();
 
 function buildPlayerSideIndex(dimStates) {
@@ -1491,16 +1382,9 @@ function buildPlayerSideIndex(dimStates) {
     }
 }
 
-// ============================================================
-// 支援压力配对（每周期一次，需要全量单位）
-//
-// evaluatePressureSupport 是「caller × responder」全局配对，
-// 分帧会缩小候选池导致配对失败，所以必须看全表。
-// ============================================================
+// 支援压力配对：caller × responder 全局配对，分帧会缩小候选池，必须看全表。
 function evaluateSupportForAll(dimStates) {
     if (ManagedUnits.length === 0) return;
-
-    const perfT0 = PerfProbe.now();
 
     for (const state of dimStates) {
         const collected = [];
@@ -1529,12 +1413,9 @@ function evaluateSupportForAll(dimStates) {
         }
     }
 
-    PerfProbe.lap("engine.support", perfT0);
 }
 
-// ============================================================
 // DmTargetEngine 主引擎
-// ============================================================
 export class DmTargetEngine {
     static init() {
         engineLog("[DM-Engine] 初始化开始");
@@ -1621,14 +1502,8 @@ export class DmTargetEngine {
                     return;
                 }
 
-                // ============================================================
-                // 友方攻击不算威胁
-                //
-                // 玩家 / 干员 / 友军打自己人时，友伤拦截会在 before 事件里
-                // 把伤害归零，但 entityHurt 的 after 事件里 attacker 依然是
-                // 那个友方实体。若不过滤，会污染「索敌」与「受击记账」
-                // 两条链路 —— 逐条说明见下面的闸门注释。
-                // ============================================================
+                                // 友方攻击不算威胁：友伤在 before 里归零，但 after 的 attacker 仍是友方。
+                                // 不过滤会污染索敌与受击记账两条链路。
                 const isFriendlyHurt = isAlliedAttacker(attacker, victim);
 
                 // ── 主人补录 ──
@@ -1651,17 +1526,8 @@ export class DmTargetEngine {
                     } catch (_) { }
                 }
 
-                // ============================================================
-                // 友伤到此为止
-                //
-                // 下面整段都是「受击记账」，一次友伤会同时污染四个通道：
-                //   · VictimDamageHistoryMap.tick  → movement_ranged 后撤判定
-                //   · dm_last_hurt_tick            → 支援压力刺穿错峰 + 后撤
-                //   · LastDamageTick / dm:last_attack_dist → 攻击者侧压力 +20
-                //   · processHurtSupport 无条件把 dm_pressure 刷到 80
-                // 前两个让单位无故后撤，后两个让压力虚高、可能把保镖引出来。
-                // 所以在记账之前直接返回。
-                // ============================================================
+                                // 友伤到此为止 —— 下面的受击记账会同时污染四个通道
+                                // （后撤判定 / 支援错峰 / 攻击者压力 / dm_pressure 刷 80）。
                 if (isFriendlyHurt) return;
 
                 let victimRecord = VictimDamageHistoryMap.get(victim.id);
@@ -1755,7 +1621,7 @@ export class DmTargetEngine {
                 }
 
                 // 随从/召唤物广播
-                //
+
                 // 友伤在上面的闸门已经返回，走不到这里；
                 // 保留这道判断是为了防止未来有人把闸门挪到记账之后。
                 if (attacker && attacker.isValid) {
@@ -1786,15 +1652,7 @@ export class DmTargetEngine {
             }
         }, AFTER_HURT_PRIORITY.TARGET_ENGINE_HURT);
 
-        // ============================================================
-        // 分帧调度
-        //
-        // 周期从 5 tick 改为每 tick 调用，由 update() 内部按
-        // nowTick % FRAME_COUNT 决定这一帧处理哪一组单位。
-        //
-        // 每个单位仍然每 5 tick 解算一次（总开销不变），
-        // 但原来集中在单一 tick 的尖峰被摊平到 5 个 tick。
-        // ============================================================
+                // 分帧调度：每 tick 调用，按 nowTick % FRAME_COUNT 决定处理哪组（每单位仍 5 tick 解算一次）。
         system.runInterval(() => {
             try {
                 DmTargetEngine.update();
@@ -1829,20 +1687,13 @@ export class DmTargetEngine {
     }
 
     static update() {
-        // 探针关闭时返回 0，本次埋点总成本 = 两次函数调用
-        const perfT0 = PerfProbe.now();
 
         const nowTick = system.currentTick;
 
         // 当前帧槽：0 ~ FRAME_COUNT-1 循环
         const frameIndex = ((nowTick % FRAME_COUNT) + FRAME_COUNT) % FRAME_COUNT;
 
-        // ============================================================
-        // 收集在线玩家所在的维度
-        //
-        // 每帧都做：getAllPlayers 是原生快路径，
-        // 远轻于任何一次 getEntities。
-        // ============================================================
+                // 收集在线玩家所在维度（getAllPlayers 是原生快路径，每帧都做）。
         const dimStates = [];
 
         try {
@@ -1868,17 +1719,16 @@ export class DmTargetEngine {
             }
         } catch (_) { }
 
-        // ============================================================
-        // frame 0：周期起点，承担全部重量级工作
-        //
-        // 必须放在「处理桶」之前 —— 否则本周期新分好的桶
-        // 要等到下个周期才会被处理，单位解算间隔会从 5 tick
-        // 变成 10 tick。
-        // ============================================================
+                // frame 0：周期起点，承担全部重量级工作。必须在处理桶之前 —— 否则桶要等下个周期才处理。
         if (frameIndex === 0) {
             // 走位指令表回收（兜底清理离开模拟距离、没触发 entityRemove 的条目）
             try {
                 gcMoveCmd(nowTick);
+            } catch (_) { }
+
+            // 溺水换气表回收（同上，防实体未走 remove 事件造成泄漏）
+            try {
+                gcDrowningState(nowTick);
             } catch (_) { }
 
             // 重建受管单位表 + 敌人快照 + 分桶
@@ -1889,7 +1739,7 @@ export class DmTargetEngine {
             }
 
             // demon 的敌人表（零查询）
-            //
+
             // 必须在 rebuildManagedUnits 之后：它读 entry.faction。
             // 放这里还有一个好处 —— demon 侧的敌人清单与受管单位表
             // 严格对齐同一周期，不会出现「目标表里有个已经被熔断的单位」。
@@ -1900,9 +1750,7 @@ export class DmTargetEngine {
             }
         }
 
-        // ============================================================
         // 只解算本帧负责的那一桶
-        // ============================================================
         const bucket = FrameBuckets[frameIndex];
 
         for (let i = 0; i < bucket.length; i++) {
@@ -1910,9 +1758,6 @@ export class DmTargetEngine {
             const unit = entry.unit;
 
             if (!unit || !unit.isValid) continue;
-
-            // 每周期实际解算了多少单位（计数，不做计时）
-            PerfProbe.count("unit.scan");
 
             const enemySnapshot = SnapshotCache.get(entry.dimKey) ?? null;
             const playerSideList = PlayerSideIndex.get(entry.dimKey) ?? null;
@@ -1930,34 +1775,17 @@ export class DmTargetEngine {
             }
         }
 
-        // ============================================================
-        // frame 0 收尾：支援压力配对
-        //
-        // 必须在本帧 processUnit 之后 —— pressure 是在 processUnit
-        // 里更新的。而且它需要全量单位，不能分帧。
-        // ============================================================
+                // frame 0 收尾：支援压力配对（pressure 在 processUnit 里更新，且需要全量单位）。
         if (frameIndex === 0) {
             evaluateSupportForAll(dimStates);
         }
 
-        PerfProbe.lap("engine.update", perfT0);
     }
 
     static processUnit(unit, config, enemySnapshot, faction, playerSideList) {
-        // ============================================================
-        // demon 早退
-        //
-        // 走位依旧遵循 tag：没有战斗 tag 的 demon 完全不接管，
-        // 交回原版 AI 的索敌与攻击行为。
-        //
-        // 现在 JSON 侧 0 个 demon 有 demon_has_target，所以整个 demon
-        // 群体每周期的成本 = 一次家族查询 + 一次配置解析 + 这次判断。
-        // 等 JSON 侧给某个 demon 加上 tag，它才开始真正跑逻辑。
-        //
-        // 为什么不给 dm 也加：dm 现有链路是「先选目标、后判 tag」，
-        // 脱战瞬间 tag 还没加上但 target 需要已经就绪，改了有回归风险。
-        // demon 是新增路径，没有历史包袱。
-        // ============================================================
+                // demon 早退：没有战斗 tag 就交回原版 AI。JSON 侧目前 0 个 demon 带 tag，
+                // 所以整群每周期的成本 = 家族查询 + 配置解析 + 这次判断。
+                // dm 不加这道：dm 是「先选目标、后判 tag」，脱战瞬间 target 需要已就绪。
         if (faction === FACTION.DEMON && !isInCombat(unit, faction)) {
             // 清一次残留标记，避免它从「曾经在战斗」切到早退时
             // 留下 PreviousCombatState 条目，导致下次进战不清理速度。
@@ -1965,12 +1793,7 @@ export class DmTargetEngine {
             return;
         }
 
-        // ============================================================
-        // 支援系统
-        //
-        // 现在从敌人快照里取出压力半径内的敌人，
-        // 传给 support，避免 support 自己再次 getEntities。
-        // ============================================================
+                // 支援系统：从敌人快照里取压力半径内的敌人，避免 support 自己再 getEntities。
         const pressureRadius = config.pressureRadius ?? 12;
 
         let pressureTargets = [];
@@ -1998,9 +1821,7 @@ export class DmTargetEngine {
             DmSupportModule.processMainLoopTick(unit, config);
         }
 
-        // ============================================================
         // ForcedTarget / 当前目标
-        // ============================================================
         const forced = ForcedTargets.get(unit.id);
         const currentTarget = unit.target;
 
@@ -2022,19 +1843,7 @@ export class DmTargetEngine {
             }
         }
 
-        // ============================================================
-        // 获取附近敌人 —— 按阵营选敌人表
-        //
-        //   DM    → 空间网格快照（monster 家族，每周期每维度重建一次）
-        //   DEMON → 内存里的玩家侧清单（干员 + 在线玩家，零查询）
-        //
-        // 不再执行：
-        // unit.dimension.getEntities({
-        //     location: unit.location,
-        //     maxDistance: currentRange,
-        //     families: ["monster"]
-        // });
-        // ============================================================
+                // 附近敌人按阵营选表：dm → 空间网格快照；demon → 内存玩家侧清单（零查询）。
         let targets = [];
 
         if (faction === FACTION.DEMON) {
@@ -2130,9 +1939,7 @@ export class DmTargetEngine {
             }
         }
 
-        // ============================================================
         // 走位引擎分发
-        // ============================================================
         const rawMode = unit.getDynamicProperty("dm:combat_mode");
 
         let effectiveType = config.combatType;
@@ -2143,16 +1950,8 @@ export class DmTargetEngine {
             effectiveType = "ranged";
         }
 
-        // ============================================================
-        // TAG 总阀门
-        //
-        // tag 由 JSON 层负责增删，JS 只检测。tag 名按阵营分派：
-        //   dm    → dm_has_target    / dm_skill_on
-        //   demon → demon_has_target / demon_skill_on
-        //
-        // 没有战斗 tag 的单位不进入 movement，
-        // 避免 movement 内部无效读取方块。
-        // ============================================================
+                // TAG 总阀门：tag 由 JSON 增删，JS 只检测。没战斗 tag 的单位不进 movement，
+                // 避免内部无效读方块。
         const isCombat = isInCombat(unit, faction);
 
         if (isCombat) {
@@ -2174,7 +1973,13 @@ export class DmTargetEngine {
                 }
             }
 
-            if (effectiveType === "melee") {
+            if (isPlayerMounted(unit)) {
+                                // 玩家骑着她 → 本帧不派发走位引擎、不挂 mover。
+                                // 光在 execute 里早退不够：syncActiveMover 会把 mover 重新挂上，
+                                // main.js 再摘掉，一挂一摘之间玩家能感觉到几下推力。
+                clearMovementCommands(unit);
+                ActiveMovers.delete(unit.id);
+            } else if (effectiveType === "melee") {
                 const meleeRange =
                     unit.getDynamicProperty("dm:melee_detected_range") ??
                     config.meleeRange ??
@@ -2190,8 +1995,6 @@ export class DmTargetEngine {
                     faction
                 );
 
-                PerfProbe.count("move.melee");
-
                 syncActiveMover(unit);
 
             } else if (effectiveType === "ranged") {
@@ -2205,28 +2008,22 @@ export class DmTargetEngine {
                     faction
                 );
 
-                PerfProbe.count("move.ranged");
-
                 syncActiveMover(unit);
 
             } else {
                 ActiveMovers.delete(unit.id);
             }
         } else {
-            // ============================================================
             // 非战斗状态
-            //
+
             // 只在从战斗转为非战斗时清理一次速度。
-            // ============================================================
             if (PreviousCombatState.has(unit.id)) {
                 PreviousCombatState.delete(unit.id);
                 clearMovementCommands(unit);
             }
         }
 
-        // ============================================================
         // 战术时钟
-        // ============================================================
         if (config.clock_time === true) {
             const realCurrentTarget = unit.target ?? bestTarget;
 
@@ -2244,9 +2041,7 @@ export class DmTargetEngine {
             TacticalClockManager.execute(unit, hasRealActiveThreat);
         }
 
-        // ============================================================
         // 目标传感器检测
-        // ============================================================
         TargetSensorManager.check(unit);
     }
 

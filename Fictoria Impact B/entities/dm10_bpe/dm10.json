@@ -320,7 +320,7 @@
         "value": 0.45
       },
       "minecraft:inventory": {
-        "inventory_size": 16,
+        "inventory_size": 26,
         "private": true
       },
       "minecraft:behavior.move_to_land": {

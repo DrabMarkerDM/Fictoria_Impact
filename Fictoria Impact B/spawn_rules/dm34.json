@@ -8,6 +8,10 @@
     "conditions": [
       {
         "minecraft:spawns_on_surface": {},
+        "minecraft:player_in_village_filter": {
+          "distance": 32,
+          "village_border_tolerance": 8
+        },
         "minecraft:brightness_filter": {
           "min": 8,
           "max": 15,
@@ -18,10 +22,10 @@
           "max": "hard"
         },
         "minecraft:density_limit": {
-          "surface": 3
+          "surface": 1
         },
         "minecraft:weight": {
-          "default": 3
+          "default": 1
         },
         "minecraft:biome_filter": {
           "all_of": [

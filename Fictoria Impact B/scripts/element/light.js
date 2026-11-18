@@ -1,36 +1,10 @@
 import { world, system } from "@minecraft/server";
 
-// ============================================================
-// light.js — dm34 / dm34_1 灯光跟随清理模块
-//
-// 只服务两个实体：
-//   player:dm34     女仆
-//   player:dm34_1   女仆二阶段
-// 其它实体一律不扫描、不处理。
-//
-// 原逻辑：
-//   · 每 2 tick 检查一次
-//   · 只检查 player:dm34 / player:dm34_1
-//   · 带 is_lighting 标签的实体移动超过 2 格时清理旧位置
-//   · 实体消失且消失前处于 is_lighting 状态时补一次清理
-//
-// 本次修复与优化：
-//   1. 【修复】原来用 getEntities({ types: type }) 过滤，
-//      但 SAPI 的 EntityFilter 里包含过滤字段是单数 type?: string，
-//      复数只有 excludeTypes?: string[]（排除）。
-//      传一个字符串给 types 属于无效字段，
-//      实际要么被忽略（返回全维度实体）、要么直接抛错被 catch 吞掉。
-//      现在改为 { type }。
-//
-//   2. 【优化】实体引用改为缓存 + 低频重扫：
-//      原来每 2 tick 做 2 次维度级 getEntities（全维度迭代）。
-//      现在每 2 tick 只做位移计算，实体引用走缓存；
-//      重扫周期 RESCAN_INTERVAL = 20 tick。
-//      查询开销降低约 10 倍，且扫描范围严格限定这两个类型。
-//
-//   3. 其它保留：平方距离判断、同 tick 清理去重、
-//      跨维度残留清理、临终补清理。
-// ============================================================
+// light.js — dm34 / dm34_1 的灯光跟随清理，其它实体一律不处理。
+
+// 每 2 tick 检查位移，超过 2 格清掉旧位置光源；实体消失且之前亮着就补一次清理。
+// 实体引用走缓存，重扫周期 RESCAN_INTERVAL（20 tick），查询开销比原来低一个量级。
+// 过滤字段是单数 type（SAPI 里 types 无效，会被忽略或抛错被 catch 吞掉）。
 
 // 位移检测 + 清理的执行频率（每 2 tick）
 const LIGHT_CLEANUP_INTERVAL_TICKS = 2;
@@ -58,12 +32,14 @@ const CachedUnits = new Map();
 
 let lastRescanTick = -RESCAN_INTERVAL;
 
-// ============================================================
+// 主循环每 2 tick 跑一次，两个集合改成复用 + clear，省掉每秒 10 次分配。
+const activeIds = new Set();
+const executedCleanups = new Set();
+
 // 安全获取清理维度
-//
+
 // 优先使用记录的维度。
 // 如果记录维度不可用，则回退到传入的 fallbackDimension。
-// ============================================================
 function getCleanupDimension(dimId, fallbackDimension) {
     if (!dimId) return fallbackDimension;
 
@@ -74,11 +50,9 @@ function getCleanupDimension(dimId, fallbackDimension) {
     }
 }
 
-// ============================================================
 // 重扫：只查 TARGET_TYPES 两个类型
-//
+
 // 注意字段名是单数 type，不是 types。
-// ============================================================
 function rescanTrackedUnits(dimension) {
     for (const type of TARGET_TYPES) {
         let found;
@@ -99,13 +73,11 @@ function rescanTrackedUnits(dimension) {
     }
 }
 
-// ============================================================
 // 灯光清理命令
-//
+
 // executedCleanups 用于同一 tick 内去重：
 // 如果多个实体在同一 tick 留下了相同旧坐标区域，
 // 不重复执行同区域 fill。
-// ============================================================
 function runCleanupLight(dimension, pos, executedCleanups) {
     if (!dimension || !pos) return;
 
@@ -140,11 +112,15 @@ function runCleanupLight(dimension, pos, executedCleanups) {
     }
 }
 
-// ============================================================
 // 主循环
-// ============================================================
 system.runInterval(() => {
     try {
+        const now = system.currentTick;
+        const needRescan = now - lastRescanTick >= RESCAN_INTERVAL;
+
+        // 没有跟踪对象时每 2 tick 只做一次整数比较：维度句柄、两个集合都不碰。
+        if (!needRescan && CachedUnits.size === 0 && lastPositions.size === 0) return;
+
         let overworld;
 
         try {
@@ -155,24 +131,18 @@ system.runInterval(() => {
 
         if (!overworld) return;
 
-        const now = system.currentTick;
-
         // ── 0. 低频重扫，刷新实体引用缓存 ──
-        if (now - lastRescanTick >= RESCAN_INTERVAL) {
+        if (needRescan) {
             lastRescanTick = now;
             rescanTrackedUnits(overworld);
         }
 
-        // 当前存活 ID 集合，用于后续对比清理缓存
-        const activeIds = new Set();
+        activeIds.clear();
+        executedCleanups.clear();
 
-        // 同一 tick 内的清理去重表
-        const executedCleanups = new Set();
-
-        // ============================================================
         // 1. 遍历缓存中的 dm34 / dm34_1
-        // ============================================================
-        for (const [id, entity] of Array.from(CachedUnits.entries())) {
+        // 循环里删的是当前项，Map 迭代器允许，不需要 Array.from 快照。
+        for (const [id, entity] of CachedUnits) {
             // 实体已失效：从缓存摘除，交给下面的临终清理
             let isValid = false;
 
@@ -205,28 +175,10 @@ system.runInterval(() => {
                 isLighting = entity.hasTag("is_lighting");
             } catch (_) { }
 
-            // ============================================================
-            // 判定条件：lastData.wasLighting || isLighting
-            //
-            // 【修复】远距离瞬移后光源滞留
-            //
-            // 原判定只用了 isLighting（当前标签状态），这是个时序竞态：
-            // 光源由 animation_controllers/dm34_light_detector 驱动，
-            // glow_pulse_a / glow_pulse_b 每 tick 交替执行 /function dynamic_light，
-            // 而 is_lighting 标签只在 default / cleanup 的 on_entry 被移除。
-            //
-            // 远距离 tp 会让实体卸载重载 → 动画控制器重置 →
-            // default 的 on_entry 执行 /tag @s remove is_lighting，
-            // 下一两个 tick 才在 glow_pulse_a 重新加上。
-            //
-            // 如果这期间刚好检测到大位移，isLighting 为 false → 跳过清理，
-            // 而下面 lastPositions.set 是无条件覆盖的，
-            // 旧坐标当场丢失 → 旧位置光源永久滞留。
-            //
-            // 要清的是「旧位置可能残留的光源」，是否残留由【上次记录时】的状态决定，
-            // 与当前标签状态无关。所以任一为真都清理。
-            // fill 是 air replace block:dm_light_1，无光源时不会产生任何效果。
-            // ============================================================
+                        // 判定用 lastData.wasLighting || isLighting：远距离 tp 会让实体卸载重载、
+                        // 动画控制器重置先摘标签再加回来，此时只看当前标签会跳过清理，
+                        // 而 lastPositions 是无条件覆盖的 → 旧坐标丢失、光源永久滞留。
+                        // fill 是 air replace，无光源时没有副作用。
             if (lastData && (lastData.wasLighting || isLighting)) {
                 // 计算水平位移平方距离
                 const dx = currentPos.x - lastData.pos.x;
@@ -265,10 +217,9 @@ system.runInterval(() => {
             });
         }
 
-        // ============================================================
         // 2. 缓存清理逻辑：处理死亡、卸载或消失的实体
-        // ============================================================
-        for (const id of Array.from(lastPositions.keys())) {
+        // 这一轮只删不增，直接迭代 keys() 安全。
+        for (const id of lastPositions.keys()) {
             if (activeIds.has(id)) continue;
 
             const data = lastPositions.get(id);

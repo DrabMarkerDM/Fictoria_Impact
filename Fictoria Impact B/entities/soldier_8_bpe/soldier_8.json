@@ -401,7 +401,7 @@
         },
         "queue_command": {
           "command": [
-            "playsound charge @a[r=28] ~~~ 1.5 1.0",
+            "playsound charge @a[r=56] ~~~ 1.5 1.0",
             "particle dm:soldier_8 ^^1^-1"
 
           ]

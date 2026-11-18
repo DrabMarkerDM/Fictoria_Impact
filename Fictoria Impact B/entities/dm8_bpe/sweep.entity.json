@@ -72,7 +72,7 @@
       "minecraft:entity_spawned": {
       "queue_command": {
         "command": [
-          "playsound dm8ratt @a[r=33] ~~~ 2.0 1.0",
+          "playsound dm8ratt @a[r=33] ~~~ 1.1 1.0",
           "event entity @e[type=player:dm8,c=1] dm8_ratt",
           "playanimation @e[type=player:dm8,c=1] animation.dm8_att2",
           "scoreboard players add @e[type=player:dm8,c=1] dm_skill_timer 2",

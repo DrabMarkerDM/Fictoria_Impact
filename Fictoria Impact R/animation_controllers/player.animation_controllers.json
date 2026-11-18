@@ -81,20 +81,10 @@
                 "default": {
                     "animations": [
                         {
-                            "first_person_attack_rotation": "!query.equipped_item_any_tag('slot.weapon.mainhand', 'minecraft:is_sword') &&
-!query.equipped_item_any_tag('slot.weapon.mainhand', 'minecraft:is_axe') &&
-!query.equipped_item_any_tag('slot.weapon.mainhand', 'minecraft:is_pickaxe') &&
-!query.equipped_item_any_tag('slot.weapon.mainhand', 'minecraft:is_shovel') &&
-!query.equipped_item_any_tag('slot.weapon.mainhand', 'minecraft:is_hoe') && 
-query.get_equipped_item_name != 'mace'"
+                            "first_person_attack_rotation": "!query.equipped_item_any_tag('slot.weapon.mainhand', 'minecraft:is_sword') && !query.equipped_item_any_tag('slot.weapon.mainhand', 'minecraft:is_axe') && !query.equipped_item_any_tag('slot.weapon.mainhand', 'minecraft:is_pickaxe') && !query.equipped_item_any_tag('slot.weapon.mainhand', 'minecraft:is_shovel') && !query.equipped_item_any_tag('slot.weapon.mainhand', 'minecraft:is_hoe') &&  query.get_equipped_item_name != 'mace'"
                         },
                         {
-                            "first_person_attack_rotation_for_cooldown": "query.equipped_item_any_tag('slot.weapon.mainhand', 'minecraft:is_sword') ||
-query.equipped_item_any_tag('slot.weapon.mainhand', 'minecraft:is_axe') ||
-query.equipped_item_any_tag('slot.weapon.mainhand', 'minecraft:is_pickaxe') ||
-query.equipped_item_any_tag('slot.weapon.mainhand', 'minecraft:is_shovel') ||
-query.equipped_item_any_tag('slot.weapon.mainhand', 'minecraft:is_hoe') ||
-query.get_equipped_item_name == 'mace'"
+                            "first_person_attack_rotation_for_cooldown": "query.equipped_item_any_tag('slot.weapon.mainhand', 'minecraft:is_sword') || query.equipped_item_any_tag('slot.weapon.mainhand', 'minecraft:is_axe') || query.equipped_item_any_tag('slot.weapon.mainhand', 'minecraft:is_pickaxe') || query.equipped_item_any_tag('slot.weapon.mainhand', 'minecraft:is_shovel') || query.equipped_item_any_tag('slot.weapon.mainhand', 'minecraft:is_hoe') || query.get_equipped_item_name == 'mace'"
                         }
                     ],
                     "transitions": [

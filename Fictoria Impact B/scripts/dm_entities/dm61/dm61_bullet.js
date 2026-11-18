@@ -1,6 +1,4 @@
-// ============================================================
 // dm61弹射物特效js
-// ============================================================
 
 export const BulletEffects61 = {
     dm61_hit: (target, _attacker, _projectile, dimension, runEffectCommands, hitLocation) => {

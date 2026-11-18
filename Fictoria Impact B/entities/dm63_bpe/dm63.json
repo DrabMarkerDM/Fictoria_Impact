@@ -782,7 +782,7 @@
             "execute at @e[tag=dm,family=!monster,type=!minecraft:player,r=12,c=6] run particle dm:dm_sp ~~1.8~",
             "particle dm:dm63_b ~~0.5~",
             "damage @e[tag=!dm,family=monster,r=8,c=8] 56 override entity @s",
-            "playsound dm63_hit @a[r=28] ~~~ 1.6 1.0"
+            "playsound dm63_hit @a[r=56] ~~~ 1.6 1.0"
           ]
         }
          },
@@ -845,7 +845,7 @@
             "effect @s absorption 8 24 true",
             "effect @s slowness 0",
             "playsound dm63 @a[r=33] ~~~ 1.8 1.0",
-            "playsound dm63_sss @a[r=33] ~~~ 2.4 1.0",
+            "playsound dm63_sss @a[r=33] ~~~ 1.25 1.0",
             "tag @s add dm_skill_on",
             "tag @s remove dm_has_target"
           ]

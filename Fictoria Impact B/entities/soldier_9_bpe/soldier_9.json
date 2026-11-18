@@ -1523,8 +1523,8 @@
         "queue_command": {
           "command": [
             "scoreboard players add @s dm_skill_timer_3 1",
-            "event entity @s[scores={dm_skill_timer_3=4..}] skill_3",
-            "scoreboard players set @s[scores={dm_skill_timer_3=4..}] dm_skill_timer_3 0"
+            "event entity @s[scores={dm_skill_timer_3=9..}] skill_3",
+            "scoreboard players set @s[scores={dm_skill_timer_3=9..}] dm_skill_timer_3 0"
           ]
         }
       },
@@ -1534,7 +1534,7 @@
             "damage @e[family=monster,r=60] 1 entity_attack entity @e[family=dm,r=60,c=1]",
             "particle dm:dm_heal ~~~",
             "effect @e[family=demon,r=20] absorption 30 10",
-            "effect @e[family=demon,r=20] instant_health 30 0"
+            "effect @e[family=demon,r=20] instant_health 1 0"
           ]
         }
       }

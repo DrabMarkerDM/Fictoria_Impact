@@ -1,0 +1,27 @@
+{
+  "format_version": "1.12",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "items:ball_blue"
+    },
+
+
+    "tags": [ "crafting_table" ],
+    "pattern": [
+      "###",
+      "#X#",
+      "###"
+    ],
+    "key": {
+      "#": {
+        "item": "minecraft:lapis_lazuli"
+      },
+      "X": {
+        "item": "items:card_2"
+      }
+    },
+    "result": {
+      "item": "items:fictoria_ball_empty_blue"
+    }
+  }
+}

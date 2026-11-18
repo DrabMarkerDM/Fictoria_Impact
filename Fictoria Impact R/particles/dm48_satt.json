@@ -19,9 +19,9 @@
 
       "minecraft:emitter_shape_point": {
         "direction": [
-          "variable.direction.x",
-          "variable.direction.y",
-          "variable.direction.z"
+          "Math.random(-0.3, 0.3)",
+          "Math.random(0.2, 1.0)",
+          "Math.random(-0.3, 0.3)"
         ]
       },
 

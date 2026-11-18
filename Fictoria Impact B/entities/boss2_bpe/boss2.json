@@ -311,7 +311,7 @@
       "minecraft:jump.static": {
       },
       "minecraft:inventory": {
-        "inventory_size": 10,
+        "inventory_size": 26,
         "private": true
       },
       "minecraft:behavior.float": {

@@ -1,66 +1,80 @@
 {
   "dm.ak_shoot": {
-    "category": "music",
+    "category": "player",
     "sounds": [
       {
         "name": "sounds/gun/ak47",
         "volume": 0.5
       }
-    ]
+    ],
+    "volume": 0.45,
+    "max_distance": 96
   },
   "gun_shoot": {
-    "category": "music",
+    "category": "player",
     "sounds": [
       "sounds/gun/gunshot2"
-    ]
+    ],
+    "volume": 0.45,
+    "max_distance": 96
   },
   "gun_hit": {
-    "category": "music",
+    "category": "player",
     "sounds": [
       "sounds/gun/gunhit1",
       "sounds/gun/gunhit2",
       "sounds/gun/gunhit3",
       "sounds/gun/gunhit4"
-    ]
+    ],
+    "volume": 0.5,
+    "max_distance": 48
   },
   "dm.hand_shoot": {
-    "category": "music",
+    "category": "player",
     "sounds": [
       {
         "name": "sounds/gun/hand",
         "volume": 0.5
       }
-    ]
+    ],
+    "volume": 0.45,
+    "max_distance": 96
   },
   "dm.m1871_shoot": {
-    "category": "music",
+    "category": "player",
     "sounds": [
       {
         "name": "sounds/gun/m1871",
         "volume": 0.5
       }
-    ]
+    ],
+    "volume": 0.45,
+    "max_distance": 96
   },
   "dm.p90_shoot": {
-    "category": "music",
+    "category": "player",
     "sounds": [
       {
         "name": "sounds/gun/gunshot2",
         "volume": 0.4
       }
-    ]
+    ],
+    "volume": 0.45,
+    "max_distance": 96
   },
   "dm.sg_shoot": {
-    "category": "music",
+    "category": "player",
     "sounds": [
       {
         "name": "sounds/gun/shotgun",
         "volume": 0.5
       }
-    ]
+    ],
+    "volume": 0.45,
+    "max_distance": 96
   },
   "sweep": {
-    "category": "music",
+    "category": "neutral",
     "sounds": [
       {
         "name": "sounds/attack/sweep1",
@@ -89,35 +103,25 @@
       {
         "name": "sounds/attack/sweep7",
         "volume": 0.5
-      },
-      {
-        "name": "sounds/attack/sweep8",
-        "volume": 0.5
-      },
-      {
-        "name": "sounds/attack/sweep9",
-        "volume": 0.5
-      },
-      {
-        "name": "sounds/attack/sweep10",
-        "volume": 0.5
       }
     ]
   },
   "firearrow": {
-    "category": "music",
+    "category": "neutral",
     "sounds": [
       "sounds/gun/firearrow"
-    ]
+    ],
+    "volume": 0.45,
+    "max_distance": 96
   },
   "attack": {
-    "category": "music",
+    "category": "neutral",
     "sounds": [
       "sounds/attack/dark_attack"
     ]
   },
   "wateratt": {
-    "category": "music",
+    "category": "neutral",
     "sounds": [
       "sounds/attack/wateratt1",
       "sounds/attack/wateratt2",
@@ -125,7 +129,7 @@
     ]
   },
   "lightatt": {
-    "category": "music",
+    "category": "neutral",
     "sounds": [
       "sounds/attack/lightatt1",
       "sounds/attack/lightatt2",
@@ -133,26 +137,28 @@
     ]
   },
   "sss": {
-    "category": "music",
+    "category": "neutral",
     "sounds": [
       "sounds/attack/sss"
     ]
   },
   "sss_1": {
-    "category": "music",
+    "category": "neutral",
     "sounds": [
       "sounds/attack/sss_1"
     ]
   },
   "shoot": {
-    "category": "music",
+    "category": "player",
     "sounds": [
       "sounds/gun/shoot1",
       "sounds/gun/shoot2"
-    ]
+    ],
+    "volume": 0.45,
+    "max_distance": 96
   },
   "att": {
-    "category": "music",
+    "category": "neutral",
     "sounds": [
       "sounds/attack/att1",
       "sounds/attack/att2",
@@ -160,13 +166,13 @@
     ]
   },
   "dm44_sss": {
-    "category": "music",
+    "category": "neutral",
     "sounds": [
       "sounds/attack/dm44_sss"
     ]
   },
   "atthit": {
-    "category": "music",
+    "category": "neutral",
     "sounds": [
       "sounds/attack/atthit1",
       "sounds/attack/atthit2",
@@ -174,7 +180,7 @@
     ]
   },
   "robot_hit": {
-    "category": "music",
+    "category": "neutral",
     "sounds": [
       "sounds/robot/hit1",
       "sounds/robot/hit2",
@@ -183,13 +189,13 @@
     ]
   },
   "robot_death": {
-    "category": "music",
+    "category": "neutral",
     "sounds": [
       "sounds/robot/death"
     ]
   },
   "dm46att": {
-    "category": "music",
+    "category": "neutral",
     "sounds": [
       "sounds/attack/dm46att1",
       "sounds/attack/dm46att2",
@@ -199,19 +205,19 @@
     ]
   },
   "dm46fire": {
-    "category": "music",
+    "category": "neutral",
     "sounds": [
       "sounds/attack/dm46fire"
     ]
   },
   "steam": {
-    "category": "music",
+    "category": "block",
     "sounds": [
       "sounds/attack/steam"
     ]
   },
   "dm25": {
-    "category": "music",
+    "category": "neutral",
     "sounds": [
       "sounds/attack/dm251",
       "sounds/attack/dm252",
@@ -220,19 +226,19 @@
     ]
   },
   "boss4_1": {
-    "category": "music",
+    "category": "hostile",
     "sounds": [
       "sounds/attack/boss4_1"
     ]
   },
   "boss4_2": {
-    "category": "music",
+    "category": "hostile",
     "sounds": [
       "sounds/attack/boss4_2"
     ]
   },
   "dm49": {
-    "category": "music",
+    "category": "neutral",
     "sounds": [
       "sounds/attack/dm491",
       "sounds/attack/dm492",
@@ -241,13 +247,15 @@
     ]
   },
   "dm50": {
-    "category": "music",
+    "category": "neutral",
     "sounds": [
       "sounds/attack/ex"
-    ]
+    ],
+    "volume": 0.5,
+    "max_distance": 96
   },
   "dm53": {
-    "category": "music",
+    "category": "neutral",
     "sounds": [
       "sounds/attack/dm531",
       "sounds/attack/dm532",
@@ -260,7 +268,7 @@
     ]
   },
   "dm0": {
-    "category": "music",
+    "category": "neutral",
     "sounds": [
       "sounds/attack/dm01",
       "sounds/attack/dm02",
@@ -269,55 +277,57 @@
     ]
   },
   "dm0_bullet": {
-    "category": "music",
+    "category": "neutral",
     "sounds": [
       "sounds/gun/dm0_bullet"
-    ]
+    ],
+    "volume": 0.5,
+    "max_distance": 48
   },
   "dm0_hit": {
-    "category": "music",
+    "category": "neutral",
     "sounds": [
       "sounds/attack/dm0hit"
     ]
   },
   "dm52": {
-    "category": "music",
+    "category": "neutral",
     "sounds": [
       "sounds/gun/dm52"
     ]
   },
   "mon3tr_att1": {
-    "category": "music",
+    "category": "neutral",
     "sounds": [
       "sounds/mon3tr/mon3tr_att1"
     ]
   },
   "mon3tr_att2": {
-    "category": "music",
+    "category": "neutral",
     "sounds": [
       "sounds/mon3tr/mon3tr_att2"
     ]
   },
   "mon3tr_dead": {
-    "category": "music",
+    "category": "neutral",
     "sounds": [
       "sounds/mon3tr/mon3tr_dead"
     ]
   },
   "mon3tr_half": {
-    "category": "music",
+    "category": "neutral",
     "sounds": [
       "sounds/mon3tr/mon3tr_half"
     ]
   },
   "mon3tr": {
-    "category": "music",
+    "category": "neutral",
     "sounds": [
       "sounds/mon3tr/mon3tr"
     ]
   },
   "dm55": {
-    "category": "music",
+    "category": "neutral",
     "sounds": [
       {
         "name": "sounds/gun/dm55",
@@ -326,55 +336,69 @@
     ]
   },
   "dm4_ex": {
-    "category": "music",
+    "category": "neutral",
     "sounds": [
       "sounds/gun/dm4_ex"
     ]
   },
   "dm4_shoot": {
-    "category": "music",
+    "category": "player",
     "sounds": [
       "sounds/gun/dm4_shoot"
-    ]
+    ],
+    "volume": 0.45,
+    "max_distance": 96
   },
   "ak47_reload": {
-    "category": "music",
+    "category": "player",
     "sounds": [
       "sounds/gun/ak47_reload"
-    ]
+    ],
+    "volume": 0.7,
+    "max_distance": 48
   },
   "handgun_reload": {
-    "category": "music",
+    "category": "player",
     "sounds": [
       "sounds/gun/handgun_reload"
-    ]
+    ],
+    "volume": 0.7,
+    "max_distance": 48
   },
   "exgun_reload": {
-    "category": "music",
+    "category": "player",
     "sounds": [
       "sounds/gun/exgun_reload"
-    ]
+    ],
+    "volume": 0.7,
+    "max_distance": 48
   },
   "shotgun_reload": {
-    "category": "music",
+    "category": "player",
     "sounds": [
       "sounds/gun/shotgun_reload"
-    ]
+    ],
+    "volume": 0.7,
+    "max_distance": 48
   },
   "m1871_reload": {
-    "category": "music",
+    "category": "player",
     "sounds": [
       "sounds/gun/m1871_reload"
-    ]
+    ],
+    "volume": 0.7,
+    "max_distance": 48
   },
   "p90_reload": {
-    "category": "music",
+    "category": "player",
     "sounds": [
       "sounds/gun/p90_reload"
-    ]
+    ],
+    "volume": 0.7,
+    "max_distance": 48
   },
   "wind": {
-    "category": "music",
+    "category": "neutral",
     "sounds": [
       "sounds/attack/wind1",
       "sounds/attack/wind2",
@@ -389,7 +413,7 @@
     ]
   },
   "dm60": {
-    "category": "music",
+    "category": "neutral",
     "sounds": [
       "sounds/attack/dm60_1",
       "sounds/attack/dm60_2",
@@ -407,7 +431,7 @@
     ]
   },
   "dm60s": {
-    "category": "music",
+    "category": "neutral",
     "sounds": [
       "sounds/attack/dm60s_1",
       "sounds/attack/dm60s_2",
@@ -424,7 +448,7 @@
     ]
   },
   "dm60z": {
-    "category": "music",
+    "category": "neutral",
     "sounds": [
       "sounds/attack/dm60z_1",
       "sounds/attack/dm60z_2",
@@ -434,43 +458,51 @@
     ]
   },
   "dm60a": {
-    "category": "music",
+    "category": "neutral",
     "sounds": [
       "sounds/attack/dm60a"
     ]
   },
   "cannon": {
-    "category": "music",
+    "category": "neutral",
     "sounds": [
       "sounds/gun/cannon"
-    ]
+    ],
+    "volume": 0.45,
+    "max_distance": 96
   },
   "dm31_shoot": {
-    "category": "music",
+    "category": "player",
     "sounds": [
       "sounds/gun/dm31_shoot"
-    ]
+    ],
+    "volume": 0.45,
+    "max_distance": 96
   },
   "dm31_charge": {
-    "category": "music",
+    "category": "neutral",
     "sounds": [
       "sounds/gun/dm31_charge"
-    ]
+    ],
+    "volume": 0.7,
+    "max_distance": 48
   },
   "soldier_8": {
-    "category": "music",
+    "category": "hostile",
     "sounds": [
       "sounds/attack/soldier_8"
     ]
   },
   "charge": {
-    "category": "music",
+    "category": "neutral",
     "sounds": [
       "sounds/gun/charge"
-    ]
+    ],
+    "volume": 0.7,
+    "max_distance": 48
   },
   "dm62a1": {
-    "category": "music",
+    "category": "neutral",
     "sounds": [
       "sounds/attack/dm62_1",
       "sounds/attack/dm62_2",
@@ -478,7 +510,7 @@
     ]
   },
   "dm62a2": {
-    "category": "music",
+    "category": "neutral",
     "sounds": [
       "sounds/attack/dm62_4",
       "sounds/attack/dm62_5",
@@ -486,7 +518,7 @@
     ]
   },
   "dm61": {
-    "category": "music",
+    "category": "neutral",
     "sounds": [
       "sounds/player/dm61_1",
       "sounds/player/dm61_2",
@@ -499,7 +531,7 @@
     ]
   },
   "dm61_att": {
-    "category": "music",
+    "category": "neutral",
     "sounds": [
       "sounds/attack/dm61att_1",
       "sounds/attack/dm61att_2",
@@ -510,99 +542,107 @@
     ]
   },
   "dm61_sss": {
-    "category": "music",
+    "category": "neutral",
     "sounds": [
       "sounds/attack/dm61_sss"
     ]
   },
   "dm63": {
-    "category": "music",
+    "category": "neutral",
     "sounds": [
       "sounds/player/dm63_1",
       "sounds/player/dm63_2",
       "sounds/player/dm63_3",
       "sounds/player/dm63_4"
-       ]
+    ]
   },
   "dm_parry": {
-    "category": "music",
+    "category": "neutral",
     "sounds": [
       "sounds/attack/parry/parry1",
       "sounds/attack/parry/parry2"
-      ]
+    ]
   },
   "war_dog_bark": {
-    "category": "music",
+    "category": "neutral",
     "sounds": [
       "sounds/war_dog/war_dog_bark_1",
       "sounds/war_dog/war_dog_bark_2",
       "sounds/war_dog/war_dog_bark_3"
-      ]
+    ]
   },
   "war_dog_angry": {
-    "category": "music",
+    "category": "neutral",
     "sounds": [
       "sounds/war_dog/war_dog_angry_1",
       "sounds/war_dog/war_dog_angry_2",
       "sounds/war_dog/war_dog_angry_3"
-       ]
+    ]
   },
   "war_dog_hurt": {
-    "category": "music",
+    "category": "neutral",
     "sounds": [
       "sounds/war_dog/war_dog_hurt"
-       ]
+    ]
   },
   "war_dog_death": {
-    "category": "music",
+    "category": "neutral",
     "sounds": [
       "sounds/war_dog/war_dog_death"
-      ]
+    ]
   },
   "war_dog_panting": {
-    "category": "music",
+    "category": "neutral",
     "sounds": [
       "sounds/war_dog/war_dog_panting"
-      ]
-      },
+    ]
+  },
   "war_dog_shoot": {
-    "category": "music",
+    "category": "player",
     "sounds": [
       "sounds/gun/war_dog_shoot"
-      ]
+    ],
+    "volume": 0.45,
+    "max_distance": 96
   },
   "demon_uav": {
-    "category": "music",
+    "category": "hostile",
     "sounds": [
       "sounds/demon_uav/demon_uav"
     ]
-    },
-    "demon_landmine": {
-      "category": "block",
-      "sounds": [
-        "sounds/block/landmine"
-      ]
-      },
-    "dm_explosion": {
-      "category": "neutral",
-      "sounds": [
-        "sounds/block/explode_0",
-        "sounds/block/explode_1",
-        "sounds/block/explode_2",
-        "sounds/block/explode_3"
-      ]
-      },
-    "dm_debris": {
-      "category": "neutral",
-      "sounds": [
-        "sounds/block/debris_0",
-        "sounds/block/debris_1",
-        "sounds/block/debris_2",
-        "sounds/block/debris_3"
-      ]
+  },
+  "demon_landmine": {
+    "category": "hostile",
+    "sounds": [
+      "sounds/block/landmine"
+    ],
+    "volume": 0.5,
+    "max_distance": 96
+  },
+  "dm_explosion": {
+    "category": "neutral",
+    "sounds": [
+      "sounds/block/explode_0",
+      "sounds/block/explode_1",
+      "sounds/block/explode_2",
+      "sounds/block/explode_3"
+    ],
+    "volume": 0.5,
+    "max_distance": 96
+  },
+  "dm_debris": {
+    "category": "neutral",
+    "sounds": [
+      "sounds/block/debris_0",
+      "sounds/block/debris_1",
+      "sounds/block/debris_2",
+      "sounds/block/debris_3"
+    ],
+    "volume": 0.5,
+    "max_distance": 96
   },
   "dm34_default": {
-    "category": "music",
+    "category": "neutral",
     "sounds": [
       "sounds/littleMaid_ONE/living_daytime1",
       "sounds/littleMaid_ONE/living_daytime2",
@@ -628,37 +668,11 @@
       "sounds/littleMaid_ONE/living_daytime22",
       "sounds/littleMaid_ONE/living_daytime23",
       "sounds/littleMaid_ONE/living_daytime24",
-      "sounds/littleMaid_ONE/living_daytime25",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null"
+      "sounds/littleMaid_ONE/living_daytime25"
     ]
   },
   "dm34_death": {
-    "category": "music",
+    "category": "neutral",
     "sounds": [
       "sounds/littleMaid_ONE/death1",
       "sounds/littleMaid_ONE/death2",
@@ -677,7 +691,7 @@
     ]
   },
   "dm34_hurt": {
-    "category": "music",
+    "category": "neutral",
     "sounds": [
       "sounds/littleMaid_ONE/hurt1",
       "sounds/littleMaid_ONE/hurt2",
@@ -707,7 +721,7 @@
     ]
   },
   "dm34_fall.small": {
-    "category": "music",
+    "category": "neutral",
     "sounds": [
       "sounds/littleMaid_ONE/hurt_nodamege1",
       "sounds/littleMaid_ONE/hurt_nodamege2",
@@ -729,7 +743,7 @@
     ]
   },
   "dm34_fall.big": {
-    "category": "music",
+    "category": "neutral",
     "sounds": [
       "sounds/littleMaid_ONE/hurt_fire1",
       "sounds/littleMaid_ONE/hurt_fire2",
@@ -743,7 +757,7 @@
     ]
   },
   "dm34_eat": {
-    "category": "music",
+    "category": "neutral",
     "sounds": [
       "sounds/littleMaid_ONE/eatSugar_MaxPower1",
       "sounds/littleMaid_ONE/eatSugar_MaxPower2",
@@ -760,7 +774,7 @@
     ]
   },
   "dm34_cook_start": {
-    "category": "music",
+    "category": "block",
     "sounds": [
       "sounds/littleMaid_ONE/cookingStart1",
       "sounds/littleMaid_ONE/cookingStart2",
@@ -774,7 +788,7 @@
     ]
   },
   "dm34_cook_over": {
-    "category": "music",
+    "category": "block",
     "sounds": [
       "sounds/littleMaid_ONE/cookingOver1",
       "sounds/littleMaid_ONE/cookingOver2",
@@ -790,7 +804,7 @@
     ]
   },
   "dm34_morning": {
-    "category": "music",
+    "category": "neutral",
     "sounds": [
       "sounds/littleMaid_ONE/goodmorning1",
       "sounds/littleMaid_ONE/goodmorning2",
@@ -807,7 +821,7 @@
     ]
   },
   "dm34_night": {
-    "category": "music",
+    "category": "neutral",
     "sounds": [
       "sounds/littleMaid_ONE/goodnight1",
       "sounds/littleMaid_ONE/goodnight2",
@@ -827,7 +841,7 @@
     ]
   },
   "dm34_tame": {
-    "category": "music",
+    "category": "neutral",
     "sounds": [
       "sounds/littleMaid_ONE/Recontract1",
       "sounds/littleMaid_ONE/Recontract2",
@@ -843,7 +857,7 @@
     ]
   },
   "dm34_farm": {
-    "category": "music",
+    "category": "neutral",
     "sounds": [
       "sounds/littleMaid_ONE/farmer_farm1",
       "sounds/littleMaid_ONE/farmer_farm2",
@@ -856,7 +870,7 @@
     ]
   },
   "dm34_target": {
-    "category": "music",
+    "category": "neutral",
     "sounds": [
       "sounds/littleMaid_ONE/sighting1",
       "sounds/littleMaid_ONE/sighting2",
@@ -876,81 +890,11 @@
       "sounds/littleMaid_ONE/sighting16",
       "sounds/littleMaid_ONE/sighting17",
       "sounds/littleMaid_ONE/sighting18",
-      "sounds/littleMaid_ONE/sighting19",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null",
-      "sounds/null"
+      "sounds/littleMaid_ONE/sighting19"
     ]
   },
   "dm34_sword": {
-    "category": "music",
+    "category": "neutral",
     "sounds": [
       "sounds/littleMaid_ONE/attack1",
       "sounds/littleMaid_ONE/attack2",
@@ -967,7 +911,7 @@
     ]
   },
   "dm34_bow": {
-    "category": "music",
+    "category": "neutral",
     "sounds": [
       "sounds/littleMaid_ONE/shoot_burst1",
       "sounds/littleMaid_ONE/shoot_burst2",
@@ -990,7 +934,7 @@
     ]
   },
   "dm34_follow": {
-    "category": "music",
+    "category": "neutral",
     "sounds": [
       "sounds/littleMaid_ONE/installation1",
       "sounds/littleMaid_ONE/installation2",
@@ -1004,7 +948,7 @@
     ]
   },
   "dm34_boost": {
-    "category": "music",
+    "category": "neutral",
     "sounds": [
       "sounds/littleMaid_ONE/addFuel1",
       "sounds/littleMaid_ONE/addFuel2",
@@ -1019,7 +963,7 @@
     ]
   },
   "dm34_ride": {
-    "category": "music",
+    "category": "neutral",
     "sounds": [
       "sounds/littleMaid_ONE/hurt_snow6",
       "sounds/littleMaid_ONE/hurt_snow7",
@@ -1029,7 +973,7 @@
     ]
   },
   "dm34_cook": {
-    "category": "music",
+    "category": "block",
     "max_distance": 10,
     "min_distance": null,
     "sounds": [
@@ -1041,7 +985,7 @@
     ]
   },
   "dm33_ex": {
-    "category": "music",
+    "category": "neutral",
     "max_distance": 30,
     "min_distance": null,
     "sounds": [
@@ -1053,7 +997,7 @@
     ]
   },
   "dm24_satt": {
-    "category": "music",
+    "category": "neutral",
     "max_distance": 30,
     "min_distance": null,
     "sounds": [
@@ -1065,8 +1009,8 @@
     ]
   },
   "dm34_m4a1": {
-    "category": "music",
-    "max_distance": 30,
+    "category": "player",
+    "max_distance": 96,
     "min_distance": null,
     "sounds": [
       {
@@ -1074,11 +1018,12 @@
         "name": "sounds/gun/dm34_m4a1",
         "volume": 1.0
       }
-    ]
+    ],
+    "volume": 0.34
   },
   "dm34_mossberg": {
-    "category": "music",
-    "max_distance": 30,
+    "category": "player",
+    "max_distance": 96,
     "min_distance": null,
     "sounds": [
       {
@@ -1086,11 +1031,12 @@
         "name": "sounds/gun/dm34_mossberg",
         "volume": 1.0
       }
-    ]
+    ],
+    "volume": 0.34
   },
   "dm34_awp": {
-    "category": "music",
-    "max_distance": 30,
+    "category": "player",
+    "max_distance": 96,
     "min_distance": null,
     "sounds": [
       {
@@ -1098,11 +1044,12 @@
         "name": "sounds/gun/dm34_awp",
         "volume": 1.0
       }
-    ]
+    ],
+    "volume": 0.34
   },
   "dm34_glock": {
-    "category": "music",
-    "max_distance": 30,
+    "category": "player",
+    "max_distance": 96,
     "min_distance": null,
     "sounds": [
       {
@@ -1110,10 +1057,11 @@
         "name": "sounds/gun/dm34_glock",
         "volume": 1.0
       }
-    ]
+    ],
+    "volume": 0.34
   },
   "dm34_gentle": {
-    "category": "music",
+    "category": "neutral",
     "max_distance": 30,
     "min_distance": null,
     "sounds": [
@@ -1125,7 +1073,7 @@
     ]
   },
   "dm34_war": {
-    "category": "music",
+    "category": "neutral",
     "max_distance": 30,
     "min_distance": null,
     "sounds": [
@@ -1137,7 +1085,7 @@
     ]
   },
   "dm34_attack": {
-    "category": "music",
+    "category": "neutral",
     "max_distance": 30,
     "min_distance": null,
     "sounds": [
@@ -1149,8 +1097,8 @@
     ]
   },
   "dm63_shoot": {
-    "category": "music",
-    "max_distance": 30,
+    "category": "player",
+    "max_distance": 96,
     "min_distance": null,
     "sounds": [
       {
@@ -1158,10 +1106,11 @@
         "name": "sounds/gun/dm63_shoot",
         "volume": 1.0
       }
-    ]
+    ],
+    "volume": 0.45
   },
   "dm63_sss": {
-    "category": "music",
+    "category": "neutral",
     "max_distance": 30,
     "min_distance": null,
     "sounds": [
@@ -1173,8 +1122,8 @@
     ]
   },
   "dm63_hit": {
-    "category": "music",
-    "max_distance": 30,
+    "category": "neutral",
+    "max_distance": 48,
     "min_distance": null,
     "sounds": [
       {
@@ -1182,10 +1131,11 @@
         "name": "sounds/attack/dm63_hit",
         "volume": 1.0
       }
-    ]
+    ],
+    "volume": 0.5
   },
   "dm8att": {
-    "category": "music",
+    "category": "neutral",
     "max_distance": 30,
     "min_distance": null,
     "sounds": [
@@ -1197,7 +1147,7 @@
     ]
   },
   "dm8ratt": {
-    "category": "music",
+    "category": "neutral",
     "max_distance": 30,
     "min_distance": null,
     "sounds": [
@@ -1207,14 +1157,14 @@
         "volume": 1.0
       },
       {
-          "is3D": false,
-          "name": "sounds/attack/dm8ratt_2",
-          "volume": 1.0
-        }
+        "is3D": false,
+        "name": "sounds/attack/dm8ratt_2",
+        "volume": 1.0
+      }
     ]
   },
   "dm8satt": {
-    "category": "music",
+    "category": "neutral",
     "max_distance": 30,
     "min_distance": null,
     "sounds": [
@@ -1226,7 +1176,7 @@
     ]
   },
   "dm8sss": {
-    "category": "music",
+    "category": "neutral",
     "max_distance": 30,
     "min_distance": null,
     "sounds": [
@@ -1236,9 +1186,9 @@
         "volume": 1.0
       }
     ]
-    },
+  },
   "dm54_att": {
-    "category": "music",
+    "category": "neutral",
     "max_distance": 30,
     "min_distance": null,
     "sounds": [
@@ -1248,9 +1198,9 @@
         "volume": 1.0
       }
     ]
-    },
+  },
   "dm54_satt": {
-    "category": "music",
+    "category": "neutral",
     "max_distance": 30,
     "min_distance": null,
     "sounds": [
@@ -1260,7 +1210,7 @@
         "volume": 1.0
       }
     ]
-    },
+  },
   "sweep_attack": {
     "category": "player",
     "sounds": [
@@ -1272,7 +1222,7 @@
       "sounds/attack/sweeping_edge/5",
       "sounds/attack/sweeping_edge/6"
     ]
-    },
+  },
   "critical_attack": {
     "category": "player",
     "sounds": [
@@ -1283,7 +1233,7 @@
       "sounds/attack/critical_hit/4",
       "sounds/attack/critical_hit/5"
     ]
-    },
+  },
   "sprint_attack": {
     "category": "player",
     "sounds": [

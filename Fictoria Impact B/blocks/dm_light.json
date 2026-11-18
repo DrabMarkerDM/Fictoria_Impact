@@ -29,9 +29,6 @@
         ],
         "looping": true
       },
-      "minecraft:custom_components": [
-        "block:dm_light"
-      ],
       "minecraft:selection_box": false
     }
   }

@@ -1,0 +1,45 @@
+{
+	"format_version": "1.10.0",
+	"animation_controllers": {
+		// 只负责「持矛的静态姿势」：off → hold（variant 8）→ use（正在使用物品）。
+		//
+		// **没有 attack 状态**，这是 2026-11-12 改的。原来它有：
+		//   hold → attack  (query.is_delayed_attacking == 1) || (variable.attack_time > 0)
+		//   attack → hold  (两个都归零)
+		// 问题出在 variable.attack_time：控制器只在**进入状态的那一刻**起播动画，
+		// 而 attack_time 在 mob 上不保证两次攻击之间归零（连击时上一轮还没走完
+		// 下一轮就来了），状态一直卡在 attack，动画就只播了第一遍。
+		// 表现就是用户报的"好几次攻击才播一次""走路时完全不播"。
+		// 控制器天生做不到"每次事件播一次"，这条路上没有解法。
+		//
+		// 所以戳刺交给 JS：melee_manager.js 在她每次命中时
+		// Entity.playAnimation("animation.dm34_spear_attack")，一发一次、精确对齐。
+		// 采集挥击（dm34_gather）早就是这么做的，见那个控制器的注释。
+		"controller.animation.dm34_spear": {
+			"initial_state": "off",
+			"states": {
+				"off": {
+					"transitions": [
+						{ "hold": "query.variant == 8" }
+					]
+				},
+				"hold": {
+					"animations": [ "melee_spear_hold" ],
+					"transitions": [
+						{ "use": "query.is_using_item" },
+						{ "off": "query.variant != 8" }
+					],
+					"blend_transition": 0.15
+				},
+				"use": {
+					"animations": [ "melee_spear_use" ],
+					"transitions": [
+						{ "hold": "!query.is_using_item" },
+						{ "off": "query.variant != 8" }
+					],
+					"blend_transition": 0.15
+				}
+			}
+		}
+	}
+}

@@ -851,7 +851,7 @@
         },
         "queue_command": {
           "command": [
-            "playsound sss @a[r=33] ~~~ 2.0 1.1"
+            "playsound sss @a[r=33] ~~~ 1.1 1.1"
           ]
             }
         }

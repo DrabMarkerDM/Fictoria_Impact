@@ -575,7 +575,7 @@
       "minecraft:movement.basic": {},
       "minecraft:jump.static": {},
       "minecraft:inventory": {
-        "inventory_size": 16,
+        "inventory_size": 26,
         "private": true
       },
       "minecraft:behavior.move_to_land": {
@@ -795,7 +795,7 @@
         },
         "queue_command": {
           "command": [
-            "playsound dm4_ex @a[r=33] ~~~ 2.5 1.0",
+            "playsound dm4_ex @a[r=33] ~~~ 1.3 1.0",
             "function dm4_sss"
           ]
         }

@@ -18,7 +18,7 @@
 "/event entity @e[type=mob:mon3tr] reset",
 "/execute positioned ^ ^ ^2 run summon mob:mon3tr ~~~",
 "@s summon_end",
-"/playsound mon3tr @a[r=50] ~~~ 3.0 1.0"
+"/playsound mon3tr @a[r=50] ~~~ 1.4 1.0"
 ]
 }
 }

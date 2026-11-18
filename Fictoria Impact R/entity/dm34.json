@@ -65,7 +65,7 @@
         "sitting": "animation.player.sit_2",
         "humanoid_big_head": "animation.humanoid.big_head",
         "humanoid_base_pose": "animation.humanoid.base_pose",
-        "look_at_target_default": "animation.humanoid.look_at_target.default",
+        "look_at_target_default": "animation.dm34_look.default",
         "look_at_target_gliding": "animation.humanoid.look_at_target.gliding",
         "look_at_target_swimming": "animation.humanoid.look_at_target.swimming",
         "move": "animation.humanoid.move",
@@ -84,7 +84,15 @@
         "swimming": "animation.player.swim",
         "use_item_progress": "animation.humanoid.use_item_progress",
         "get_in_bed": "animation.get_in_bed",
-        "cook": "animation.dm34_cook"
+        "cook": "animation.dm34_cook",
+        "shield_hold": "animation.dm34_shield_hold",
+        "shield_hold_bow": "animation.dm34_shield_hold_bow",
+        "shield_hold_crossbow": "animation.dm34_shield_hold_crossbow",
+        "melee_spear_hold": "animation.dm34_spear_hold",
+        "melee_spear_use": "animation.dm34_spear_use",
+        "melee_spear_attack": "animation.dm34_spear_attack",
+        "gather_swing": "animation.dm34_gather_swing",
+        "animation.dm34_gather_swing": "animation.dm34_gather_swing"
       },
       "animation_controllers": [
         { "humanoid_baby_big_head": "controller.animation.humanoid.baby_big_head" },
@@ -96,7 +104,7 @@
         { "holding": "controller.animation.humanoid.holding" },
         { "brandish_spear": "controller.animation.humanoid.brandish_spear" },
         { "charging": "controller.animation.humanoid.charging" },
-        { "attack": "controller.animation.att" },
+        { "attack": "controller.animation.dm34_att" },
         { "bow_and_arrow": "controller.animation.ranged_att" },
         { "crossbow_controller": "controller.animation.player.crossbow" },
         { "sleep": "controller.animation.dm_sleep" },
@@ -105,7 +113,10 @@
         { "damage_nearby_mobs": "controller.animation.humanoid.damage_nearby_mobs" },
         { "swimming": "controller.animation.humanoid.swimming" },
         { "use_item_progress": "controller.animation.humanoid.use_item_progress" },
-        { "cook": "controller.animation.dm34_cook" }
+        { "cook": "controller.animation.dm34_cook" },
+        { "shield": "controller.animation.dm34_shield" },
+        { "spear": "controller.animation.dm34_spear" },
+        { "gather": "controller.animation.dm34_gather" }
       ],
       "spawn_egg": {
         "texture": "eggs",

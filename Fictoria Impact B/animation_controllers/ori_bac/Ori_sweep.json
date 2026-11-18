@@ -15,7 +15,7 @@
 						}
 					],
 	"on_entry": [
-		"/playsound sweep @a[r=12] ~~~ 2.4 1.0",
+		"/playsound sweep @a[r=12] ~~~ 1.25 1.0",
 		"@s Ori_sweep"
 	]
 }

@@ -2,6 +2,9 @@
   "resource_pack_name": "Undefined World",
   "texture_name": "atlas.items",
   "texture_data": {
+    "field_manual": {
+    	"textures": "textures/items/dm_guide_book"
+    },
     "card_1": {
       "textures": "textures/items/card_1"
     },

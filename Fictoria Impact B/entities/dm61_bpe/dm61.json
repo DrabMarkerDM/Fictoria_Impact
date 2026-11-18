@@ -735,9 +735,9 @@
         },
         "queue_command": {
           "command": [
-            "playsound sss_1 @a[r=33] ~~~ 2.6 1.0",
+            "playsound sss_1 @a[r=33] ~~~ 1.3 1.0",
             "playsound dm61 @a[r=50] ~~~ 1.8 1.0",
-            "playsound dm61_sss @a[r=50] ~~~ 2.4 1.0",
+            "playsound dm61_sss @a[r=50] ~~~ 1.25 1.0",
             "tag @s add dm_skill_on",
             "tag @s remove dm_has_target",
             "scoreboard players set @s dm_skill_timer 0",

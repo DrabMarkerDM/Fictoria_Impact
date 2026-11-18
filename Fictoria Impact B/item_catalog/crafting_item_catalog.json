@@ -161,6 +161,7 @@
                 "items:card_2",
                 "items:card_3",
                 "items:remove",
+                "item:field_manual",
                 "item:maid_command",
                 "item:mode_awp",
                 "item:mode_glock",

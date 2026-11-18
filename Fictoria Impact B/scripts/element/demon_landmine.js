@@ -1,32 +1,14 @@
 import { system, world, EntityDamageCause } from "@minecraft/server";
 
-// ============================================================
-// demon_landmine.js — 恶魔地雷
-//
-// 本次重构：
-//   原实现是在 onPlace 里为【每一颗雷】创建一个 system.runInterval，
-//   100 颗雷 = 100 个 3 tick 定时器，定时器开销随雷数线性增长。
-//
-//   现在改为：
-//     · 全工程只有 1 个全局调度器（CHECK_INTERVAL = 3 tick）
-//     · 调度器遍历 MineTable（地雷坐标表）
-//     · 每颗雷不再持有自己的定时器
-//
-// 行为保持不变：
-//   · 触发条件仍是「实体水平 ±1 格、脚下 0.5 ~ 头顶 1.5 格」
-//   · 仍是黑名单模式：demon / monster 家族与 item / xp_orb 不触发
-//   · 仍有 180 秒半径检测熔断，之后只保留 onStepOn
-//   · 仍有连锁爆炸、爆炸 function 调用、临时光源
-//
-// 自我修复：
-//   · 雷被破坏 / 被清除后，方块校验会把它从表里摘掉
-//   · 若是旧存档里已存在、但没走过 onPlace 的雷，
-//     第一次被踩（onStepOn）时会补登记
-// ============================================================
+// demon_landmine.js — 恶魔地雷。
 
-// ============================================================
+// 全工程只有 1 个全局调度器（3 tick）遍历地雷坐标表，每颗雷不持有定时器
+// （原实现是每颗雷一个 runInterval，100 颗雷 = 100 个定时器）。
+// 触发：实体水平 ±1、脚下 0.5~头顶 1.5；黑名单模式（demon/monster 家族、item、xp_orb 不触发）。
+// 180 秒后熔断半径检测，只保留 onStepOn；仍有连锁爆炸与临时光源。
+// 雷被破坏会由方块校验摘表；旧存档里没走过 onPlace 的雷在被踩时补登记。
+
 // 常量
-// ============================================================
 
 const MINE_ID = "block:demon_landmine";
 
@@ -52,18 +34,8 @@ const VALIDATE_INTERVAL = 20;
 // 180 秒后熔断半径检测，只保留 onStepOn
 const MAX_ACTIVE_TICKS = 180 * 20;
 
-// ============================================================
-// 地雷坐标表
-//
-// key = `${dimId}|${x}|${y}|${z}`
-// value = {
-//   key, dimId, x, y, z,
-//   center: { x+0.5, y+0.5, z+0.5 },
-//   expireTick,          // 半径检测熔断时间点
-//   expireFlagged,       // 熔断提示音是否已播
-//   nextValidateTick     // 下一次方块存活校验时间点
-// }
-// ============================================================
+// 地雷坐标表：key = `${dimId}|${x}|${y}|${z}`
+// value = { key, dimId, x, y, z, center, expireTick, expireFlagged, nextValidateTick }
 const MineTable = new Map();
 
 // 维度缓存，避免每次 getDimensions 查表
@@ -90,9 +62,7 @@ function makeMineKey(dimId, x, y, z) {
     return `${dimId}|${x}|${y}|${z}`;
 }
 
-// ============================================================
 // 登记 / 注销
-// ============================================================
 function registerMine(dimension, location) {
     try {
         if (!dimension || !location) return undefined;
@@ -152,11 +122,9 @@ function unregisterMineAt(dimension, location) {
     } catch (_) { }
 }
 
-// ============================================================
 // 黑名单判定：
 // 排除 demon 和 monster 家族，其余全部触发。
 // 没有 family 组件的实体也触发。
-// ============================================================
 function shouldTrigger(entity) {
     try {
         if (!entity || !entity.isValid) return false;
@@ -177,9 +145,7 @@ function shouldTrigger(entity) {
     }
 }
 
-// ============================================================
 // 爆炸伤害
-// ============================================================
 function applyExplosionDamage(dimension, location) {
     const center = {
         x: location.x + 0.5,
@@ -229,9 +195,7 @@ function applyExplosionDamage(dimension, location) {
     }
 }
 
-// ============================================================
 // 触发爆炸
-// ============================================================
 function triggerExplosion(dimension, location) {
     // 防重复：方块已不是地雷说明已经炸过
     try {
@@ -300,9 +264,7 @@ function triggerExplosion(dimension, location) {
     });
 }
 
-// ============================================================
 // 连锁爆炸：搜索爆炸范围内其他地雷并延迟触发
-// ============================================================
 function chainExplode(dimension, location) {
     const chainRadius = Math.floor(EXPLOSION_RADIUS);
     const chainTargets = [];
@@ -340,11 +302,9 @@ function chainExplode(dimension, location) {
     }
 }
 
-// ============================================================
 // 单颗地雷的半径检测
-//
+
 // 返回 true 表示已触发（表项已由 triggerExplosion 摘除）
-// ============================================================
 function checkMineProximity(entry, now, dimension) {
     // 180 秒后熔断半径检测，只保留 onStepOn
     if (now > entry.expireTick) {
@@ -398,11 +358,9 @@ function checkMineProximity(entry, now, dimension) {
     return false;
 }
 
-// ============================================================
 // 方块存活校验
-//
+
 // 返回 false 表示该雷已不存在，应从表里摘除
-// ============================================================
 function validateMineBlock(entry, dimension) {
     try {
         const block = dimension.getBlock({ x: entry.x, y: entry.y, z: entry.z });
@@ -418,13 +376,11 @@ function validateMineBlock(entry, dimension) {
     }
 }
 
-// ============================================================
 // 全局调度器
-//
+
 // 全工程唯一的定时器。
 // 遍历 MineTable，按需做方块校验 + 半径检测。
 // 表为空时直接返回，零开销。
-// ============================================================
 system.runInterval(() => {
     if (MineTable.size === 0) return;
 
@@ -455,9 +411,7 @@ system.runInterval(() => {
     }
 }, CHECK_INTERVAL);
 
-// ============================================================
 // 自定义组件注册
-// ============================================================
 system.beforeEvents.startup.subscribe((initEvent) => {
     initEvent.blockComponentRegistry.registerCustomComponent(
         "block:demon_landmine",

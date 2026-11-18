@@ -1,0 +1,68 @@
+{
+	"format_version": "1.10.0",
+	"animation_controllers": {
+		"controller.animation.dm34_shield": {
+			"initial_state": "down",
+			"states": {
+				"down": {
+					"transitions": [
+						{
+							"melee": "query.property('dm34:shield_up') && query.variant != 2 && query.variant != 3"
+						},
+						{
+							"bow": "query.property('dm34:shield_up') && query.variant == 2"
+						},
+						{
+							"crossbow": "query.property('dm34:shield_up') && query.variant == 3"
+						}
+					]
+				},
+				"melee": {
+					"animations": [ "shield_hold" ],
+					"blend_transition": 0.0,
+					"transitions": [
+						{
+							"down": "!query.property('dm34:shield_up')"
+						},
+						{
+							"bow": "query.variant == 2"
+						},
+						{
+							"crossbow": "query.variant == 3"
+						}
+					]
+				},
+				"bow": {
+					"animations": [ "shield_hold_bow" ],
+					"blend_transition": 0.0,
+					"transitions": [
+						{
+							"down": "!query.property('dm34:shield_up')"
+						},
+						{
+							"melee": "query.variant != 2 && query.variant != 3"
+						},
+						{
+							"crossbow": "query.variant == 3"
+						}
+					]
+				},
+				"crossbow": {
+					"animations": [ "shield_hold_crossbow" ],
+					"blend_transition": 0.0,
+					"transitions": [
+						{
+							"down": "!query.property('dm34:shield_up')"
+						},
+						{
+							"melee": "query.variant != 2 && query.variant != 3"
+						},
+						{
+							"bow": "query.variant == 2"
+						}
+					]
+				}
+			}
+		}
+	}
+}

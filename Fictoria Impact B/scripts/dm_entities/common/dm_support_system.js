@@ -6,11 +6,9 @@ import {
     REMOVE_PRIORITY
 } from "./event_bus.js";
 
-// ============================================================
 // 日志开关
 // false：关闭高频支援日志，性能更好
 // true：恢复输出支援系统日志
-// ============================================================
 const DEBUG_SUPPORT = false;
 
 function supportLog(...args) {
@@ -19,18 +17,14 @@ function supportLog(...args) {
     }
 }
 
-// ============================================================
 // 纯 JS 内存集合：
 // 记录哪些干员正在执行拉怪。
 // 凡是在这里的实体，受击事件将会被铁血取消。
-// ============================================================
 const cancelHurtFollowerIds = new Set();
 
-// ============================================================
 // 怪物仇恨锁：
 // 记录当前怪物正在被哪个干员“接单”拉仇恨，
 // 防止多干员抢单导致 AI 脑瘫。
-// ============================================================
 const monsterAggroLock = new Map();          // monsterId -> followerId
 
 // 优化：反向索引
@@ -38,64 +32,21 @@ const monsterAggroLock = new Map();          // monsterId -> followerId
 // 释放支援锁时不再全表遍历 monsterAggroLock。
 const followerLockedMonsters = new Map();
 
-// ============================================================
 // 压力错峰缓存
-//
+
 // 修复版：
 // 不再存储 offset，而是存储“下一次允许更新压力的 tick”。
-// ============================================================
 const PressureOffsetCache = new Map();
 
 // 压力更新周期：10 tick
 const PRESSURE_UPDATE_INTERVAL = 10;
 
-// ============================================================
-// 索敌状态闸门（压力系统用）
-//
-// ── 为什么需要 ────────────────────────────────────────────
-// 压力只看「压力半径内有多少怪」，从不看「这些怪看不看得见」。
-// 结果：干员站在墙后，隔壁房间 4 只怪就能把它顶到 60 压，
-// 它自己也会被算成「正在交战的人」，不该求援的求援，
-// 该去支援别人时又因为压力过高被拦在门外。
-//
-// 现在加一道闸门：没在索敌 → 身边有多少怪都不升压。
-// 它的压力长期接近 0，于是仍然满足「响应别人求援」的条件
-// （processHurtSupport 要求 followerPressure <= 25）。
-//
-// ── 索敌状态从哪来 ───────────────────────────────────────
-// 直接读 Entity.target：有目标且 isValid 就算在索敌。
-//
-// 为什么不用 tag dm_has_target：
-//   那条 tag 依赖实体 JSON 里配链路（30 个干员靠 on_target_acquired 直连，
-//   dm0 靠 dm:target_sensor 走 JS 中转），dm6 / dm21 两条都没有，
-//   拿不到 tag 就永远算作没在索敌。
-//   改用 target 之后全实体通用，不用动任何 JSON。
-//   而且 tag 本来就是从 target 派生的，两者语义等价。
-//
-// Entity.target 是 experimental API（文档整段包在
-// `::: moniker range="=minecraft-bedrock-experimental"` 里，
-// 2.13.0-beta 才进 changelog 的正式变更记录），
-// 但本工程世界开了 Beta APIs 实验，运行时可读
-// （dm0 在游戏里能拿到 dm_has_target，就是同一个 target 派生出来的）。
-//
-// 只判断「目标是不是敌人」，不关心具体是谁 —— 口径与目标引擎一致：
-//   敌人 = monster 家族（attackable_target_manager.js 的 ENEMY_FAMILY）。
-//   全工程 26 个 monster 实体恰好就是全部可战斗敌人
-//   （demon:* 全部 + mob:demon_uav + demon:war_dog），
-//   demon 家族里剩下的 bullet / roar 不带 monster，本来就不该当目标。
-//
-//   顺带把玩家和己方排掉了，这一层必须有：
-//   JSON 里 owner_hurt_by_target / owner_hurt_target / hurt_by_target 的过滤器
-//   是 is_family: other != dm，玩家不属于 dm 家族，这个条件对玩家恒成立，
-//   等于没过滤。玩家拿剑敲一下干员，hurt_by_target 就会把玩家写成 target。
-//   若不排，误敲会让干员压力直接拉满 60 去找人应援。
-//   干员互殴同理（dm 家族不带 monster）。
-//
-// 不做视线检测：getBlockFromRay 每个单位每轮都要打射线，
-// 干员一多就是成百上千次方块查询，成本远超收益。
-// ============================================================
-
-// 脱战方向的 JS 防抖：多目标来回切换时索敌状态会跳，连续 2 秒没命中才认脱战
+// 索敌状态闸门：没在索敌 → 身边多少怪都不升压（墙后 4 只怪能把人顶到 60 压）。
+// 判据直接用 Entity.target（experimental，本世界开了 Beta APIs），
+// 不用 dm_has_target：那条 tag 依赖各实体 JSON 配链路，dm6 / dm21 没有。
+// 目标必须是 monster 家族：玩家和己方能被 JSON 的 hurt_by_target 写成 target
+// （is_family != dm 对玩家恒成立），不排掉敲一下就把压力拉满。
+// 不做视线检测（射线成本远超收益）。
 const ENGAGE_HOLD_TICKS = 40;
 
 // 缓存上限，超出后淘汰最久未更新的
@@ -104,16 +55,8 @@ const ENGAGE_CACHE_MAX = 256;
 // unitId -> { engaged, lastSeen }
 const EngagementCache = new Map();
 
-// ============================================================
-// 索敌判定（带防抖）
-//
-// 上升沿立即生效：锁上目标就能涨压，不延迟。
-// 下降沿延迟 ENGAGE_HOLD_TICKS：换目标的瞬间 target 会短暂变空，
-// 靠这 2 秒兜住，防止压力抖动。
-//
-// target 可能抛 InvalidEntityError，必须包 try。
-// 只有 monster 家族的目标才算威胁（见上方说明）。
-// ============================================================
+// 索敌判定（带防抖）：上升沿立即生效；下降沿延迟 ENGAGE_HOLD_TICKS，
+// 兜住换目标那一瞬间的 target 变空。读 target 必须包 try（InvalidEntityError）。
 function resolveEngagement(unit, nowTick) {
     const id = unit.id;
 
@@ -182,9 +125,7 @@ const SupportModeConfigCache = new Map();
 let SUPPORT_CACHE_READY = false;
 let SUPPORT_MAX_ALERT = 0;
 
-// ============================================================
 // 仇恨锁工具
-// ============================================================
 function addAggroLock(monsterId, followerId) {
     if (!monsterId || !followerId) return;
 
@@ -232,9 +173,7 @@ function releaseFollowerAggroLocks(followerId) {
     }
 }
 
-// ============================================================
 // 配置工具
-// ============================================================
 function cleanString(value) {
     return typeof value === "string" ? value.trim() : value;
 }
@@ -322,11 +261,9 @@ function resolveSupportModeConfig(sharedRegistry, follower) {
     }
 }
 
-// ============================================================
 // 实体移除清理
-//
+
 // 不改变支援逻辑，只清理内存资产，降低长期运行泄漏风险。
-// ============================================================
 registerEntityRemoveHandler("support_cache", (event) => {
     try {
         const id = event.removedEntity?.id;
@@ -346,11 +283,9 @@ registerEntityRemoveHandler("support_cache", (event) => {
     } catch (_) { }
 }, REMOVE_PRIORITY.SUPPORT_CACHE);
 
-// ============================================================
 // 免疫红光与击退
-//
+
 // 改为注册到统一受击总线，不再自己订阅 entityHurt。
-// ============================================================
 function handleSupportSilence(event) {
     const { hurtEntity } = event;
 
@@ -402,24 +337,11 @@ export class DmSupportModule {
         supportLog("[DM-Engine Support] 双向锁及内存资产安全解开。");
     }
 
-    /**
-     * 主循环 Tick：
-     * 状态维持 + 超时熔断 + 动态仇恨传播
-     *
-     * 修复版：
-     * 原逻辑会先判断 leader 压力是否 <= 25。
-     * 如果目标怪死亡后 leader 压力下降，会先释放支援锁，
-     * 导致后面的仇恨传导逻辑无法执行。
-     *
-     * 现在改为：
-     * 1. 先检查支援目标是否死亡。
-     * 2. 如果目标死亡，优先尝试把仇恨传导给最近敌人。
-     * 3. 传导成功则继续支援，不释放锁。
-     * 4. 传导失败才释放支援锁。
-     *
-     * 范围保持不变：
-     * 仍然使用 config.pressureRadius ?? 12。
-     */
+                /*
+         * 主循环 Tick：状态维持 + 超时熔断 + 动态仇恨传播。
+         * 顺序固定：先查支援目标是否死亡 → 死了优先把仇恨传导给最近敌人 → 传导成功继续支援，
+         * 失败才释放支援锁（反过来会先释放锁，传导永远不执行）。
+         */
     static processMainLoopTick(unit, config) {
         if (!unit || !unit.isValid) return;
 
@@ -442,11 +364,8 @@ export class DmSupportModule {
                 const monsterId = unit.getDynamicProperty("dm:support_target_monster");
                 let monster = monsterId ? world.getEntity(monsterId) : null;
 
-                // ============================================================
-                // ★ 核心修复：
-                // 目标怪死亡 / 失效时，优先尝试仇恨传导。
-                // 不要先因为 leader 压力下降而释放支援锁。
-                // ============================================================
+                // 目标怪死亡 / 失效时先尝试仇恨传导，再考虑释放支援锁
+                // （先释放锁的话传导永远不执行）。
                 if (!monster || !monster.isValid) {
                     supportLog("[DM-Engine Support] 目标怪猝死！正在执行广播级仇恨转移...");
 
@@ -470,13 +389,11 @@ export class DmSupportModule {
                     supportLog("[DM-Engine Support] 周围已肃清或无法传导仇恨，支援结束。");
                     needRelease = true;
                 } else {
-                    // ============================================================
                     // 仇恨刚传导成功后，给 30 tick 保护期。
-                    //
+
                     // 防止目标怪刚死亡、仇恨刚传导到新怪时，
                     // leader 的 dm_pressure 还没来得及刷新，
                     // 支援锁就因为 pressure <= 25 被立刻释放。
-                    // ============================================================
                     const transferTick = unit.getDynamicProperty("dm:support_transfer_tick") ?? 0;
                     const inTransferGrace = (nowTick - transferTick) < 30;
 
@@ -502,13 +419,8 @@ export class DmSupportModule {
     }
 
     /**
-     * 支援目标死亡后的仇恨传导
-     *
-     * 从支援者附近寻找最近的未被其他支援者锁定的怪物，
-     * 然后把支援目标切换过去，并重新制造仇恨。
-     *
-     * 范围保持不变：
-     * 仍然使用 config.pressureRadius ?? 12。
+     * 支援目标死亡后的仇恨传导：从支援者附近找最近的、未被其他支援者锁定的怪物，
+     * 把支援目标切过去并重新制造仇恨。范围仍用 config.pressureRadius ?? 12。
      */
     static _transferSupportTarget(unit, config, leaderId, nowTick) {
         try {
@@ -621,17 +533,10 @@ export class DmSupportModule {
         }
     }
 
-    /**
-     * 性能降频优化网（融入受击实时通道）
-     *
-     * 修复：
-     * 原错峰逻辑使用 nowTick % 10 === offset。
-     * 由于 manager 是 5 tick 一次，很多 offset 永远无法命中，
-     * 导致“范围内敌人数量多”无法正常升压。
-     *
-     * 现在改为“到期制”：
-     * 每个单位记录下一次允许更新压力的 tick。
-     */
+        /**
+         * 压力更新错峰改成「到期制」：每个单位记录下次允许更新的 tick。
+         * 原来的 nowTick % 10 === offset 在 5 tick 周期下很多 offset 永远命中不到。
+         */
     static updateUnitPressure(unit, config, targets, lastDamageTickMap) {
         if (!unit || !unit.isValid) return 0;
 
@@ -640,10 +545,8 @@ export class DmSupportModule {
         const lastHurtTick = unit.getDynamicProperty("dm_last_hurt_tick") ?? 0;
         const tickSinceHurt = nowTick - lastHurtTick;
 
-        // ============================================================
         // 只要在 5 秒（100 tick）内受过伤，
         // 直接强行刺穿错峰限制，立刻实时更新压力。
-        // ============================================================
         if (tickSinceHurt > 100) {
             let nextDueTick = PressureOffsetCache.get(unit.id);
 
@@ -673,15 +576,13 @@ export class DmSupportModule {
             PressureOffsetCache.set(unit.id, nowTick + PRESSURE_UPDATE_INTERVAL);
         }
 
-        // ============================================================
         // 空间环境压力探测逻辑
-        //
+
         // 范围保持不变：
         // config.pressureRadius ?? 12
-        //
+
         // 新增索敌闸门：先数出半径内的敌人个数，
         // 再看这个单位到底在不在索敌。不在索敌就一个都不算。
-        // ============================================================
         const pressureRadius = config.pressureRadius ?? 12;
         const pressureRadiusSq = pressureRadius * pressureRadius;
 
@@ -719,17 +620,8 @@ export class DmSupportModule {
             } catch (_) { }
         }
 
-        // ============================================================
-        // 索敌闸门
-        //
-        // 没在索敌说明敌人隔在墙那边，看不见也不构成威胁。
-        // 这种单位身边有多少怪都不升压，压力留在低位，
-        // 于是它仍然是「可以响应别人求援的人」，
-        // 而不是被误判成「自己也在挨打的人」。
-        //
-        // 注意：挨打加的那 60 点不受这道闸门影响（见下方 tickSinceHurt），
-        // 真被打了照样立刻拉满，闸门只管「身边数量」这一项。
-        // ============================================================
+                // 索敌闸门：没在索敌说明敌人在墙那边，不升压，这样它仍能响应别人的求援。
+                // 挨打加的 60 点不受这道闸门影响（见 tickSinceHurt）。
         if (
             nearbyMonsterCount > 0 &&
             !resolveEngagement(unit, nowTick)

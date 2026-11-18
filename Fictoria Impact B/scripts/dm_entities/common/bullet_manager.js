@@ -4,20 +4,18 @@ import { BulletEffects61 } from '../dm61/dm61_bullet.js';
 import { shouldBlockProjectileFriendlyFire } from "./player_attack_blocker.js";
 import { applyBuffModifier } from "./damage_buff_calculator.js";
 
-// ============================================================
 // BulletDamage 类
-//
+
 // 第 6 个参数 aoeConfig（对群配置，和 melee_manager 风格一致）：
 // {
 //     aoeEnabled: boolean,  // 对群总开关（默认 false / 不传 = 关闭）
 //     radius: number,       // 对群范围（格），默认 3
 //     limit: number         // 最大攻击敌人数量，0 = 无限制，默认 4
 // }
-//
+
 // 对群模式只有一种：命中后对群（dm48 模式）。
 // 命中瞬间以命中点为中心做范围伤害。
 // 贯穿对群已移交 JSON 层（area_attack / 动画控制器）。
-// ============================================================
 class BulletDamage {
     constructor(gun, caliber, damage, cause = EntityDamageCause.override, extraEffect = null, aoeConfig = null) {
         this.gun = gun;
@@ -38,9 +36,7 @@ class BulletDamage {
     }
 }
 
-// ============================================================
 // DAMAGE 配置表
-// ============================================================
 const DAMAGE = {
     "bullet:dm34_m4a1": new BulletDamage('M4A1', "bullet_m4a1", 6),
     "bullet:dm34_moss": new BulletDamage('MOSS', "bullet_moss", 46),
@@ -68,9 +64,7 @@ const DAMAGE = {
     )
 };
 
-// ============================================================
 // 辅助函数：安全执行指令
-// ============================================================
 const runEffectCommands = (dimension, loc, commands) => {
     const { x, y, z } = loc;
     for (const cmd of commands) {
@@ -80,14 +74,12 @@ const runEffectCommands = (dimension, loc, commands) => {
     }
 };
 
-// ============================================================
 // 主碰撞结算
-//
+
 // 流程：
 // 1. 主目标受基础伤害（带力量/虚弱修正）
 // 2. 若开启对群：以命中点为中心做范围伤害（带修正）
 // 3. 执行 extraEffect（dm48 特效等）
-// ============================================================
 export const bulletEntityImpact = (bulletImpactInfo) => {
     try {
         const projectile = bulletImpactInfo.projectile;

@@ -353,7 +353,7 @@
       "minecraft:movement.basic": {},
       "minecraft:jump.static": {},
       "minecraft:inventory": {
-        "inventory_size": 16,
+        "inventory_size": 26,
         "private": true
       },
       "minecraft:behavior.move_to_land": {
@@ -627,7 +627,7 @@
             "scoreboard players set @s dm_skill_timer 0",
             "particle dm:dm33_ex ^ ^1 ^1.5",
             "damage @e[tag=!dm,family=monster,r=9] 66 magic entity @s",
-            "playsound dm33_ex @a[r=33] ~~~ 3.0 1.0",
+            "playsound dm33_ex @a[r=33] ~~~ 1.4 1.0",
             "effect @e[tag=!dm,type=!player:dm33,family=monster,r=9] weakness 3 4",
             "effect @e[tag=!dm,type=!player:dm33,family=monster,r=9] slowness 3 4"
           ]

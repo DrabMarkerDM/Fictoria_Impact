@@ -825,13 +825,13 @@
         },
         "queue_command": {
           "command": [
-            "playsound sss @a[r=33] ~~~ 2.1 1.0",
+            "playsound sss @a[r=33] ~~~ 1.15 1.0",
             "kill @e[type=bullet:dm31_bullet]",
             "kill @e[type=bullet:dm31_1_bullet]",
             "kill @e[type=bullet:dm31_2_bullet]",
             "effect @s invisibility 1 255",
             "replaceitem entity @s slot.armor.chest 1 armor:dm31_armor 1",
-            "playsound handgun_reload @a[r=42] ~~~ 1.8 0.9",
+            "playsound handgun_reload @a[r=56] ~~~ 1.8 0.9",
             "execute positioned ^ ^ ^ run execute at @e[type=!player:dm31,tag=!dm,family=monster,r=32,c=1] run summon player:dm31_1 ~~1~",
             "damage @e[tag=!dm,family=monster,r=32] 8 entity_attack entity @e[type=player:dm31_1,c=1]"
           ]

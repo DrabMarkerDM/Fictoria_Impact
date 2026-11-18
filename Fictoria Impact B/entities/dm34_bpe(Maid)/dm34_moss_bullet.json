@@ -33,10 +33,7 @@
       "minecraft:projectile": {
         "on_hit": {
           "definition_event": {
-            "affect_projectile": true,
-            "event_trigger": {
-              "event": "dm34_mossberg"
-            }
+            "affect_projectile": true
           },
           "impact_damage": {
             "knockback": false
@@ -90,7 +87,7 @@
       "minecraft:entity_spawned": {
         "queue_command": {
           "command": [
-            "playsound dm34_mossberg @a[r=33] ~~~ 3.0 1.0"
+            "playsound dm34_mossberg @a[r=100] ~~~ 1.4 1.0"
           ]
         }
       },

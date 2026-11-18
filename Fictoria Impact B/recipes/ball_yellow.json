@@ -1,0 +1,27 @@
+{
+  "format_version": "1.12",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "items:ball_yellow"
+    },
+
+
+    "tags": [ "crafting_table" ],
+    "pattern": [
+      "###",
+      "#X#",
+      "###"
+    ],
+    "key": {
+      "#": {
+        "item": "minecraft:gold_ingot"
+      },
+      "X": {
+        "item": "items:card_3"
+      }
+    },
+    "result": {
+      "item": "items:fictoria_ball_empty_yellow"
+    }
+  }
+}

@@ -19,10 +19,7 @@
 			"minecraft:display_name": {
 				"value": "Maid Command"
 			},
-				"minecraft:durability": {
-					"max_durability": 2437
-				},
-				"minecraft:icon": {
+								"minecraft:icon": {
 					"texture": "maid_command"
 				}
 			}

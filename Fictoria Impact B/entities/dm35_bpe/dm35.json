@@ -609,7 +609,7 @@
             "event entity @s s1",
              "tag @s add dm_skill_on",
             "tag @s remove dm_has_target",
-            "playsound sss @a[r=33] ~~~ 2.0 1.2"
+            "playsound sss @a[r=33] ~~~ 1.1 1.2"
           ]
         }
       },

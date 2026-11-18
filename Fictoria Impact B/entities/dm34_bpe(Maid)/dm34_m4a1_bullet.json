@@ -76,7 +76,7 @@
       "minecraft:entity_spawned": {
         "queue_command": {
           "command": [
-            "playsound dm34_m4a1 @a[r=33] ~~~ 3.0 1.0"
+            "playsound dm34_m4a1 @a[r=100] ~~~ 1.4 1.0"
           ]
         }
       },

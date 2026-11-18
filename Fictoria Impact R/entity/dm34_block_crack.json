@@ -1,0 +1,18 @@
+{
+  "format_version": "1.10.0",
+  "minecraft:client_entity": {
+    "description": {
+      "identifier": "dm34:block_crack",
+      "materials": {
+        "default": "dm34_crack"
+      },
+      "textures": {
+        "default": "textures/entity/dm34_block_crack"
+      },
+      "geometry": {
+        "default": "geometry.dm34_block_crack"
+      },
+      "render_controllers": [ "controller.render.dm34_block_crack" ]
+    }
+  }
+}

@@ -1,23 +1,7 @@
-/**
- * 幻域球回收系统（类宝可梦精灵球）— 附魔/特殊物品整合修复版 + 幻域球套娃保护
- * 适配 Fictoria Impact / SAPI 2.7.0
- *
- * 本次更新内容：
- *
- * 1. 空地图 minecraft:empty_map 可以保存。
- * 2. 已探索地图 minecraft:filled_map 无法保存，直接掉落。
- * 3. 潜影盒 / 收纳袋无法保存，直接掉落。
- * 4. 书与笔 writable_book、成书 written_book 稳妥起见掉落。
- * 5. 附魔书 enchanted_book 不再被误判为记录书，会正常保存附魔。
- * 6. 所有附魔物品都会尝试读取并保存附魔。
- * 7. 附魔恢复兼容 enchantable / stored_enchantments。
- *
- * 8. ★ 新增：幻域球套娃保护
- *    - 空幻域球 items:fictoria_ball_empty_xxx 可以正常保存。
- *    - filled 幻域球 items:fictoria_ball_filled_xxx 不能收回。
- *    - filled_cd 冷却版满球也视为 filled，不能收回。
- *    - 如果干员背包里有 filled 幻域球，直接原地掉落，不写入球数据。
- *    - 旧存档里如果已经错误保存过 filled 幻域球，放置干员时也会作为掉落物丢出。
+/*
+ * 幻域球回收系统（类宝可梦精灵球）。保存：背包 36 格 + 附魔/名字/耐久（兼容 enchantable /
+ * stored_enchantments）。直接掉落：潜影盒、收纳袋、filled_map、书与笔、成书；空地图与附魔书
+ * 正常保存。套娃保护：filled 幻域球（含 _cd、带 fictoria:bag_data 的）一律不收回，原地掉落。
  */
 import * as Server from "@minecraft/server";
 
@@ -28,9 +12,7 @@ const {
     Direction
 } = Server;
 
-// ============================================================
 // 字符串工具
-// ============================================================
 function trimString(value) {
     return typeof value === "string" ? value.trim() : value;
 }
@@ -188,9 +170,7 @@ for (const [emptyId, cfg] of Object.entries(BALL_TYPES)) {
     COOLING_TO_READY_MAP[cfg.filledCooling] = cfg.filledReady;
 }
 
-// ============================================================
 // 战术 UI 状态键
-// ============================================================
 const UI_DP_KEYS = trimArray([
     "fictoria:ui_mode",
     "fictoria:ui_home",
@@ -212,6 +192,18 @@ const UI_BALL_TO_ENTITY = {
 const BAG_DP_KEY = "fictoria:bag_data";
 const OWNER_DP_KEY = "ownerId";
 
+// 扩展点：幻域球不认识的装备槽 / 自定义动态属性由使用方注册接管
+// （原问题：收回女仆只存 36 格，装备槽与动态属性随 remove() 消失）。
+//   capture(maid, ball) 写球属性 / read(ball) 在清属性前读进内存 / apply(maid, data) 还原
+// 不注册就完全不影响现有行为。
+const BALL_EXTENSIONS = [];
+
+export function registerBallExtension(ext) {
+    if (ext !== null && typeof ext === "object" && BALL_EXTENSIONS.indexOf(ext) === -1) {
+        BALL_EXTENSIONS.push(ext);
+    }
+}
+
 const LORE_LINE_LENGTH = 50;
 const HIDE_CHAR = "\u00a7z";
 
@@ -220,6 +212,7 @@ const CD_TEXTURE_SCAN_TICKS = 20;
 
 const REQUIRE_OWNER = false;
 
+// 排除 / 包含列表
 // ============================================================
 // 排除 / 包含列表
 // ============================================================
@@ -244,30 +237,8 @@ const INCLUDE_TYPES = trimArray([]);
 const EXCLUDE_TYPE_SET = trimArrayToSet(EXCLUDE_TYPES);
 const INCLUDE_TYPE_SET = trimArrayToSet(INCLUDE_TYPES);
 
-// ============================================================
-// 特殊物品：收回时不保存，直接原地掉落
-//
-// 当前规则：
-//
-// 1. 容器类：
-//    - shulker_box：潜影盒
-//    - bundle：收纳袋
-//
-// 2. 地图类：
-//    - filled_map：已探索地图，带地图内容，无法安全重建，掉落
-//    - empty_map：空地图，没有地图内容，可以保存
-//
-// 3. 记录类书籍：
-//    - writable_book：书与笔
-//    - written_book：成书
-//
-// 4. 附魔书：
-//    - enchanted_book：不掉落，正常保存附魔
-//
-// 普通书 minecraft:book 也稳妥掉落，
-// 可以把 "minecraft:book" 加入 COMPLEX_DROP_EXACT_TYPES。
-// 但这样会导致通过指令附魔的普通书也无法保存附魔。
-// ============================================================
+// 特殊物品：收回时不保存，直接原地掉落 —— 潜影盒、收纳袋、filled_map、
+// 书与笔、成书。空地图（无内容）与附魔书（要保附魔）正常保存。
 const COMPLEX_DROP_TYPE_PATTERNS = [
     "shulker_box",
     "bundle",
@@ -285,25 +256,19 @@ function isComplexDroppableItem(item) {
 
         const id = String(item.typeId).toLowerCase();
 
-        // ============================================================
         // 附魔书强制允许保存。
-        //
+
         // 防止未来某个模糊匹配误伤 enchanted_book。
-        // ============================================================
         if (id.includes("enchanted_book")) {
             return false;
         }
 
-        // ============================================================
         // 精确匹配记录类书籍
-        // ============================================================
         if (COMPLEX_DROP_EXACT_TYPES.has(id)) {
             return true;
         }
 
-        // ============================================================
         // 容器类 / 已探索地图模糊匹配
-        // ============================================================
         for (const pattern of COMPLEX_DROP_TYPE_PATTERNS) {
             if (id.includes(pattern)) {
                 return true;
@@ -316,17 +281,7 @@ function isComplexDroppableItem(item) {
     }
 }
 
-// ============================================================
-// ★ 新增：幻域球套娃保护
-//
-// 判断一个物品是不是 filled 幻域球。
-//
-// 规则：
-// - items:fictoria_ball_empty_xxx 是空球，不拦截。
-// - items:fictoria_ball_filled_xxx 是满球，拦截。
-// - items:fictoria_ball_filled_xxx_cd 是冷却版满球，拦截。
-// - 如果物品上带有 fictoria:bag_data，也视为已装载幻域球，拦截。
-// ============================================================
+// 套娃保护：empty_* 放行；filled_* 与 filled_*_cd 拦截；带 fictoria:bag_data 的也拦截。
 function isFilledFictoriaBallTypeId(typeId) {
     try {
         if (!typeId) return false;
@@ -389,21 +344,7 @@ function dropItemEntity(entity, item) {
     }
 }
 
-// ============================================================
-// 附魔序列化
-//
-// 读取物品附魔。
-//
-// 返回格式：
-// [
-//   { id: "minecraft:sharpness", level: 5 },
-//   ...
-// ]
-//
-// 兼容：
-// - minecraft:enchantable
-// - minecraft:stored_enchantments
-// ============================================================
+// 读取物品附魔 → [{ id, level }]，兼容 enchantable / stored_enchantments。
 function serializeEnchantments(item) {
     try {
         if (!item || !item.typeId) return undefined;
@@ -461,14 +402,7 @@ function serializeEnchantments(item) {
     }
 }
 
-/**
- * 尝试根据附魔 ID 获取可写入的附魔类型。
- *
- * 兼容：
- * - EnchantmentType 构造器
- * - MinecraftEnchantmentTypes 枚举
- * - 直接字符串 ID
- */
+/** 附魔 ID → 可写入的附魔类型。兼容 EnchantmentType / MinecraftEnchantmentTypes / 字符串。 */
 function getEnchantmentTypeById(id) {
     if (!id) return undefined;
 
@@ -506,17 +440,7 @@ function getEnchantmentTypeById(id) {
     return rawId;
 }
 
-/**
- * 恢复附魔。
- *
- * 由于不同版本 SAPI 附魔接口细节可能不同，这里做多级兼容。
- *
- * 兼容：
- * - minecraft:enchantable
- * - minecraft:stored_enchantments
- * - setEnchantments
- * - addEnchantment
- */
+/** 恢复附魔。多级兼容：enchantable / stored_enchantments / setEnchantments / addEnchantment。 */
 function restoreEnchantments(item, savedEnchantments) {
     if (!Array.isArray(savedEnchantments) || savedEnchantments.length === 0) return;
 
@@ -578,15 +502,21 @@ function restoreEnchantments(item, savedEnchantments) {
     } catch (_) {}
 }
 
-// ============================================================
 // 武器状态恢复映射表
-// ============================================================
+//
+// 键是 `minecraft:variant`，值是"进这个形态"的实体事件名（**不是组件组名**）。
+// 🔴 6 / 7 / 8（挖矿 / 砍树 / 长矛）曾整版漏掉（2026-11-14），放置后直接回到闲置模式。
+//    漏了的后果不是"少一个外观"：variant 6/7/8 放出来没人接手 → 她留在 variant 0，
+//    而 `dm34:gjob` 又已经跟着球回来了 → 采集态凭空消失、她的镐斧留在记录里没人归还。
 const VARIANT_EVENT_MAP = {
     "player:dm34": {
         1: "sword",
         2: "bow",
         3: "crossbow",
         5: "farm",
+        6: "gather_mine",
+        7: "gather_chop",
+        8: "spear_on",
     },
     "player:dm34_1": {
         1: "m4a1",
@@ -601,9 +531,7 @@ const VARIANT_EVENT_MAP = {
     },
 };
 
-// ============================================================
 // 皮肤恢复映射表
-// ============================================================
 const SKIN_EVENT_MAP = {
     "player:dm34": {
         1: "maid_1",
@@ -651,9 +579,7 @@ const SKIN_EVENT_MAP = {
     },
 };
 
-// ============================================================
 // DynamicProperty 兼容读取
-// ============================================================
 function getDynamicPropertyWithFallback(target, key) {
     try {
         let value = target.getDynamicProperty(key);
@@ -668,9 +594,58 @@ function getDynamicPropertyWithFallback(target, key) {
     }
 }
 
-// ============================================================
+// 动态属性整体克隆：冷却球 → 就绪球必须重建 ItemStack（typeId 只读）。
+// 只搬背包和 UI 状态会丢掉 dm34:equip 这类扩展键，表现是收回时记下了剑、
+// 球上却没存档、放出来空手。这里按 getDynamicPropertyIds() 全量搬运。
+function copyAllDynamicProperties(from, to) {
+    if (from === undefined || to === undefined) return { count: 0, extra: [] };
+
+    const builtin = [BAG_DP_KEY, PLACE_CD_KEY, ...UI_DP_KEYS];
+
+    let ids;
+
+    try {
+        ids =
+            typeof from.getDynamicPropertyIds === "function"
+                ? from.getDynamicPropertyIds()
+                : undefined;
+    } catch (_) {
+        ids = undefined;
+    }
+
+    if (Array.isArray(ids) === false) {
+        // 老引擎没有枚举接口 → 退回已知名单，至少保住背包 + 战术 UI
+        console.warn(
+            "[FictoriaBall] 无法枚举球的动态属性，扩展存档可能丢失（仅搬运已知键）"
+        );
+
+        ids = builtin.slice();
+    }
+
+    let count = 0;
+    const extra = [];
+
+    for (const id of ids) {
+        try {
+            // 冷却标记不搬：换球的前提就是冷却已结束，就绪球本来就不带它。
+            // 搬过去虽然也只多一次过期比较，但会让"就绪球有没有冷却"变成两种状态。
+            if (id === PLACE_CD_KEY || id === `${PLACE_CD_KEY} `) continue;
+
+            const v = from.getDynamicProperty(id);
+
+            if (v === undefined) continue;
+
+            to.setDynamicProperty(id, v);
+            count++;
+
+            if (builtin.indexOf(id) === -1) extra.push(id);
+        } catch (_) {}
+    }
+
+    return { count, extra };
+}
+
 // 字符串压缩工具
-// ============================================================
 const StrHelper = {
     int2str(num) {
         return (
@@ -695,9 +670,7 @@ const StrHelper = {
     },
 };
 
-// ============================================================
 // 隐形 lore 编解码
-// ============================================================
 function str2Lore(strPure) {
     const lore = [];
     let rest = strPure;
@@ -735,9 +708,7 @@ function lore2Str(lore) {
     return strPure;
 }
 
-// ============================================================
 // 玩家主手工具
-// ============================================================
 function getMainHand(player) {
     return player
         .getComponent("minecraft:inventory")
@@ -752,9 +723,7 @@ function setMainHand(player, item) {
         ?.setItem(player.selectedSlotIndex, item);
 }
 
-// ============================================================
 // family 兼容判定
-// ============================================================
 function entityHasFamily(entity, family) {
     if (typeof entity.hasFamily === "function") {
         return entity.hasFamily(family);
@@ -783,9 +752,7 @@ function entityHasFamily(entity, family) {
     return false;
 }
 
-// ============================================================
 // 可回收判定 + 主人校验
-// ============================================================
 function isCapturable(entity) {
     if (EXCLUDE_TYPE_SET.has(entity.typeId)) return false;
     if (INCLUDE_TYPE_SET.has(entity.typeId)) return true;
@@ -849,9 +816,7 @@ function isAllowedType(allowed, typeId) {
     return true;
 }
 
-// ============================================================
 // 放置冷却
-// ============================================================
 function isBallPlaceCd(ball) {
     const end = ball.getDynamicProperty(PLACE_CD_KEY);
     return typeof end === "number" && end > Date.now();
@@ -869,9 +834,7 @@ function startPlaceCd(ball, cdSeconds) {
     ball.setDynamicProperty(PLACE_CD_KEY, Date.now() + cdSeconds * 1000);
 }
 
-// ============================================================
 // 安全位置计算
-// ============================================================
 function getSafeLocation(dimension, blockLocation, blockFace) {
     const location = {
         x: blockLocation.x,
@@ -902,13 +865,11 @@ function getSafeLocation(dimension, blockLocation, blockFace) {
             return undefined;
     }
 
-    // ============================================================
     // 安全判定：
     // - undefined：区块未加载，保守认为可放置
     // - isAir：空气可放置
     // - isLiquid 且不是岩浆：水中可放置
     // - 岩浆：禁止放置
-    // ============================================================
     const isSafe = (pos) => {
         const b = dimension.getBlock(pos);
 
@@ -950,31 +911,9 @@ function getSafeLocation(dimension, blockLocation, blockFace) {
     return location;
 }
 
-// ============================================================
-// 背包序列化
-//
-// 保存：
-// - i：物品类型
-// - n：数量
-// - d：耐久
-// - name：自定义名称
-// - e：附魔列表
-//
-// 特殊物品：
-// - 潜影盒 / 收纳袋 / filled_map / writable_book / written_book
-// - 直接 spawnItem 掉落在原地，不写入幻域球
-//
-// 附魔物品：
-// - enchanted_book
-// - 附魔装备
-// - 附魔工具
-// - 其他可读取附魔的物品
-// 都会尝试保存附魔。
-//
-// ★ 幻域球套娃保护：
-// - filled 幻域球一律不写入球数据。
-// - 空幻域球可以正常保存。
-// ============================================================
+// 背包序列化：i 类型 / n 数量 / d 耐久 / name 名称 / e 附魔。
+// 特殊物品（潜影盒、收纳袋、filled_map、书与笔、成书）原地掉落不写入；
+// filled 幻域球被套娃保护拦截，空幻域球正常保存。
 function readInventory(maid, dropComplexItems = true) {
     const container = maid.getComponent("minecraft:inventory")?.container;
 
@@ -990,16 +929,7 @@ function readInventory(maid, dropComplexItems = true) {
             continue;
         }
 
-        // ============================================================
-        // ★ 幻域球套娃保护
-        //
-        // filled 幻域球一律不允许被收回进另一个幻域球。
-        // 直接原地掉落。
-        //
-        // 空幻域球不会被这里拦截，因为空球 ID 是：
-        // items:fictoria_ball_empty_xxx
-        // 不包含 fictoria_ball_filled。
-        // ============================================================
+                // 套娃保护：filled 幻域球不收回，原地掉落（empty_* 不含 filled，自然放行）。
         if (isFilledFictoriaBall(item)) {
             const dropped = dropItemEntity(maid, item);
 
@@ -1018,9 +948,7 @@ function readInventory(maid, dropComplexItems = true) {
             continue;
         }
 
-        // ============================================================
         // 特殊物品：不收回，直接原地掉落
-        // ============================================================
         if (dropComplexItems && isComplexDroppableItem(item)) {
             const dropped = dropItemEntity(maid, item);
 
@@ -1067,9 +995,7 @@ function readInventory(maid, dropComplexItems = true) {
     };
 }
 
-// ============================================================
 // 背包反序列化
-// ============================================================
 function restoreInventory(maid, bagData) {
     const container = maid.getComponent("minecraft:inventory")?.container;
 
@@ -1082,12 +1008,8 @@ function restoreInventory(maid, bagData) {
 
         if (data === null || data === undefined) continue;
 
-        // ============================================================
-        // ★ 旧存档套娃保护
-        //
-        // 如果旧版本曾经错误保存过 filled 幻域球，
-        // 这里不再把它放回干员背包，而是作为掉落物丢出来。
-        // ============================================================
+        // 旧存档套娃保护：老版本可能错误保存过 filled 幻域球，
+        // 这里不再把它放回背包，而是作为掉落物丢出来。
         if (isFilledFictoriaBallTypeId(data.i)) {
             try {
                 const droppedItem = new ItemStack(data.i, data.n);
@@ -1141,9 +1063,37 @@ function restoreInventory(maid, bagData) {
     }
 }
 
-// ============================================================
+/*
+ * 造一颗已装好指定干员的幻域球，不依赖世界里真有那只实体。
+ * 球的状态全在 lore 编码串里（H 血量 / V 形态 / K 皮肤 / N 四元组）。主人 id 刻意留空：放置时
+ * 由释放者当场驯服，避免存档之间 UUID 失效。血量写 0/0 —— releaseMaid 只在 max > 0 时覆盖，
+ * 所以放出来是满血。
+ * @param {string} typeId 干员实体 id，必须在该颜色球的 allowed 名单里
+ * @param {string} [ownerName] 预填的主人名（仅显示用，不参与权限判定）
+ * @returns {import("@minecraft/server").ItemStack | undefined}
+ */
+export function createMaidBall(typeId, ownerName) {
+    const emptyId = Object.keys(BALL_TYPES).find((id) =>
+        BALL_TYPES[id].allowedSet.has(typeId)
+    );
+
+    if (emptyId === undefined) return undefined;
+
+    const cfg = BALL_TYPES[emptyId];
+    const ball = new ItemStack(cfg.filledReady, 1);
+
+    const stateStr =
+        `H${StrHelper.int2str(0)}${StrHelper.int2str(0)}` +
+        `V${StrHelper.short2str(0)}` +
+        `K${StrHelper.short2str(0)}` +
+        `N${JSON.stringify(["", String(ownerName ?? ""), "", typeId])}`;
+
+    ball.setLore(str2Lore(stateStr));
+
+    return ball;
+}
+
 // 收回
-// ============================================================
 function captureMaid(player, maid, cfg) {
     try {
         const item = getMainHand(player);
@@ -1178,26 +1128,21 @@ function captureMaid(player, maid, cfg) {
 
         ball.setLore(str2Lore(stateStr));
 
-        // ============================================================
-        // 重要：先处理背包。
-        //
-        // readInventory(maid, true) 会把：
-        // - 潜影盒
-        // - 收纳袋
-        // - filled_map
-        // - writable_book
-        // - written_book
-        //
-        // 直接掉落。
-        //
-        // empty_map 和 enchanted_book 会正常保存。
-        //
-        // ★ filled 幻域球会被套娃保护拦截，直接掉落。
-        // ============================================================
+                // 先处理背包：readInventory 会把潜影盒 / 收纳袋 / filled_map / 书直接掉落，
+                // 空地图和附魔书正常保存，filled 幻域球被套娃保护拦截。
         const bagData = readInventory(maid, true);
 
         if (bagData !== undefined) {
             ball.setDynamicProperty(BAG_DP_KEY, JSON.stringify(bagData));
+        }
+
+        // 扩展点：把背包没覆盖的东西（装备槽 / 自定义动态属性）也存到球上
+        for (const ext of BALL_EXTENSIONS) {
+            try {
+                if (typeof ext.capture === "function") ext.capture(maid, ball);
+            } catch (e) {
+                console.warn(`[FictoriaBall] 扩展保存失败: ${e}`);
+            }
         }
 
         // 保存战术 UI 状态
@@ -1221,6 +1166,26 @@ function captureMaid(player, maid, cfg) {
 
         setMainHand(player, ball);
 
+        // 回读校验：新建的 ItemStack 写进容器之后，动态属性是否真的落在物品上。
+        // 在一次会话里对着同一个 JS 对象读自己永远是"成功"的，
+        // 必须从容器重新取一份才算数 —— 否则"收回成功、放置却空手"
+        // 这种黑洞还会再来一次（本轮就是栽在这上面）。
+        try {
+            const back = getMainHand(player);
+
+            if (back === undefined) {
+                console.warn("[FictoriaBall] 回读校验：主手取不到刚写进去的球");
+            } else if (bagData !== undefined) {
+                const backBag = back.getDynamicProperty(BAG_DP_KEY);
+
+                if (typeof backBag !== "string") {
+                    console.warn(
+                        "[FictoriaBall] 回读校验：球上的动态属性没有落盘（背包存档读不回来）"
+                    );
+                }
+            }
+        } catch (_) {}
+
         player.onScreenDisplay.setActionBar(
             `§a回收成功，§e${cfg.cd}§a 秒后可再次放置`
         );
@@ -1229,9 +1194,7 @@ function captureMaid(player, maid, cfg) {
     }
 }
 
-// ============================================================
 // 放置
-// ============================================================
 function releaseMaid(event, emptyId) {
     const player = event.player;
     const dimension = player.dimension;
@@ -1316,6 +1279,18 @@ function releaseMaid(event, emptyId) {
         }
     } catch (_) {
         bagData = undefined;
+    }
+
+    // 扩展点：球上的动态属性马上会被 clearDynamicProperties() 清掉，
+    // 所以这里先把数据读进内存，等新女仆生成后再 apply。
+    const extState = [];
+
+    for (const ext of BALL_EXTENSIONS) {
+        try {
+            extState.push(typeof ext.read === "function" ? ext.read(ball) : undefined);
+        } catch (e) {
+            extState.push(undefined);
+        }
     }
 
     let maid;
@@ -1490,7 +1465,28 @@ function releaseMaid(event, emptyId) {
 
     // ⑦ tick 8：恢复背包 + 战术 UI 状态
     system.runTimeout(() => {
-        restoreInventory(maid, bagData);
+        console.warn(`[FictoriaBall] tick8 进入 | 扩展=${BALL_EXTENSIONS.length}`);
+
+        // 背包还原必须单独兜住：它排在扩展循环之前，一抛（新实体刚 spawn 时
+        // getComponent 可能出错）整段回调就中断，扩展 apply 永远不执行。
+        try {
+            restoreInventory(maid, bagData);
+        } catch (e) {
+            console.warn(`[FictoriaBall] 背包还原失败（已继续，不取消装备还原）: ${e}`);
+        }
+
+        // 扩展点：还原装备槽（主手替身 / 盔甲）与它自己的动态属性
+        for (let i = 0; i < BALL_EXTENSIONS.length; i++) {
+            const ext = BALL_EXTENSIONS[i];
+
+            if (typeof ext.apply !== "function") continue;
+
+            try {
+                ext.apply(maid, extState[i]);
+            } catch (e) {
+                console.warn(`[FictoriaBall] 扩展还原失败（#${i}）: ${e}`);
+            }
+        }
 
         try {
             for (const [entityKey, v] of Object.entries(savedUiState)) {
@@ -1503,6 +1499,8 @@ function releaseMaid(event, emptyId) {
                 globalThis.FICTORIA_UI_SYNC.resumeState(maid);
             }
         } catch (_) {}
+
+        console.warn("[FictoriaBall] tick8 完成");
     }, 8);
 
     try {
@@ -1514,9 +1512,7 @@ function releaseMaid(event, emptyId) {
     player.onScreenDisplay.setActionBar("§a干员已放置！");
 }
 
-// ============================================================
 // 玩家背包扣除
-// ============================================================
 function removePlayerItemStack(player, itemTypeId, countToRemove = 1) {
     const container = player.getComponent("minecraft:inventory")?.container;
 
@@ -1551,13 +1547,9 @@ function removePlayerItemStack(player, itemTypeId, countToRemove = 1) {
     return success;
 }
 
-// ============================================================
 // 事件注册
-// ============================================================
 export function initFictoriaBall() {
-    // ============================================================
     // 收回
-    // ============================================================
     world.beforeEvents.playerInteractWithEntity.subscribe((event) => {
         const cfg = BALL_TYPES[event.itemStack?.typeId];
 
@@ -1586,9 +1578,7 @@ export function initFictoriaBall() {
         system.run(() => captureMaid(event.player, target, cfg));
     });
 
-    // ============================================================
     // 放置
-    // ============================================================
     world.beforeEvents.playerInteractWithBlock.subscribe((event) => {
         const item = event.itemStack;
 
@@ -1628,9 +1618,7 @@ export function initFictoriaBall() {
         system.run(() => releaseMaid(event, filledCfg.emptyId));
     });
 
-    // ============================================================
     // 冷却 → 就绪贴图热交换
-    // ============================================================
     system.runInterval(() => {
         const players = world.getAllPlayers();
 
@@ -1662,19 +1650,15 @@ export function initFictoriaBall() {
                     ready.nameTag = item.nameTag;
                 }
 
-                const bag = item.getDynamicProperty(BAG_DP_KEY);
+                // 全量搬运动态属性：只搬"背包 + 战术 UI"会静默丢掉扩展存档
+                // （dm34:equip = 主手武器 + 四件甲 + 动态属性），收回时日志正常、放置时空手。
+                const moved = copyAllDynamicProperties(item, ready);
 
-                if (typeof bag === "string") {
-                    ready.setDynamicProperty(BAG_DP_KEY, bag);
-                }
-
-                // 保留战术 UI 状态
-                for (const uiKey of UI_DP_KEYS) {
-                    const uiVal = getDynamicPropertyWithFallback(item, uiKey);
-
-                    if (uiVal !== undefined) {
-                        ready.setDynamicProperty(uiKey, uiVal);
-                    }
+                if (moved.extra.length > 0) {
+                    console.warn(
+                        `[FictoriaBall] 冷却球→就绪球：搬运 ${moved.count} 条动态属性` +
+                            `（含扩展键 ${moved.extra.join(",")}）`
+                    );
                 }
 
                 container.setItem(slot, ready);
@@ -1685,9 +1669,7 @@ export function initFictoriaBall() {
     console.warn("[FictoriaBall] 幻域球已加载（附魔/特殊物品整合修复版 + 幻域球套娃保护）");
 }
 
-// ============================================================
 // 导出配置
-// ============================================================
 export {
     GOLD_BALL_TYPES,
     BLUE_BALL_TYPES,

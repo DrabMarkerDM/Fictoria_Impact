@@ -20,7 +20,7 @@
 "/execute positioned ^ ^ ^2 run summon mob:dm56att ~~~",
 "/execute positioned ^ ^ ^2 run summon mob:dm56att ~~~",
 "@s summon_end",
-"/playsound dm56att @a[r=50] ~~~ 3.0 1.0"
+"/playsound dm56att @a[r=50] ~~~ 1.4 1.0"
 ]
 }
 }

@@ -628,7 +628,7 @@
         },
          "queue_command": {
            "command": [
-             "playsound dm50 @a[r=53] ~~~ 2.5 1.0",
+             "playsound dm50 @a[r=100] ~~~ 1.3 1.0",
              "execute at @e[type=!player:dm50,tag=!dm,family=monster,r=100,c=4] run summon bullet:dm50_ex ~~0.3~"
           ]
         }

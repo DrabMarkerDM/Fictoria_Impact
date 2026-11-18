@@ -505,7 +505,7 @@
       "minecraft:jump.static": {
       },
       "minecraft:inventory": {
-        "inventory_size": 16,
+        "inventory_size": 26,
         "private": true
       },
       "minecraft:behavior.float": {
@@ -724,7 +724,7 @@
            "command": [
            "tag @s add dm_skill_on",
             "tag @s remove dm_has_target",
-             "playsound sss @a[r=33] ~~~ 2.8 0.8"
+             "playsound sss @a[r=33] ~~~ 1.35 0.8"
           ]
            },
         "set_property": {
