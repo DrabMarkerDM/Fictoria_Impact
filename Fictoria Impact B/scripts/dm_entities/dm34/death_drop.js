@@ -4,13 +4,13 @@
  * 槽（主手 / 副手盾 / 四甲）静默消失，`minecraft:inventory`（horse 型，34 格背包）不保证掉落。
  * SAPI 读不到 mob 的装备槽（equippable 只有玩家有），所以不读槽、只读记录：`dm34:shield` /
  * `dm34:weapon` / `dm34:hoe` / `dm34:armor` 是唯一真相源，重建后掉在死亡点；背包容器逐格取出
- * （前 `bagFirstOf` 格是鞍 / 马铠伪槽，跳过）。
+ * （从 `bagFirstOf` 起逐格取出；这只女仆容器 36 格没有伪槽，实测 `inv=有(36格)`，所以从第 1 格起）。
  * 覆盖不到的是主手那些没有记录的杂项 —— 装备槽无法枚举，只能认记录；三条主手通道
  * （武器 / 锄头 / 盾）都有记录，值钱的都在。
  * 掉落不清空容器：宁可引擎哪天也掉一份，也不能因为 spawnItem 失败 + 已清空而蒸发。
  */
 
-import { system, world } from "@minecraft/server";
+import { system } from "@minecraft/server";
 import { isMaid } from "./maid_state.js";
 import { armorRecord, bagFirstOf } from "./guard.js";
 import { storedWeapon } from "./weapon_store.js";
@@ -18,12 +18,41 @@ import { storedFarmTool } from "./farm_store.js";
 import { shieldRecord } from "./shield.js";
 import { deserializeItem, dropItemNear, serializeItem } from "./slot_io.js";
 import { CONFIG } from "./config.js";
+import { DEATH_PRIORITY, registerEntityDieHandler } from "../common/core/event_bus.js";
 
 let inited = false;
 
 function log(msg) {
     if (!CONFIG.log.console) return;
     try { console.warn(`[dm34/death] ${msg}`); } catch (e) { /* 忽略 */ }
+}
+
+/** 幻域球已经接手这只的死亡（记录搬进球里了）。
+ *  这一份必须让路 —— 本文件的 `collect()` 读的是同一批记录，两边都执行 = 地上再掉一份真件，
+ *  球里一份 + 地上一份就是凭空复制。 */
+const ballHandled = new Map();
+
+/** 标记存活时长：两个模块都在总线的同一条 `entityDie` 通道上，按 priority
+ *  ballDeath(100) → deathDrop(200) 派发，消费就发生在同一 tick。
+ *  给这么长只是防"顺序被将来改动打乱"，顺便让非 dm34/dm34_1 的 id
+ *  （本模块不处理它们，永远不会来消费）自动过期，不会无限堆积。 */
+const HANDLED_TTL = 40;
+
+/** @param {string} entityId */
+export function markBallHandled(entityId) {
+    try {
+        let now = 0;
+        try { now = system.currentTick || 0; } catch (e) { now = 0; }
+
+        // 惰性清理：只有攒到一定量才扫，避免每次死亡都遍历
+        if (ballHandled.size > 64) {
+            for (const [id, exp] of ballHandled) {
+                if (exp <= now) ballHandled.delete(id);
+            }
+        }
+
+        ballHandled.set(entityId, now + HANDLED_TTL);
+    } catch (e) { /* 忽略 */ }
 }
 
 function containerOf(entity) {
@@ -79,8 +108,8 @@ function collect(entity) {
     // ④ 背包
     const bag = containerOf(entity);
     if (bag) {
-        let first = 2;
-        try { first = bagFirstOf(bag); } catch (e) { first = 2; }
+        let first = 0;
+        try { first = bagFirstOf(bag); } catch (e) { first = 0; }
         let size = 0;
         try { size = bag.size || 0; } catch (e) { size = 0; }
         for (let i = first; i < size; i++) {
@@ -97,6 +126,14 @@ function collect(entity) {
 function onDie(ev) {
     const dead = ev.deadEntity;
     if (!dead) return;
+
+    // 球已经接管的不用再掉一份（订阅顺序保证本模块排在 ball_death_return 之后）
+    try {
+        if (ballHandled.has(dead.id)) {
+            ballHandled.delete(dead.id);
+            return;
+        }
+    } catch (e) { /* 忽略 */ }
 
     let maid = false;
     try { maid = isMaid(dead); } catch (e) { maid = false; }
@@ -137,11 +174,13 @@ export function initDeathDrop() {
     if (inited) return;
     inited = true;
 
-    try {
-        world.afterEvents.entityDie.subscribe((ev) => {
+    // 走总线：同一个 entityDie 只由 event_bus 订阅一次，排队顺序由 DEATH_PRIORITY 决定
+    // （BALL_DEATH 100 → DEATH_DROP 200，保证"先接管、后让路"）。
+    registerEntityDieHandler(
+        "deathDrop.onDie",
+        (ev) => {
             try { onDie(ev); } catch (e) { log(`死亡处理异常：${e}`); }
-        });
-    } catch (e) {
-        log(`entityDie 订阅失败：${e}`);
-    }
+        },
+        DEATH_PRIORITY.DEATH_DROP,
+    );
 }

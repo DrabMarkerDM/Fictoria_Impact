@@ -14,7 +14,7 @@ import { isMaid, variantOf, cookCode, setCookCode, resolveState } from "./maid_s
 import { dropItemNear, putIntoContainer, compactStacks } from "./slot_io.js";
 import { bagFirstOf } from "./guard.js";
 // 女仆名单直接用目标管理引擎每 5 tick 扫出来的那份，不再自己 getEntities
-import { forEachMaid } from "./maid_registry.js";
+import { forEachMaid } from "../common/core/maid_registry.js";
 
 const DM34 = "player:dm34";
 const AUTO_PROP = "dm34:autocook";   // 1 / 未设置 = 允许自动烹饪；0 = 玩家手动中断过，暂停自动
@@ -130,7 +130,7 @@ export function stashItem(entity, itemId, amount) {
     const c = containerOf(entity);
     if (c) {
                 // 这是她自己的容器，仍用 putIntoContainer（addItem 满包时会动已有格子）。
-                // 从 bagFirstOf 起写：前 2 格是 horse 伪槽，写进 0 号会显示在她手上。
+                // 从 bagFirstOf 起写：这只女仆容器 36 格没有伪槽 → 起点 0，即玩家看到的第 1 格。
         try {
             left = putIntoContainer(c, left, bagFirstOf(c));
         } catch (e) {
@@ -182,12 +182,10 @@ function voice(entity, soundId, manual) {
 
 /*
  * 背包里第一份生食的食材编号，并扣掉 1 个；没有返回 0。
- * 从 0 号格扫起，不用 bagFirstOf 当起点：容器是 horse 型，前 2 格是鞍/马铠伪槽，理论上
- * 背包从 2 开始，但玩家在她背包 UI 里放东西时实际落在哪一格由引擎的槽位映射决定，实测会
- * 出现「生食堆落在 2 号之前」—— 此时从 bagFirstOf 起扫永远扫不到，表现为锅里空转、背包里
- * 明明有一堆生肉却怎么都不下锅。
- * 扫 0/1 是安全的：这里只认同 FOODS 表里的那 10 种生食材，鞍、马铠或别的物品都不会被误匹配，
- * 也就不会被错扣。
+ * 从 0 号格扫起（比 bagFirstOf=1 多扫一格马鞍槽）：这里只认同 FOODS 表里的那 10 种生食材，
+ * 鞍或别的物品都不会被误匹配，多扫一格是安全的。历史教训：以前以为前 2 格是伪槽、从
+ * `bagFirstOf`(2) 起扫，结果玩家放进第 1 格的生食永远扫不到，表现为锅里空转、背包里
+ * 明明有肉却怎么都不下锅。
  */
 function takeRawFoodFromBag(entity) {
     const c = containerOf(entity);

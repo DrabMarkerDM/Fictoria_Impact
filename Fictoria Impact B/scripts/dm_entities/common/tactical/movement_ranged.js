@@ -4,18 +4,18 @@ import {
     acquireMoveCmd,
     peekMoveCmd,
     clearMoveCmd
-} from "./move_command_store.js";
+} from "../core/move_command_store.js";
 import {
     factionOf,
     isInCombat
-} from "./camp_faction.js";
+} from "../core/camp_faction.js";
 import {
     detectLiquid,
     applyLiquidSpeed,
     resolveFloatImpulse,
     isDrowningRecovering
-} from "./water_traversal.js";
-import { isPlayerMounted } from "../player/ride_guard.js";
+} from "../travel/water_traversal.js";
+import { isPlayerMounted } from "../travel/ride_guard.js";
 
 // 平方距离解析辅助
 function getDistSq(pos1, pos2) {

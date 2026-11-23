@@ -7,7 +7,10 @@ import {
     HURT_PRIORITY,
     AFTER_HURT_PRIORITY,
     REMOVE_PRIORITY
-} from "./event_bus.js";
+} from "../core/event_bus.js";
+
+/** 本文件日志开关（只影响 player_attack_blocker.js）。排查友伤误判时打开 */
+const DEBUG_FF = false;
 
 // 配置
 
@@ -348,7 +351,7 @@ function releaseStuckTargets(victim, player) {
             const t = maid.target;
             if (!t || t.id !== victim.id) continue;
             maid.target = undefined;
-            console.warn(`[DM-Engine] ${maid.typeId} 松口放弃友善目标 ${victim.typeId}`);
+            if (DEBUG_FF) console.warn(`[DM-Engine] ${maid.typeId} 松口放弃友善目标 ${victim.typeId}`);
         } catch (e) {
             logErr("wary_release", e);
         }

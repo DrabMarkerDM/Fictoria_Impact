@@ -1,11 +1,11 @@
 import { system, EntityDamageCause } from '@minecraft/server';
-import { applyBuffModifier } from "./damage_buff_calculator.js";
+import { applyBuffModifier } from "../core/damage_buff_calculator.js";
 import {
     registerEntityHitHandler,
     registerAfterHurtHandler,
     ENTITY_HIT_PRIORITY,
     AFTER_HURT_PRIORITY
-} from "./event_bus.js";
+} from "../core/event_bus.js";
 
 // 核心伤害配置表
 const MELEE_CONFIG = {
@@ -151,9 +151,9 @@ const SPEAR_AOE = {
     buffTicks: 60,
     buffAmplifier: 1,
 
-    // 主目标额外击退：盾牌格挡用 1.2 / 0.45，这里不到一半
-    knockHorizontal: 0.55,
-    knockVertical: 0.18,
+    // 主目标额外击退：盾牌格挡用 1.2 / 0.45，这里约半档
+    knockHorizontal: 0.65,
+    knockVertical: 0.22,
 };
 
 const SpearHitLock = new Map();     // 实体 id -> 锁到哪一 tick（含）

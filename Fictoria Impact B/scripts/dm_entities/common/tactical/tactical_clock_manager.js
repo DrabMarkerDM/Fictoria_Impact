@@ -2,12 +2,12 @@ import { system, world } from "@minecraft/server";
 import {
     registerEntityRemoveHandler,
     REMOVE_PRIORITY
-} from "./event_bus.js";
+} from "../core/event_bus.js";
 import {
     factionOf,
     hasTargetTag,
     hasSkillTag
-} from "./camp_faction.js";
+} from "../core/camp_faction.js";
 
 // 世界会话防线
 

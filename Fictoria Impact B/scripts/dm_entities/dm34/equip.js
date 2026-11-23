@@ -91,10 +91,10 @@ export function equipArmor(player, entity) {
 
     const ok = placeItem(entity, slot, hand);
     if (!ok) {
-                // 引擎槽可能根本写不进去（马铠槽已从 JSON 删除），不影响语义：
-                // 甲照样记进 dm34:armor，卸下按记录归还；外观由 RP 固定渲染。
+                // 引擎槽可能根本写不进去（`equippable` 只声明了马鞍槽，头/胸/腿/脚都没有），
+                // 不影响语义：甲照样记进 dm34:armor，卸下按记录归还；外观由 RP 固定渲染。
         if (CONFIG.log.debug && CONFIG.log.console) {
-            console.warn(`[dm34/equip] ${slotName} ${hand.typeId} 引擎槽写不进去（马铠槽已删），只按记录装备`);
+            console.warn(`[dm34/equip] ${slotName} ${hand.typeId} 引擎槽写不进去（equippable 只有马鞍槽），只按记录装备`);
         }
     }
 
@@ -165,10 +165,12 @@ export function removeAllArmor(player, entity, report) {
         // 没写 carrier 就说明这件还在槽里，必须走下面的 forceClear + 归还。
         // 代价：极老的存档若记录已抹、实物却在背包里，会多还一件 —— 宁可多给，不许吞。
 
-        // 强清：装备槽全索引 air + 按实物身份挖 horse 伪槽，再用两种探针复核。
-        // 单靠 replaceitem 会漏 —— 重进世界后胸部甲会落在容器 1 号（马铠位），
-        // 那个位置既不吃 slot.armor.chest 的 air，也不被 location 探针看见，
-        // 结果就是「提示卸了 2 件、背包里也有 2 件，身上那件永远脱不下来」。
+        // 强清：`clearSlot` 用 `replaceitem slot.armor.X 0..3 air` 直接清引擎盔甲容器
+        // （她这套槽是 JSON 的 `equip_item_slot` 建的，与背包容器无关），再按身份挖伪槽、
+        // 用两种探针复核。🔴 这条命令是**唯一**能把她身上的甲取下来的通道：
+        // `equippable` 只声明了马鞍槽 → `readSlot`/`setEquipment` 全是瞎的。
+        // 2026-11-20 20:28 把它砍成"一条都不发" → 甲返还进背包了、身上那件还穿着。
+        // 这里做的是"把账和残留对平"，探针复核不过就登记工单，绝不留「记录抹了、甲还挂着」。
         const res = forceClearArmorSlot(entity, slotName, data || serializeItem(item));
         forgetArmor(entity, slotName);
 
@@ -290,8 +292,11 @@ export function purgeStrayArmor(entity) {
         dropped++;
     }
 
-        // ② 伪槽（horse 容器 0/1）：只该放鞍/马铠。出现 armor_table 里的 id，
-        //    就是"身上那件掉了进去"—— 这就是「记录没了、还穿着，怎么点都说没有盔甲」的实物。
+        // ② 伪槽段（`bagFirstOf` 之前那几格）。这只女仆 `bagFirstOf = 1` → **只扫 0 号马鞍槽**，
+        //    索引 1 起是背包，绝不进来。马鞍槽里正常只有鞍，`ARMOR_SLOT` 查不到 → 不会被搬动。
+        //    🔴 边界绝不能写成 2：那会把索引 1（玩家看到的第一格）当伪槽，`setItem(i, undefined)`
+        //    直接抹掉玩家放进去的甲 —— 就是 2026-11-20 的吞件现场。
+        //    真出现伪槽时，里面 armor_table 的 id 就是"身上那件掉了进去"的实物；
         //    有工单的槽跳过：那种情况玩家已经按记录拿到过补偿，这格是对应的影子件，
         //    交给巡检销毁，不能再还一份（否则永远多一件）。
     let pending = [];
@@ -304,7 +309,7 @@ export function purgeStrayArmor(entity) {
         const item = hit && hit.item;
         if (!item) continue;
         const slotName = ARMOR_SLOT[item.typeId];
-        if (!slotName) continue;                     // 鞍/马铠/杂物：一概不动
+        if (!slotName) continue;                     // 鞍 / 杂物：一概不动
         if (pendingSet.has(String(slotName))) continue;
         if (!clearPseudoSlot(entity, hit.i)) continue;
         // 没有记录 = 玩家从没拿到过补偿，这件必须还给她

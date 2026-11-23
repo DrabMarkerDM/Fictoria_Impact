@@ -16,7 +16,7 @@ import {
     registerEntityRemoveHandler,
     AFTER_HURT_PRIORITY,
     REMOVE_PRIORITY
-} from "./event_bus.js";
+} from "../core/event_bus.js";
 
 // 液体减速档位
 

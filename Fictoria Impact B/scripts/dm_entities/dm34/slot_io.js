@@ -14,19 +14,51 @@ export const SLOT_ID = {
     Body: "slot.armor.body",
 };
 
-/** 槽位索引候选：主手沿用原包 AC 的 1，盔甲先试 0 再试 1 */
-function slotIndexCandidates(slot) {
-    if (slot === "Mainhand" || slot === "Offhand") return [1, 0];
-    return [0, 1];
+/*
+ * 容器里比 `inventory_size`(36) 多出来的格数 —— 只用于**诊断日志**，不参与 replaceitem 的索引。
+ * 她只有马鞍槽且马鞍槽是 `container_type: horse` 的 0 号位，容器实测 36 格 → 这里恒 0。
+ * 🔴 别拿它当「slot.armor 能清到哪」的上限：那是**另一个容器**（见下）。
+ */
+function pseudoCountOf(entity) {
+    try {
+        const c = entity.getComponent("minecraft:inventory")?.container;
+        const size = c && c.size;
+        if (typeof size === "number" && size > 36) return size - 36;
+    } catch (e) { /* 忽略 */ }
+    return 0;
 }
 
 /*
- * 清槽要扫的索引比放的时候宽：放只写一个索引，清必须把可能写过的每一格都清，
- * 否则「落在 1、只清了 0」→ 甲留在身上收不回
+ * 四个甲槽的 replaceitem slotId。`slot.armor.head/chest/legs/feet` 对应 **0/1/2/3**。
+ *
+ * 🔴 铁律：`slot.armor.*` 走的是**引擎的盔甲容器**，与 `minecraft:inventory`（背包 + 0 号马鞍位）
+ *    **是两个互不相干的容器**。`replaceitem entity @s slot.armor.chest 1 air 1` 动的是胸甲位，
+ *    永远碰不到背包格。而她的甲是 JSON 的 `equip_item_slot: "slot.armor.X"` 直接塞进盔甲容器的，
+ *    全包只有马鞍一个 `equippable` 声明 → `readSlot`/`setEquipment` 这两条 SAPI 通道**全是瞎的**，
+ *    于是 `replaceitem` 是唯一能把她身上的甲取下来的手段。
+ *    2026-11-20 20:28 的事故：把这里当成容器索引、盔甲分支返回空数组 →
+ *    清槽通道全灭 → 「甲已返还到背包、身上还穿着一件」（记录被抹 + 实物没离身 = 一件变两件）。
  */
-function clearIndexCandidates(slot) {
+const ARMOR_SLOT_ID = { Head: 0, Chest: 1, Legs: 2, Feet: 3 };
+
+/** 槽位索引候选：主手沿用原包 AC 的 1，副手 0；盔甲用部位号优先、其余兜底全试 */
+function slotIndexCandidates(entity, slot) {
+    if (slot === "Mainhand" || slot === "Offhand") return [1, 0];
+    const own = ARMOR_SLOT_ID[slot];
+    if (own === undefined) return [0, 1, 2, 3];
+    const out = [own];
+    for (const i of [0, 1, 2, 3]) if (i !== own) out.push(i);
+    return out;
+}
+
+/*
+ * 清槽要扫的索引比放的时候宽：放只写一个，清必须把可能写过的都清，
+ * 否则「落在 1、只清了 0」→ 甲留在身上收不回。
+ * 盔甲这里就是 `slot.armor` 的四个部位号 —— 与背包容器无关，多扫几个不会碰到玩家的东西。
+ */
+function clearIndexCandidates(entity, slot) {
     if (slot === "Mainhand" || slot === "Offhand") return [0, 1];
-    return [0, 1, 2, 3];      // 盔甲容器在自定义实体上可能整体偏移
+    return slotIndexCandidates(entity, slot);
 }
 
 function comp(entity, id) {
@@ -196,7 +228,7 @@ export function cmdHasItem(entity, slot, itemId) {
         }
     }
 
-    for (const idx of slotIndexCandidates(slot)) {
+    for (const idx of slotIndexCandidates(entity, slot)) {
         try {
             entity.runCommand(`testfor @s[hasitem={location=${sid},slot=${idx}}]`);
             return true;
@@ -351,10 +383,8 @@ function componentsCarryEnchant(entity, item) {
 }
 
 /*
- * 全实体探针：她身上任意位置（四装备槽 + 容器 0/1 伪槽 + 背包）还有没有这件 id。
- * 不带 location=：重进世界后胸甲可能落在 horse 容器的 1 号伪槽（马铠位），
- * 那里既不吃 replaceitem slot.armor.chest，也不被 hasitem{location} 看见 ——
- * 「槽清不掉、探针还说清了」。
+ * 全实体探针：她身上任意位置（四装备槽 + 主手/副手 + 背包）还有没有这件 id。
+ * 不带 location=：装备槽对 SAPI/`hasitem{location}` 都是隐形的，只带 location 会漏。
  * @returns {boolean} 还能不能找到（含背包里的同款，调用方自己按身份复核）
  */
 export function cmdHasAnywhere(entity, itemId) {
@@ -374,8 +404,11 @@ export function cmdHasAnywhere(entity, itemId) {
  */
 export function clearSlot(entity, slot, typeId) {
     const sid = SLOT_ID[slot];
-    const idxs = clearIndexCandidates(slot);
+    const idxs = clearIndexCandidates(entity, slot);
 
+    // 🔴 这里**不许**按 `pseudoCountOf` 裁剪索引。盔甲槽的 slotId 是 `slot.armor` 容器的部位号，
+    //    不是 `minecraft:inventory` 的格号：背包被吞是 guard 的 `Container.setItem` 干的
+    //    （伪槽段上界），与这条命令无关。2026-11-20 20:28 裁成空数组的后果是甲彻底卸不下来。
     const sweep = () => {
         if (!sid) return;
         for (const idx of idxs) runCmd(entity, `replaceitem entity @s ${sid} ${idx} air 1`);
@@ -491,13 +524,31 @@ export function placeItem(entity, slot, item) {
         // ① 先放干净件，客户端立刻可见。
         // runCommand 不抛错 ≠ 放上了：放完必探一次，probe=0 进日志。
     let idx = -1;
-    for (const i of slotIndexCandidates(slot)) {
+    for (const i of slotIndexCandidates(entity, slot)) {
         if (runCmd(entity, `replaceitem entity @s ${sid} ${i} ${real.typeId} 1`)) { idx = i; break; }
     }
     if (idx < 0) {
-        // 所有 index 都被命令拒绝 —— 说明**这个槽组在该实体上不存在**，
-        // 不是"数据没写进去"。之前这条路径完全静默，是排查幻域球/盔甲时的盲点。
-        diagLog(`noidx-${slot}`, `${slot} ${real.typeId}：slot.armor/weapon 的 index 全部被拒（该槽组可能不存在）`);
+        /*
+         * 四个部位号全被命令拒 = `slot.armor` 这套槽在她身上根本不存在（整只实体加载失败、
+         * 或被 transformation 换成别的实体）。此时**只能**退 SAPI，绝不许退回"往索引 0 写"：
+         * 0 号是马鞍槽/背包格，写进去的甲既不显示也卸不下来，记录里还多一件。
+         * SAPI 也只采信 readSlot 的真回读，不拿 hasitem 探针当成功证据（那只女仆上它会假阳/假阴），
+         * 否则会骗调用方"摆上了"而不入包。
+         */
+        if (slot !== "Mainhand" && slot !== "Offhand") {
+            diagLog(`noslot-${slot}`, `${slot} 四个部位号全被拒（伪槽=${pseudoCountOf(entity)}）→ 只走 SAPI：${real.typeId}`);
+            writeRealItem(entity, slot, real, want);
+            let back;
+            try { back = readSlot(entity, slot); } catch (e) { back = undefined; }
+            const ok = !!back && back.typeId === real.typeId;
+            diagLog(`sapi-${slot}`, `${slot} SAPI 回读=${back ? back.typeId : "读不到"} ok=${ok ? 1 : 0}`);
+            if (ok) {
+                warnOnce(`place-sapi-${slot}`, `[dm34] ${slot} 用 SAPI 写入真件（无命令通道）：${real.typeId}`);
+                return true;
+            }
+            return false;      // 交调用方入包 / 掉落，绝不假装摆上了
+        }
+        diagLog(`noidx-${slot}`, `${slot} ${real.typeId}：slot.weapon 的 index 全部被拒（该槽组可能不存在）`);
         return false;
     }
 
@@ -768,7 +819,7 @@ function withAmount(item, n) {
 /*
  * 把物品放进容器：先并进同类堆，塞满再找空格；每格都回读校验。
  * 不先合并就会一块一块平铺，几十格背包很快见底。只给女仆自己的容器用（玩家背包一律 dropItemNear）。
- * @param {number} [from] 起始格；horse 型容器前 2 格是伪槽，传 bagFirstOf()
+ * @param {number} [from] 起始格；0 号是马鞍槽，传 `bagFirstOf()`（=1）
  * @returns {*} 剩余物品（undefined = 已全部放入）
  */
 export function putIntoContainer(container, itemStack, from) {

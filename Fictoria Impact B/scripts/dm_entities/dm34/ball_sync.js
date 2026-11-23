@@ -14,7 +14,7 @@ import { recordArmor, putInBag, takeOneFromBag, bagFirstOf } from "./guard.js";
 import { restoreShieldToBag } from "./shield.js";
 import { storedGatherTool, restoreGatherDisplay } from "./gather_store.js";
 import { storedFarmTool, restoreFarmDisplay } from "./farm_store.js";
-import { heal, mirror } from "./record_store.js";
+import { heal, mirror, readRaw } from "./record_store.js";
 
 /** 球上的存档键（球清属性前会被 read 读走） */
 export const BALL_EQUIP_DP = "dm34:equip";
@@ -63,7 +63,8 @@ function warn(msg) {
 }
 
 /** 她背包里还剩几件盔甲（typeId 列表）。
- *  从 bagFirstOf() 起扫：前 2 格是装备伪槽，甲不占容器格，出现在背包段就是没穿上。 */
+ *  从 bagFirstOf() 起扫：这只女仆容器 36 格没有伪槽（实测 `inv=有(36格)`），所以从第 1 格扫起；
+ *  甲不占容器格，出现在背包里就是没穿上。 */
 function armorInBag(entity) {
     const out = [];
     try {
@@ -241,6 +242,70 @@ function weaponRecordOf(maid) {
         if (typeof raw === "string" && raw !== "") return JSON.parse(raw);
     } catch (e) { /* 忽略 */ }
     return undefined;
+}
+
+/** 死亡回球只搬「纯记录」的那几条 —— 真件从头到尾不在实体身上
+ *  （主手 / 副手 / 采集工具都是替身，记录才是真相源），所以搬进球里结构上不可能重复。
+ *
+ *  **刻意不含 `dm34:armor`**：甲的真件在引擎盔甲容器里，引擎死亡时掉不掉没有定论，
+ *  收进来就可能与地上那份撞成两套。四甲与背包杂物一律留给死亡惩罚。 */
+const DEATH_RECORD_KEYS = [
+    "dm34:weapon",
+    "dm34:hoe", "dm34:hgive",
+    "dm34:gtool", "dm34:ggive", "dm34:gjob",
+    "dm34:shield",
+];
+
+/** 死亡瞬间同步快照「纯记录」。
+ *  必须在一个 tick 内读完：`entityDie` 回调结束后实体随时会被移除。
+ *  @param {import("@minecraft/server").Entity} entity
+ *  @returns {{props: Object<string,string>, typeIds: string[]}} */
+export function snapshotEquipRecords(entity) {
+    // 记录有可能只活在"世界镜像"里（实体那份被读空过 / 重进世界后丢了），先按镜像补回
+    try { heal(entity, ["dm34:weapon", "dm34:hoe", "dm34:gtool"]); } catch (e) { /* 忽略 */ }
+
+    const props = {};
+    const typeIds = [];
+
+    for (const key of DEATH_RECORD_KEYS) {
+        let raw;
+        try { raw = readRaw(entity, key); } catch (e) { raw = undefined; }
+        if (typeof raw !== "string" || raw === "") continue;
+
+        props[key] = raw;
+
+        // 顺手取 typeId：地面清理要按"球里真收到了什么"来判，不能一概清
+        try {
+            const o = JSON.parse(raw);
+            const id = o && (o.id || o.i);
+            if (typeof id === "string" && id.indexOf(":") > 0) typeIds.push(id);
+        } catch (e) { /* 解析失败不影响搬运 */ }
+    }
+
+    // 采集三件套要么一起走、要么都不走。只剩 gjob 没有 gtool = 放出来她"空手挖矿"，
+    // 那份真件永远没人归还（玩家看到的就是工具被吞）。
+    if (props["dm34:gtool"] === undefined) {
+        delete props["dm34:gjob"];
+        delete props["dm34:ggive"];
+    }
+
+    return { props, typeIds: Array.from(new Set(typeIds)) };
+}
+
+/** 写球上的装备存档并回读校验（ItemStack 动态属性可能静默失败）。
+ *  @returns {boolean} 回读一致与否 */
+export function writeEquipPayload(ball, payload) {
+    if (!ball || !payload) return false;
+
+    let text;
+    try { text = JSON.stringify(payload); } catch (e) { return false; }
+
+    try { ball.setDynamicProperty(BALL_EQUIP_DP, text); } catch (e) { return false; }
+
+    let back;
+    try { back = ball.getDynamicProperty(BALL_EQUIP_DP); } catch (e) { back = undefined; }
+
+    return typeof back === "string" && back.length === text.length;
 }
 
 /** 收回：把装备槽 + 自定义动态属性写进球里 */

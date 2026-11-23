@@ -4,7 +4,7 @@ import {
     registerEntityRemoveHandler,
     HURT_PRIORITY,
     REMOVE_PRIORITY
-} from "./event_bus.js";
+} from "../core/event_bus.js";
 
 // 日志开关
 // false：关闭高频支援日志，性能更好

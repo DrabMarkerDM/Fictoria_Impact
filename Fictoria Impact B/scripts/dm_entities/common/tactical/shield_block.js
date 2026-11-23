@@ -16,7 +16,7 @@
  */
 
 import { system, world } from "@minecraft/server";
-import { registerBeforeHurtHandler, registerEntityRemoveHandler } from "./event_bus.js";
+import { registerBeforeHurtHandler, registerEntityRemoveHandler } from "../core/event_bus.js";
 
 /*
  * 能触发格挡的伤害来源（参考包白名单 + 基岩版实际会遇到的几种）。

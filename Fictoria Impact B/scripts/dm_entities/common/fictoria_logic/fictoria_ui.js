@@ -13,8 +13,11 @@ import {
     REMOVE_PRIORITY,
     DATA_DRIVEN_PRIORITY,
     ENTITY_HIT_PRIORITY
-} from "./event_bus.js";
-import { dismountNow } from "../player/mount_follow.js";
+} from "../core/event_bus.js";
+import { dismountNow } from "../travel/mount_follow.js";
+// 友方名单唯一来源 = manager 配置表（见 attackable_target_manager.js 里的 setFriendlyTypes）。
+// 本文件不再自己 getEntities，也不再从幻域球的收纳表推断"谁算友方"。
+import { FEATURE_TYPES, forEachUnitOfTypes, isFriendlyTypeId } from "../core/maid_registry.js";
 
 // ---------- 配置区 ----------
 const CONFIG = {
@@ -30,8 +33,57 @@ const CONFIG = {
     sitEvent: "sit",
     followAliases: ["follow", "follow_1"],
     sitAliases: ["sit", "follow_2"],
-    itemGatedEntities: ["player:dm34", "player:dm34_1"],
-    maidCommandId: "item:maid_command",
+    // 背包门控实体：跟随与否由「背包里有没有那枚道具」表达的，只有这几只。
+    // 其余友方的 follow_command 是「玩家手上拿着右键」用的交互物（写在各实体 sit 组的 interact 里），
+    // 背包里没有对应 sensor 去读，塞进去也没人认 —— 所以不进这张表，仍走 follow/sit 事件。
+    itemGatedTypes: [
+        "player:dm34",
+        "player:dm34_1",
+        "player:dm3",
+        "player:dm12",
+        "player:asuna",
+        "player:kirito",
+        "player:dm48",
+        "player:dm32",
+        "player:dm51",
+        "player:dm26",
+        "player:dm61",
+        "player:dm52",
+        "player:dm56",
+        "player:dm63",
+        "player:dm35",
+        "player:dm50",
+        "player:dm31",
+        "player:dm45",
+    ],
+    // 指令物品分流：只列例外。dm34 系用 maid_command，**其余一律 defaultCommandItem（follow_command）**。
+    // 新增门控实体不用改这里，自动落默认项。
+    commandItemOverrides: {
+        "player:dm34": "item:maid_command",
+        "player:dm34_1": "item:maid_command",
+    },
+    defaultCommandItem: "item:follow_command",
+    // 门控实体在「切到跟随」时补打一次跟随事件（顺序必须是先塞道具、再发事件）。
+    // dm34 系靠 environment_sensor 自己切；dm3 需要它，因为坐姿期间检测组已被摘掉，
+    // 光塞道具没人读，她会一直坐着不动。
+    followEventByType: {
+        "player:dm3": "follow",
+        "player:dm12": "follow",
+        "player:asuna": "follow",
+        "player:kirito": "follow",
+        "player:dm48": "follow",
+        "player:dm32": "follow",
+        "player:dm51": "follow",
+        "player:dm26": "follow",
+        "player:dm61": "follow",
+        "player:dm52": "follow",
+        "player:dm56": "follow",
+        "player:dm63": "follow",
+        "player:dm35": "follow",
+        "player:dm50": "follow",
+        "player:dm31": "follow",
+        "player:dm45": "follow",
+    },
     debug: false,
     autoReopenAfterSwitch: false,
 };
@@ -73,7 +125,8 @@ function trimArrayToSet(arr) {
 }
 
 // 常用 Set
-const ITEM_GATED_SET = trimArrayToSet(CONFIG.itemGatedEntities);
+const COMMAND_ITEM_OVERRIDES = CONFIG.commandItemOverrides ?? {};
+const ITEM_GATED_SET = trimArrayToSet(CONFIG.itemGatedTypes ?? []);
 const FOLLOW_ALIAS_SET = trimArrayToSet(CONFIG.followAliases);
 const SIT_ALIAS_SET = trimArrayToSet(CONFIG.sitAliases);
 
@@ -83,23 +136,11 @@ function uiLog(...args) {
     }
 }
 
-// ---------- 从 globalThis 读取三张配置表（fictoria_ball.js 注册） ----------
-let FRIENDLY_TYPES = null;
-try {
-    const t = globalThis.FICTORIA_BALL_TYPES;
-    if (t && Array.isArray(t.gold) && Array.isArray(t.blue) && Array.isArray(t.green)) {
-        FRIENDLY_TYPES = new Set(
-            [...t.gold, ...t.blue, ...t.green].map(trimString)
-        );
-    } else {
-        console.warn(
-            "[FictoriaUI] 未找到 globalThis.FICTORIA_BALL_TYPES，" +
-            "请确认 fictoria_ball.js 已先加载。UI 将临时禁用友方判定。"
-        );
-    }
-} catch (e) {
-    console.warn(`[FictoriaUI] 读取配置失败: ${e}`);
-}
+// ---------- 友方名单 ----------
+// 来源：attackable_target_manager.js 的 RAW_DmTargetRegistry（37 个配置过的干员），
+// 由 setFriendlyTypes() 写进 maid_registry 的 FEATURE_TYPES.friendly，manager 每 5 tick
+// 扫 dm 家族时顺手登记。本文件不再维护自己的一份类型表，也不再 getEntities。
+// 幻域球收纳表（60 个）里那些没进配置表的类型，组件本来就不全，不接 UI。
 
 const patrolUnits = new Set();
 const uiCooldowns = new Map();
@@ -274,68 +315,40 @@ function initFictoriaUI() {
 
     function rehydratePatrolUnits() {
         try {
-            const dims = new Set();
+            // 名单来自 manager 登记表（每 5 tick 全量重建），本函数零查询。
+            // 原来：按 60 个友方类型各 getEntities 一次 + 一次 tag 全表查询，300 tick 一轮。
+            let scanned = 0;
 
-            for (const player of world.getAllPlayers()) {
+            forEachUnitOfTypes(FEATURE_TYPES.friendly, (unit) => {
+                let mode;
+
                 try {
-                    if (player.dimension) {
-                        dims.add(player.dimension);
-                    }
-                } catch (_) {}
-            }
-
-            if (dims.size === 0) {
-                return;
-            }
-
-            for (const dim of dims) {
-                // ── 第一优先：通过 tag 恢复 ──
-                try {
-                    const taggedUnits = dim.getEntities({
-                        tags: [PATROL_TAG]
-                    });
-
-                    for (const unit of taggedUnits) {
-                        ensurePatrol(unit);
-                    }
-                } catch (_) {}
-
-                // ── 第二优先：兼容旧存档，按友方类型扫描 DP.mode ──
-                if (FRIENDLY_TYPES) {
-                    for (const typeId of FRIENDLY_TYPES) {
-                        try {
-                            const units = dim.getEntities({
-                                type: typeId
-                            });
-
-                            for (const unit of units) {
-                                if (!unit || !unit.isValid) continue;
-
-                                const mode = unit.getDynamicProperty(DP.mode);
-
-                                if (mode === MODE.PATROL) {
-                                    ensurePatrol(unit);
-                                }
-
-                                // tag 是持久的，mount_ride 组件组不持久：重进世界后
-                                // tag 还在、组没了 → UI 显示「骑乘中」却根本不找马。
-                                // 这里补一次 mount_on（重复 add 同一组无副作用）。
-                                if (isRidingMount(unit)) {
-                                    try {
-                                        unit.triggerEvent("mount_on");
-                                    } catch (_) {}
-                                }
-                            }
-                        } catch (_) {}
-                    }
+                    mode = unit.getDynamicProperty(DP.mode);
+                } catch (_) {
+                    return;
                 }
-            }
+
+                scanned++;
+
+                if (mode === MODE.PATROL) {
+                    ensurePatrol(unit);
+                }
+
+                // tag 是持久的，mount_ride 组件组不持久：重进世界后
+                // tag 还在、组没了 → UI 显示「骑乘中」却根本不找马。
+                // 这里补一次 mount_on（重复 add 同一组无副作用）。
+                if (isRidingMount(unit)) {
+                    try {
+                        unit.triggerEvent("mount_on");
+                    } catch (_) {}
+                }
+            });
 
             patrolRehydrated = true;
 
             uiLog(
                 `[FictoriaUI] 巡逻恢复完成，` +
-                `当前巡逻单位数: ${patrolUnits.size}`
+                `扫描 ${scanned} 只 · 当前巡逻单位数: ${patrolUnits.size}`
             );
         } catch (_) {}
     }
@@ -410,7 +423,18 @@ function initFictoriaUI() {
     //  背包门控工具
 
     function isItemGated(unit) {
-        return ITEM_GATED_SET.has(unit.typeId);
+        // 没背包的实体（dm26/dm32/dm48…）即使列了表也塞不进去，直接按非门控处理
+        return ITEM_GATED_SET.has(unit.typeId) && unit.hasComponent("minecraft:inventory");
+    }
+
+    /** 该实体判跟随用的那枚道具：dm34 系走例外表，其余一律 follow_command */
+    function commandIdOf(unit) {
+        return COMMAND_ITEM_OVERRIDES[unit.typeId] ?? CONFIG.defaultCommandItem;
+    }
+
+    /** 道具短名，只用于聊天提示 */
+    function commandName(itemId) {
+        return String(itemId ?? "").replace(/^item:/, "");
     }
 
     function hasFollowComponent(unit) {
@@ -418,12 +442,15 @@ function initFictoriaUI() {
     }
 
     function inventoryHasCommand(unit) {
+        const want = commandIdOf(unit);
+        if (!want) return false;
+
         const inv = unit.getComponent("minecraft:inventory")?.container;
         if (!inv) return false;
 
         for (let i = 0; i < inv.size; i++) {
             const it = inv.getItem(i);
-            if (it && it.typeId === CONFIG.maidCommandId) {
+            if (it && it.typeId === want) {
                 return true;
             }
         }
@@ -439,6 +466,9 @@ function initFictoriaUI() {
 
     // 跟随判据就是包里这枚道具，取走后切回「跟随」必须补发一枚。
     function addCommandToInventory(unit) {
+        const want = commandIdOf(unit);
+        if (!want) return false;
+
         const inv = unit.getComponent("minecraft:inventory")?.container;
         if (!inv) return false;
 
@@ -446,7 +476,7 @@ function initFictoriaUI() {
 
         for (let i = 0; i < inv.size; i++) {
             const it = inv.getItem(i);
-            if (it && it.typeId === CONFIG.maidCommandId) {
+            if (it && it.typeId === want) {
                 return true;
             }
             if (emptySlot === -1 && it === undefined) {
@@ -455,7 +485,7 @@ function initFictoriaUI() {
         }
 
         if (emptySlot !== -1) {
-            inv.setItem(emptySlot, new ItemStack(CONFIG.maidCommandId, 1));
+            inv.setItem(emptySlot, new ItemStack(want, 1));
             return true;
         }
 
@@ -464,6 +494,9 @@ function initFictoriaUI() {
 
     // 扣掉包里全部命令道具（沿用旧包行为：逐格扫，命中即清空整格）。
     function removeCommandFromInventory(unit) {
+        const want = commandIdOf(unit);
+        if (!want) return false;
+
         const inv = unit.getComponent("minecraft:inventory")?.container;
         if (!inv) return false;
 
@@ -472,7 +505,7 @@ function initFictoriaUI() {
 
         for (let i = 0; i < inv.size; i++) {
             const it = inv.getItem(i);
-            if (it && it.typeId === CONFIG.maidCommandId) {
+            if (it && it.typeId === want) {
                 hasCommand = true;
                 inv.setItem(i, undefined);
                 removed = true;
@@ -721,7 +754,9 @@ function initFictoriaUI() {
                     waitSitThenPatrol(player, unit, mode);
                 } else {
                     if (!addCommandToInventory(unit)) {
-                        player.sendMessage(`§c指令失败：背包已满，无法放入 maid_command`);
+                        player.sendMessage(
+                            `§c指令失败：背包已满，无法放入 ${commandName(commandIdOf(unit))}`
+                        );
                         return;
                     }
 
@@ -770,6 +805,19 @@ function initFictoriaUI() {
                 return;
             }
 
+            // 先塞道具、再发事件，顺序不能反 —— 反了会被 follow_2（背包无指令）立刻打回待命。
+            // 需要这一下的原因：坐姿期间检测组已被摘掉，只塞道具没有任何东西会去读它。
+            if (wantFollow) {
+                const followEv = CONFIG.followEventByType?.[unit.typeId];
+                if (followEv) {
+                    try {
+                        unit.triggerEvent(followEv);
+                    } catch (_) {
+                        // 实体没有这个事件就跳过，道具已经在包里，sensor 会自己接上
+                    }
+                }
+            }
+
             system.runTimeout(() => {
                 try {
                     if (!unit || !unit.isValid) return;
@@ -778,7 +826,7 @@ function initFictoriaUI() {
                         player.sendMessage(`§a✔ 指令已生效：${MODE_NAME[mode]}`);
                     } else {
                         player.sendMessage(
-                            `§c✘ 切换未完全生效：背包 maid_command 未按预期变化（但已退出巡逻）`
+                            `§c✘ 切换未完全生效：背包 ${commandName(commandIdOf(unit))} 未按预期变化（但已退出巡逻）`
                         );
                     }
                 } catch (_) {}
@@ -876,7 +924,9 @@ function initFictoriaUI() {
     //  友方判定
 
     function isFriendlyUnit(entity) {
-        return FRIENDLY_TYPES !== null && FRIENDLY_TYPES.has(entity.typeId);
+        // 判定表 = manager 配置表（37 个干员）。配置表里没有的实体本来组件就不全，
+        // 面板上的指令发下去也执行不了，所以不认。
+        return isFriendlyTypeId(entity.typeId);
     }
 
     //  入口：shift + 左键友方干员 → 弹 UI
@@ -933,6 +983,7 @@ function initFictoriaUI() {
         }
     };
 
+    // 启动横幅默认打开；其余 UI 日志仍归 CONFIG.debug
     console.warn("[FictoriaUI] 战术指挥系统已加载（巡逻持久化修复版）");
 }
 

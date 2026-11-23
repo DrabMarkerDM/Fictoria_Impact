@@ -1,0 +1,27 @@
+{
+    "format_version": "1.10.0",
+    "animation_controllers": {
+        "controller.animation.dm_state_sit": {
+            "initial_state": "stand",
+            "states": {
+                "stand": {
+                    "transitions": [
+                        {
+                            "sit": "query.property('dm:state_sit') == 'on'"
+                        }
+                    ]
+                },
+                "sit": {
+                    "animations": [
+                        "sitting"
+                    ],
+                    "transitions": [
+                        {
+                            "stand": "query.property('dm:state_sit') != 'on'"
+                        }
+                    ]
+                }
+            }
+        }
+    }
+}

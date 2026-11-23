@@ -26,7 +26,7 @@ import { clearSlot, readSlot, readMainhand, dropItemNear } from "./slot_io.js";
 import { consumeHand } from "./equip.js";
 import { stashItem } from "./cook.js";
 import { variantOf, ownerIdOf } from "./maid_state.js";
-import { forEachMaid } from "./maid_registry.js";
+import { forEachMaid } from "../common/core/maid_registry.js";
 import { hasFarmTool } from "./farm_store.js";        // 只读记录，不反向依赖（无循环）
 import { hasWeaponRecord } from "./weapon_store.js";
 import { ticksWithTool, hasSilkTouch, fortuneAmount } from "./enchant.js";
@@ -639,7 +639,7 @@ function logErr(key, e, max) {
 /** 把"为什么连锁 / 为什么不连锁"直接报到离她最近的玩家聊天框。
  *  只在 CONFIG.gather.reportChain 开着时有动作，且一辈子只报 reportBudget 条。 */
 function report(entity, msg) {
-    try { console.warn(`[dm34/gather] ${msg}`); } catch (e) { /* 忽略 */ }
+    log(msg);
     if (!CONFIG.gather.reportChain || reportBudget <= 0) return;
     reportBudget--;
     try {
@@ -782,7 +782,7 @@ function maybeDiag(entity, target, inReach) {
     //
     //  🔴 上一版我把它写成了“SAPI 没有这个属性”并印 `n/a`，**那是错的**（纠正：
     //     「2.7.0 是有 target 的，我测试过，不要信文档」）。本包自己的
-    //     `common/attackable_target_manager.js:231` 就一直在用 `entity.target`。
+    //     `common/tactical/attackable_target_manager.js:231` 就一直在用 `entity.target`。
     //     教训：接口存不存在，去**这个仓库里跑通的代码**里找，别信记忆、别信文档。
     let engineTarget = "无";
     try {

@@ -4,7 +4,7 @@
  * 最近的坐骑，本模块的 `/ride` 只做兜底；战斗走位归引擎（mount_pathing + 攻击行为），近战 /
  * 远程 / 冲刺的冲量由 main.js 打在她本人身上，不再推载具；只有「跟随玩家」模式才推载具，走本
  * 模块的独立通道（直接 applyImpulse）。船 / 竹筏 / 带箱子的船不在本模块 —— 见
- * `common/vehicle_follow.js`，脱困传送（太远 / 卡住 + 前方有坎）两边共用它的实现。
+ * `common/travel/vehicle_follow.js`，脱困传送（太远 / 卡住 + 前方有坎）两边共用它的实现。
  * 跟随不交给 main.js 的原因：群骑纷争之后引擎对载具的物理处理变了（驯服马无鞍一步不动、带鞍
  * 一顿一顿），载具跟随的冲量若再走「她 → entityRidingOn」那条共用通道会和载具物理打架。
  * 三个修正（都源自「冲量只能推、不能转」）：
@@ -15,21 +15,19 @@
  * 补一层（近距离不补，避免贴脸冲刺）。
  * ③ 载具泛化：不再 `type=horse`，而是任意带 `minecraft:rideable` 的生物载具；船 / 矿车 /
  * 运输船排除（不吃冲量也不吃 speed）。
- * 门控：只有 `fictoria_ui:mode === 0`（跟随玩家）且不在战斗时才推；随机 / 巡逻一律松手。
+ * 门控：跟随才推 —— UI 的 `fictoria_ui:mode === 0`，或 UI 没写过时背包里有她的指令物品
+ * （dm34 系 maid_command，其余 follow_command，判据在 follow_recall.isFollowing）。随机 / 巡逻一律松手。
  */
 import { system, world } from "@minecraft/server";
-import { isInCombat, factionOf } from "../common/camp_faction.js";
+import { isInCombat, factionOf } from "../core/camp_faction.js";
 import { isPlayerMounted } from "./ride_guard.js";
-import { checkVehicleRescue } from "../common/vehicle_follow.js";
+import { checkVehicleRescue } from "./vehicle_follow.js";
+import { refreshMaids, getMaids, isFollowing } from "./follow_recall.js";
 
 const RIDE_TAG = "maid:mount_ride";
 
-/** 与 fictoria_ui.js 的 MODE / DP 保持一致（那边没导出，只能照抄字面量）。 */
-const MODE_FOLLOW = 0;
-const DP_MODE = "fictoria_ui:mode";
-
 /** 非生物载具：船 / 各种矿车 / 运输船。它们不归本模块 ——
- *  船 / 竹筏 / 带箱子的船由 `common/vehicle_follow.js` 单独驱动（冲量尺度不同）。 */
+ *  船 / 竹筏 / 带箱子的船由 `common/travel/vehicle_follow.js` 单独驱动（冲量尺度不同）。 */
 const NON_MOB_VEHICLE = ["boat", "minecart"];
 
 /**
@@ -76,11 +74,9 @@ const CONFIG = {
     climbHopMax: 10,
     // 跳满 climbHopMax 还没挪窝就作废重来，别让一次陡坡把她永久判死
     climbResetTicks: 60,
-    scanLimit: 64,
     debug: false,
 };
 
-const DIMENSION_IDS = ["overworld", "nether", "the_end"];
 const YAW_PER_RAD = 180 / Math.PI;
 
 /** id -> entity。只放「带骑乘 tag」的单位。 */
@@ -159,30 +155,22 @@ function resolveOwner(unit) {
     return undefined;
 }
 
-function scan() {
+function scan(nowTick) {
+    // 名单抄 manager 的登记表（全干员，零查询）；只留「打过骑乘标」的那几只。
+    // 骑乘标由 JSON 的 mount_on 事件打，所以她跨上载具后才进这张表。
+    refreshMaids(nowTick ?? system.currentTick);
+
     const seen = new Set();
 
-    for (const dimId of DIMENSION_IDS) {
-        let list;
-
+    for (const [id, unit] of getMaids()) {
         try {
-            list = world.getDimension(dimId).getEntities({ tags: [RIDE_TAG] });
+            if (!unit?.isValid || !unit.hasTag(RIDE_TAG)) continue;
         } catch (_) {
             continue;
         }
 
-        for (const unit of list) {
-            try {
-                if (!unit?.isValid) continue;
-            } catch (_) {
-                continue;
-            }
-
-            seen.add(unit.id);
-            Tracked.set(unit.id, unit);
-
-            if (seen.size >= CONFIG.scanLimit) break;
-        }
+        seen.add(id);
+        Tracked.set(id, unit);
     }
 
     for (const id of [...Tracked.keys()]) {
@@ -554,10 +542,9 @@ function pumpFollow(nowTick) {
                 continue;
             }
 
-            // 硬门控：只有「跟随玩家」模式才推。随机 / 巡逻一律松手。
-            const mode = unit.getDynamicProperty(DP_MODE);
-
-            if (mode !== MODE_FOLLOW) {
+            // 硬门控：跟随才推（UI 的 mode=0，或 UI 没写过时背包里有 maid_command /
+            // follow_command）。随机 / 巡逻一律松手。
+            if (!isFollowing(unit)) {
                 release(id);
                 continue;
             }
@@ -686,12 +673,13 @@ function tick() {
 }
 
 export function initMountFollow() {
-    scan();
+    scan(system.currentTick);
 
-    system.runInterval(scan, CONFIG.scanIntervalTicks);
+    system.runInterval(() => scan(system.currentTick), CONFIG.scanIntervalTicks);
     // 上/下马每 2 tick 一次都嫌密；但跟随的冲量必须每 tick —— 它是按拍累加的。
     // 这一条路径只遍历 Tracked（通常 0-3 只），空转成本可以忽略。
     system.runInterval(tick, 1);
 
+    // 启动横幅默认打开；其余骑乘日志仍归 CONFIG.debug
     console.warn("[MountFollow] 骑乘：上/下马 + 跟随驱动（每 tick 推载具 + 朝向）已加载");
 }

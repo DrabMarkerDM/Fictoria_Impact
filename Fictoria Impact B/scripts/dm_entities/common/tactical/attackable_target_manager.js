@@ -10,24 +10,25 @@ import {
     REMOVE_PRIORITY,
     AFTER_HURT_PRIORITY,
     DATA_DRIVEN_PRIORITY
-} from "./event_bus.js";
+} from "../core/event_bus.js";
 import {
     peekMoveCmd,
     clearMoveCmd,
     gcMoveCmd,
     JUMP_IDLE
-} from "./move_command_store.js";
-import { gcDrowningState } from "./water_traversal.js";
+} from "../core/move_command_store.js";
+import { gcDrowningState } from "../travel/water_traversal.js";
 import {
     FACTION,
     factionOf,
     isInCombat,
     isCombatCapable
-} from "./camp_faction.js";
+} from "../core/camp_faction.js";
 // 骑乘熔断：玩家骑着她时跳过整个走位分发
-import { isPlayerMounted } from "../player/ride_guard.js";
-// 女仆登记表：本引擎每周期扫 dm 家族时顺手登记，dm34 侧直接复用，不再各扫一遍
-import { clearMaids, registerMaid, isMaidTypeId } from "../dm34/maid_registry.js";
+import { isPlayerMounted } from "../travel/ride_guard.js";
+// 友方登记表：本引擎每周期扫 dm 家族时顺手登记，各功能侧（dm34 那套 / 通用灯光 / UI）直接复用，
+// 不再各扫一遍。登记范围见 maid_registry.js 的 FEATURE_TYPES。
+import { clearUnits, registerUnit, isRegisteredType, setFriendlyTypes } from "../core/maid_registry.js";
 
 // 日志开关
 const DEBUG_ENGINE = false;
@@ -99,7 +100,7 @@ function flushUnregisteredDmUnits() {
     unregReportScheduled = false;
     const list = Array.from(UnregisteredDmUnits);
     if (!list.length) return;
-    console.warn(
+    engineLog(
         `[DM-Engine] ${list.length} 个干员没有索敌配置（按各自 JSON 原生 AI 运行）：` +
         list.join(", ")
     );
@@ -134,7 +135,7 @@ function reportUnregisteredUnit(typeId) {
         UnregisteredUnitReported.add(typeId);
 
         // 每个 typeId 只播报一次，最多 64 条，不会刷屏
-        console.warn(
+        engineLog(
             `[DM-Engine] 熔断：${typeId} 带有 dm/demon 家族标签，` +
             `但不在 DmTargetRegistry 中，已跳过`
         );
@@ -191,7 +192,7 @@ const TargetSensorManager = {
             } catch (_) { }
         }, REMOVE_PRIORITY.TARGET_CACHE);
 
-        engineLog("[TargetSensor] 初始化完成");
+        console.warn("[TargetSensor] 初始化完成");
     },
 
     _addTracking(trackerId, targetId) {
@@ -409,22 +410,61 @@ const RAW_DmTargetRegistry = {
                 supportEnabled: true
             },
             // 长矛（spear 组，variant 8）。没有 8 档 → resolveStrictConfig 返回 null，
-            // 长矛形态进不了战斗引擎。reach 3.2 配 3.8 接敌距离。
+            // 长矛形态进不了战斗引擎。reach 3.5 配 4.0 接敌距离。
             8: {
                 normalRange: 22,
                 alertRange: 33,
-                focus: 3.8,
+                focus: 4.0,
                 speed: 20,
                 combatType: "melee",
                 strafeSpeed: 0.22,
                 chargeSpeed: 2.5,
                 chargeRange: 10,
                 maxChargeDist: 10,
-                meleeRange: 3.8,
+                meleeRange: 4.0,
                 clock_time: false,
                 supportEnabled: true
             }
         }
+    },
+
+    /*
+     * dm3 / dm12 —— LittleMaid 系近战女仆，正式纳入 manager（2026-11-20）。
+     * 没有 minecraft:variant 组件 → 只能给全局档，**不许带 modes**（带了 variant=0 必然熔断，
+     * 表现为"注册了却完全不索敌"）。数值沿用 dm34 近战 1 档。
+     * 走位：同日给 dm3.json / dm12.json 补了 Asuna 那套 tag 链
+     * （on_target_acquired → dm_has_target + dm_skill_on；1.5s 去抖 + 13s 闲置 timer 再摘掉），
+     * 于是 isInCombat() 会真开 → 引擎推冲量走位（不依赖 dm_walk_* 组，那是采集专用），
+     * 追击动画与攻击仍由它们自己的 JSON 行为做。
+     * supportEnabled:true —— 与 dm34 一致走支援压力配对（2026-11-20 用户定）。
+     * resolveSupportModeConfig 对无 modes 的全局档直接返回本档，不会因为缺 variant 断掉。
+     */
+    "player:dm3": {
+        normalRange: 22,
+        alertRange: 33,
+        focus: 2.0,
+        speed: 20,
+        combatType: "melee",
+        strafeSpeed: 0.3,
+        chargeSpeed: 2.5,
+        chargeRange: 10,
+        maxChargeDist: 10,
+        clock_time: false,
+        supportEnabled: true
+    },
+
+    "player:dm12": {
+        normalRange: 22,
+        alertRange: 33,
+        focus: 2.0,
+        speed: 20,
+        combatType: "melee",
+        strafeSpeed: 0.3,
+        chargeSpeed: 2.5,
+        chargeRange: 10,
+        maxChargeDist: 10,
+        clock_time: false,
+        supportEnabled: true
     },
 
     "player:dm48": {
@@ -880,6 +920,12 @@ const RAW_DmTargetRegistry = {
     }
 };
 
+// UI 的友方名单 = 本配置表的 key（2026-11-20 用户定：只管配置表，凑数实体不接 UI）。
+// 这是唯一写入点：fictoria_ui 的巡逻恢复和 shift+左键弹面板的判定都从登记表拿，
+// 不再按幻域球那 60 个类型逐个 getEntities —— 配置表里没有的（bullet / roar / 召唤物）
+// 本来组件就不全，接 UI 也没有意义。
+setFriendlyTypes(Object.keys(RAW_DmTargetRegistry));
+
 // demon 默认档（宽进）。绝对不要塞进 DmTargetRegistry：
 // processHurtSupport 按注册表触发，一旦有 demon 项，所有 demon 挨打都会广播支援。
 // supportEnabled: false 是整条支援链路的总闸门。
@@ -1264,7 +1310,7 @@ function assignBucket(entry, preferredSlot, cap) {
 function rebuildManagedUnits(dimStates) {
 
     ManagedUnits.length = 0;
-    clearMaids();
+    clearUnits();
 
     for (let i = 0; i < FRAME_COUNT; i++) {
         FrameBuckets[i].length = 0;
@@ -1304,10 +1350,10 @@ function rebuildManagedUnits(dimStates) {
 
                 const typeId = unit.typeId;
 
-                // 女仆顺手登记：必须在下面的阵营 / 配置判定之前，
+                // 友方登记：必须在下面的阵营 / 配置判定之前，
                 // 否则 variant=0（待命）会被严格熔断挡掉（见 maid_registry.js）
-                if (family === "dm" && isMaidTypeId(typeId)) {
-                    registerMaid(unit);
+                if (family === "dm" && isRegisteredType(typeId)) {
+                    registerUnit(unit);
                 }
 
                                 // demon 家族里的非战斗单位（bullet:* / bomb_roar）：挡在配置解析之前省掉无用功。

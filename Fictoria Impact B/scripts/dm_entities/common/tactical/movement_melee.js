@@ -4,25 +4,25 @@ import {
     registerEntityRemoveHandler,
     HURT_PRIORITY,
     REMOVE_PRIORITY
-} from "./event_bus.js";
+} from "../core/event_bus.js";
 import {
     writeMoveCmd,
     acquireMoveCmd,
     peekMoveCmd,
     clearMoveCmd
-} from "./move_command_store.js";
+} from "../core/move_command_store.js";
 import {
     FACTION,
     factionOf,
     isInCombat
-} from "./camp_faction.js";
+} from "../core/camp_faction.js";
 import {
     detectLiquid,
     applyLiquidSpeed,
     resolveFloatImpulse,
     isDrowningRecovering
-} from "./water_traversal.js";
-import { isPlayerMounted } from "../player/ride_guard.js";
+} from "../travel/water_traversal.js";
+import { isPlayerMounted } from "../travel/ride_guard.js";
 
 // 日志开关
 const DEBUG_MELEE = false;
@@ -2138,7 +2138,7 @@ function registerBlockSubscriber() {
         HURT_PRIORITY.MELEE_BLOCK
     );
 
-    meleeLog("[DM-Melee] 格挡已注册 (顶层注册, tag总阀门+统一周期+EWMA威胁+攻击者溯源)");
+    console.warn("[DM-Melee] 格挡已注册 (顶层注册, tag总阀门+统一周期+EWMA威胁+攻击者溯源)");
 }
 
 registerBlockSubscriber();
@@ -2148,5 +2148,5 @@ registerBlockSubscriber();
 MovementMelee.initBlockMechanic = function () {
     registerBlockSubscriber();
 
-    meleeLog("[DM-Melee] v2.28 冲刺墙检测整理版初始化完成");
+    console.warn("[DM-Melee] v2.28 冲刺墙检测整理版初始化完成");
 };

@@ -9,22 +9,26 @@
 
 import { world } from "@minecraft/server";
 
+/** 本文件日志开关（只影响 event_bus.js）。排查订阅顺序/重复注册时打开 */
+const DEBUG_BUS = false;
+
 // 优先级表：数字小的先执行。
 
 // ── beforeEvents.entityHurt ──────────────────────────────
 export const HURT_PRIORITY = {
-    SHIELD_BLOCK: 50,       // dm_entities/common/shield_block.js 盾牌格挡（先于近战格挡，盾挡下的不扣后撤次数）
+    SHIELD_BLOCK: 50,       // dm_entities/common/tactical/shield_block.js 盾牌格挡（先于近战格挡，盾挡下的不扣后撤次数）
     MELEE_BLOCK: 100,       // movement_melee.js    受击账本 + 近战格挡
     SUPPORT_SILENCE: 200,   // dm_support_system.js 支援者消音
     FRIENDLY_FIRE: 300,     // player_attack_blocker 友伤拦截
-    PLAYER_SWORD: 400       // dm_player_sword_attack 蓄力倍率 + 弹反
+    PLAYER_SWORD: 400,      // dm_player_sword_attack 蓄力倍率 + 弹反
+    BALL_DEATH: 900         // dm34/ball_death_return 致命预判背包预快照（放最后：读最终 damage）
 };
 
 // ── beforeEvents.entityRemove ── 缓存清理，彼此独立，顺序无实质影响。
 export const REMOVE_PRIORITY = {
     MELEE_CACHE: 100,           // movement_melee.js
     TACTICAL_CLOCK: 200,        // tactical_clock_manager.js
-    SHIELD_CACHE: 250,          // dm_entities/common/shield_block.js 举盾状态表
+    SHIELD_CACHE: 250,          // dm_entities/common/tactical/shield_block.js 举盾状态表
     SUPPORT_CACHE: 300,         // dm_support_system.js
     TARGET_CACHE: 400,          // attackable_target_manager.js（模块顶层）
     FRIENDLY_FIRE_CACHE: 500,   // player_attack_blocker.js
@@ -43,7 +47,14 @@ export const AFTER_HURT_PRIORITY = {
     MELEE_IMPACT: 300,      // melee_manager.js 长矛戳刺动画 + 小范围群攻
     FRIENDLY_WARY_MARK: 350,  // player_attack_blocker.js 误伤友军 → 给受害者打 dm_wary 标签
     TARGET_ENGINE_HURT: 400,
-    DROWNING_GUARD: 500     // water_traversal.js 溺水换气标记
+    DROWNING_GUARD: 500,    // water_traversal.js 溺水换气标记
+    BALL_DEATH: 900         // dm34/ball_death_return 血量归零兜底快照（放最后：别的模块先处理完）
+};
+
+// ── afterEvents.entityDie ── 顺序不能乱：谁先接管就决定"地上还掉不掉第二份"。
+export const DEATH_PRIORITY = {
+    BALL_DEATH: 100,        // dm34/ball_death_return.js 死亡 → 回成满球（先搬记录）
+    DEATH_DROP: 200         // dm34/death_drop.js 兜底掉落（看到让路标记就退出）
 };
 
 // ── afterEvents.dataDrivenEntityTrigger ──────────────────
@@ -76,6 +87,12 @@ const CHANNELS = [
         label: "受击后",
         eventLabel: "afterEvents.entityHurt",
         resolve: () => world.afterEvents.entityHurt
+    },
+    {
+        key: "entityDie",
+        label: "实体死亡",
+        eventLabel: "afterEvents.entityDie",
+        resolve: () => world.afterEvents.entityDie
     },
     {
         key: "dataDriven",
@@ -155,6 +172,11 @@ export function registerAfterHurtHandler(name, handler, priority) {
     return register("afterHurt", name, handler, priority);
 }
 
+/** 实体死亡（afterEvents.entityDie）：只读通知 */
+export function registerEntityDieHandler(name, handler, priority) {
+    return register("entityDie", name, handler, priority);
+}
+
 /** 数据驱动实体事件（afterEvents.dataDrivenEntityTrigger） */
 export function registerDataDrivenHandler(name, handler, priority) {
     return register("dataDriven", name, handler, priority);
@@ -218,6 +240,7 @@ export function initEventBus() {
         );
     }
 
+    // 启动横幅默认打开；其余总线日志仍归 DEBUG_BUS
     console.warn(
         `[DM-EventBus] 总线已启动 | 通道 ${summary.length} 个\n` +
         summary.map(s => "  · " + s).join("\n")

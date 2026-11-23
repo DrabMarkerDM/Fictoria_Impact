@@ -7,12 +7,12 @@ import {
     registerAfterHurtHandler,
     REMOVE_PRIORITY,
     AFTER_HURT_PRIORITY
-} from "./event_bus.js";
+} from "../core/event_bus.js";
 import {
     writeMoveCmd,
     peekMoveCmd,
     clearMoveCmd
-} from "./move_command_store.js";
+} from "../core/move_command_store.js";
 
 // 窒息 / 重力方块埋压 / 液体溺水挣脱模块
 
@@ -577,4 +577,4 @@ registerAfterHurtHandler("suffocation_escape", (event) => {
     } catch (_) {}
 }, AFTER_HURT_PRIORITY.SUFFOCATION_HURT);
 
-suffocationLog("[SuffocationEscape] 防窒息模块已加载");
+console.warn("[SuffocationEscape] 防窒息模块已加载");

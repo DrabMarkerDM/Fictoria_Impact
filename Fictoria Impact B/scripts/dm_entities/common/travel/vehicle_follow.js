@@ -1,22 +1,22 @@
 /*
  * vehicle_follow.js — 跟随模式下的「非生物载具」调度：船 / 竹筏 / 带箱子的船。
- * 分工：骑马跟随（player/mount_follow.js）只管生物载具（马、驴、猪、羊驼）；船 / 竹筏 / 矿车
+ * 分工：骑马跟随（common/travel/mount_follow.js）只管生物载具（马、驴、猪、羊驼）；船 / 竹筏 / 矿车
  * 是另一套物理（吃冲量但不吃 speed 效果、会漂、有浮力），塞进 mount_follow 会把调好的马匹
  * 参数搅乱。通用部分不在本文件 —— 模式判定、主人解析、落点查找、38 格召回全在
- * `common/follow_recall.js`，那里是任何实体都能用的基础设施；本文件只留「船」这一件事，
+ * `common/travel/follow_recall.js`，那里是任何实体都能用的基础设施；本文件只留「船」这一件事，
  * 外加两边共用的脱困判定。
  * 两件事：① 划船跟随 —— 她坐在船上、处于跟随模式 → 每 tick 给船加冲量并修正朝向。船型不
  * 枚举（基岩 1.20+ 把 boat 拆成 oak_boat / spruce_boat / bamboo_raft / oak_chest_boat /
  * bamboo_chest_raft …），统一按后缀 `boat` / `raft` 判定，新船型自动覆盖。
  * ② 脱困 —— 载具 1.5 秒位移过小 + 前方有明显高度差 → 传送到主人身边；离主人 > 40 格也直接
  * 传一次。马和船共用 `checkVehicleRescue`。
- * 性能：先读 `fictoria_ui:mode`，不是跟随模式立刻跳过，随机 / 巡逻零开销。女仆表由
- * follow_recall 维护（20 tick 一刷），本模块不重复 getEntities。
+ * 性能：先读跟随标志（UI 的 mode，或没写过时看指令物品），不是跟随立刻跳过，随机 / 巡逻零开销。
+ * 干员表由 follow_recall 维护（20 tick 一刷，名单 = manager 配置表全量干员），本模块不重复 getEntities。
  */
 import { system } from "@minecraft/server";
-import { isPlayerMounted } from "../player/ride_guard.js";
+import { isPlayerMounted } from "./ride_guard.js";
 import {
-    isFollowMode,
+    isFollowing,
     resolveOwner,
     findLandingSpot,
     refreshMaids,
@@ -448,8 +448,8 @@ function tick() {
                 continue;
             }
 
-            // ① 门控：非跟随模式一律不跑（随机 / 巡逻都不管）
-            if (!isFollowMode(unit)) {
+            // ① 门控：跟随才跑（UI 的 mode=0，或指令物品）。随机 / 巡逻都不管。
+            if (!isFollowing(unit)) {
                 release(id);
                 continue;
             }
@@ -516,5 +516,6 @@ export function initVehicleFollow() {
     // 船的冲量必须每 tick 累加；跟随模式的女仆通常 1-3 只，空转成本可忽略
     system.runInterval(tick, 1);
 
+    // 启动横幅默认打开；其余船跟随日志仍归 CONFIG.debug
     console.warn("[VehicleFollow] 船跟随 / 载具脱困已加载");
 }

@@ -14,7 +14,7 @@ import {
     HURT_PRIORITY,
     AFTER_HURT_PRIORITY,
     ENTITY_HIT_PRIORITY
-} from "../common/event_bus.js";
+} from "../common/core/event_bus.js";
 
 // ==================== 调试开关 ====================
 

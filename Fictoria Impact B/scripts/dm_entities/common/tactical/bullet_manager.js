@@ -1,8 +1,8 @@
 import { EntityDamageCause } from '@minecraft/server';
-import { BulletEffects } from '../dm48/dm48_bullet.js';
-import { BulletEffects61 } from '../dm61/dm61_bullet.js';
+import { BulletEffects } from '../../dm48/dm48_bullet.js';
+import { BulletEffects61 } from '../../dm61/dm61_bullet.js';
 import { shouldBlockProjectileFriendlyFire } from "./player_attack_blocker.js";
-import { applyBuffModifier } from "./damage_buff_calculator.js";
+import { applyBuffModifier } from "../core/damage_buff_calculator.js";
 
 // BulletDamage 类
 

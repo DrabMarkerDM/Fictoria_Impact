@@ -18,9 +18,10 @@ import { serializeItem } from "./slot_io.js";
 import { initBallSync } from "./ball_sync.js";
 import { initShield, recordShield, shieldRecord } from "./shield.js";
 import { initDeathDrop } from "./death_drop.js";
+import { initBallDeathReturn } from "./ball_death_return.js";
 import { initGather } from "./gather.js";
 import { initFarmFortune } from "./farm_fortune.js";
-import { registerBallExtension } from "../common/fictoria_ball.js";
+import { registerBallExtension } from "../common/fictoria_logic/fictoria_ball.js";
 
 let inited = false;
 
@@ -111,6 +112,10 @@ export function initDm34Interact() {
 
     // 盾牌：举盾巡检 + beforeEvents.entityHurt 格挡。必须在 initEventBus 之前登记
     try { initShield(); } catch (e) { logError(`initShield 失败: ${e}`); }
+
+    // 死亡回球：必须排在 initDeathDrop 之前 —— 它先判定玩家背包里有没有对应颜色的空球，
+    // 有就 markBallHandled，后面的 death_drop 让路（否则同一条记录会在地上再丢一份真件）
+    try { initBallDeathReturn(); } catch (e) { logError(`initBallDeathReturn 失败: ${e}`); }
 
     // 死亡掉落：自定义实体不会掉装备槽，靠记录把真件还给玩家
     try { initDeathDrop(); } catch (e) { logError(`initDeathDrop 失败: ${e}`); }
@@ -203,11 +208,9 @@ export function initDm34Interact() {
 
     // 启动横幅只进内容日志，聊天栏只留玩家操作结果
     system.runTimeout(() => {
-        if (CONFIG.log.console) {
-            try {
-                console.warn("[dm34] 交互层已加载（JS 路由 + 盔甲 + 真武器 + 烹饪计时器 + 自动烹饪 + 背包 + 火把巡检）");
-            } catch (e) { /* 忽略 */ }
-        }
+        try {
+            console.warn("[dm34] 交互层已加载（JS 路由 + 盔甲 + 真武器 + 烹饪计时器 + 自动烹饪 + 背包 + 火把巡检）");
+        } catch (e) { /* 忽略 */ }
     }, 40);
 }
 

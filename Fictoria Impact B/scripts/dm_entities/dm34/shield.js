@@ -1,6 +1,6 @@
 /*
  * shield.js — dm34 的盾牌：装备 / 卸下 / 记录，以及何时举盾。
- * 格挡判定（锥形、cancel、时长、冷却、击退）在 common/shield_block.js，本文件只管三件事：
+ * 格挡判定（锥形、cancel、时长、冷却、击退）在 common/tactical/shield_block.js，本文件只管三件事：
  * ① 真盾的装备与记录 —— 引擎的 equip_item_slot(offhand) 搬真件，脚本只抄一份序列化记录
  * dm34:shield，卸盾 / 丢件自愈按记录重建。副手是字符串槽、与整数鞍槽 0 共存，不要为副手删掉
  * 鞍槽（整数与字符串槽混排会让整个 slots 数组被 schema 丢弃）。
@@ -13,12 +13,12 @@
 import { system, world } from "@minecraft/server";
 import { CONFIG } from "./config.js";
 import { clearSlot, cmdHasItem, deserializeItem, dropItemNear } from "./slot_io.js";
-import { factionOf, enemyFilterOf, isHostile } from "../common/camp_faction.js";
-import { HURT_PRIORITY, REMOVE_PRIORITY } from "../common/event_bus.js";
-import { forEachMaid } from "./maid_registry.js";
+import { factionOf, enemyFilterOf, isHostile } from "../common/core/camp_faction.js";
+import { HURT_PRIORITY, REMOVE_PRIORITY } from "../common/core/event_bus.js";
+import { forEachMaid } from "../common/core/maid_registry.js";
 import { resolveState } from "./maid_state.js";
 import { putInBag } from "./guard.js";
-import { registerShieldBlocker } from "../common/shield_block.js";
+import { registerShieldBlocker } from "../common/tactical/shield_block.js";
 
 const DM34 = "player:dm34";
 
@@ -510,10 +510,40 @@ function engagedFoe(entity) {
     return probeFoe(entity);
 }
 
+/*
+ * 脱战宽限 —— 完全交给 manager，JS 不记账、不轮询、不存时间戳。
+ *
+ * 引擎侧的完整链条在 attackable_target_manager.js 的 TargetSensorManager（EVENT_ACQUIRED = "attack"、
+ * EVENT_LOST = "silent"）：每帧对已注册干员检查 entity.target ——
+ *   ① 锁定目标 / 换人        → triggerEvent("attack")
+ *   ② 目标没了（走远、被清）  → triggerEvent("silent")
+ *   ③ 目标实体被移除（死亡）  → entityRemove 钩子 _notifyTargetRemoved 补发 "silent"
+ * 前置是实体属性 dm:target_sensor === "on"（dm34 / dm34_1 默认就是 on），否则它整段不工作。
+ *
+ * dm34.json / dm34_1.json 里接的是与 dm0 同构的两级衰减：
+ *   attack           → 摘 attack_reset / shield_grace，`tag @s add dm_shield_hold`（+ dm_has_target）
+ *   silent           → 挂 attack_reset（1.5s 循环 timer，去抖，只走一次就自摘）
+ *   attack_reset     → 摘 attack_reset、挂 shield_grace、摘 dm_has_target
+ *   shield_grace     → 12s 一次性 timer
+ *   shield_grace_end → 摘 shield_grace、`tag @s remove dm_shield_hold`
+ *
+ * 所以「12 秒」写在 JSON 的 shield_grace 组（minecraft:timer.time），改时长动 JSON，不动这里。
+ * JS 只认一个 tag：零状态、零 Map、零额外 getEntities，也不碰任何 movement 组。
+ * 注意超时是 1.5s 去抖 + 12s 计时 = 最后一次看见敌人后约 13.5s 放盾。
+ */
+const GRACE_TAG = "dm_shield_hold";
+
+function hasGrace(entity) {
+    try { return entity.hasTag(GRACE_TAG); } catch (e) { return false; }
+}
+
 /* 战斗姿态：索敌到 / 挨过打 / 贴脸才举盾（见 engagedFoe）。闲置态直接不举 —— 那时她连盾都不该有 */
 function shouldBlock(entity) {
     if (isIdleState(entity)) return false;
-    return canHoldShield(entity) && !!engagedFoe(entity);
+    if (!canHoldShield(entity)) return false;
+    if (engagedFoe(entity)) return true;
+        // 敌人没了但 manager 的 12 秒宽限还没走完 → 继续举着（姿势与慢速一起保留）
+    return hasGrace(entity);
 }
 
 /*
@@ -533,9 +563,12 @@ function onTick(entity) {
 
         // 闲置态不持盾：从战斗态切回闲置、或坐下待命时，把副手那面盾收进背包
         // 必须排在丢件自愈之前 —— 收完记录就空了，后面全是空转
+        // 收盾就不留宽限 tag，免得回战斗态又凭旧 tag 虚举一下。
+        // 组件组摘不了（SAPI 没有 removeComponentGroup），由 shield_grace 的 12s timer 自己到期。
     if (isIdleState(entity)) {
         const n = stowShield(entity);
         if (n) tell("待命/闲置状态不持盾，盾牌已收进背包。");
+        try { entity.removeTag(GRACE_TAG); } catch (e) { /* 忽略 */ }
         return false; // 交给通用模块立刻收盾
     }
 

@@ -21,6 +21,13 @@
         "ect": "controller.animation.ect_4",
         "sword": "controller.animation.dm34_sword",
         "light_detector": "controller.animation.dm34.light_detector"
+      },
+      "properties": {
+        "dm:target_sensor": {
+          "type": "enum",
+          "values": [ "def", "on", "off" ],
+          "default": "on"
+        }
       }
     },
     "component_groups": {
@@ -1609,6 +1616,16 @@
             "event": "attack_reset"
           }
         }
+      },
+      "shield_grace": {
+        "minecraft:timer": {
+          "looping": false,
+          "randomInterval": false,
+          "time": 12.0,
+          "time_down_event": {
+            "event": "shield_grace_end"
+          }
+        }
       }
     },
     "components": {
@@ -2121,6 +2138,20 @@
           ]
         }
       },
+      "attack": {
+        "remove": {
+          "component_groups": [
+            "attack_reset",
+            "shield_grace"
+          ]
+        },
+        "queue_command": {
+          "command": [
+            "tag @s add dm_has_target",
+            "tag @s add dm_shield_hold"
+          ]
+        }
+      },
       "silent": {
         "add": {
           "component_groups": [
@@ -2128,10 +2159,27 @@
           ]
         }
       },
+      "shield_grace_end": {
+        "remove": {
+          "component_groups": [
+            "shield_grace"
+          ]
+        },
+        "queue_command": {
+          "command": [
+            "tag @s remove dm_shield_hold"
+          ]
+        }
+      },
       "attack_reset": {
         "remove": {
           "component_groups": [
             "attack_reset"
+          ]
+        },
+        "add": {
+          "component_groups": [
+            "shield_grace"
           ]
         },
         "queue_command": {

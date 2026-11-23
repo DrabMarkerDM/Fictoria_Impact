@@ -34,12 +34,14 @@ export const CONFIG = {
         enabled: true,
         /** 存放真武器的动态属性（值是容器槽号，-1 = 没存） */
         slotProp: 'dm34:wslot',
-        /** 真武器从第几格开始存。horse 型容器 0/1 是马鞍/马铠伪槽，不能占用 */
-        storeFrom: 2,
+        /** 真武器从第几格开始存。0 号是马鞍槽（`container_type: horse` + `equippable slot 0 = saddle`），
+         *  背包从 1 开始 —— 所以从 1 起，别写 0（会占马鞍位）、也别写 2（背包第 1 格永远空着）。
+         *  （当前无调用方，仅作默认值；真要落盘时用 `bagFirstOf`，别写死数字） */
+        storeFrom: 1,
     },
 
     /** 盾牌：右键装盾、潜行+Maid_Command 卸盾、战斗姿态自动举盾。
-     *  可挡伤害白名单见 common/shield_block.js 的 DEFAULT_HIT_CAUSES。不扣耐久（盾是真件） */
+     *  可挡伤害白名单见 common/tactical/shield_block.js 的 DEFAULT_HIT_CAUSES。不扣耐久（盾是真件） */
     shield: {
         enabled: true,
         /** 盾挂副手，由 dm34.json 的 interact 条目 equip_item_slot 交给引擎搬真件。
@@ -63,6 +65,10 @@ export const CONFIG = {
         cooldownTicks: 50,
         /** 举盾时移动速度系数 */
         slowFactor: 0.6,
+        /** 脱战宽限不在 JS 里配：由 manager 的 TargetSensorManager 发 attack/silent，
+         *  再由 dm34.json / dm34_1.json 的 attack_reset(1.5s 去抖) → shield_grace(12s timer)
+         *  走完，JS 只读 tag dm_shield_hold。改时长 = 改那两个 JSON 的 shield_grace 组。
+         *  🔴 只作用于「没有敌人」这条路；挡下后的 holdTicks 时长窗口与冷却不受影响。 */
         /** 挡下时推开攻击者的力度 */
         knockbackHorizontal: 1.2,
         knockbackVertical: 0.45,
@@ -361,12 +367,13 @@ export const CONFIG = {
      *  diagQuota debug 打开时允许打到聊天栏的前 N 条（0 = 只进内容日志）
      *  玩家操作反馈（"取下 N 件盔甲"）不归这里管：它们在失败时才出现，关掉等于藏原因 */
     log: {
+        /** 内容日志（诊断、换甲回收、残留清理、丢失件记录）。本文件（dm34 全组）的日志开关 */
         console: true,
         chat: false,
         debug: false,
         diagQuota: 0,
-        /** 耕地态交互取证：只在 st=farm 时打，一次右键一行，限 40 条 */
-        farmTrace: true,
+        /** 耕地态交互取证：只在 st=farm 时打，一次右键一行，限 40 条。实测期用完即关 */
+        farmTrace: false,
         /** 卸甲残留告警：只进控制台，且不受 log.console 总闸管辖（异常告警不该还要先翻开关） */
         armorGhost: true,
     },

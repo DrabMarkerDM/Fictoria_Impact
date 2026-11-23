@@ -1,10 +1,19 @@
 import { world, system } from "@minecraft/server";
+// 名单唯一来源：manager 的登记表（FEATURE_TYPES），本文件不再自己 getEntities
+import { FEATURE_TYPES, forEachUnitOfTypes } from "../dm_entities/common/core/maid_registry.js";
 
-// light.js — dm34 / dm34_1 的灯光跟随清理，其它实体一律不处理。
+// light.js — 会发光的友方的「位移清理」（名单见 TRACKED_TYPES），其它实体一律不处理。
+//
+// 两套点灯实现，共用这一份清理：
+//   · dm34 / dm34_1：guard.js 每 2 tick 跑 /function dynamic_light
+//   · dm3 / dm12  ：torch_light.js 每 2 tick 跑同一个函数
+// dynamic_light 只清「当前位置」周围 5×5×5 —— 引擎 follow_owner 的瞬移、玩家 /tp
+// 都不发任何事件，落地后旧位置那块光块没人清，会永久留在地图里。
+// 这里每 2 tick 比一次坐标，位移超过 2 格就把旧位置补一次 fill。
 
 // 每 2 tick 检查位移，超过 2 格清掉旧位置光源；实体消失且之前亮着就补一次清理。
-// 实体引用走缓存，重扫周期 RESCAN_INTERVAL（20 tick），查询开销比原来低一个量级。
-// 过滤字段是单数 type（SAPI 里 types 无效，会被忽略或抛错被 catch 吞掉）。
+// 实体引用走缓存，重扫周期 RESCAN_INTERVAL（20 tick）只从登记表抄一遍 id，零查询。
+// 登记由 attackable_target_manager 每 5 tick 扫 dm 家族时完成，覆盖所有有玩家的维度。
 
 // 位移检测 + 清理的执行频率（每 2 tick）
 const LIGHT_CLEANUP_INTERVAL_TICKS = 2;
@@ -12,11 +21,13 @@ const LIGHT_CLEANUP_INTERVAL_TICKS = 2;
 // 实体引用重扫周期（每 20 tick 一次）
 const RESCAN_INTERVAL = 20;
 
-// 只扫描这两个实体，其它一律不管
-const TARGET_TYPES = ["player:dm34", "player:dm34_1"];
-
-// 触发清理的位移阈值：2 格（用平方距离避免 Math.sqrt）
+// 触发清理的位移阈值：2 格（用平方距离避免 Math.sqrt）。
+// 参照：走路 0.43 格/2t、骑乘 1.4 格/2t，都不会触发；follow_owner 瞬移 15+ 格必触发。
 const MOVE_DIST_SQ = 2 * 2;
+
+// 需要做位移清理的实体 = 所有会点灯的（maid ∪ light）。
+// 两张表没有交集，所以并起来不会有重复处理。
+const TRACKED_TYPES = new Set([...FEATURE_TYPES.maid, ...FEATURE_TYPES.light]);
 
 // fill 清理范围
 const FILL_X_RADIUS = 2;
@@ -50,27 +61,22 @@ function getCleanupDimension(dimId, fallbackDimension) {
     }
 }
 
-// 重扫：只查 TARGET_TYPES 两个类型
+// 重扫：从 manager 的登记表抄一遍会发光的名单（零查询）。
 
-// 注意字段名是单数 type，不是 types。
-function rescanTrackedUnits(dimension) {
-    for (const type of TARGET_TYPES) {
-        let found;
+// 登记表每 5 tick 全量重建，实体引用本身就是新鲜的；这里 20 tick 同步一次只为
+// 让新生成的 / 刚被登记的实体进缓存。旧写法自己扫，而且只扫主世界一个维度。
+function rescanTrackedUnits() {
+    forEachUnitOfTypes(TRACKED_TYPES, (entity) => {
+        let id;
 
         try {
-            found = dimension.getEntities({ type: type });
+            id = entity.id;
         } catch (_) {
-            continue;
+            return;
         }
 
-        for (const entity of found) {
-            try {
-                if (entity && entity.isValid) {
-                    CachedUnits.set(entity.id, entity);
-                }
-            } catch (_) { }
-        }
-    }
+        CachedUnits.set(id, entity);
+    });
 }
 
 // 灯光清理命令
@@ -134,7 +140,7 @@ system.runInterval(() => {
         // ── 0. 低频重扫，刷新实体引用缓存 ──
         if (needRescan) {
             lastRescanTick = now;
-            rescanTrackedUnits(overworld);
+            rescanTrackedUnits();
         }
 
         activeIds.clear();

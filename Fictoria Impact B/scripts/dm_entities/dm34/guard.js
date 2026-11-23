@@ -6,15 +6,15 @@
  * 火把只能轮询：玩家在背包 UI 里取放、原版拾取都不发事件。常态每轮只读一次
  * `emptySlotsCount`（没变化就沿用上次结论），只有背包真的增删时才全扫 36 格；
  * 交互与 putInBag 另有两个即时入口。
- * 名单来源 forEachMaid()，不自己 getEntities。不碰容器 0/1 伪槽：那两格交给引擎，
- * 脚本只在清残留甲时按身份挖取。
+ * 名单来源 forEachMaid()，不自己 getEntities。容器只在"清残留甲"时按身份碰 0 号马鞍槽，
+ * 1 号起是背包，一个字节都不动。
  */
 
 import { EquipmentSlot, system, world } from "@minecraft/server";
 import { CONFIG } from "./config.js";
 import { clearSlot, serializeItem, cmdHasAnywhere, cmdHasItem } from "./slot_io.js";
 // 女仆清单直接用目标管理引擎每周期扫出来的那份，不再自己 getEntities
-import { forEachMaid } from "./maid_registry.js";
+import { forEachMaid } from "../common/core/maid_registry.js";
 import { resolveState } from "./maid_state.js";
 import { hasFarmTool, restoreFarmDisplay } from "./farm_store.js";
 import { storedGatherTool, restoreGatherDisplay } from "./gather_store.js";
@@ -31,18 +31,36 @@ function glog(msg) {
 }
 
 /*
- * 她的容器是 horse 型：inventory_size 是总格数，前 2 格马鞍/马铠伪槽，剩 34 格是背包。
- * first 决定哪些格算背包：偏小会把身上的甲数进背包（卸甲回不来），所以宁可偏大。
+ * 她的容器是 horse 型，`inventory_size: 36`（SAPI 实测 `inv=有(36格)`）。
+ * **`equippable` 只声明了 slot 0 = saddle，没有马铠槽**；`container_type: horse` 的 0 号格是**马鞍位**
+ * （装鞍就是往 0 号格放，`equippable.on_equip` 才能触发 `ride_on` —— 见 interact_router ① 的说明）。
+ * 所以：**索引 0 = 马鞍槽，索引 1 起才是背包**，`bagFirstOf = 1`。
+ *
+ * 🔴 2026-11-20 的「卸甲后背包第 1 格空出来、往里放甲就被一件一件清掉」根因就是这里写成了 2：
+ *   · 0 号是马鞍槽，**1 号就是玩家看到的第一格**；写 2 相当于把背包第 1 格当成"伪槽"；
+ *   · `pseudoSlotItems` / `takeSameFromPseudoSlots` 扫 0..2 → 命中索引 1 的甲，
+ *     `clearPseudoSlot` / `c.setItem(i, undefined)` 直接把它**从容器里抹掉**（SAPI 直写，不经命令）；
+ *   · `purgeStrayArmor` 的伪槽段只认 armor_table 里的 id → **只有盔甲会被清，泥土/食物放着不动**；
+ *   · 抹掉后 `putInBag` 又从 bagFirst 起塞 → 甲被挪到后面，第一格空着，于是"放一个清一个"。
+ *   日志原话：`[dm34/guard] 从伪槽 0 号取出 minecraft:iron_chestplate`。
+ *
+ * ⚠ 这条链**不是 `replaceitem` 造成的**：`replaceitem slot.armor.X <n>` 的 `<n>` 是槽位参数，
+ *   不是容器索引，它碰不到背包。真正能删背包格子的是 `Container.setItem(i, undefined)`，
+ *   也就是上面那两个函数 —— 所以 `i` 的边界必须精确到 1。
  */
-const BAG_CAPACITY = 36;
-const BAG_FIRST_FALLBACK = 2;
+const BAG_FIRST = 1;                 // 0 号 = 马鞍槽，背包从 1 开始（她只有这一个伪槽）
 
 export function bagFirstOf(bag) {
+    // 只做一次合理性判断：容器读得到、格数不对劲时留个日志，结论仍然是 1。
+    // 理由：0 号是马鞍位这件事由 `container_type: horse` + `equippable slot 0 = saddle` 决定，
+    // 跟格数无关。改用"size - 36"之类的公式会算错（她的 inventory_size 是总格数，已含马鞍位）。
     try {
-        const size = bag.size;
-        if (typeof size === "number" && size > BAG_CAPACITY) return size - BAG_CAPACITY;
+        const size = bag && bag.size;
+        if (typeof size === "number" && size < 2) {
+            glog(`容器格数异常 size=${size}，按 1 处理（0 号马鞍槽）`);
+        }
     } catch (e) { /* 忽略 */ }
-    return BAG_FIRST_FALLBACK;
+    return BAG_FIRST;
 }
 
 function comp(entity, id) {
@@ -147,8 +165,10 @@ export function queueArmorGhost(entity, entries) {
 }
 
 /*
- * 列出伪槽（horse 容器 0/1）里实际存在的东西。
- * 这两格只该放马鞍/马铠，出现别的东西一定是身上的装备掉了进去。
+ * 列出「伪槽段」（`bagFirstOf` 之前那几格）里实际存在的东西。
+ * 🔴 这只女仆 `bagFirstOf = 1` → **只扫索引 0，也就是马鞍槽**；索引 1 起是背包，绝不进来。
+ *    马鞍槽里正常只有鞍（`ARMOR_SLOT[saddle]` 查不到 → `purgeStrayArmor` 不会动它）。
+ *    这里曾经是 2，等于把背包第 1 格也当伪槽 —— 玩家放进去的甲就是被这条路径抹掉的。
  * @returns {Array<{i:number, item:*}>}
  */
 export function pseudoSlotItems(entity) {
@@ -186,8 +206,8 @@ export function armorGhostSlots(entity) {
 
 /*
  * 宽松指纹（不含耐久）：只比 id / 名字 / lore / 附魔。
- * 甲穿在身上会被打掉耐久，记录里那份 dmg 是穿上去那一刻的快照，按它比对永远对不上，
- * 伪槽那件就永远挖不出来。伪槽只有鞍/马铠两个位置，不可能并存两件同 id 同附魔的甲。
+ * 甲穿在身上会被打掉耐久，记录里那份 dmg 是穿上去那一刻的快照，按它比对永远对不上。
+ * （这个函数目前只被"伪槽段"用到，而伪槽段在这只女仆上是空的；留着以便容器变大后复用。）
  */
 function sigLooseOf(data) {
     if (!data || !data.id) return "";
@@ -200,12 +220,13 @@ function sigLooseOf(data) {
 }
 
 /*
- * 按实物身份（id/名字/lore/附魔等价，耐久不比快照）从伪槽（horse 容器 0/1）取出那件甲。
- * 只扫伪槽：0 号马鞍位、1 号马铠位，2 起才是背包。胸部甲重进世界后会落到 1 号格，
- * `replaceitem entity @s slot.armor.chest … air` 清不到、`hasitem{location=slot.armor.chest}`
- * 也看不见 →「提示没有盔甲、身上那件卸不下来」。容器本身读得到（SAPI），按身份取走即可。
- * 绝不扫背包段：背包里的同款是玩家的东西，扫过去就会「卸一次甲少一件」。
- * @returns {*} 取到的 ItemStack（undefined = 伪槽里没有等价的）
+ * 按实物身份（id/名字/lore/附魔等价，耐久不比快照）从「伪槽段」取出那件甲。
+ * 🔴 这只女仆 `bagFirstOf = 1` → `last = 1`，**只扫索引 0（马鞍槽）**，索引 1 起是背包、绝不进来。
+ *    历史用途是「重进世界后胸甲落到容器伪槽，`replaceitem slot.armor.chest … air` 清不到也看不见」；
+ *    现在唯一的伪槽是马鞍位，里面只可能有鞍，所以本函数实际不会动任何东西。
+ *    ⚠ 边界必须是 1：写成 2 就会扫到索引 1 = 玩家看到的第一格，`setItem(i, undefined)` 直接抹掉
+ *      —— 那就是「卸一次甲、背包第一格空一格，再往里放甲还被清」的现场。
+ * @returns {*} 取到的 ItemStack（undefined = 伪槽段里没有等价的）
  */
 export function takeSameFromPseudoSlots(entity, data) {
     if (!data || !data.id) return undefined;
@@ -661,8 +682,10 @@ export function repairToolDisplay(entity) {
 export function initGuard() {
     if (!CONFIG.guard.enabled) return;
 
-    // 启动横幅：以后"火把不亮"这类问题，先看这行有没有出现
-    glog(`巡检已启动：火把轮询 ${TORCH_POLL_TICKS}t、残留甲 ${CONFIG.guard.intervalTicks}t、光源刷新 ${LIGHT_INTERVAL_TICKS}t`);
+    // 启动横幅：以后"火把不亮"这类问题，先看这行有没有出现。默认打开，不受 CONFIG.log.console 管辖
+    try {
+        console.warn(`[dm34/guard] 巡检已启动：火把轮询 ${TORCH_POLL_TICKS}t、残留甲 ${CONFIG.guard.intervalTicks}t、光源刷新 ${LIGHT_INTERVAL_TICKS}t`);
+    } catch (e) { /* 忽略 */ }
 
     try {
         world.afterEvents.entityLoad.subscribe((ev) => {
@@ -711,8 +734,42 @@ export function initGuard() {
         });
     }, CONFIG.guard.intervalTicks);
 
-    // 光源跟随：只跑手里有火把的，每 2 tick 一次（接管原 AC 的 glow_pulse）。
-    // 删的是当前项，直接迭代安全；没人拿火把时整轮只是一次 size 判断。
+    // 容器取证入口：`/scriptevent dm34:bag`。
+    // 只读取证，不改任何东西。2026-11-20 那次「背包第 1 格被清」的排查里，半天都卡在
+    // "容器第 0 格到底是背包格还是马鞍槽"这个没人验证过的假设上 —— 用这条命令一眼看穿：
+    //   · `size=36 背包起=0` → 36 格全是箱子格，索引 0 就是玩家 UI 的第一格（马鞍槽不在容器里）
+    //   · 前 4 格的实际内容 + 有没有鞍（`is_saddled`）→ 装鞍后鞍会不会出现在容器里
+    try {
+        system.afterEvents.scriptEventReceive.subscribe((ev) => {
+            if (ev.id !== "dm34:bag") return;
+            const lines = [];
+            forEachMaid((e) => {
+                const c = containerOf(e);
+                let size = -1;
+                const parts = [];
+                if (c) {
+                    try { size = c.size; } catch (err) { size = -1; }
+                    const n = Math.min(4, size > 0 ? size : 0);
+                    for (let i = 0; i < n; i++) {
+                        let it;
+                        try { it = c.getItem(i); } catch (err) { it = undefined; }
+                        parts.push(`${i}=${it ? `${it.typeId}×${it.amount || 1}` : "空"}`);
+                    }
+                }
+                let saddled = false;
+                try { saddled = e.hasComponent("minecraft:is_saddled"); } catch (err) { saddled = false; }
+                lines.push(`${e.typeId} size=${size} 背包起=${c ? bagFirstOf(c) : "-"} 鞍=${saddled ? 1 : 0} [${parts.join(" ") || "无容器"}]`);
+            });
+            const text = lines.length ? lines.join(" || ") : "没有已加载的女仆";
+            try { console.warn(`[dm34/bag] ${text}`); } catch (err) { /* 忽略 */ }
+            try {
+                const p = ev.sourceEntity;
+                if (p && typeof p.sendMessage === "function") p.sendMessage(`§7[容器] ${text}`);
+            } catch (err) { /* 忽略 */ }
+        });
+    } catch (e) { /* 旧版没有 scriptEventReceive */ }
+
+    // 光源跟随：只跑手里有火把的，每 2 tick 一次（接管原 AC 的 glow_pulse）。    // 删的是当前项，直接迭代安全；没人拿火把时整轮只是一次 size 判断。
     system.runInterval(() => {
         if (litUnits.size === 0) return;
 

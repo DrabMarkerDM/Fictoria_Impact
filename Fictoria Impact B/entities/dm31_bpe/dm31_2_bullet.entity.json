@@ -120,7 +120,7 @@
                 "weight": 25000,
                 "queue_command": {
                   "command": [
-                    "scoreboard players remove @e[tag=dm,r=38,type=!minecraft:player] dm_skill_timer_1 1",
+                    "scoreboard players remove @e[tag=dm,r=28,type=!minecraft:player,c=6] dm_skill_timer_1 1",
                     "playsound dm31_charge @a[r=56] ~~~ 1.8 1.0",
                     "particle dm:dm31_2 ^^1.5^2",
                     "particle dm:dm31_2 ^^1.5^2",

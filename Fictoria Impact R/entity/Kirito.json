@@ -51,7 +51,7 @@
         { "charging": "controller.animation.humanoid.charging" },
         { "holding": "controller.animation.humanoid.holding" },
       { "riding": "controller.animation.dm_riding" },
-      { "sitting": "controller.animation.player.sit" },
+      { "sitting": "controller.animation.dm_state_sit" },
         { "attack": "controller.animation.att" },
         { "bow_and_arrow": "controller.animation.Kirito.ranged_att" },
         { "damage_nearby_mobs": "controller.animation.humanoid.damage_nearby_mobs" },

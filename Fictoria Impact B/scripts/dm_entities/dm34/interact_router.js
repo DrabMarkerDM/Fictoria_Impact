@@ -21,7 +21,7 @@ import { storeFarmTool, returnFarmTool, restoreFarmDisplay, hasFarmTool } from "
 import { storedGatherTool, restoreGatherDisplay } from "./gather_store.js";
 import { startGather, stopGather, hasGatherJob } from "./gather.js";
 import { equipShield, removeShield, hasShield } from "./shield.js";
-import { isPlayerMounted } from "../player/ride_guard.js";
+import { isPlayerMounted } from "../common/travel/ride_guard.js";
 
 const DM34 = "player:dm34";
 

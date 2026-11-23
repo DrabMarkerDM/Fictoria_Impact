@@ -26,7 +26,7 @@ import { ItemStack, system } from "@minecraft/server";
 import { variantOf } from "./maid_state.js";
 import { enchLevelOf } from "./enchant.js";
 import { storedFarmTool } from "./farm_store.js";
-import { forEachMaid } from "./maid_registry.js";
+import { forEachMaid } from "../common/core/maid_registry.js";
 import { swingFarm, forgetFarmSwing, pruneFarmSwing } from "./farm_anim.js";
 
 /** 耕地态。与 interact_router / gather 里那套 variant 编号一致 */
@@ -100,9 +100,11 @@ function logErr(key, e) {
 }
 
 /** 连通性探针：前 12 条，之后静默。见文件头「可观测性」。 */
+/** 本文件日志开关（只影响 farm_fortune.js）。排查耕地时运有没有生效时打开 */
+const LOG_TRACE = false;
 let traceLeft = 12;
 function trace(msg) {
-    if (traceLeft <= 0) return;
+    if (!LOG_TRACE || traceLeft <= 0) return;
     traceLeft--;
     try { console.warn(`[dm34/farm_fortune] ${msg}`); } catch (e) { /* 忽略 */ }
 }

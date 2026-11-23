@@ -2,20 +2,20 @@
 import { system, world } from '@minecraft/server';
 
 // 导入子弹击中实体的处理函数
-import { bulletEntityImpact } from './dm_entities/common/bullet_manager';
+import { bulletEntityImpact } from './dm_entities/common/tactical/bullet_manager.js';
 
 // 导入灯光组件模块
-import './element/light';
+import './element/light.js';
 
 // 导入近战组件处理函数
-import { meleeImpactHandler, maidSpearImpact } from './dm_entities/common/melee_manager';
+import { meleeImpactHandler, maidSpearImpact } from './dm_entities/common/tactical/melee_manager.js';
 
 // 跟随超距召回 / 骑乘载具跟随（与 D 包同步）
-import { initFollowRecall } from './dm_entities/common/follow_recall.js';
-import { initVehicleFollow } from './dm_entities/common/vehicle_follow.js';
+import { initFollowRecall } from './dm_entities/common/travel/follow_recall.js';
+import { initVehicleFollow } from './dm_entities/common/travel/vehicle_follow.js';
 
 // 导入女仆相关组件函数
-import './dm_entities/dm34/maid_manager';
+import './dm_entities/dm34/maid_manager.js';
 
 // 导入女仆 dm34 交互层（JS 路由 + 烹饪计时器 + 背包；取代实体 JSON 里的 585 条 minecraft:interact）
 import './dm_entities/dm34/index.js';
@@ -24,38 +24,42 @@ import './dm_entities/dm34/index.js';
 import {
     DmTargetEngine,
     ActiveMovers
-} from './dm_entities/common/attackable_target_manager';
+} from './dm_entities/common/tactical/attackable_target_manager.js';
 
 // 骑乘熔断：玩家骑着她时不施力，方向盘归玩家
-import { isPlayerMounted } from './dm_entities/player/ride_guard.js';
+import { isPlayerMounted } from './dm_entities/common/travel/ride_guard.js';
 
 // 骑乘跟随：她骑马时引擎不驱动坐骑，补一条朝主人的推进指令
-import { initMountFollow } from './dm_entities/player/mount_follow.js';
+import { initMountFollow } from './dm_entities/common/travel/mount_follow.js';
 
 // 导入友军防误伤模块
-import './dm_entities/common/player_attack_blocker';
+import './dm_entities/common/tactical/player_attack_blocker.js';
 
 // 导入幻域球模块
-import { initFictoriaBall } from "./dm_entities/common/fictoria_ball.js";
+import { initFictoriaBall } from "./dm_entities/common/fictoria_logic/fictoria_ball.js";
 
 // 导入战术指挥 UI
-import "./dm_entities/common/fictoria_ui.js";
+import "./dm_entities/common/fictoria_logic/fictoria_ui.js";
 
 // 女仆指南：手持指南右键打开表单（章节式文本 UI）
-import { initFieldManual } from "./dm_entities/common/field_manual.js";
+import { initFieldManual } from "./dm_entities/common/fictoria_logic/field_manual.js";
 
 // 新手套装：玩家第一次进世界时发一颗装好女仆的绿球 + 一本指南。
 // 必须排在幻域球之后 —— 它要用 createMaidBall()。
-import { initStarterKit } from "./dm_entities/common/starter_kit.js";
+import { initStarterKit } from "./dm_entities/common/fictoria_logic/starter_kit.js";
+
+// 通用动态光源：背包里有火把就点亮。dm3 / dm12 用。
+// 名单与 element/light.js 同源 —— 都取自 manager 的登记表（FEATURE_TYPES）。
+import { initTorchLight } from "./element/torch_light.js";
 
 // 导入窒息挣脱底层模块
-import "./dm_entities/common/suffocation_escape.js";
+import "./dm_entities/common/travel/suffocation_escape.js";
 
 // 导入玩家剑近战相关逻辑
 import "./dm_entities/player/dm_player_sword_attack.js";
 
 // 导入 buff计算器
-import "./dm_entities/common/damage_buff_calculator.js";
+import "./dm_entities/common/core/damage_buff_calculator.js";
 
 // 导入地雷js
 import "./element/demon_landmine.js";
@@ -65,7 +69,7 @@ import {
     initEventBus,
     registerEntityRemoveHandler,
     REMOVE_PRIORITY
-} from "./dm_entities/common/event_bus.js";
+} from "./dm_entities/common/core/event_bus.js";
 
 // 导入走位指令内存总线
 import {
@@ -73,16 +77,16 @@ import {
     consumeJumpCmd,
     dropMoveCmd,
     JUMP_IDLE
-} from "./dm_entities/common/move_command_store.js";
+} from "./dm_entities/common/core/move_command_store.js";
 
 // 导入分级异常兜底
-import { safeRun, warnOnce } from "./dm_entities/common/safe_exec.js";
+import { safeRun, warnOnce } from "./dm_entities/common/core/safe_exec.js";
 
 // 导入水体通行（溺水检测注册）
-import { initDrowningDetector } from "./dm_entities/common/water_traversal.js";
+import { initDrowningDetector } from "./dm_entities/common/travel/water_traversal.js";
 
 // 导入性能探针
-import { PerfProbe, initPerfProbe } from "./dm_entities/common/perf_probe.js";
+import { PerfProbe, initPerfProbe } from "./dm_entities/common/core/perf_probe.js";
 
 // 性能探针总开关。false = 不注册命令、不挂 interval，埋点几乎零成本。
 // true = 自动采样 + 注册 /perf:on|off|bench 与 /scriptevent perf:hud|report|reset，
@@ -318,6 +322,9 @@ const init = () => {
     // 指南与新手套装都只是订阅自己的事件，顺序不敏感
     initFieldManual();
     initStarterKit();
+
+    // 动态光源：自己订阅 entitySpawn/entityLoad/entityRemove，自带三档 interval
+    initTorchLight();
 
     // 骑乘跟随：自带 runInterval，和动力环一起跑
     initMountFollow();

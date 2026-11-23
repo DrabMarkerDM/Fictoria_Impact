@@ -1,5 +1,5 @@
 import { EntityDamageCause } from '@minecraft/server';
-import { applyBuffModifier } from '../common/damage_buff_calculator.js';
+import { applyBuffModifier } from '../common/core/damage_buff_calculator.js';
 
 export const BulletEffects = {
     dm48_s_ak: (_target, attacker, _projectile, dimension, runEffectCommands, hitLocation) => {

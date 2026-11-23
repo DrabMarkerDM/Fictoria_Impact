@@ -2,7 +2,7 @@ import { EntityDamageCause, system } from "@minecraft/server";
 import {
     registerAfterHurtHandler,
     AFTER_HURT_PRIORITY
-} from "../common/event_bus.js";
+} from "../common/core/event_bus.js";
 
 registerAfterHurtHandler("maid_hurt_protect", (event) => {
     const victim = event.hurtEntity;

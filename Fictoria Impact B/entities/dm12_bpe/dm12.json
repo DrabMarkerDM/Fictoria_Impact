@@ -1,5 +1,5 @@
 {
-  "format_version": "1.8.0",
+  "format_version": "1.21.50",
   "minecraft:entity": {
     "description": {
       "identifier": "player:dm12",
@@ -15,18 +15,56 @@
       "animations": {
         "tag": "controller.animation.tag",
         "ect": "controller.animation.ect_4"
+      },
+      "properties": {
+        "dm:state_sit": {
+          "type": "enum",
+          "values": [ "off", "on" ],
+          "default": "off",
+          "client_sync": true
+        }
       }
     },
     "component_groups": {
-     "sword":{
-      "minecraft:attack" :{
-     "damage": 13
+      "dm_skill_sensor": {
+        "minecraft:on_target_acquired": {
+          "event": "dm_skill_enter",
+          "target": "self"
+        },
+        "minecraft:on_target_escape": {
+          "event": "dm_skill_lost",
+          "target": "self"
+        }
       },
-      "minecraft:equipment": {
-        "table": "loot_tables/dm12.json"
-         }
+      "dm_skill_hold": {
+        "minecraft:timer": {
+          "looping": false,
+          "randomInterval": false,
+          "time": 1.5,
+          "time_down_event": {
+            "event": "dm_skill_hold_end"
+          }
+        }
       },
-            "ta": {
+      "dm_skill_idle": {
+        "minecraft:timer": {
+          "looping": false,
+          "randomInterval": false,
+          "time": 13.0,
+          "time_down_event": {
+            "event": "dm_skill_idle_end"
+          }
+        }
+      },
+      "sword": {
+        "minecraft:attack": {
+          "damage": 13
+        },
+        "minecraft:equipment": {
+          "table": "loot_tables/dm12.json"
+        }
+      },
+      "ta": {
         "minecraft:tameable": {
           "probability": 1.0,
           "tame_items": [
@@ -36,43 +74,48 @@
             "event": "on_tame",
             "target": "self"
           }
-      },
-      "minecraft:behavior.panic": {
-        "priority": 1,
-        "speed_multiplier": 1.3
-      },
-      "minecraft:behavior.avoid_mob_type": {
-        "priority": 3,
-        "entity_types": [
-          {
-            "filters": {
-              "test": "is_family",
-              "subject": "other",
-              "value": "monster"
-            },
-            "max_dist": 26,
-            "walk_speed_multiplier": 1.0,
-            "sprint_speed_multiplier": 1.3
-          }
-        ]
-      } 
+        },
+        "minecraft:behavior.panic": {
+          "priority": 1,
+          "speed_multiplier": 1.3
+        },
+        "minecraft:behavior.avoid_mob_type": {
+          "priority": 3,
+          "entity_types": [
+            {
+              "filters": {
+                "test": "is_family",
+                "subject": "other",
+                "value": "monster"
+              },
+              "max_dist": 26,
+              "walk_speed_multiplier": 1.0,
+              "sprint_speed_multiplier": 1.3
+            }
+          ]
+        }
       },
       "on_ta": {
+        "minecraft:behavior.tempt": {
+          "priority": 0,
+          "speed_multiplier": 1.3,
+          "within_radius": 18.0,
+          "items": [
+            "item:follow_command"
+          ]
+        },
         "minecraft:is_tamed": {
         },
-	"minecraft:health": {
-	   "value": 29,
-	   "max": 29
-	},
+        "minecraft:health": {
+          "value": 29,
+          "max": 29
+        },
         "minecraft:leashable": {
           "soft_distance": 4.5,
           "hard_distance": 6.0,
           "max_distance": 35.0
         },
-        "minecraft:sittable": {
-        },
-        "minecraft:behavior.stay_while_sitting": {
-          "priority": 1
+        "minecraft:is_chested": {
         },
         "minecraft:target_nearby_sensor": {
           "inside_range": 34.0,
@@ -88,70 +131,312 @@
         },
         "minecraft:behavior.owner_hurt_by_target": {
           "priority": 1,
-          "entity_types": {
-          "filters": {
-            "test": "is_family",
-            "subject": "other",
-            "operator": "!=",
-            "value": "dm"
-          },
-          "max_dist": 35,
-          "must_see": true
-        }
+          "entity_types": [
+            {
+              "filters": {
+                "test": "is_family",
+                "subject": "other",
+                "operator": "!=",
+                "value": "dm"
+              },
+              "max_dist": 35,
+              "must_see": true
+            }
+          ]
         },
         "minecraft:behavior.owner_hurt_target": {
           "priority": 2,
-          "entity_types": {
-            "filters": {
-              "test": "is_family",
-              "subject": "other",
-              "operator": "!=",
-              "value": "dm"
-            },
-            "max_dist": 35,
-            "must_see": true
-          }
+          "entity_types": [
+            {
+              "filters": {
+                "all_of": [
+                  { "test": "is_family", "subject": "other", "operator": "!=", "value": "dm" },
+                  {
+                    "any_of": [
+                      { "test": "has_tag", "subject": "other", "operator": "!=", "value": "dm_wary" },
+                      { "test": "has_tag", "subject": "other", "value": "dm_distrust" }
+                    ]
+                  },
+                  {
+                    "any_of": [
+                      { "test": "has_tag", "subject": "other", "operator": "!=", "value": "dm_mount" },
+                      { "test": "has_tag", "subject": "other", "value": "dm_distrust" }
+                    ]
+                  },
+                  { "test": "is_family", "subject": "other", "operator": "!=", "value": "player" }
+                ]
+              },
+              "max_dist": 35,
+              "must_see": true
+            }
+          ]
         },
-      "minecraft:behavior.hurt_by_target": {
-        "priority": 3,
-        "entity_types": {
-          "filters": {
-            "test": "is_family",
-            "subject": "other",
-            "operator": "!=",
-            "value": "dm"
-          },
-          "max_dist": 35
+        "minecraft:behavior.hurt_by_target": {
+          "priority": 3,
+          "entity_types": [
+            {
+              "filters": {
+                "test": "is_family",
+                "subject": "other",
+                "operator": "!=",
+                "value": "dm"
+              },
+              "max_dist": 35
+            }
+          ]
+        },
+        "minecraft:behavior.nearest_attackable_target": {
+          "priority": 4,
+          "must_see": true,
+          "reselect_targets": true,
+          "entity_types": [
+            {
+              "filters": {
+                "any_of": [
+                  {
+                    "test": "is_family",
+                    "subject": "other",
+                    "value": "monster"
+                  }
+                ]
+              },
+              "max_dist": 35,
+              "must_see_forget_duration": 6.0,
+              "walk_speed_multiplier": 1.4,
+              "sprint_speed_multiplier": 1.7
+            }
+          ]
+        },
+        "minecraft:follow_range": {
+          "value": 28
         }
-        },
-      "minecraft:behavior.nearest_attackable_target": {
-        "priority": 4,
-        "walk_speed_multiplier": 1.4,
-        "sprint_speed_multiplier": 1.7,
-        "reselect_targets": true,
-        "entity_types": [
-          {
-            "filters": {
-              "any_of": [
-                {
-                  "test": "is_family",
-                  "subject": "other",
-                  "value": "monster"
-                }
-              ]
-            },
-            "max_dist": 35
-          }
-        ],
-        "must_see": true,
-        "must_see_forget_duration": 6.0
       },
-      "minecraft:follow_range": {
-        "value": 28
+      "follow": {
+        "minecraft:behavior.follow_owner": {
+          "priority": 1,
+          "speed_multiplier": 1.3,
+          "start_distance": 15,
+          "stop_distance": 5
+        },
+        "minecraft:environment_sensor": {
+          "triggers": [
+            {
+              "filters": {
+                "test": "has_equipment",
+                "subject": "self",
+                "domain": "inventory",
+                "operator": "!=",
+                "value": "item:follow_command"
+              },
+              "event": "follow_2"
+            }
+          ]
         }
-     }
+      },
+      "follow_test": {
+        "minecraft:environment_sensor": {
+          "triggers": [
+            {
+              "filters": {
+                "test": "has_equipment",
+                "subject": "self",
+                "domain": "inventory",
+                "operator": "==",
+                "value": "item:follow_command"
+              },
+              "event": "follow_1"
+            }
+          ]
+        }
+      },
+      "mount_ride": {
+        "minecraft:behavior.find_mount": {
+          "priority": 1,
+          "within_radius": 16.0,
+          "start_delay": 0,
+          "max_failed_attempts": 20
+        },
+        "minecraft:behavior.mount_pathing": {
+          "priority": 2,
+          "target_dist": 0,
+          "speed_multiplier": 1.25,
+          "track_target": true
+        }
+      },
+      "default": {
+        "minecraft:movement": {
+          "value": 0.33
+        },
+        "minecraft:underwater_movement": {
+          "value": 0.02
+        },
+        "minecraft:jump.static": {
+          "jump_power": 0.42
+        }
+      },
+      "sit": {
+        "minecraft:movement": {
+          "value": 1e-19
+        },
+        "minecraft:underwater_movement": {
+          "value": 1e-19
+        },
+        "minecraft:jump.static": {
+          "jump_power": 1e-19
+        }
+      }
     },
     "components": {
+      "minecraft:interact": {
+        "interactions": [
+          {
+            "use_item": false,
+            "interact_text": "sit",
+            "on_interact": {
+              "filters": {
+                "all_of": [
+                  {
+                    "test": "is_owner",
+                    "subject": "other",
+                    "value": true
+                  },
+                  {
+                    "test": "has_equipment",
+                    "subject": "other",
+                    "domain": "hand",
+                    "operator": "!=",
+                    "value": "minecraft:lead"
+                  },
+                  {
+                    "test": "is_riding",
+                    "subject": "self",
+                    "operator": "==",
+                    "value": false
+                  },
+                  {
+                    "test": "has_tag",
+                    "subject": "self",
+                    "operator": "not",
+                    "value": "dm_player_sneak"
+                  },
+                  {
+                    "test": "has_tag",
+                    "subject": "self",
+                    "operator": "not",
+                    "value": "dm_sit"
+                  }
+                ]
+              },
+              "event": "sit_1"
+            }
+          },
+          {
+            "use_item": false,
+            "interact_text": "stand",
+            "on_interact": {
+              "filters": {
+                "all_of": [
+                  {
+                    "test": "is_owner",
+                    "subject": "other",
+                    "value": true
+                  },
+                  {
+                    "test": "has_equipment",
+                    "subject": "other",
+                    "domain": "hand",
+                    "operator": "!=",
+                    "value": "minecraft:lead"
+                  },
+                  {
+                    "test": "is_riding",
+                    "subject": "self",
+                    "operator": "==",
+                    "value": false
+                  },
+                  {
+                    "test": "has_tag",
+                    "subject": "self",
+                    "operator": "not",
+                    "value": "dm_player_sneak"
+                  },
+                  {
+                    "test": "has_tag",
+                    "subject": "self",
+                    "operator": "equals",
+                    "value": "dm_sit"
+                  }
+                ]
+              },
+              "event": "sit_2"
+            }
+          }
+        ]
+      },
+      "minecraft:entity_sensor": {
+        "relative_range": false,
+        "find_players_only": true,
+        "subsensors": [
+          {
+            "range": [
+              16.0,
+              8.0
+            ],
+            "cooldown": 0.0,
+            "event": "sneak_on",
+            "event_filters": {
+              "all_of": [
+                {
+                  "test": "is_owner",
+                  "subject": "other",
+                  "value": true
+                },
+                {
+                  "test": "is_sneaking",
+                  "subject": "other",
+                  "operator": "==",
+                  "value": true
+                },
+                {
+                  "test": "has_tag",
+                  "subject": "self",
+                  "operator": "not",
+                  "value": "dm_player_sneak"
+                }
+              ]
+            }
+          },
+          {
+            "range": [
+              16.0,
+              8.0
+            ],
+            "cooldown": 0.0,
+            "event": "sneak_off",
+            "event_filters": {
+              "all_of": [
+                {
+                  "test": "is_owner",
+                  "subject": "other",
+                  "value": true
+                },
+                {
+                  "test": "is_sneaking",
+                  "subject": "other",
+                  "operator": "==",
+                  "value": false
+                },
+                {
+                  "test": "has_tag",
+                  "subject": "self",
+                  "operator": "equals",
+                  "value": "dm_player_sneak"
+                }
+              ]
+            }
+          }
+        ]
+      },
       "minecraft:type_family": {
         "family": [ "player", "dm" ]
       },
@@ -184,6 +469,43 @@
       },
       "minecraft:underwater_movement": {
         "value": 0.02
+      },
+      "minecraft:attack": {
+        "damage": 8
+      },
+      "minecraft:annotation.open_door": {
+      },
+      "minecraft:navigation.walk": {
+        "is_amphibious": true,
+        "can_path_over_water": true,
+        "can_pass_doors": true,
+        "can_open_doors": true,
+        "can_walk": true,
+        "avoid_water": false,
+        "avoid_damage_blocks": true
+      },
+      "minecraft:behavior.open_door": {
+      },
+      "minecraft:movement.basic": {
+      },
+      "minecraft:jump.static": {
+      },
+      "minecraft:inventory": {
+        "container_type": "horse",
+        "can_be_siphoned_from": true,
+        "restrict_to_owner": true,
+        "inventory_size": 26,
+        "private": false
+      },
+      "minecraft:behavior.move_to_land": {
+        "priority": 6,
+        "speed_multiplier": 1.0,
+        "search_range": 35,
+        "search_height": 15,
+        "goal_radius": 1.0
+      },
+      "minecraft:behavior.float": {
+        "priority": 0
       },
       "minecraft:damage_sensor": {
         "triggers": [
@@ -277,41 +599,6 @@
           }
         ]
       },
-      "minecraft:attack": {
-        "damage": 8
-      },
-      "minecraft:annotation.open_door": {
-      },
-      "minecraft:navigation.walk": {
-        "is_amphibious": true,
-        "can_path_over_water": true,
-        "can_pass_doors": true,
-        "can_open_doors": true,
-        "can_walk": true,
-        "avoid_water": false,
-        "avoid_damage_blocks": true
-      },
-      "minecraft:behavior.open_door": {
-      },
-      "minecraft:movement.basic": {
-
-      },
-      "minecraft:jump.static": {
-      },
-      "minecraft:inventory": {
-        "inventory_size": 26,
-        "private": true
-      },
-      "minecraft:behavior.move_to_land": {
-        "priority": 6,
-        "speed_multiplier": 1.0,
-        "search_range": 35,
-        "search_height": 15,
-        "goal_radius": 1.0
-      },
-      "minecraft:behavior.float": {
-        "priority": 0
-      },
       "minecraft:breathable": {
         "totalSupply": 34,
         "suffocateTime": -1,
@@ -384,13 +671,70 @@
       "minecraft:scaffolding_climber": {}
     },
     "events": {
-       "minecraft:entity_spawned": {
-                 "add": {
+      "dm_skill_enter": {
+        "remove": {
           "component_groups": [
-            "ta"
+            "dm_skill_hold",
+            "dm_skill_idle"
           ]
-        }  
-       },
+        },
+        "queue_command": {
+          "command": [
+            "tag @s add dm_has_target",
+            "tag @s add dm_skill_on"
+          ]
+        }
+      },
+      "dm_skill_lost": {
+        "remove": {
+          "component_groups": [
+            "dm_skill_hold"
+          ]
+        },
+        "add": {
+          "component_groups": [
+            "dm_skill_hold"
+          ]
+        }
+      },
+      "dm_skill_hold_end": {
+        "remove": {
+          "component_groups": [
+            "dm_skill_hold"
+          ]
+        },
+        "add": {
+          "component_groups": [
+            "dm_skill_idle"
+          ]
+        },
+        "queue_command": {
+          "command": [
+            "tag @s remove dm_has_target"
+          ]
+        }
+      },
+      "dm_skill_idle_end": {
+        "remove": {
+          "component_groups": [
+            "dm_skill_idle"
+          ]
+        },
+        "queue_command": {
+          "command": [
+            "tag @s remove dm_skill_on",
+            "tag @s remove dm_has_target"
+          ]
+        }
+      },
+      "minecraft:entity_spawned": {
+        "add": {
+          "component_groups": [
+            "ta",
+            "default"
+          ]
+        }
+      },
       "on_tame": {
         "remove": {
           "component_groups": [
@@ -399,17 +743,203 @@
         },
         "add": {
           "component_groups": [
-            "on_ta"
-            ]
+            "on_ta",
+            "follow_test",
+            "dm_skill_sensor"
+          ]
+        },
+        "queue_command": {
+          "command": [
+            "give @p item:follow_command"
+          ]
         }
-       },
+      },
       "start": {
         "add": {
           "component_groups": [
             "sword"
           ]
         }
+      },
+      "follow_1": {
+        "add": {
+          "component_groups": [
+            "follow",
+            "default"
+          ]
+        },
+        "remove": {
+          "component_groups": [
+            "sit",
+            "follow_test"
+          ]
+        },
+        "queue_command": {
+          "command": [
+            "tag @s add maid_follow",
+            "tag @s remove dm_sit"
+          ]
+        },
+        "set_property": {
+          "dm:state_sit": "off"
+        }
+      },
+      "follow_2": {
+        "add": {
+          "component_groups": [
+            "follow_test"
+          ]
+        },
+        "remove": {
+          "component_groups": [
+            "follow"
+          ]
+        },
+        "queue_command": {
+          "command": [
+            "tag @s remove maid_follow"
+          ]
+        }
+      },
+      "follow": {
+        "add": {
+          "component_groups": [
+            "follow",
+            "default"
+          ]
+        },
+        "remove": {
+          "component_groups": [
+            "sit",
+            "follow_test"
+          ]
+        },
+        "queue_command": {
+          "command": [
+            "tag @s add maid_follow",
+            "tag @s remove dm_sit"
+          ]
+        },
+        "set_property": {
+          "dm:state_sit": "off"
+        }
+      },
+      "sit": {
+        "add": {
+          "component_groups": [
+            "sit"
+          ]
+        },
+        "remove": {
+          "component_groups": [
+            "follow",
+            "follow_test",
+            "default"
+          ]
+        },
+        "queue_command": {
+          "command": [
+            "tag @s remove maid_follow",
+            "tag @s add dm_sit"
+          ]
+        },
+        "set_property": {
+          "dm:state_sit": "on"
+        }
+      },
+      "sit_1": {
+        "add": {
+          "component_groups": [
+            "sit"
+          ]
+        },
+        "remove": {
+          "component_groups": [
+            "follow",
+            "follow_test",
+            "default"
+          ]
+        },
+        "queue_command": {
+          "command": [
+            "tag @s remove maid_follow",
+            "tag @s add dm_sit"
+          ]
+        },
+        "set_property": {
+          "dm:state_sit": "on"
+        }
+      },
+      "sit_2": {
+        "add": {
+          "component_groups": [
+            "default",
+            "follow_test"
+          ]
+        },
+        "remove": {
+          "component_groups": [
+            "sit"
+          ]
+        },
+        "queue_command": {
+          "command": [
+            "tag @s remove dm_sit"
+          ]
+        },
+        "set_property": {
+          "dm:state_sit": "off"
+        }
+      },
+      "sneak_on": {
+        "queue_command": {
+          "command": [
+            "tag @s add dm_player_sneak"
+          ]
+        }
+      },
+      "sneak_off": {
+        "queue_command": {
+          "command": [
+            "tag @s remove dm_player_sneak"
+          ]
+        }
+      },
+      "mount_on": {
+        "add": {
+          "component_groups": [
+            "mount_ride",
+            "default"
+          ]
+        },
+        "remove": {
+          "component_groups": [
+            "sit"
+          ]
+        },
+        "queue_command": {
+          "command": [
+            "tag @s add maid:mount_ride",
+            "tag @s remove dm_sit"
+          ]
+        },
+        "set_property": {
+          "dm:state_sit": "off"
+        }
+      },
+      "mount_off": {
+        "remove": {
+          "component_groups": [
+            "mount_ride"
+          ]
+        },
+        "queue_command": {
+          "command": [
+            "tag @s remove maid:mount_ride",
+            "ride @s stop_riding"
+          ]
+        }
       }
     }
-    }
   }
+}
