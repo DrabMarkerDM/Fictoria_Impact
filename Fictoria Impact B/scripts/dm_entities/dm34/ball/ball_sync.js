@@ -5,16 +5,16 @@
 
 import { EquipmentSlot, system, world } from "@minecraft/server";
 
-import { CONFIG } from "./config.js";
-import { isMaid, cookCode, acceptsArmor, resolveState, variantOf, markOf } from "./maid_state.js";
-import { readSlot, placeItem, serializeItem, deserializeItem, cmdHasItem, enchKey, dropItemNear, probeComponents } from "./slot_io.js";
-import { startCook, resumeStore } from "./cook.js";
-import { deserializeWeapon } from "./weapon_store.js";
-import { recordArmor, putInBag, takeOneFromBag, bagFirstOf } from "./guard.js";
-import { restoreShieldToBag } from "./shield.js";
-import { storedGatherTool, restoreGatherDisplay } from "./gather_store.js";
-import { storedFarmTool, restoreFarmDisplay } from "./farm_store.js";
-import { heal, mirror, readRaw } from "./record_store.js";
+import { CONFIG } from "../config.js";
+import { isMaid, cookCode, acceptsArmor, resolveState, variantOf, markOf } from "../core/maid_state.js";
+import { readSlot, placeItem, serializeItem, deserializeItem, cmdHasItem, enchKey, dropItemNear, probeComponents } from "../core/slot_io.js";
+import { startCook, resumeStore } from "../life/cook.js";
+import { deserializeWeapon } from "../inventory/weapon_store.js";
+import { recordArmor, putInBag, takeOneFromBag, bagFirstOf } from "../combat/guard.js";
+import { restoreShieldToBag } from "../combat/shield.js";
+import { storedGatherTool, restoreGatherDisplay } from "../inventory/gather_store.js";
+import { storedFarmTool, restoreFarmDisplay } from "../inventory/farm_store.js";
+import { heal, mirror, readRaw } from "../core/record_store.js";
 
 /** 球上的存档键（球清属性前会被 read 读走） */
 export const BALL_EQUIP_DP = "dm34:equip";

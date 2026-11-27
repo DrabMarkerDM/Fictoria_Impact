@@ -18,18 +18,19 @@ import { EquipmentSlot, ItemStack, system, world } from "@minecraft/server";
 // 只为了取可选的 `BlockVolume`（批量扫方块）。用命名导入的话，万一某版本没导出
 // 这个类，整个模块会在加载期就炸掉 —— 命名空间导入拿不到只会是 undefined。
 import * as SAPI from "@minecraft/server";
-import { CONFIG, gatherKindOf } from "./config.js";
+import { CONFIG, gatherKindOf } from "../config.js";
+import { t } from "../../common/core/i18n.js";
 import {
     storedGatherTool, storeGatherTool, returnGatherTool, restoreGatherDisplay,
-} from "./gather_store.js";
-import { clearSlot, readSlot, readMainhand, dropItemNear } from "./slot_io.js";
-import { consumeHand } from "./equip.js";
-import { stashItem } from "./cook.js";
-import { variantOf, ownerIdOf } from "./maid_state.js";
-import { forEachMaid } from "../common/core/maid_registry.js";
-import { hasFarmTool } from "./farm_store.js";        // 只读记录，不反向依赖（无循环）
-import { hasWeaponRecord } from "./weapon_store.js";
-import { ticksWithTool, hasSilkTouch, fortuneAmount } from "./enchant.js";
+} from "../inventory/gather_store.js";
+import { clearSlot, readSlot, readMainhand, dropItemNear } from "../core/slot_io.js";
+import { consumeHand } from "../inventory/equip.js";
+import { stashItem } from "../life/cook.js";
+import { variantOf, ownerIdOf } from "../core/maid_state.js";
+import { forEachMaid } from "../../common/core/maid_registry.js";
+import { hasFarmTool } from "../inventory/farm_store.js";        // 只读记录，不反向依赖（无循环）
+import { hasWeaponRecord } from "../inventory/weapon_store.js";
+import { ticksWithTool, hasSilkTouch, fortuneAmount } from "../inventory/enchant.js";
 
 const DM34 = "player:dm34";
 
@@ -922,7 +923,7 @@ export function startGather(player, entity, kind, handStack, giveBack) {
     }
 
     if (!storeGatherTool(entity, handStack, giveBack)) {
-        try { player.sendMessage("§c这把工具存不下来"); } catch (e) { /* 忽略 */ }
+        try { player.sendMessage(t("fictoria.gather.tool_unsaved")); } catch (e) { /* 忽略 */ }
         return true;
     }
 
@@ -1058,7 +1059,7 @@ export function stopGather(player, entity, opts) {
     }
 
     if (had && !silent && player) {
-        try { player.sendMessage("§7她放下了手里的活。"); } catch (e) { /* 忽略 */ }
+        try { player.sendMessage(t("fictoria.gather.stopped")); } catch (e) { /* 忽略 */ }
     }
     return had;
 }

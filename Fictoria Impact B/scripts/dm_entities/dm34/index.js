@@ -7,20 +7,21 @@
 
 import { system, world } from "@minecraft/server";
 import { CONFIG } from "./config.js";
-import { isMaid, isOwner, ownerIdOf, variantOf, markOf, handIdOf, acceptsArmor } from "./maid_state.js";
-import { handleInteract } from "./interact_router.js";
-import { initCook } from "./cook.js";
-import { refreshWeaponDisplay } from "./weapon_store.js";
-import { initGuard, recordArmor, armorRecord, reclaimGroundArmor, refreshTorchTag } from "./guard.js";
-import { armorSlotOf } from "./equip.js";
-import { ARMOR_SLOT } from "./armor_table.js";
-import { serializeItem } from "./slot_io.js";
-import { initBallSync } from "./ball_sync.js";
-import { initShield, recordShield, shieldRecord } from "./shield.js";
-import { initDeathDrop } from "./death_drop.js";
-import { initBallDeathReturn } from "./ball_death_return.js";
-import { initGather } from "./gather.js";
-import { initFarmFortune } from "./farm_fortune.js";
+import { isMaid, isOwner, ownerIdOf, variantOf, markOf, handIdOf, acceptsArmor } from "./core/maid_state.js";
+import { handleInteract } from "./core/interact_router.js";
+import { initCook } from "./life/cook.js";
+import { refreshWeaponDisplay } from "./inventory/weapon_store.js";
+import { initGuard, recordArmor, armorRecord, reclaimGroundArmor, refreshTorchTag } from "./combat/guard.js";
+import { armorSlotOf } from "./inventory/equip.js";
+import { ARMOR_SLOT } from "./core/armor_table.js";
+import { serializeItem } from "./core/slot_io.js";
+import { initBallSync } from "./ball/ball_sync.js";
+import { initShield, recordShield, shieldRecord } from "./combat/shield.js";
+import { initCrossbowAim } from "./combat/crossbow_aim.js";
+import { initDeathDrop } from "./life/death_drop.js";
+import { initBallDeathReturn } from "./ball/ball_death_return.js";
+import { initGather } from "./gather/gather.js";
+import { initFarmFortune } from "./gather/farm_fortune.js";
 import { registerBallExtension } from "../common/fictoria_logic/fictoria_ball.js";
 
 let inited = false;
@@ -112,6 +113,9 @@ export function initDm34Interact() {
 
     // 盾牌：举盾巡检 + beforeEvents.entityHurt 格挡。必须在 initEventBus 之前登记
     try { initShield(); } catch (e) { logError(`initShield 失败: ${e}`); }
+
+    // 弩：举弩/放下时机由 JS 写 dm34:aim（动画控制器读不到的"射出"信号只能在这里拿）
+    try { initCrossbowAim(); } catch (e) { logError(`initCrossbowAim 失败: ${e}`); }
 
     // 死亡回球：必须排在 initDeathDrop 之前 —— 它先判定玩家背包里有没有对应颜色的空球，
     // 有就 markBallHandled，后面的 death_drop 让路（否则同一条记录会在地上再丢一份真件）

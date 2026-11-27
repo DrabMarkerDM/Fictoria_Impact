@@ -9,7 +9,7 @@
 
 import { EquipmentSlot } from "@minecraft/server";
 import { ENTITIES } from "./interact_tables.js";
-import { CONFIG } from "./config.js";
+import { CONFIG } from "../config.js";
 
 /** 本模块认的两个女仆实体 id */
 export const MAID_IDS = Object.keys(ENTITIES);

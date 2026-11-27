@@ -80,7 +80,16 @@
           "values": [ "def", "on", "off" ],
           "default": "def",
           "client_sync": true
-        }
+        },
+       "dm:state_sit": {
+         "type": "enum",
+         "values": [
+           "off",
+           "on"
+         ],
+         "default": "off",
+         "client_sync": true
+       }
       }
   },
     "component_groups": {
@@ -907,62 +916,36 @@
         }
       },
       "follow": {
-        "minecraft:interact": {
-          "interactions": [
-          {
-            "on_interact": {
-              "filters": {
-                "all_of": [
-                  {
-                    "test": "is_sneaking",
-                    "subject": "player"
-                  }
-                ]
-              },
-              "event": "sit",
-              "target": "self"
-            },
-            "interact_text": "stop",
-            "use_item": false,
-            "spawn_items": {
-              "table": "loot_tables/follow_command.json"
-            }
-          }
-          ]
-        },
         "minecraft:behavior.follow_owner": {
           "priority": 3,
           "speed_multiplier": 1.0,
           "start_distance": 16,
           "stop_distance": 5
+        },
+        "minecraft:environment_sensor": {
+          "triggers": [
+            {
+              "filters": {
+                "test": "has_equipment",
+                "subject": "self",
+                "domain": "inventory",
+                "operator": "!=",
+                "value": "item:follow_command"
+              },
+              "event": "follow_2"
+            }
+          ]
         }
       },
       "sit": {
-        "minecraft:interact": {
-          "interactions": [
-          {
-            "on_interact": {
-              "filters": {
-                "all_of": [
-                  {
-                    "test": "is_family",
-                    "subject": "other",
-                    "value": "player"
-                  },
-                  {
-                    "test": "has_equipment",
-                    "subject": "other",
-                    "domain": "hand",
-                    "value": "item:follow_command"
-                  }
-                ]
-              },
-              "event": "follow"
-            },
-            "interact_text": "start",
-            "use_item": true
-          }
-          ]
+        "minecraft:movement": {
+          "value": 1e-19
+        },
+        "minecraft:underwater_movement": {
+          "value": 1e-19
+        },
+        "minecraft:jump.static": {
+          "jump_power": 1e-19
         }
       },
       "ta": {
@@ -1008,12 +991,7 @@
           "hard_distance": 6.0,
           "max_distance": 42.0
           },
-        "minecraft:sittable": {
-        },
-        "minecraft:behavior.stay_while_sitting": {
-          "priority": 1
-        },
-        "minecraft:behavior.tempt": {
+"minecraft:behavior.tempt": {
           "priority": 0,
           "speed_multiplier": 1.3,
           "within_radius": 18.0,
@@ -1127,42 +1105,60 @@
         },
         "minecraft:behavior.owner_hurt_target": {
           "priority": 2,
-          "entity_types": {
-            "filters": {
-              "test": "is_family",
-              "subject": "other",
-              "operator": "!=",
-              "value": "dm"
-            },
-            "max_dist": 40,
-            "must_see": false
-          }
+          "entity_types": [
+            {
+              "filters": {
+                "all_of": [
+                  { "test": "is_family", "subject": "other", "operator": "!=", "value": "dm" },
+                  {
+                    "any_of": [
+                      { "test": "has_tag", "subject": "other", "operator": "!=", "value": "dm_wary" },
+                      { "test": "has_tag", "subject": "other", "value": "dm_distrust" }
+                    ]
+                  },
+                  {
+                    "any_of": [
+                      { "test": "has_tag", "subject": "other", "operator": "!=", "value": "dm_mount" },
+                      { "test": "has_tag", "subject": "other", "value": "dm_distrust" }
+                    ]
+                  },
+                  { "test": "is_family", "subject": "other", "operator": "!=", "value": "player" }
+                ]
+              },
+              "max_dist": 40,
+              "must_see": false
+            }
+          ]
         },
         "minecraft:behavior.owner_hurt_by_target": {
           "priority": 1,
-          "entity_types": {
-            "filters": {
-              "test": "is_family",
-              "subject": "other",
-              "operator": "!=",
-              "value": "dm"
-            },
-            "max_dist": 58,
-            "must_see": false
-          }
+          "entity_types": [
+            {
+              "filters": {
+                "test": "is_family",
+                "subject": "other",
+                "operator": "!=",
+                "value": "dm"
+              },
+              "max_dist": 58,
+              "must_see": false
+            }
+          ]
         },
         "minecraft:behavior.hurt_by_target": {
           "priority": 3,
-          "entity_types": {
-            "filters": {
-              "test": "is_family",
-              "subject": "other",
-              "operator": "!=",
-              "value": "dm"
-            },
-            "max_dist": 58,
-            "must_see": false
-          }
+          "entity_types": [
+            {
+              "filters": {
+                "test": "is_family",
+                "subject": "other",
+                "operator": "!=",
+                "value": "dm"
+              },
+              "max_dist": 58,
+              "must_see": false
+            }
+          ]
        },
       "minecraft:behavior.nearest_attackable_target": {
           "priority": 4,
@@ -1193,7 +1189,8 @@
         },
         "minecraft:follow_range": {
           "value": 40
-        }
+        },
+        "minecraft:is_chested": {}
       },
       "sensor_1": {
         "minecraft:on_target_acquired": {
@@ -1247,6 +1244,47 @@
           "should_darken_sky": false,
           "name": "Asmoria",
           "hud_range": 0
+        }
+      },
+      "default": {
+        "minecraft:movement": {
+          "value": 0.33
+        },
+        "minecraft:underwater_movement": {
+          "value": 0.03
+        },
+        "minecraft:jump.static": {
+          "jump_power": 0.42
+        }
+      },
+      "follow_test": {
+        "minecraft:environment_sensor": {
+          "triggers": [
+            {
+              "filters": {
+                "test": "has_equipment",
+                "subject": "self",
+                "domain": "inventory",
+                "operator": "==",
+                "value": "item:follow_command"
+              },
+              "event": "follow_1"
+            }
+          ]
+        }
+      },
+      "mount_ride": {
+        "minecraft:behavior.find_mount": {
+          "priority": 1,
+          "within_radius": 16.0,
+          "start_delay": 0,
+          "max_failed_attempts": 20
+        },
+        "minecraft:behavior.mount_pathing": {
+          "priority": 2,
+          "target_dist": 0,
+          "speed_multiplier": 1.25,
+          "track_target": true
         }
       }
     },
@@ -1307,8 +1345,11 @@
       "minecraft:jump.static": {
       },
       "minecraft:inventory": {
+        "container_type": "horse",
+        "can_be_siphoned_from": true,
+        "restrict_to_owner": true,
         "inventory_size": 26,
-        "private": true
+        "private": false
       },
       "minecraft:behavior.move_to_land": {
         "priority": 6,
@@ -1485,13 +1526,164 @@
       "minecraft:physics": {
       },
       "minecraft:scaffolding_climber": {
+      },
+      "minecraft:interact": {
+        "interactions": [
+          {
+            "use_item": false,
+            "interact_text": "sit",
+            "on_interact": {
+              "filters": {
+                "all_of": [
+                  {
+                    "test": "is_owner",
+                    "subject": "other",
+                    "value": true
+                  },
+                  {
+                    "test": "has_equipment",
+                    "subject": "other",
+                    "domain": "hand",
+                    "operator": "!=",
+                    "value": "minecraft:lead"
+                  },
+                  {
+                    "test": "is_riding",
+                    "subject": "self",
+                    "operator": "==",
+                    "value": false
+                  },
+                  {
+                    "test": "has_tag",
+                    "subject": "self",
+                    "operator": "not",
+                    "value": "dm_player_sneak"
+                  },
+                  {
+                    "test": "has_tag",
+                    "subject": "self",
+                    "operator": "not",
+                    "value": "dm_sit"
+                  }
+                ]
+              },
+              "event": "sit_1"
+            }
+          },
+          {
+            "use_item": false,
+            "interact_text": "stand",
+            "on_interact": {
+              "filters": {
+                "all_of": [
+                  {
+                    "test": "is_owner",
+                    "subject": "other",
+                    "value": true
+                  },
+                  {
+                    "test": "has_equipment",
+                    "subject": "other",
+                    "domain": "hand",
+                    "operator": "!=",
+                    "value": "minecraft:lead"
+                  },
+                  {
+                    "test": "is_riding",
+                    "subject": "self",
+                    "operator": "==",
+                    "value": false
+                  },
+                  {
+                    "test": "has_tag",
+                    "subject": "self",
+                    "operator": "not",
+                    "value": "dm_player_sneak"
+                  },
+                  {
+                    "test": "has_tag",
+                    "subject": "self",
+                    "operator": "equals",
+                    "value": "dm_sit"
+                  }
+                ]
+              },
+              "event": "sit_2"
+            }
+          }
+        ]
+      },
+      "minecraft:entity_sensor": {
+        "relative_range": false,
+        "find_players_only": true,
+        "subsensors": [
+          {
+            "range": [
+              16.0,
+              8.0
+            ],
+            "cooldown": 0.0,
+            "event": "sneak_on",
+            "event_filters": {
+              "all_of": [
+                {
+                  "test": "is_owner",
+                  "subject": "other",
+                  "value": true
+                },
+                {
+                  "test": "is_sneaking",
+                  "subject": "other",
+                  "operator": "==",
+                  "value": true
+                },
+                {
+                  "test": "has_tag",
+                  "subject": "self",
+                  "operator": "not",
+                  "value": "dm_player_sneak"
+                }
+              ]
+            }
+          },
+          {
+            "range": [
+              16.0,
+              8.0
+            ],
+            "cooldown": 0.0,
+            "event": "sneak_off",
+            "event_filters": {
+              "all_of": [
+                {
+                  "test": "is_owner",
+                  "subject": "other",
+                  "value": true
+                },
+                {
+                  "test": "is_sneaking",
+                  "subject": "other",
+                  "operator": "==",
+                  "value": false
+                },
+                {
+                  "test": "has_tag",
+                  "subject": "self",
+                  "operator": "equals",
+                  "value": "dm_player_sneak"
+                }
+              ]
+            }
+          }
+        ]
       }
     },
     "events": {
       "minecraft:entity_spawned": {
         "add": {
           "component_groups": [
-            "ta"
+            "ta",
+            "default"
           ]
         }
       },
@@ -1505,10 +1697,15 @@
           "component_groups": [
             "on_ta",
             "sensor_1",
-            "sit"
+            "follow_test"
+          ]
+        },
+        "queue_command": {
+          "command": [
+            "give @p item:follow_command"
           ]
         }
-         },
+      },
       "on_attack": {
         "queue_command": {
           "command": [
@@ -1974,20 +2171,42 @@
         },
         "remove": {
           "component_groups": [
-            "follow"
+            "follow",
+            "follow_test",
+            "default"
           ]
+        },
+        "queue_command": {
+          "command": [
+            "tag @s remove maid_follow",
+            "tag @s add dm_sit"
+          ]
+        },
+        "set_property": {
+          "dm:state_sit": "on"
         }
       },
       "follow": {
         "add": {
           "component_groups": [
-            "follow"
+            "follow",
+            "default"
           ]
         },
         "remove": {
           "component_groups": [
-            "sit"
+            "sit",
+            "follow_test"
           ]
+        },
+        "queue_command": {
+          "command": [
+            "tag @s add maid_follow",
+            "tag @s remove dm_sit"
+          ]
+        },
+        "set_property": {
+          "dm:state_sit": "off"
         }
       },
       "sss": {
@@ -2602,6 +2821,139 @@
             }
           }
               ]
+      },
+      "follow_1": {
+        "add": {
+          "component_groups": [
+            "follow",
+            "default"
+          ]
+        },
+        "remove": {
+          "component_groups": [
+            "sit",
+            "follow_test"
+          ]
+        },
+        "queue_command": {
+          "command": [
+            "tag @s add maid_follow",
+            "tag @s remove dm_sit"
+          ]
+        },
+        "set_property": {
+          "dm:state_sit": "off"
+        }
+      },
+      "follow_2": {
+        "add": {
+          "component_groups": [
+            "follow_test"
+          ]
+        },
+        "remove": {
+          "component_groups": [
+            "follow"
+          ]
+        },
+        "queue_command": {
+          "command": [
+            "tag @s remove maid_follow"
+          ]
+        }
+      },
+      "sit_1": {
+        "add": {
+          "component_groups": [
+            "sit"
+          ]
+        },
+        "remove": {
+          "component_groups": [
+            "follow",
+            "follow_test",
+            "default"
+          ]
+        },
+        "queue_command": {
+          "command": [
+            "tag @s remove maid_follow",
+            "tag @s add dm_sit"
+          ]
+        },
+        "set_property": {
+          "dm:state_sit": "on"
+        }
+      },
+      "sit_2": {
+        "add": {
+          "component_groups": [
+            "default",
+            "follow_test"
+          ]
+        },
+        "remove": {
+          "component_groups": [
+            "sit"
+          ]
+        },
+        "queue_command": {
+          "command": [
+            "tag @s remove dm_sit"
+          ]
+        },
+        "set_property": {
+          "dm:state_sit": "off"
+        }
+      },
+      "mount_on": {
+        "add": {
+          "component_groups": [
+            "mount_ride",
+            "default"
+          ]
+        },
+        "remove": {
+          "component_groups": [
+            "sit"
+          ]
+        },
+        "queue_command": {
+          "command": [
+            "tag @s add maid:mount_ride",
+            "tag @s remove dm_sit"
+          ]
+        },
+        "set_property": {
+          "dm:state_sit": "off"
+        }
+      },
+      "mount_off": {
+        "remove": {
+          "component_groups": [
+            "mount_ride"
+          ]
+        },
+        "queue_command": {
+          "command": [
+            "tag @s remove maid:mount_ride",
+            "ride @s stop_riding"
+          ]
+        }
+      },
+      "sneak_on": {
+        "queue_command": {
+          "command": [
+            "tag @s add dm_player_sneak"
+          ]
+        }
+      },
+      "sneak_off": {
+        "queue_command": {
+          "command": [
+            "tag @s remove dm_player_sneak"
+          ]
+        }
       }
     }
   }

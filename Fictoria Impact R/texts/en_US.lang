@@ -22,12 +22,15 @@ item.sword:Original_sword.name=Original_sword
 item.items:fictoria_ball_filled_yellow=Fictoriaball_gold
 item.items:fictoria_ball_empty_yellow=Fictoriaball_gold(empty)
 item.items:fictoria_ball_filled_yellow_cd=Fictoriaball_gold(cooling)
+item.items:fictoria_ball_filled_yellow_dead=Fictoriaball_gold(dead)
 item.items:fictoria_ball_filled_blue=Fictoriaball_blue
 item.items:fictoria_ball_empty_blue=Fictoriaball_blue(empty)
 item.items:fictoria_ball_filled_blue_cd=Fictoriaball_blue(cooling)
+item.items:fictoria_ball_filled_blue_dead=Fictoriaball_blue(dead)
 item.items:fictoria_ball_filled_green=Fictoriaball_green
 item.items:fictoria_ball_empty_green=Fictoriaball_green(empty)
 item.items:fictoria_ball_filled_green_cd=Fictoriaball_green(cooling)
+item.items:fictoria_ball_filled_green_dead=Fictoriaball_green(dead)
 item.items:remove.name=Wrench
 item.spawn_egg.entity.player:dm0.name=dm0
 item.spawn_egg.entity.player:dm1.name=dm1
@@ -215,5 +218,132 @@ entity.player:dm34_1.name=War_Maid
 dm:group_test=Test_Items
 dm:group_player=Tactical_Items
 
+## Chunk keep
+fictoria.keep.exists=§cChunk loading failed: an area already exists here
+fictoria.keep.max=§cChunk loading failed: limit reached (%1$s)
+fictoria.keep.no_capacity=§cChunk loading failed: not enough quota or creation failed
+fictoria.keep.on_size=§aChunk loading enabled! %1$s×%2$s
+fictoria.keep.no_unit=§cChunk loading failed: no unit selected
+fictoria.keep.pos_fail=§cChunk loading failed: could not read unit position
+fictoria.keep.already=§cChunk loading failed: already enabled for this unit
+fictoria.keep.not_on=§cChunk loading failed: not enabled for this unit
+fictoria.keep.off=§7Chunk loading disabled
+fictoria.keep.quota=§7Chunk quota §f%1$s§7/§f%2$s
+fictoria.keep.pruned=§7Cleaned up %1$s orphan chunk-loading area(s)
+fictoria.keep.border_fail=§cFailed to toggle border display
+fictoria.keep.border_on=§aBorder display enabled
+fictoria.keep.border_off=§7Border display disabled
 
+## Tactical orders UI
+fictoria.ui.mode.follow=Follow player
+fictoria.ui.mode.random=Wander
+fictoria.ui.mode.patrol=Patrol home
+fictoria.ui.ride.fail_target=§cMount toggle failed: target is no longer valid
+fictoria.ui.ride.fail_event=§cMount toggle failed: event not found (%1$s)
+fictoria.ui.ride.off=§7[Ride] Disabled, she will no longer seek a mount
+fictoria.ui.ride.on=§b[Ride] Enabled, she mounts nearby rideable mobs within 16 blocks (horse / donkey / pig / llama…)
+fictoria.ui.fail.untamed=§cCommand failed: entity is not tamed
+fictoria.ui.fail.no_inventory=§cCommand failed: cannot access her inventory
+fictoria.ui.fail.bag_full=§cCommand failed: inventory full, cannot insert %1$s
+fictoria.ui.patrol.no_sit=§c✘ Patrol not activated: no sit event on this entity (may be unable to cancel following), state unchanged
+fictoria.ui.patrol.event_missing=§cPatrol not activated: event "%1$s" not found (%2$s)
+fictoria.ui.patrol.left_no_event=§eNote: event "%1$s" not found, but patrol has been exited
+fictoria.ui.event_timeout=§c✘ Event "%1$s" did not take effect within %2$s ticks (patrol exited, not stuck)
+fictoria.ui.switch.bag_full=§cSwitch error: inventory full (patrol exited, not stuck)
+fictoria.ui.switch.no_inventory=§cSwitch error: cannot access inventory (patrol exited, not stuck)
+fictoria.ui.switch.incomplete=§c✘ Switch incomplete: %1$s in inventory did not change as expected (patrol exited)
+fictoria.ui.title=Tactical Orders
+fictoria.ui.body.follow.on=§7Commanding: §f%1$s §8| Status: §aFollowing §8| Ride: §bOn
+fictoria.ui.body.follow.off=§7Commanding: §f%1$s §8| Status: §aFollowing §8| Ride: §7Off
+fictoria.ui.body.random.on=§7Commanding: §f%1$s §8| Status: §eRoaming §8| Ride: §bOn
+fictoria.ui.body.random.off=§7Commanding: §f%1$s §8| Status: §eRoaming §8| Ride: §7Off
+fictoria.ui.body.patrol.on=§7Commanding: §f%1$s §8| Status: §bPatrolling home §8| Ride: §bOn
+fictoria.ui.body.patrol.off=§7Commanding: §f%1$s §8| Status: §bPatrolling home §8| Ride: §7Off
+fictoria.ui.body.unknown.on=§7Commanding: §f%1$s §8| Status: §7Unknown §8| Ride: §bOn
+fictoria.ui.body.unknown.off=§7Commanding: §f%1$s §8| Status: §7Unknown §8| Ride: §7Off
+fictoria.ui.btn.follow=-Follow Player-
+fictoria.ui.btn.random=-Wander-
+fictoria.ui.btn.patrol=-Patrol Home-
+fictoria.ui.btn.ride_on=§b-Ride Mode-
+fictoria.ui.btn.ride_off=§8-Disable Ride-
+fictoria.ui.btn.keep_on=§a-Enable Chunk Loading-
+fictoria.ui.btn.keep_off=§c-Disable Chunk Loading-
+fictoria.ui.btn.border_on=§a-Border: ON-
+fictoria.ui.btn.border_off=§0-Border: OFF-
 
+fictoria.ui.btn.status.follow=§8[Status] §aFollowing
+fictoria.ui.btn.status.random=§8[Status] §eRoaming
+fictoria.ui.btn.status.patrol=§8[Status] §bPatrolling home
+fictoria.ui.btn.status.unknown=§8[Status] §7Unknown
+fictoria.ui.command_ok.follow=§a✔ Command applied: Follow player
+fictoria.ui.command_ok.random=§a✔ Command applied: Wander
+fictoria.ui.command_ok.patrol=§a✔ Command applied: Patrol home
+fictoria.ui.command_ok.unknown=§a✔ Command applied
+fictoria.ui.already.follow=§7[Status] Already following, no change needed
+fictoria.ui.already.random=§7[Status] Already wandering, no change needed
+fictoria.ui.already.patrol=§7[Status] Already patrolling home, no change needed
+fictoria.ui.already.unknown=§7[Status] State unchanged, no change needed
+
+## Field manual (field_manual)
+fictoria.manual.title=§0§lNew Player Guide
+fictoria.manual.index_body=Pick a chapter to read.\n§7Right-click this guide in your hand to come back at any time.§r
+fictoria.manual.close=§8Close
+fictoria.manual.back=§eBack to contents
+fictoria.manual.ch1.title=§lChapter 1  From the First Life
+fictoria.manual.ch1.body=§eHow to get one?§r\n· Creative mode:\n· The "Gear → Tactical Items" tab holds filled Phantoria Balls and every module; spawn eggs are on the "Items" page.\n· Hold a filled Phantoria Ball and right-click a block → she appears at once.\n· Survival mode:\n· Craft "Heart / Card_1" to tame her: place 3 emeralds diagonally in a crafting table, then hold and right-click to finish taming.\n· Craft an "Empty Phantoria Ball" to store and release maids like a Poké Ball: 8 emeralds in a ring with a card in the middle.\n\nAs a new player, your first entry into this world automatically grants you a Phantoria Ball with a maid inside, plus this guide.
+fictoria.manual.ch2.title=§lChapter 2  Ordinary Maid
+fictoria.manual.ch2.body=She is an ordinary maid when first tamed, and she has many uses.\n\n§eCombat§r\n· Right-click her while holding any sword, spear, bow or crossbow — she equips that weapon and enters combat. The weapon she was holding drops at her feet, so pick it up.\n· Spears are used as melee thrusts and cannot be thrown.\n\n§eCooking§r\n· Right-click while holding raw food → cooking mode; she cooks continuously.\nSneak + right-click to take the finished food.\n· Note: while idle and empty-handed, she also cooks raw food found in her inventory on her own.\n\n§eFeeding bread§r\n· Right-click while holding bread → she eats it. Works in any state: sitting, fighting, gathering.\n· For 10 seconds afterwards she gains Strength II, Health Boost VI and Absorption VI, plus one immediate heal.\n· Feeding her before a fight is effectively an extra shield plus extra health — well worth it.\n\n§eFarming§r\n· Right-click while holding an iron hoe → farming mode; she finds nearby farmland and works it herself,\nplanting and harvesting vanilla crops, including multi-block ones such as pumpkins and melons.\n· She can use bone meal, and periodically makes her own bone meal.\n· When she stands on a hopper, items in her inventory feed into it automatically.\n\n§eGathering§r\n· Right-click while holding a pickaxe → mining; holding an axe → chopping. She finds nearby ore or logs and walks over to dig.\n· Drops go into her inventory automatically (anything that does not fit drops at her feet).\n· To collect: just right-click (no sneaking needed) to open her inventory.\n· To stop: sneak + right-click → she stops, leaves gathering mode and hands the tool back.\n· Chopping fells the whole connected trunk (up to 96 blocks).\n· Note: she routes around lava and deep pits; if she truly cannot reach a spot she waits there rather than breaking blocks.\n\n§eArmor / Shield§r\n· While empty-handed and idle, right-click her with armor or a shield → she puts it on (note: a shield cannot be equipped while empty-handed).\n· To remove armor: sneak + right-click while holding Maid Command → the armor and shield are handed back to you.\n\n§eOpening her inventory§r\n· While empty-handed and idle, sneak + right-click to open her inventory.\n· She is holding something → a plain right-click opens it.
+fictoria.manual.ch3.title=§lChapter 3  Armory Maid
+fictoria.manual.ch3.body=§ePromotion§r\n· While empty-handed and idle, right-click while holding "War Cross" → promoted to Armory Maid.\n\n§eSwapping weapons§r\nRight-click while holding a module to swap:\n· Module-M4A1: switches to an M4A1 rifle, high rate of fire\n· Module-GLOCK: switches to a Glock pistol, can reveal hidden enemies\n· Module-MOSSBERG: switches to a Mossberg shotgun, close-range area attack\n· Module-AWP: switches to an AWP sniper rifle, can hit enemies at extreme range\n· Module-SWORD: switches to a Phantoria beam sword, close-range area attack\nThe old weapon drops at her feet.\n\n§eRestrictions§r\n· In armory form she cannot wear armor, nor use vanilla weapons, raw food or hoes — only gun modules.\nTo have her wear armor, cook or farm, revert her to ordinary form first.\n\n§eDemotion§r\n· While empty-handed, right-click while holding "Gentle Cross" → back to ordinary maid.\nEverything on her body and in her inventory drops at her feet — remember to pick it up.
+fictoria.manual.ch4.title=§lChapter 4  Extra Features
+fictoria.manual.ch4.body=§eMaid Command§r\n· You get one when you tame her. Hold it, or put it in her inventory, and she follows you.\n\n§eLighting§r\n· Put a torch in any of her inventory slots and the maid glows!\n\n§eSaddle§r\n· Put a saddle in her saddle slot → you can ride the maid.\n· Right-click her while holding a saddle → pick her up or put her down.\n\n§eRiding vehicles§r\n· Turn on the "Ride" switch in the command menu and she mounts horses, donkeys, pigs and llamas within 16 blocks;\nin follow mode she drives it after you.\n· If the mount gets stuck on terrain (about 1.5 s without moving) and there is a step ahead, the mount is teleported to you\nand she comes along; if it is more than 40 blocks away it also teleports once.\n· She boards your boat on her own; in follow mode she rows after you —\nall wooden boats, bamboo rafts and boats with chests are supported.\n· In follow mode, if she is more than 38 blocks from you she is teleported back. This does not apply while she is on a vehicle —\nthe vehicle is teleported instead, so she is not pulled off her mount.\n\n§eTactical orders§r\n· Sneak + left-click her → command menu: Follow / Wander / Patrol home\n· Follow mode: follows you like a vanilla cat or dog, and teleports to you when too far.\n· Wander mode: she roams freely with no restrictions.\n· Patrol home mode: she patrols within 36 blocks of the block she is standing on, and teleports back to the centre when she leaves that range.
+fictoria.manual.ch5.title=§lChapter 5  Phantoria Ball
+fictoria.manual.ch5.body=The Phantoria Ball is a maid's portable home.\n\n§eRecall§r\n· Right-click her while holding an empty green ball → she is stored inside.\nHer 36 inventory slots, worn equipment, name and health are all saved.\n\n§eRelease§r\n· Right-click a block while holding a filled ball → she appears on the block surface.\nThere is a 5-second cooldown after placing, and the ball shows as CD.\n\nNote: a maid wearing armor or a shield has them moved into her inventory when re-placed from a ball.\n\n§eOwner lock§r\n· The ball records its owner. Anyone else who picks it up cannot release her.\nA newly crafted ball has no owner recorded — whoever releases her becomes her owner.
+fictoria.manual.ch6.title=§lChapter 6  Crafting
+fictoria.manual.ch6.body=Maids come with a lot of related items — do not mix them up!\n\n§eHeart / Card_1§r\nEmerald ×3\n\n§ePhantoria Ball (empty)§r\nEmerald ×8 + Card ×1 (≈ Emerald ×11)\n\n§eMaid Spawn Egg§r\nGold Ingot ×4 + Redstone ×1 + Emerald ×1\n\n§eWar Cross§r\nDiamond ×1 + Gold Ingot ×4 + Emerald ×2\n\n§eGentle Cross§r\nRedstone ×1 + Stick ×4 + Gold Nugget ×2\n\n§eModule-M4A1§r\nBlock of Redstone ×1 + Blaze Rod ×1 + Amethyst Shard ×2 + Obsidian ×2\n\n§eModule-GLOCK§r\nStick ×1 + Redstone ×1 + Stone ×1 + Iron Ingot ×1\n\n§eModule-MOSSBERG§r\nBlock of Redstone ×1 + Blaze Rod ×1 + TNT ×2 + Obsidian ×3\n\n§eModule-AWP§r\nBlaze Rod ×1, Amethyst Shard ×2, Obsidian ×1, Spyglass ×1, Block of Iron ×1 + Block of Redstone ×1\n\n§eModule-SWORD§r\nDiamond Sword ×1
+
+## Phantoria Ball & maid lines
+fictoria.ball.recall_ok=§aRecalled. She can be placed again in §e%1$s§a s
+fictoria.ball.cd_death=§cThe ball is still recovering, §e%1$s§c s left
+fictoria.ball.cd_normal=§cThe ball is cooling down, §e%1$s§c s left
+fictoria.ball.no_space=§cNot enough space to place her
+fictoria.ball.data_broken=§cPhantoria Ball data is corrupted
+fictoria.ball.not_owner=§cYou are not this unit's owner
+fictoria.ball.spawn_fail=§cCannot spawn %1$s
+fictoria.ball.placed=§aUnit placed!
+fictoria.ball.cannot_recall=§cThis ball cannot recall that unit
+fictoria.ball.not_yours=§cThis is not your unit, cannot recall
+fictoria.ball.death_lore=§cWithdrawn after death
+fictoria.ball.death_cd=§cWithdrawn after death, §e%1$s§c s left
+fictoria.maid.flee=§e<Maid> Master is an idiot! I'm off!
+fictoria.maid.burn=§e<Maid> Ouch, that burns! Waaah~
+
+## Interaction / armor / shield / gather / starter kit
+fictoria.interact.shield_off=§7Shield removed.
+fictoria.interact.armor_off=§7Removed %1$s pieces of armor.
+fictoria.interact.armor_stray=§7Removed %1$s leftover armor pieces.
+fictoria.interact.armor_none=§7She has no armor on.
+fictoria.interact.form_switch=§7Form switched: %1$s pieces taken off and dropped at her feet.
+fictoria.interact.weapon_unsaved=§cThis weapon cannot be stored
+fictoria.interact.hoe_unsaved=§cThe hoe cannot be stored (record write failed); nothing was swapped.
+fictoria.shield.equipped=§7Shield equipped!
+fictoria.shield.offhand_fail=§cThe offhand slot did not take the shield; it is still in your hand.
+fictoria.shield.no_weapon=§7She is idle/on standby and does not hold a shield. Give her a weapon first.
+fictoria.shield.already=§7She already has a shield; take it off before swapping.
+fictoria.equip.unknown_slot=§cI cannot tell which slot this armor belongs to (add it to armor_table)
+fictoria.gather.tool_unsaved=§cThis tool cannot be stored
+fictoria.gather.stopped=§7She put her work down.
+fictoria.kit.received=§aStarter kit received§7: right-click a block to release the maid, right-click the manual for the guide
+fictoria.kit.reset=§7Starter kit flag cleared; it will be granted again on next join.
+
+## Item names (items/*.json no longer carry display_name)
+item.item:field_manual.name=§b§l§oWelcome to Phantoria
+item.item:mode_awp.name=Module-AWP
+item.item:mode_glock.name=Module-GLOCK
+item.item:mode_m4a1.name=Module-M4A1
+item.item:mode_mossberg.name=Module-MOSSBERG
+item.item:mode_sword.name=Module-SWORD
+
+## Entity interact buttons (interact_text is a translation key; both were missing)
+action.interact.maid=Interact
+action.interact.ride.maid=Ride

@@ -106,7 +106,7 @@
         { "charging": "controller.animation.humanoid.charging" },
         { "attack": "controller.animation.dm34_att" },
         { "bow_and_arrow": "controller.animation.ranged_att" },
-        { "crossbow_controller": "controller.animation.player.crossbow" },
+        { "crossbow_controller": "controller.animation.dm34.crossbow" },
         { "sleep": "controller.animation.dm_sleep" },
         { "sneaking": "controller.animation.humanoid.sneaking" },
         { "bob": "controller.animation.humanoid.bob" },

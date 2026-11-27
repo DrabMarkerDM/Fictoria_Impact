@@ -9,16 +9,18 @@
 
 import { system, world } from "@minecraft/server";
 
-import { CONFIG } from "./config.js";
+import { CONFIG } from "../config.js";
 import { snapshotEquipRecords, writeEquipPayload, BALL_EQUIP_DP } from "./ball_sync.js";
-import { deserializeItem, dropItemNear } from "./slot_io.js";
+import { deserializeItem, dropItemNear } from "../core/slot_io.js";
+import { t } from "../../common/core/i18n.js";
+import { isBorderOn, isUnitOn, releaseFor } from "../../common/core/chunk_keep.js";
 import {
     ballInfoFor,
     buildFilledBallFor,
     readInventory,
     readInventoryReadOnly,
     spillBag,
-} from "../common/fictoria_logic/fictoria_ball.js";
+} from "../../common/fictoria_logic/fictoria_ball.js";
 import {
     AFTER_HURT_PRIORITY,
     DEATH_PRIORITY,
@@ -26,8 +28,8 @@ import {
     registerAfterHurtHandler,
     registerBeforeHurtHandler,
     registerEntityDieHandler,
-} from "../common/core/event_bus.js";
-import { markBallHandled } from "./death_drop.js";
+} from "../../common/core/event_bus.js";
+import { markBallHandled } from "../life/death_drop.js";
 
 /** 与 `fictoria_ball.js` 里的私有常量 `BAG_DP_KEY` 同值；这里单独声明只为回读校验。 */
 const BAG_DP = "fictoria:bag_data";
@@ -170,12 +172,16 @@ function findEmptySlot(player) {
 }
 
 /** 写进球后从容器回读一次。冷却→就绪的热交换在同一 tick 内可能把 cooling 换成 ready，
- *  两者都算成功。 */
+ *  三者（就绪 / 常规冷却 / 死亡回球）都算成功。 */
 function readBack(container, slot, info) {
     let back;
     try { back = container.getItem(slot); } catch (e) { back = undefined; }
     if (!back) return false;
-    return back.typeId === info.filledCooling || back.typeId === info.filledReady;
+    return (
+        back.typeId === info.filledDead ||
+        back.typeId === info.filledCooling ||
+        back.typeId === info.filledReady
+    );
 }
 
 /** 用玩家背包里现有的空球：优先预约的那一格，其次另一颗没被预约的空球。
@@ -407,6 +413,25 @@ function onDie(ev) {
         return;
     }
 
+    // 区块常加载：她死了，那片 ticking area 必须摘掉。实体没了以后 slideTick 只会在
+    // miss 到上限时打一行日志，区一直留在 Areas 与 world DP 里，攒满配额就开不了新的。
+    // 两个开关先读下来（摘区之后就读不到了），随球带走，放出时恢复。
+    let keepOn = false;
+    let keepBorder = false;
+
+    try {
+        keepOn = isUnitOn(dead);
+        keepBorder = isBorderOn(dead);
+    } catch (e) {
+        log(`${typeId} 区块设置读取失败：${e}`);
+    }
+
+    try {
+        if (keepOn) releaseFor(dead);
+    } catch (e) {
+        log(`${typeId} 区块摘除失败：${e}`);
+    }
+
     // ---------- 先做完全部同步读取（实体随时会被移除） ----------
     const ownerId = ownerOf(dead);
     if (ownerId === undefined) {
@@ -539,6 +564,9 @@ function onDie(ev) {
                 // 死亡回球走独立的冷却表（金 75 / 蓝 45 / 绿 15，= 正常收回的 3 倍）。
                 // 三条载体（借空球 / 现造 / 落地）都吃这一颗球，所以只在这一处定就够了。
                 cdKind: "death",
+                // 区块常加载 / 边界：活着时的设置跟着球走，放出后按落地位置重新开区
+                keepOn,
+                keepBorder,
             });
 
             if (ball === undefined) {
@@ -598,7 +626,7 @@ function onDie(ev) {
             const where = res.ok
                 ? `槽位 ${res.slot}`
                 : `背包满，球已丢在脚下`;
-            const carrier = (gate !== undefined) ? info.emptyId : `新造 ${info.filledCooling}`;
+            const carrier = (gate !== undefined) ? info.emptyId : `新造 ${info.filledDead}`;
             log(`${typeId} → ${carrier}（背包 ${bagCount} 件/来源 ${bagFrom} / 记录 ${Object.keys(snap.props).length} 条，${where}）`);
 
             // 背包一件都没收到 = 预快照没抢到（多半是 /kill 之类不发 entityHurt 的死法），
@@ -609,7 +637,7 @@ function onDie(ev) {
             try {
                 const cdSec = Number.isFinite(info.deathCd) ? info.deathCd : "?";
                 owner.onScreenDisplay.setActionBar(
-                    `§c干员已自行撤回，还需 §e${cdSec}§c 秒`
+                    t("fictoria.ball.death_cd", cdSec)
                 );
             } catch (e) { /* 提示失败不影响回球 */ }
 

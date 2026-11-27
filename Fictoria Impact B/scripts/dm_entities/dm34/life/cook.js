@@ -8,13 +8,13 @@
  */
 
 import { ItemStack, system, world } from "@minecraft/server";
-import { CONFIG } from "./config.js";
-import { FOODS } from "./interact_tables.js";
-import { isMaid, variantOf, cookCode, setCookCode, resolveState } from "./maid_state.js";
-import { dropItemNear, putIntoContainer, compactStacks } from "./slot_io.js";
-import { bagFirstOf } from "./guard.js";
+import { CONFIG } from "../config.js";
+import { FOODS } from "../core/interact_tables.js";
+import { isMaid, variantOf, cookCode, setCookCode, resolveState } from "../core/maid_state.js";
+import { dropItemNear, putIntoContainer, compactStacks } from "../core/slot_io.js";
+import { bagFirstOf } from "../combat/guard.js";
 // 女仆名单直接用目标管理引擎每 5 tick 扫出来的那份，不再自己 getEntities
-import { forEachMaid } from "../common/core/maid_registry.js";
+import { forEachMaid } from "../../common/core/maid_registry.js";
 
 const DM34 = "player:dm34";
 const AUTO_PROP = "dm34:autocook";   // 1 / 未设置 = 允许自动烹饪；0 = 玩家手动中断过，暂停自动

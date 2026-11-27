@@ -9,14 +9,15 @@
  */
 
 import { EquipmentSlot } from "@minecraft/server";
-import { ARMOR_SLOT, looksLikeArmor } from "./armor_table.js";
-import { placeItem, clearSlot, readSlot, serializeItem, deserializeItem, dropItemNear, takeMainhand } from "./slot_io.js";
+import { ARMOR_SLOT, looksLikeArmor } from "../core/armor_table.js";
+import { t } from "../../common/core/i18n.js";
+import { placeItem, clearSlot, readSlot, serializeItem, deserializeItem, dropItemNear, takeMainhand } from "../core/slot_io.js";
 import {
     recordArmor, armorRecord, forgetArmor, clearArmorRecord,
     queueArmorGhost, processArmorGhosts, moveToBag, putInBag,
     forceClearArmorSlot, pseudoSlotItems, clearPseudoSlot, armorGhostSlots,
-} from "./guard.js";
-import { CONFIG } from "./config.js";
+} from "../combat/guard.js";
+import { CONFIG } from "../config.js";
 
 const ARMOR_ORDER = [EquipmentSlot.Head, EquipmentSlot.Chest, EquipmentSlot.Legs, EquipmentSlot.Feet];
 
@@ -75,7 +76,7 @@ export function equipArmor(player, entity) {
         // 表里没有，但标签说是盔甲 —— 说清楚，别让它悄悄当成普通物品
         if (looksLikeArmor(hand)) {
             // 玩家反馈，不受 CONFIG.log 总闸管辖：关掉等于把失败原因藏了
-            try { player.sendMessage("§c这件盔甲我认不出该穿哪个部位（可以登记进 armor_table）"); } catch (e) { /* 忽略 */ }
+            try { player.sendMessage(t("fictoria.equip.unknown_slot")); } catch (e) { /* 忽略 */ }
             return true;
         }
         return false;

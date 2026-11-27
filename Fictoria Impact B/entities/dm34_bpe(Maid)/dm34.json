@@ -17,6 +17,11 @@
           "default": false,
           "client_sync": true
         },
+        "dm34:aim": {
+          "type": "bool",
+          "default": false,
+          "client_sync": true
+        },
         "dm34:look_pitch": {
           "type": "float",
           "range": [ -90.0, 90.0 ],

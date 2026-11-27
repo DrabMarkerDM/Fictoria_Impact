@@ -29,6 +29,8 @@ import { isPlayerMounted } from "../travel/ride_guard.js";
 // 友方登记表：本引擎每周期扫 dm 家族时顺手登记，各功能侧（dm34 那套 / 通用灯光 / UI）直接复用，
 // 不再各扫一遍。登记范围见 maid_registry.js 的 FEATURE_TYPES。
 import { clearUnits, registerUnit, isRegisteredType, setFriendlyTypes } from "../core/maid_registry.js";
+// 常加载维度：关闭时 getDims() 是空集，读取成本为一次 size 判断
+import { getDims, getAnchors } from "../core/chunk_keep.js";
 
 // 日志开关
 const DEBUG_ENGINE = false;
@@ -307,6 +309,15 @@ const TargetSensorManager = {
         }
     }
 };
+
+/**
+ * 本引擎当前是否认这只单位「有有效目标」。
+ * 供功能侧读（弩举放）：`entity.target` 在目标死亡后可能残留一个失效句柄，
+ * 这里只认 TargetSensorManager 校验过 isValid 的那份。
+ */
+export function hasTrackedTarget(unitId) {
+    return TargetSensorManager._tracking.has(unitId);
+}
 
 // 配置表
 const RAW_DmTargetRegistry = {
@@ -967,7 +978,7 @@ const REGISTRY_ENTRIES = Object.entries(DmTargetRegistry);
 let GLOBAL_MAX_BROADCAST_DISTANCE = 64;
 
 // 敌人快照工具
-function collectEnemySnapshot(dimension, players) {
+function collectEnemySnapshot(dimension, players, dimKey, keepAlive) {
     const enemyMap = new Map();
     const anchorMap = new Map();
 
@@ -994,6 +1005,14 @@ function collectEnemySnapshot(dimension, players) {
                 addAnchor(player.location, ENEMY_SNAPSHOT_RADIUS);
             }
         } catch (_) { }
+    }
+
+    // 常加载维度没有玩家：用区域中心兜底（可能多片）。半径压到区域边界附近 ——
+    // 基地守卫不需要 96 格预警，外面那些区块本来也没 tick。
+    if (keepAlive && players.length === 0) {
+        for (const keepAnchor of getAnchors(dimKey)) {
+            addAnchor(keepAnchor, keepAnchor.radius);
+        }
     }
 
     const anchors = Array.from(anchorMap.values()).slice(0, MAX_ENEMY_ANCHORS);
@@ -1323,7 +1342,7 @@ function rebuildManagedUnits(dimStates) {
         let enemySnapshot = null;
 
         try {
-            enemySnapshot = collectEnemySnapshot(dimension, players);
+            enemySnapshot = collectEnemySnapshot(dimension, players, dimKey, state.keepAlive === true);
         } catch (e) {
             enemySnapshot = null;
         }
@@ -1741,10 +1760,9 @@ export class DmTargetEngine {
 
                 // 收集在线玩家所在维度（getAllPlayers 是原生快路径，每帧都做）。
         const dimStates = [];
+        const seen = new Map();
 
         try {
-            const seen = new Map();
-
             for (const player of world.getAllPlayers()) {
                 try {
                     const dimension = player.dimension;
@@ -1762,6 +1780,25 @@ export class DmTargetEngine {
 
                     state.players.push(player);
                 } catch (_) { }
+            }
+        } catch (_) { }
+
+                // 常加载维度：没有玩家也要进表，否则那里的干员整轮不登记、不解算。
+        // 关闭时 getDims() 是空集，一次 size 判断就过。
+        try {
+            const keepDims = getDims();
+
+            if (keepDims.size > 0) {
+                for (const dimKey of keepDims) {
+                    if (seen.has(dimKey)) continue;
+
+                    const dimension = world.getDimension(dimKey);
+                    if (!dimension) continue;
+
+                    const state = { dimKey, dimension, players: [], keepAlive: true };
+                    seen.set(dimKey, state);
+                    dimStates.push(state);
+                }
             }
         } catch (_) { }
 

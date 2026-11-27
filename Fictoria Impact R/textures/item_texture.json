@@ -164,6 +164,9 @@
     "fictoria_ball_filled_yellow_cd": {
       "textures": "textures/items/fictoria_ball_filled_yellow_cd"
       },
+    "fictoria_ball_filled_yellow_dead": {
+      "textures": "textures/items/fictoria_ball_filled_yellow_dead"
+      },
     "fictoria_ball_filled_blue": {
       "textures": "textures/items/fictoria_ball_filled_blue"
       },
@@ -172,6 +175,9 @@
       },
     "fictoria_ball_filled_blue_cd": {
       "textures": "textures/items/fictoria_ball_filled_blue_cd"
+      },
+    "fictoria_ball_filled_blue_dead": {
+      "textures": "textures/items/fictoria_ball_filled_blue_dead"
       },
     "fictoria_ball_filled_green": {
       "textures": "textures/items/fictoria_ball_filled_green"
@@ -186,6 +192,9 @@
 
 
    },
+    "fictoria_ball_filled_green_dead": {
+      "textures": "textures/items/fictoria_ball_filled_green_dead"
+      },
     "demon_landmine": {
     "textures": "textures/items/demon_landmine"
     },

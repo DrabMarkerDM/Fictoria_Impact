@@ -5,6 +5,7 @@
  */
 import { ItemStack, system, world } from "@minecraft/server";
 import { createMaidBall } from "./fictoria_ball.js";
+import { t } from "../core/i18n.js";
 
 const DP_GIVEN = "dm:starter_kit";
 
@@ -81,7 +82,7 @@ function grant(player) {
 
     try {
         player.onScreenDisplay.setActionBar(
-            "§a收到一份新手套装§7：右键方块放出女仆，右键手册查看指南"
+            t("fictoria.kit.received")
         );
     } catch (_) {}
 }
@@ -120,7 +121,7 @@ export function initStarterKit() {
         if ((ev.message ?? "").trim() === "reset") {
             try {
                 player.setDynamicProperty(DP_GIVEN, false);
-                player.sendMessage("§7新手套装标记已清除，重进世界会重新发放。");
+                player.sendMessage(t("fictoria.kit.reset"));
             } catch (e) {
                 console.warn(`[StarterKit] 重置失败: ${e}`);
             }

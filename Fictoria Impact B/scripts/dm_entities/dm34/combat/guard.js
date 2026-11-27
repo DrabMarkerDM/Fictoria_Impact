@@ -11,14 +11,14 @@
  */
 
 import { EquipmentSlot, system, world } from "@minecraft/server";
-import { CONFIG } from "./config.js";
-import { clearSlot, serializeItem, cmdHasAnywhere, cmdHasItem } from "./slot_io.js";
+import { CONFIG } from "../config.js";
+import { clearSlot, serializeItem, cmdHasAnywhere, cmdHasItem } from "../core/slot_io.js";
 // 女仆清单直接用目标管理引擎每周期扫出来的那份，不再自己 getEntities
-import { forEachMaid } from "../common/core/maid_registry.js";
-import { resolveState } from "./maid_state.js";
-import { hasFarmTool, restoreFarmDisplay } from "./farm_store.js";
-import { storedGatherTool, restoreGatherDisplay } from "./gather_store.js";
-import { refreshWeaponDisplay } from "./weapon_store.js";
+import { forEachMaid } from "../../common/core/maid_registry.js";
+import { resolveState } from "../core/maid_state.js";
+import { hasFarmTool, restoreFarmDisplay } from "../inventory/farm_store.js";
+import { storedGatherTool, restoreGatherDisplay } from "../inventory/gather_store.js";
+import { refreshWeaponDisplay } from "../inventory/weapon_store.js";
 
 const ARMOR_PROP = "dm34:armor";        // {"Head":{id,n,name,lore,ench,dmg}, ...}
 const MAID_IDS = ["player:dm34", "player:dm34_1"];

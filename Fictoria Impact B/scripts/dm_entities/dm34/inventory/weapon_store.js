@@ -7,11 +7,11 @@
  */
 
 import { EnchantmentTypes, EquipmentSlot, system } from "@minecraft/server";
-import { CONFIG, weaponFamilyOf } from "./config.js";
+import { CONFIG, weaponFamilyOf } from "../config.js";
 import {
     placeItem, clearSlot, clearMainhand, readMainhand, makeItem, dropItemNear, syncMainhand,
-} from "./slot_io.js";
-import { readObject, hasRaw, writeRaw, clearRaw } from "./record_store.js";
+} from "../core/slot_io.js";
+import { readObject, hasRaw, writeRaw, clearRaw } from "../core/record_store.js";
 
 const WEAPON_PROP = "dm34:weapon";   // JSON：{id, n, name, lore, ench:[[id,lvl]], dmg}
 const GIVE_PROP = "dm34:wgive";      // 1 = 归还时给玩家（创造模式给的是复制品，记 0）

@@ -15,7 +15,7 @@ import { initFollowRecall } from './dm_entities/common/travel/follow_recall.js';
 import { initVehicleFollow } from './dm_entities/common/travel/vehicle_follow.js';
 
 // 导入女仆相关组件函数
-import './dm_entities/dm34/maid_manager.js';
+import './dm_entities/dm34/combat/maid_manager.js';
 
 // 导入女仆 dm34 交互层（JS 路由 + 烹饪计时器 + 背包；取代实体 JSON 里的 585 条 minecraft:interact）
 import './dm_entities/dm34/index.js';
@@ -87,6 +87,10 @@ import { initDrowningDetector } from "./dm_entities/common/travel/water_traversa
 
 // 导入性能探针
 import { PerfProbe, initPerfProbe } from "./dm_entities/common/core/perf_probe.js";
+
+// 区块常加载：UI 开关在 fictoria_logic，逻辑在 core
+import { initChunkKeep } from "./dm_entities/common/core/chunk_keep.js";
+import { initChunkKeepBorder } from "./dm_entities/common/core/chunk_keep_border.js";
 
 // 性能探针总开关。false = 不注册命令、不挂 interval，埋点几乎零成本。
 // true = 自动采样 + 注册 /perf:on|off|bench 与 /scriptevent perf:hud|report|reset，
@@ -318,6 +322,10 @@ const events = () => {
 const init = () => {
     // 溺水检测：必须在 initEventBus 之前登记处理器
     initDrowningDetector();
+
+    // 区块常加载：按 DP 重建上次的区域（第一个 tick 才读得到 tickingAreaManager）
+    initChunkKeep();
+    initChunkKeepBorder();
 
     // 指南与新手套装都只是订阅自己的事件，顺序不敏感
     initFieldManual();

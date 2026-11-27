@@ -1,0 +1,67 @@
+{
+	"format_version": "1.8.0",
+	"animations": {
+		// 三段照原版掠夺者（pillager.animation.json）拆开：
+		//   lower 待机持弩（弩放低） / hold 持弩 / charge 举弩拉弦。
+		// 骨骼名换成女仆模型的 leftArm / rightArm，姿态数值取自掠夺者同名动画。
+		// 掠夺者的 charge 靠 variable.crossbow_charge 做连续拉弦，那个变量自定义实体拿不到，
+		// 所以这里用两端静态姿态 + 控制器 blend_transition 出过渡。
+		"animation.dm34.crossbow.lower": {
+			"loop": true,
+			"bones": {
+				"leftArm": {
+					"rotation": [
+						"-22.92 - this",
+						"11.46 - this",
+						0.0
+					]
+				},
+				"rightArm": {
+					"rotation": [
+						"-28.65 - this",
+						"-8.6 - this",
+						0.0
+					]
+				}
+			}
+		},
+		"animation.dm34.crossbow.hold": {
+			"loop": true,
+			"bones": {
+				"leftArm": {
+					"rotation": [
+						"-85.94 + query.target_x_rotation - this",
+						"34.38 + math.clamp(query.target_y_rotation, -45, 25) - this",
+						0.0
+					]
+				},
+				"rightArm": {
+					"rotation": [
+						"-90.0 + 5.73 + query.target_x_rotation - this",
+						"-17.19 + math.clamp(query.target_y_rotation, -25, 45) - this",
+						0.0
+					]
+				}
+			}
+		},
+		"animation.dm34.crossbow.charge": {
+			"loop": true,
+			"bones": {
+				"leftArm": {
+					"rotation": [
+						"-55.62 - this",
+						"48.7 - this",
+						0.0
+					]
+				},
+				"rightArm": {
+					"rotation": [
+						"-55.62 - this",
+						"-45.84 - this",
+						0.0
+					]
+				}
+			}
+		}
+	}
+}

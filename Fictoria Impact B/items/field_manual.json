@@ -9,14 +9,14 @@
 			}
 		},
 		"components": {
+			"minecraft:display_name": {
+				"value": "item.item:field_manual.name"
+			},
 			"minecraft:max_stack_size": 1,
 			"minecraft:hand_equipped": true,
 			"minecraft:should_despawn": false,
 			"minecraft:icon": {
 				"texture": "field_manual"
-			},
-			"minecraft:display_name": {
-				"value": "§b§l§o欢迎来到-幻域Phantoria"
 			}
 		}
 	}

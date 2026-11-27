@@ -9,19 +9,20 @@
 import { GameMode, system } from "@minecraft/server";
 import {
     CONFIG, COOK_START_RE, weaponFamilyOf, hoeFamilyOf, gatherKindOf, isHoeId, isGatherToolId,
-} from "./config.js";
+} from "../config.js";
 import { FOODS } from "./interact_tables.js";
+import { t } from "../../common/core/i18n.js";
 import { clearSlot, dropItemNear, makeItem, readMainhand } from "./slot_io.js";
 import { isMaid, isOwner, ensureOwnerDp, resolveState, buildCtx, ruleMatches, tupleInfo, variantOf, handItemOf } from "./maid_state.js";
-import { startCook, clearCook, abortCook, cookSneakAction, cookWithFood } from "./cook.js";
-import { armorSlotOf, equipArmor, removeAllArmor, purgeStrayArmor, shedAllArmor, consumeHand } from "./equip.js";
+import { startCook, clearCook, abortCook, cookSneakAction, cookWithFood } from "../life/cook.js";
+import { armorSlotOf, equipArmor, removeAllArmor, purgeStrayArmor, shedAllArmor, consumeHand } from "../inventory/equip.js";
 import { looksLikeArmor } from "./armor_table.js";
-import { storeWeapon, returnWeapon, ensureWeaponPresent, hasWeaponRecord, refreshWeaponDisplay } from "./weapon_store.js";
-import { storeFarmTool, returnFarmTool, restoreFarmDisplay, hasFarmTool } from "./farm_store.js";
-import { storedGatherTool, restoreGatherDisplay } from "./gather_store.js";
-import { startGather, stopGather, hasGatherJob } from "./gather.js";
-import { equipShield, removeShield, hasShield } from "./shield.js";
-import { isPlayerMounted } from "../common/travel/ride_guard.js";
+import { storeWeapon, returnWeapon, ensureWeaponPresent, hasWeaponRecord, refreshWeaponDisplay } from "../inventory/weapon_store.js";
+import { storeFarmTool, returnFarmTool, restoreFarmDisplay, hasFarmTool } from "../inventory/farm_store.js";
+import { storedGatherTool, restoreGatherDisplay } from "../inventory/gather_store.js";
+import { startGather, stopGather, hasGatherJob } from "../gather/gather.js";
+import { equipShield, removeShield, hasShield } from "../combat/shield.js";
+import { isPlayerMounted } from "../../common/travel/ride_guard.js";
 
 const DM34 = "player:dm34";
 
@@ -419,7 +420,7 @@ export function handleInteract(player, entity, opts) {
         // 潜行 + 有盾 = 卸盾，盾在手上时优先于卸甲
         if (CONFIG.shield.enabled && hasShield(entity)) {
             removeShield(player, entity);
-            try { player.sendMessage("§7取下盾牌。"); } catch (e) { /* 忽略 */ }
+            try { player.sendMessage(t("fictoria.interact.shield_off")); } catch (e) { /* 忽略 */ }
             return true;
         }
         // 以下提示不受 CONFIG.log 总闸管辖：只在失败/有结果时出现，不刷屏
@@ -431,13 +432,15 @@ export function handleInteract(player, entity, opts) {
         }
         if (n) {
             try {
-                player.sendMessage(`§7取下 ${n} 件盔甲。`);
+                player.sendMessage(t("fictoria.interact.armor_off", n));
             } catch (e) { /* 忽略 */ }
             return true;
         }
         const stray = purgeStrayArmor(entity);
         try {
-            player.sendMessage(stray ? `§7取下 ${stray} 件残留盔甲。` : "§7她身上没有盔甲。");
+            player.sendMessage(stray
+                ? t("fictoria.interact.armor_stray", stray)
+                : t("fictoria.interact.armor_none"));
         } catch (e) { /* 忽略 */ }
         return true;
     }
@@ -559,7 +562,7 @@ export function handleInteract(player, entity, opts) {
     if (TRANSFORM_EVENTS.has(String(info.event))) {
         const shed = shedBeforeTransform(player, entity);
         if (shed) {
-            try { player.sendMessage(`§7切换形态：${shed} 件装备已取下，掉在脚下。`); } catch (e) { /* 忽略 */ }
+            try { player.sendMessage(t("fictoria.interact.form_switch", shed)); } catch (e) { /* 忽略 */ }
         }
     }
 
@@ -610,7 +613,7 @@ function switchWeapon(player, entity, st, fam, handId, beforeStack) {
 
     const giveBack = !isCreative(player);
     if (!storeWeapon(entity, real, giveBack)) {
-        try { player.sendMessage("§c这把武器存不下来"); } catch (e) { /* 忽略 */ }
+        try { player.sendMessage(t("fictoria.interact.weapon_unsaved")); } catch (e) { /* 忽略 */ }
         return true;
     }
 
@@ -877,7 +880,7 @@ function enterFarm(player, entity, st, handStack, beforeStack) {
     const giveBack = !isCreative(player);
     if (!storeFarmTool(entity, stack, giveBack)) {
         // 记录写不进去 = 没有任何凭证能把这把锄头还回去 → 绝不扣
-        try { player.sendMessage("§c锄头存不下来（记录写不进去），这次没换。"); } catch (e) { /* 忽略 */ }
+        try { player.sendMessage(t("fictoria.interact.hoe_unsaved")); } catch (e) { /* 忽略 */ }
         logFarm("enterFarm：storeFarmTool 失败 → 不扣");
         return true;
     }

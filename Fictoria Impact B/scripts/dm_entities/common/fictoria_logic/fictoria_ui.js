@@ -18,6 +18,9 @@ import { dismountNow } from "../travel/mount_follow.js";
 // 友方名单唯一来源 = manager 配置表（见 attackable_target_manager.js 里的 setFriendlyTypes）。
 // 本文件不再自己 getEntities，也不再从幻域球的收纳表推断"谁算友方"。
 import { FEATURE_TYPES, forEachUnitOfTypes, isFriendlyTypeId } from "../core/maid_registry.js";
+// 区块常加载：逻辑在 core/chunk_keep.js，这里只挂入口
+import { toggleChunkKeep, isKeepOn, toggleBorder, isBorderShown } from "./chunk_keep_control.js";
+import { t } from "../core/i18n.js";
 
 // ---------- 配置区 ----------
 const CONFIG = {
@@ -55,6 +58,24 @@ const CONFIG = {
         "player:dm50",
         "player:dm31",
         "player:dm45",
+        "player:dm4",
+        "player:dm59",
+        "player:dm33",
+        "player:dm24",
+        "player:dm8",
+        "player:dm25",
+        "player:dm49",
+        "player:dm62",
+        "player:dm0",
+        "player:dm46",
+        "player:dm60",
+        "player:dm41",
+        "player:dm28",
+        "player:dm53",
+        "player:dm22",
+        "player:dm54",
+        "player:dm21",
+        "player:dm6",
     ],
     // 指令物品分流：只列例外。dm34 系用 maid_command，**其余一律 defaultCommandItem（follow_command）**。
     // 新增门控实体不用改这里，自动落默认项。
@@ -83,6 +104,24 @@ const CONFIG = {
         "player:dm50": "follow",
         "player:dm31": "follow",
         "player:dm45": "follow",
+        "player:dm4": "follow",
+        "player:dm59": "follow",
+        "player:dm33": "follow",
+        "player:dm24": "follow",
+        "player:dm8": "follow",
+        "player:dm25": "follow",
+        "player:dm49": "follow",
+        "player:dm62": "follow",
+        "player:dm0": "follow",
+        "player:dm46": "follow",
+        "player:dm60": "follow",
+        "player:dm41": "follow",
+        "player:dm28": "follow",
+        "player:dm53": "follow",
+        "player:dm22": "follow",
+        "player:dm54": "follow",
+        "player:dm21": "follow",
+        "player:dm6": "follow",
     },
     debug: false,
     autoReopenAfterSwitch: false,
@@ -95,7 +134,8 @@ const MODE = {
     UNKNOWN: -1
 };
 
-const MODE_NAME = ["跟随玩家", "随机移动", "巡逻守家"];
+/** 按 MODE 取语言键后缀（follow / random / patrol），文案在 RP texts/*.lang。 */
+const MODE_TAG = ["follow", "random", "patrol"];
 
 const DP = {
     home: "fictoria_ui:home",
@@ -427,6 +467,8 @@ function initFictoriaUI() {
         return ITEM_GATED_SET.has(unit.typeId) && unit.hasComponent("minecraft:inventory");
     }
 
+    //  背包道具读写：0 号槽是马鞍位（container_type: horse），背包从 1 开始。
+
     /** 该实体判跟随用的那枚道具：dm34 系走例外表，其余一律 follow_command */
     function commandIdOf(unit) {
         return COMMAND_ITEM_OVERRIDES[unit.typeId] ?? CONFIG.defaultCommandItem;
@@ -448,7 +490,8 @@ function initFictoriaUI() {
         const inv = unit.getComponent("minecraft:inventory")?.container;
         if (!inv) return false;
 
-        for (let i = 0; i < inv.size; i++) {
+        // 从 1 起：0 号是马鞍位，has_equipment(domain=inventory) 不认它，塞进去等于没塞
+        for (let i = 1; i < inv.size; i++) {
             const it = inv.getItem(i);
             if (it && it.typeId === want) {
                 return true;
@@ -474,7 +517,7 @@ function initFictoriaUI() {
 
         let emptySlot = -1;
 
-        for (let i = 0; i < inv.size; i++) {
+        for (let i = 1; i < inv.size; i++) {
             const it = inv.getItem(i);
             if (it && it.typeId === want) {
                 return true;
@@ -558,7 +601,7 @@ function initFictoriaUI() {
 
     function toggleRide(player, unit) {
         if (!unit || !unit.isValid) {
-            player.sendMessage("§c骑乘切换失败：目标已失效");
+            player.sendMessage(t("fictoria.ui.ride.fail_target"));
             return;
         }
 
@@ -567,7 +610,7 @@ function initFictoriaUI() {
         try {
             unit.triggerEvent(on ? "mount_off" : "mount_on");
         } catch (e) {
-            player.sendMessage(`§c骑乘切换失败：实体未找到事件（${e.message}）`);
+            player.sendMessage(t("fictoria.ui.ride.fail_event", e.message));
             return;
         }
 
@@ -576,9 +619,9 @@ function initFictoriaUI() {
             // （马身旁没落点、区块刚加载）。这里在下马指令之外再兜一层重试，
             // 否则表现就是「点了解除，她还在马上」。
             dismountNow(unit);
-            player.sendMessage("§7[骑乘] 已解除，她不再主动寻找坐骑");
+            player.sendMessage(t("fictoria.ui.ride.off"));
         } else {
-            player.sendMessage("§b[骑乘] 已启用，附近 16 格内有可骑的生物（马 / 驴 / 猪 / 羊驼…）就会骑上去");
+            player.sendMessage(t("fictoria.ui.ride.on"));
         }
 
         //  tag 由 mount_on 的 queue_command 写入，下一 tick 才落地，
@@ -663,7 +706,7 @@ function initFictoriaUI() {
         if (p && p.eventIds.includes(eventId) && system.currentTick <= p.deadline) {
             pendingVerify.delete(entity.id);
             applyJsState(entity, p.mode);
-            p.player.sendMessage(`§a✔ 指令已生效：${MODE_NAME[p.mode]}`);
+            p.player.sendMessage(t(`fictoria.ui.command_ok.${MODE_TAG[p.mode]}`));
             return;
         }
 
@@ -676,6 +719,10 @@ function initFictoriaUI() {
         }
 
         if (SIT_ALIAS_SET.has(eventId)) {
+            // JS 已经设成巡逻：follow_2 只是「取消跟随」的副产物，不代表要退出巡逻。
+            // 待命进巡逻时移除道具 → JSON 发 follow_2，若在这里删掉 patrolUnits 会立刻把自己踢出巡逻。
+            if (entity.getDynamicProperty(DP.mode) === MODE.PATROL) return;
+
             patrolUnits.delete(entity.id);
             unmarkPatrol(entity);
 
@@ -685,26 +732,7 @@ function initFictoriaUI() {
         }
     }, DATA_DRIVEN_PRIORITY.FICTORIA_UI);
 
-    //  切换指令 + 验证反馈
-
-    function waitSitThenPatrol(player, unit, mode) {
-        pendingVerify.set(unit.id, {
-            eventIds: CONFIG.sitAliases.slice(),
-            player,
-            mode,
-            deadline: system.currentTick + CONFIG.verifyWaitTicks,
-        });
-
-        system.runTimeout(() => {
-            const p = pendingVerify.get(unit.id);
-            if (!p || p.mode !== mode) return;
-            pendingVerify.delete(unit.id);
-
-            player.sendMessage(
-                `§c✘ 巡逻未激活：该实体未检测到 sit 事件（可能不具备取消跟随能力），已保持原状态`
-            );
-        }, CONFIG.verifyWaitTicks);
-    }
+    //  切换指令
 
     function scheduleStrategyMenuRefresh(player, unit) {
         if (!CONFIG.autoReopenAfterSwitch) return;
@@ -723,7 +751,7 @@ function initFictoriaUI() {
         const wantFollow = (mode === MODE.FOLLOW);
 
         if (CONFIG.requireTamed && !isTamed(unit)) {
-            player.sendMessage(`§c指令失败：该实体未驯服，无法下达战术指令`);
+            player.sendMessage(t("fictoria.ui.fail.untamed"));
             return;
         }
 
@@ -736,7 +764,7 @@ function initFictoriaUI() {
 
         // 精确空操作判断
         if (getUnitStatus(unit) === mode) {
-            player.sendMessage(`§7[状态] 该干员已是${MODE_NAME[mode]}状态，无需切换`);
+            player.sendMessage(t(`fictoria.ui.already.${MODE_TAG[mode]}`));
             return;
         }
 
@@ -746,40 +774,22 @@ function initFictoriaUI() {
             const wasFollowing = isFollowing(unit);
 
             if (itemGated) {
-                if (wasFollowing) {
-                    if (!removeCommandFromInventory(unit)) {
-                        player.sendMessage(`§c指令失败：无法访问该干员背包`);
-                        return;
-                    }
-                    waitSitThenPatrol(player, unit, mode);
-                } else {
-                    if (!addCommandToInventory(unit)) {
-                        player.sendMessage(
-                            `§c指令失败：背包已满，无法放入 ${commandName(commandIdOf(unit))}`
-                        );
-                        return;
-                    }
-
-                    system.runTimeout(() => {
-                        try {
-                            if (!unit || !unit.isValid) return;
-                            removeCommandFromInventory(unit);
-                            waitSitThenPatrol(player, unit, mode);
-                        } catch (_) {}
-                    }, 2);
-                }
-            } else {
-                try {
-                    unit.triggerEvent(CONFIG.sitEvent);
-                } catch (e) {
-                    player.sendMessage(
-                        `§c巡逻未激活：实体未找到事件 "${CONFIG.sitEvent}"（${e.message}）`
-                    );
+                // 门控实体的「跟不跟随」只看背包里那枚道具：撤掉就等同于取消跟随。
+                // 撤完立刻进巡逻，不等 JSON 的 follow_2 —— 待命坐着时 follow 组已被 sit 摘掉，
+                // sensor 不评估也就永远等不到，旧逻辑就卡在这里误报「未检测到 sit」。
+                if (wasFollowing && !removeCommandFromInventory(unit)) {
+                    player.sendMessage(t("fictoria.ui.fail.no_inventory"));
                     return;
                 }
-                waitSitThenPatrol(player, unit, mode);
+            } else if (wasFollowing) {
+                // 非门控实体靠 sit 组取消跟随；没有该事件也不拦，巡逻状态照样落。
+                try {
+                    unit.triggerEvent(CONFIG.sitEvent);
+                } catch (_) {}
             }
 
+            applyJsState(unit, mode);
+            player.sendMessage(t(`fictoria.ui.command_ok.${MODE_TAG[mode]}`));
             scheduleStrategyMenuRefresh(player, unit);
             return;
         }
@@ -799,7 +809,7 @@ function initFictoriaUI() {
 
             if (!ok) {
                 player.sendMessage(
-                    `§c切换异常：${wantFollow ? "背包已满" : "无法访问背包"}（但已退出巡逻，未卡死）`
+                    t(wantFollow ? "fictoria.ui.switch.bag_full" : "fictoria.ui.switch.no_inventory")
                 );
                 scheduleStrategyMenuRefresh(player, unit);
                 return;
@@ -823,10 +833,10 @@ function initFictoriaUI() {
                     if (!unit || !unit.isValid) return;
 
                     if (isFollowing(unit) === wantFollow) {
-                        player.sendMessage(`§a✔ 指令已生效：${MODE_NAME[mode]}`);
+                        player.sendMessage(t(`fictoria.ui.command_ok.${MODE_TAG[mode]}`));
                     } else {
                         player.sendMessage(
-                            `§c✘ 切换未完全生效：背包 ${commandName(commandIdOf(unit))} 未按预期变化（但已退出巡逻）`
+                            t("fictoria.ui.switch.incomplete", commandName(commandIdOf(unit)))
                         );
                     }
                 } catch (_) {}
@@ -845,7 +855,7 @@ function initFictoriaUI() {
                 unit.setDynamicProperty(DP.mode, prevMode ?? MODE.UNKNOWN);
             }
 
-            player.sendMessage(`§e提示：实体未找到事件 "${eventId}"，但已退出巡逻`);
+            player.sendMessage(t("fictoria.ui.patrol.left_no_event", eventId));
             scheduleStrategyMenuRefresh(player, unit);
             return;
         }
@@ -863,7 +873,7 @@ function initFictoriaUI() {
             pendingVerify.delete(unit.id);
 
             player.sendMessage(
-                `§c✘ 事件 "${eventId}" 未在 ${CONFIG.verifyWaitTicks} tick 内生效（已退出巡逻，未卡死）`
+                t("fictoria.ui.event_timeout", eventId, CONFIG.verifyWaitTicks)
             );
         }, CONFIG.verifyWaitTicks);
 
@@ -872,36 +882,45 @@ function initFictoriaUI() {
 
     //  战术指令 UI
 
-    function statusText(status) {
+    /** 状态 → 语言键后缀，拼成 fictoria.ui.body.* / btn.status.*（颜色写在 lang 里）。 */
+    function statusTag(status) {
         switch (status) {
             case MODE.FOLLOW:
-                return "§a跟随中";
+                return "follow";
             case MODE.RANDOM:
-                return "§e自由活动";
+                return "random";
             case MODE.PATROL:
-                return "§b巡逻守家中";
+                return "patrol";
             default:
-                return "§7未知";
+                return "unknown";
         }
     }
 
     function openStrategyMenu(player, unit) {
         const status = getUnitStatus(unit);
         const riding = isRidingMount(unit);
+        const keepOn = isKeepOn(player, unit);
+
+        // body 只收「单个」string 或 RawMessage，传数组会抛类型转换错误、面板直接打不开；
+        // 逐行 label() 每行自带额外行距，正文会挤成好几排字。所以整句状态合成一条键。
+        // 键按「状态 × 骑乘」展开成 8 条静态文案，占位符只放干员名。
+        const tag = statusTag(status);
 
         const form = new ActionFormData()
-            .title("战术指令")
-            .body(
-                `正在指挥：${unit.nameTag || unit.typeId}\n` +
-                `当前状态：${statusText(status)}\n` +
-                `骑乘模式：${riding ? "§b骑乘中" : "§7未启用"}\n` +
-                `§8（骑乘是独立开关，与上面三项互不冲突，可同时存在）`
-            )
-            .button(`§8【状态】${statusText(status)}`)
-            .button("-跟随玩家-", "textures/ui/follow_mode")
-            .button("-随机移动-", "textures/ui/random_mode")
-            .button("-巡逻守家-", "textures/ui/patrol_mode")
-            .button(riding ? "§8-解除骑乘-" : "§b-骑乘模式-", "textures/ui/ride_mode");
+            .title(t("fictoria.ui.title"))
+            .body(t(`fictoria.ui.body.${tag}.${riding ? "on" : "off"}`, unit.nameTag || unit.typeId))
+            .button(t(`fictoria.ui.btn.status.${tag}`))
+            .button(t("fictoria.ui.btn.follow"), "textures/ui/follow_mode")
+            .button(t("fictoria.ui.btn.random"), "textures/ui/random_mode")
+            .button(t("fictoria.ui.btn.patrol"), "textures/ui/patrol_mode")
+            .button(t(riding ? "fictoria.ui.btn.ride_off" : "fictoria.ui.btn.ride_on"), "textures/ui/ride_mode")
+            .button(t(keepOn ? "fictoria.ui.btn.keep_off" : "fictoria.ui.btn.keep_on"));
+
+        // 没有加载区就没有边界可画，所以这个按钮只在开启后才出现。
+        // 关状态用黑字：按钮底色是浅灰，§7 灰字在上面糊成一片
+        if (keepOn) {
+            form.button(t(isBorderShown(unit) ? "fictoria.ui.btn.border_off" : "fictoria.ui.btn.border_on"));
+        }
 
         form.show(player).then((res) => {
             if (res.canceled) return;
@@ -914,6 +933,20 @@ function initFictoriaUI() {
             // 第 5 个按钮是骑乘开关：不走 assignStrategy，不碰 MODE。
             if (res.selection === 4) {
                 toggleRide(player, unit);
+                return;
+            }
+
+            // 第 6 个按钮：按这只开/关，每只各占一片。重开面板让按钮文案立即翻面
+            if (res.selection === 5) {
+                toggleChunkKeep(player, unit);
+                openStrategyMenu(player, unit);
+                return;
+            }
+
+            // 第 7 个按钮：只在开着区块加载时存在。同样重开面板翻面
+            if (keepOn && res.selection === 6) {
+                toggleBorder(player, unit);
+                openStrategyMenu(player, unit);
                 return;
             }
 

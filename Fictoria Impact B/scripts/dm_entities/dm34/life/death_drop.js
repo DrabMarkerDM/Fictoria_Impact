@@ -11,14 +11,14 @@
  */
 
 import { system } from "@minecraft/server";
-import { isMaid } from "./maid_state.js";
-import { armorRecord, bagFirstOf } from "./guard.js";
-import { storedWeapon } from "./weapon_store.js";
-import { storedFarmTool } from "./farm_store.js";
-import { shieldRecord } from "./shield.js";
-import { deserializeItem, dropItemNear, serializeItem } from "./slot_io.js";
-import { CONFIG } from "./config.js";
-import { DEATH_PRIORITY, registerEntityDieHandler } from "../common/core/event_bus.js";
+import { isMaid } from "../core/maid_state.js";
+import { armorRecord, bagFirstOf } from "../combat/guard.js";
+import { storedWeapon } from "../inventory/weapon_store.js";
+import { storedFarmTool } from "../inventory/farm_store.js";
+import { shieldRecord } from "../combat/shield.js";
+import { deserializeItem, dropItemNear, serializeItem } from "../core/slot_io.js";
+import { CONFIG } from "../config.js";
+import { DEATH_PRIORITY, registerEntityDieHandler } from "../../common/core/event_bus.js";
 
 let inited = false;
 

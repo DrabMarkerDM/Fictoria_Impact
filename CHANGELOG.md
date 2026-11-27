@@ -1,5 +1,30 @@
 # Changelog
 
+## [0.3.8.8] — 2026-11-26
+
+### Added
+
+- **Chunk keep** — a switch on her panel gives each companion her own 3×3 ticking area that slides with her, plus an optional particle border drawing the 48×48 outline for the owner only. The setting rides on the Fictoria Ball, so a recalled companion comes back with it, and base defence keeps working in a dimension with no player.
+- **Crossbow aim** — in crossbow form she raises the weapon while she has a live target and lowers it after firing. Multishot is fired by her, not by the engine: vanilla mobs ignore it.
+- **Death-return balls** — three `_dead` ball items (green / blue / gold), so a ball that brought her back from death reads differently from one you recalled by hand.
+- **Localization** — 334 keys in zh_CN / en_US / en_GB covering panels, the manual, item names and every player-facing line.
+
+### Changed
+
+- 18 more companions join the panel command system: follow / random / patrol now works on **34**, not 16.
+- Their right-click menu is now two top-level interactions (sit / stand) with the sneak tag driven by `entity_sensor`, instead of `interact` blocks repeated in every component group.
+- Posture animation uses our own `dm_state_sit` controller; 17 companions no longer borrow `controller.animation.player.sit`, and dm34's crossbow uses `dm34.crossbow`.
+- **dm21 and dm6 were on `format_version` 1.8.0**, where every newer component is silently dropped. Both are now 1.21.50.
+- `dm34/` scripts split by responsibility into `core/` `combat/` `gather/` `inventory/` `life/` `ball/`.
+- Manual chapter text moved into `.lang`; the script keeps only the flow.
+
+### Fixed
+
+- **Panel inventory reads start at slot 1** — slot 0 is the saddle slot of a horse container, so anything written there was invisible.
+- Ball lore lines built with `t()` were dropped by a `typeof string` check, which could wipe her name and status off a recalled ball.
+- A `follow_2` arriving while she was already patrolling cleared her patrol list.
+- Item names are language keys now, so `模块-GLOCK` and the manual title render in every client instead of Chinese only.
+
 ## [0.3.8.6] — 2026-11-23
 
 ### Added

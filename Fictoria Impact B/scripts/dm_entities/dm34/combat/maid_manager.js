@@ -1,8 +1,9 @@
 import { EntityDamageCause, system } from "@minecraft/server";
+import { t } from "../../common/core/i18n.js";
 import {
     registerAfterHurtHandler,
     AFTER_HURT_PRIORITY
-} from "../common/core/event_bus.js";
+} from "../../common/core/event_bus.js";
 
 registerAfterHurtHandler("maid_hurt_protect", (event) => {
     const victim = event.hurtEntity;
@@ -145,9 +146,9 @@ registerAfterHurtHandler("maid_hurt_protect", (event) => {
                 dimension.spawnParticle("minecraft:endrod", safeLocation);
 
                 if (needFindLand) {
-                    target.sendMessage("§e<女仆酱> 主人笨蛋！我先溜啦！");
+                    target.sendMessage(t("fictoria.maid.flee"));
                 } else {
-                    target.sendMessage("§e<女仆酱> 烫死啦！呜呜呜~");
+                    target.sendMessage(t("fictoria.maid.burn"));
                 }
             } catch (e) {}
 

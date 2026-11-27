@@ -11,14 +11,15 @@
  */
 
 import { system, world } from "@minecraft/server";
-import { CONFIG } from "./config.js";
-import { clearSlot, cmdHasItem, deserializeItem, dropItemNear } from "./slot_io.js";
-import { factionOf, enemyFilterOf, isHostile } from "../common/core/camp_faction.js";
-import { HURT_PRIORITY, REMOVE_PRIORITY } from "../common/core/event_bus.js";
-import { forEachMaid } from "../common/core/maid_registry.js";
-import { resolveState } from "./maid_state.js";
+import { CONFIG } from "../config.js";
+import { t } from "../../common/core/i18n.js";
+import { clearSlot, cmdHasItem, deserializeItem, dropItemNear } from "../core/slot_io.js";
+import { factionOf, enemyFilterOf, isHostile } from "../../common/core/camp_faction.js";
+import { HURT_PRIORITY, REMOVE_PRIORITY } from "../../common/core/event_bus.js";
+import { forEachMaid } from "../../common/core/maid_registry.js";
+import { resolveState } from "../core/maid_state.js";
 import { putInBag } from "./guard.js";
-import { registerShieldBlocker } from "../common/tactical/shield_block.js";
+import { registerShieldBlocker } from "../../common/tactical/shield_block.js";
 
 const DM34 = "player:dm34";
 
@@ -136,7 +137,7 @@ export function recordShield(entity, rec, player) {
                 const ok = cmdHasItem(entity, "Offhand", rec.id) || cmdHasItem(entity, "Mainhand", rec.id);
                 if (ok) {
                     writeRecord(entity, rec); // 现在才落账 + 上 tag
-                    try { player.sendMessage("§7成功装载盾牌！"); } catch (e) { /* 忽略 */ }
+                    try { player.sendMessage(t("fictoria.shield.equipped")); } catch (e) { /* 忽略 */ }
                     return;
                 }
 
@@ -147,7 +148,7 @@ export function recordShield(entity, rec, player) {
                     const back = deserializeItem(rec);
                     if (back) { try { dropItemNear(entity, back); } catch (e) { /* 忽略 */ } }
                 }
-                try { player.sendMessage("§c副手槽没接住这面盾，盾还留在你手上。"); } catch (e) { /* 忽略 */ }
+                try { player.sendMessage(t("fictoria.shield.offhand_fail")); } catch (e) { /* 忽略 */ }
             } catch (e) { /* 忽略 */ }
         }, 2);
     } catch (e) { /* 忽略 */ }
@@ -195,13 +196,13 @@ export function equipShield(player, entity) {
         // 闲置态不持盾：in1/in2 的 JSON 没有装盾条目，手持盾右键命中拦截条目 →
         // 这里只给一句提示，不记账不搬件。闲置态的盾既不渲染也举不起来，装上就是幽灵
     if (isIdleState(entity)) {
-        try { player.sendMessage("§7她现在是待命/闲置状态，不持盾。先给她一把武器再装。"); } catch (e) { /* 忽略 */ }
+        try { player.sendMessage(t("fictoria.shield.no_weapon")); } catch (e) { /* 忽略 */ }
         return true;
     }
 
     if (hasShield(entity)) {
                 // filter 的 none_of 已经拦过引擎装备，走到这里补一句人话即可
-        try { player.sendMessage("§7她已经有一面盾牌了，先取下来再换。"); } catch (e) { /* 忽略 */ }
+        try { player.sendMessage(t("fictoria.shield.already")); } catch (e) { /* 忽略 */ }
         return true;
     }
 

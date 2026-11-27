@@ -4,6 +4,14 @@
  * 正常保存。套娃保护：filled 幻域球（含 _cd、带 fictoria:bag_data 的）一律不收回，原地掉落。
  */
 import * as Server from "@minecraft/server";
+import { t } from "../core/i18n.js";
+import {
+    disableFor,
+    enableFollow,
+    isBorderOn,
+    isUnitOn,
+    setBorderOn
+} from "../core/chunk_keep.js";
 
 /** 本文件日志开关（只影响 fictoria_ball.js）。排查球的存取/还原时打开 */
 const DEBUG_BALL = false;
@@ -113,6 +121,8 @@ const GREEN_BALL_TYPES = trimArray([
 const RAW_BALL_TYPES = {
     "items:fictoria_ball_empty_yellow": {
         filledCooling: "items:fictoria_ball_filled_yellow_cd",
+        // 死亡回球专用外观：与 _cd 同语义（冷却中、可放置），只是贴图区分"她是死后回来的"
+        filledDead: "items:fictoria_ball_filled_yellow_dead",
         filledReady: "items:fictoria_ball_filled_yellow",
         cd: 25,
         // 死亡回球专用冷却（= 正常值的 3 倍）。与 `cd` 分开存，便于单边调整。
@@ -121,6 +131,7 @@ const RAW_BALL_TYPES = {
     },
     "items:fictoria_ball_empty_blue": {
         filledCooling: "items:fictoria_ball_filled_blue_cd",
+        filledDead: "items:fictoria_ball_filled_blue_dead",
         filledReady: "items:fictoria_ball_filled_blue",
         cd: 15,
         deathCd: 45,
@@ -128,6 +139,7 @@ const RAW_BALL_TYPES = {
     },
     "items:fictoria_ball_empty_green": {
         filledCooling: "items:fictoria_ball_filled_green_cd",
+        filledDead: "items:fictoria_ball_filled_green_dead",
         filledReady: "items:fictoria_ball_filled_green",
         cd: 5,
         deathCd: 15,
@@ -143,6 +155,7 @@ for (const [rawEmptyId, rawCfg] of Object.entries(RAW_BALL_TYPES)) {
 
     const cfg = {
         filledCooling: trimString(rawCfg.filledCooling),
+        filledDead: trimString(rawCfg.filledDead),
         filledReady: trimString(rawCfg.filledReady),
         cd: rawCfg.cd,
         deathCd: rawCfg.deathCd,
@@ -161,23 +174,22 @@ const FILLED_MAP = {};
 const COOLING_TO_READY_MAP = {};
 
 for (const [emptyId, cfg] of Object.entries(BALL_TYPES)) {
-    FILLED_MAP[cfg.filledCooling] = {
+    // 三种满球外观共用一套配置：就绪 / 冷却 / 死亡回收（死亡版也是冷却态，只是贴图不同）
+    const entry = () => ({
         emptyId,
         cd: cfg.cd,
         deathCd: cfg.deathCd,
         allowed: cfg.allowed,
         allowedSet: cfg.allowedSet,
-    };
+    });
 
-    FILLED_MAP[cfg.filledReady] = {
-        emptyId,
-        cd: cfg.cd,
-        deathCd: cfg.deathCd,
-        allowed: cfg.allowed,
-        allowedSet: cfg.allowedSet,
-    };
+    FILLED_MAP[cfg.filledCooling] = entry();
+    FILLED_MAP[cfg.filledDead] = entry();
+    FILLED_MAP[cfg.filledReady] = entry();
 
+    // 两种冷却态都换成就绪球
     COOLING_TO_READY_MAP[cfg.filledCooling] = cfg.filledReady;
+    COOLING_TO_READY_MAP[cfg.filledDead] = cfg.filledReady;
 }
 
 // 战术 UI 状态键
@@ -201,6 +213,13 @@ const UI_BALL_TO_ENTITY = {
 
 const BAG_DP_KEY = "fictoria:bag_data";
 const OWNER_DP_KEY = "ownerId";
+
+/**
+ * 区块常加载 / 边界显示是挂在干员实体上的（区按 entity.id 绑、开关存实体 DP）。
+ * 收回时实体被 remove，两项设置会一起消失 —— 存在球上，放出时原样恢复。
+ */
+const KEEP_DP_KEY = "fictoria:keep_on";
+const KEEP_BORDER_DP_KEY = "fictoria:keep_border";
 
 // 扩展点：幻域球不认识的装备槽 / 自定义动态属性由使用方注册接管
 // （原问题：收回女仆只存 36 格，装备槽与动态属性随 remove() 消失）。
@@ -699,7 +718,9 @@ function str2Lore(strPure, noteLines) {
 
     if (Array.isArray(noteLines)) {
         for (const line of noteLines) {
-            if (typeof line === "string" && line !== "") lore.push(line);
+            // 非空即保留：t() 返回的是 RawMessage 对象，不能按 typeof string 过滤掉
+            if (line === undefined || line === null || line === "") continue;
+            lore.push(line);
         }
     }
 
@@ -1277,7 +1298,7 @@ export function createMaidBall(typeId, ownerName) {
 /** 查这只干员属于哪种球。
  *  三色名单彼此不重叠（60 只去重后全覆盖），所以"符合自己品质"是唯一解，不存在歧义。
  *  @param {string} typeId
- *  @returns {{emptyId:string, filledCooling:string, filledReady:string, cd:number, deathCd:number}|undefined} */
+ *  @returns {{emptyId:string, filledCooling:string, filledDead:string, filledReady:string, cd:number, deathCd:number}|undefined} */
 export function ballInfoFor(typeId) {
     if (typeof typeId !== "string" || typeId === "") return undefined;
 
@@ -1287,6 +1308,7 @@ export function ballInfoFor(typeId) {
             return {
                 emptyId,
                 filledCooling: cfg.filledCooling,
+                filledDead: cfg.filledDead,
                 filledReady: cfg.filledReady,
                 cd: cfg.cd,
                 deathCd: cfg.deathCd,
@@ -1344,7 +1366,13 @@ export function buildFilledBallFor(typeId, opt) {
             typeId,
         ])}`;
 
-    const ball = new ItemStack(cfg.filledCooling, 1);
+    // 死亡回球换用 _dead 外观：同样是冷却态，放置/热交换规则与 _cd 完全一致，
+    // 只有贴图不同 —— 让人一眼看出这颗是"她自己回来的"，不是手动收回的。
+    // 配置漏写 filledDead 时退回常规冷却版，不能让整颗球造不出来。
+    const ballId = (o.cdKind === "death" && cfg.filledDead)
+        ? cfg.filledDead
+        : cfg.filledCooling;
+    const ball = new ItemStack(ballId, 1);
 
     // 球名 = `§r` + 干员自定义名，与 `captureMaid` 一致。冷却球换就绪球时名字会原样搬走，只写这一处。
     if (o.nameTag !== undefined && o.nameTag !== "") {
@@ -1353,10 +1381,13 @@ export function buildFilledBallFor(typeId, opt) {
 
     // 只有死亡回球那颗带可见说明行（正常收回不长这一行）——
     // 说明行不写秒数：球在背包里放久了那句话也不会失真，秒数由 actionbar 播报。
-    ball.setLore(str2Lore(
-        stateStr,
-        o.cdKind === "death" ? [`§c干员已自行撤回`] : undefined
-    ));
+    const deathLore = o.cdKind === "death" ? [t("fictoria.ball.death_lore")] : undefined;
+    try {
+        ball.setLore(str2Lore(stateStr, deathLore));
+    } catch (_) {
+        // 这版引擎的 setLore 若只收 string[]，退回中文 —— 不能让整颗球造不出来
+        ball.setLore(str2Lore(stateStr, o.cdKind === "death" ? ["§c干员已自行撤回"] : undefined));
+    }
 
     // 背包存档：与正常收回完全同键同格式，放置端 restoreInventory 直接吃。
     // 写失败（存档过大 / 引擎拒收）不阻断 —— 退化成人回得来、背包留在死亡点。
@@ -1385,6 +1416,19 @@ export function buildFilledBallFor(typeId, opt) {
         try {
             ball.setDynamicProperty(DEATH_CD_KEY, true);
         } catch (e) { /* 忽略 */ }
+    }
+
+    // 区块常加载 / 边界开关：死亡回球也带着走，放出时与正常收回一样恢复
+    if (o.keepOn === true) {
+        try {
+            ball.setDynamicProperty(KEEP_DP_KEY, 1);
+        } catch (e) { /* 忽略 */ }
+
+        if (o.keepBorder === true) {
+            try {
+                ball.setDynamicProperty(KEEP_BORDER_DP_KEY, 1);
+            } catch (e) { /* 忽略 */ }
+        }
     }
 
     return ball;
@@ -1455,6 +1499,23 @@ function captureMaid(player, maid, cfg) {
             ball.nameTag = `§r${maid.nameTag}`;
         }
 
+        // 区块常加载 / 边界显示：先把开关收进球，再摘掉她那片区。
+        // 必须在 remove() 之前 —— 摘区要靠实体 id 找归属，并把实体身上的标记清掉。
+        try {
+            const keepOn = isUnitOn(maid);
+            const borderOn = isBorderOn(maid);
+
+            if (keepOn) {
+                ball.setDynamicProperty(KEEP_DP_KEY, 1);
+                if (borderOn) ball.setDynamicProperty(KEEP_BORDER_DP_KEY, 1);
+                disableFor(maid);
+            } else if (borderOn) {
+                ball.setDynamicProperty(KEEP_BORDER_DP_KEY, 1);
+            }
+        } catch (e) {
+            console.warn(`[FictoriaBall] 区块设置保存失败: ${e}`);
+        }
+
         try {
             maid.remove();
         } catch (_) {}
@@ -1484,7 +1545,7 @@ function captureMaid(player, maid, cfg) {
         } catch (_) {}
 
         player.onScreenDisplay.setActionBar(
-            `§a回收成功，§e${cfg.cd}§a 秒后可再次放置`
+            t("fictoria.ball.recall_ok", cfg.cd)
         );
     } catch (e) {
         console.warn(`[FictoriaBall] 回收失败: ${e}`);
@@ -1502,9 +1563,7 @@ function releaseMaid(event, emptyId) {
     if (isBallPlaceCd(ball)) {
         const remain = getBallPlaceCdRemain(ball);
         player.onScreenDisplay.setActionBar(
-            isDeathCdBall(ball)
-                ? `§c幻域球恢复中，还剩 §e${remain}§c 秒`
-                : `§c幻域球冷却中，剩余 §e${remain}§c 秒`
+            t(isDeathCdBall(ball) ? "fictoria.ball.cd_death" : "fictoria.ball.cd_normal", remain)
         );
         return;
     }
@@ -1516,7 +1575,7 @@ function releaseMaid(event, emptyId) {
     );
 
     if (location === undefined) {
-        player.onScreenDisplay.setActionBar("§c空间不足，无法放置干员");
+        player.onScreenDisplay.setActionBar(t("fictoria.ball.no_space"));
         return;
     }
 
@@ -1539,7 +1598,7 @@ function releaseMaid(event, emptyId) {
     const nIdx = stateStr.indexOf("N");
 
     if (vIdx === -1 || nIdx === -1) {
-        player.onScreenDisplay.setActionBar("§c幻域球数据损坏");
+        player.onScreenDisplay.setActionBar(t("fictoria.ball.data_broken"));
         return;
     }
 
@@ -1558,14 +1617,14 @@ function releaseMaid(event, emptyId) {
     }
 
     if (jsonArr === undefined || jsonArr.length < 4) {
-        player.onScreenDisplay.setActionBar("§c幻域球数据损坏");
+        player.onScreenDisplay.setActionBar(t("fictoria.ball.data_broken"));
         return;
     }
 
     const [ownerId, ownerName, maidName, typeId] = jsonArr;
 
     if (ownerId !== "" && ownerId !== player.id) {
-        player.onScreenDisplay.setActionBar("§c你不是该干员的主人");
+        player.onScreenDisplay.setActionBar(t("fictoria.ball.not_owner"));
         return;
     }
 
@@ -1598,7 +1657,7 @@ function releaseMaid(event, emptyId) {
     try {
         maid = dimension.spawnEntity(typeId, location);
     } catch (_) {
-        player.onScreenDisplay.setActionBar(`§c无法生成 ${typeId}`);
+        player.onScreenDisplay.setActionBar(t("fictoria.ball.spawn_fail", typeId));
         return;
     }
 
@@ -1612,6 +1671,15 @@ function releaseMaid(event, emptyId) {
             savedUiState[entityKey] = v;
         }
     }
+
+    // 区块常加载 / 边界开关同样要在 clearDynamicProperties() 之前读出来
+    let savedKeep = false;
+    let savedKeepBorder = false;
+
+    try {
+        savedKeep = getDynamicPropertyWithFallback(ball, KEEP_DP_KEY) === 1;
+        savedKeepBorder = getDynamicPropertyWithFallback(ball, KEEP_BORDER_DP_KEY) === 1;
+    } catch (_) {}
 
     let tameOk = false;
 
@@ -1794,6 +1862,21 @@ function releaseMaid(event, emptyId) {
             }
         } catch (_) {}
 
+        // 区块常加载：按落地位置重新开一片（收回时那片已摘掉，不能指望它还在）。
+        // 边界开关单独恢复，开区失败也不该把玩家的显示设置一起吞掉。
+        try {
+            if (savedKeep) {
+                const r = enableFollow(player, maid);
+
+                // 开区失败（配额满 / 容量不足）要让玩家知道，否则她站着却不再常加载
+                if (r && r.ok === false && r.msg !== undefined) player.sendMessage(r.msg);
+            }
+
+            if (savedKeepBorder) setBorderOn(maid, true);
+        } catch (e) {
+            console.warn(`[FictoriaBall] 区块设置恢复失败: ${e}`);
+        }
+
         try {
             if (globalThis.FICTORIA_UI_SYNC) {
                 globalThis.FICTORIA_UI_SYNC.resumeState(maid);
@@ -1809,7 +1892,7 @@ function releaseMaid(event, emptyId) {
 
     setMainHand(player, new ItemStack(emptyId, 1));
 
-    player.onScreenDisplay.setActionBar("§a干员已放置！");
+    player.onScreenDisplay.setActionBar(t("fictoria.ball.placed"));
 }
 
 // 玩家背包扣除
@@ -1859,7 +1942,7 @@ export function initFictoriaBall() {
 
         if (!isAllowedType(cfg.allowedSet ?? cfg.allowed, target.typeId)) {
             system.run(() => {
-                event.player.onScreenDisplay.setActionBar("§c此球无法回收该干员");
+                event.player.onScreenDisplay.setActionBar(t("fictoria.ball.cannot_recall"));
             });
             return;
         }
@@ -1868,7 +1951,7 @@ export function initFictoriaBall() {
 
         if (!isOwner(target, event.player)) {
             system.run(() => {
-                event.player.onScreenDisplay.setActionBar("§c这不是你的干员，无法回收");
+                event.player.onScreenDisplay.setActionBar(t("fictoria.ball.not_yours"));
             });
             return;
         }
@@ -1894,9 +1977,7 @@ export function initFictoriaBall() {
             system.run(() => {
                 const remain = getBallPlaceCdRemain(item);
                 event.player.onScreenDisplay.setActionBar(
-                    isDeathCdBall(item)
-                        ? `§c幻域球恢复中，还剩 §e${remain}§c 秒`
-                        : `§c幻域球冷却中，剩余 §e${remain}§c 秒`
+                    t(isDeathCdBall(item) ? "fictoria.ball.cd_death" : "fictoria.ball.cd_normal", remain)
                 );
             });
             return;

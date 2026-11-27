@@ -64,7 +64,7 @@
         { "look_at_target": "controller.animation.humanoid.look_at_target" },
         { "move": "controller.animation.humanoid.move" },
         { "riding": "controller.animation.dm_riding" },
-        { "sitting": "controller.animation.player.sit" },
+        { "sitting": "controller.animation.dm_state_sit" },
         { "holding": "controller.animation.humanoid.holding" },
         { "brandish_spear": "controller.animation.humanoid.brandish_spear" },
         { "satt": "controller.animation.dm8_att3" },

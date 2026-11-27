@@ -22,12 +22,15 @@ item.sword:Original_sword.name=Original_sword
 item.items:fictoria_ball_filled_yellow=幻域球_金
 item.items:fictoria_ball_empty_yellow=幻域球_金（空）
 item.items:fictoria_ball_filled_yellow_cd=幻域球_金（CD中）
+item.items:fictoria_ball_filled_yellow_dead=幻域球_金（死亡回收）
 item.items:fictoria_ball_filled_blue=幻域球_蓝
 item.items:fictoria_ball_empty_blue=幻域球_蓝（空）
 item.items:fictoria_ball_filled_blue_cd=幻域球_蓝（CD中）
+item.items:fictoria_ball_filled_blue_dead=幻域球_蓝（死亡回收）
 item.items:fictoria_ball_filled_green=幻域球_绿
 item.items:fictoria_ball_empty_green=幻域球_绿（空）
 item.items:fictoria_ball_filled_green_cd=幻域球_绿（CD中）
+item.items:fictoria_ball_filled_green_dead=幻域球_绿（死亡回收）
 item.items:remove.name=扳手
 item.spawn_egg.entity.player:dm0.name=dm0
 item.spawn_egg.entity.player:dm1.name=dm1
@@ -215,5 +218,132 @@ entity.player:dm34_1.name=军械女仆酱
 dm:group_test=测试物品组
 dm:group_player=战术物品组
 
+## 常加载区（chunk_keep）
+fictoria.keep.exists=§c区块离线加载失败：此区块已有区域
+fictoria.keep.max=§c区块离线加载失败：已达上限 %1$s 个
+fictoria.keep.no_capacity=§c区块离线加载失败：配额不足或创建失败
+fictoria.keep.on_size=§a区块离线加载启用成功！%1$s×%2$s
+fictoria.keep.no_unit=§c区块离线加载失败：没有选中的干员
+fictoria.keep.pos_fail=§c区块离线加载失败：读取干员位置失败
+fictoria.keep.already=§c区块离线加载失败：这只已开启
+fictoria.keep.not_on=§c区块离线加载失败：这只未开启
+fictoria.keep.off=§7区块离线加载已关闭
+fictoria.keep.quota=§7区块配额 §f%1$s§7/§f%2$s
+fictoria.keep.pruned=§7已清理 %1$s 片无主的常加载区
+fictoria.keep.border_fail=§c边界显示切换失败
+fictoria.keep.border_on=§a边界显示已开启
+fictoria.keep.border_off=§7边界显示已关闭
 
+## 战术指令面板（fictoria_ui）
+fictoria.ui.mode.follow=跟随玩家
+fictoria.ui.mode.random=随机移动
+fictoria.ui.mode.patrol=巡逻守家
+fictoria.ui.ride.fail_target=§c骑乘切换失败：目标已失效
+fictoria.ui.ride.fail_event=§c骑乘切换失败：实体未找到事件（%1$s）
+fictoria.ui.ride.off=§7[骑乘] 已解除，她不再主动寻找坐骑
+fictoria.ui.ride.on=§b[骑乘] 已启用，附近 16 格内有可骑的生物（马 / 驴 / 猪 / 羊驼…）就会骑上去
+fictoria.ui.fail.untamed=§c指令失败：该实体未驯服，无法下达战术指令
+fictoria.ui.fail.no_inventory=§c指令失败：无法访问该干员背包
+fictoria.ui.fail.bag_full=§c指令失败：背包已满，无法放入 %1$s
+fictoria.ui.patrol.no_sit=§c✘ 巡逻未激活：该实体未检测到 sit 事件（可能不具备取消跟随能力），已保持原状态
+fictoria.ui.patrol.event_missing=§c巡逻未激活：实体未找到事件 "%1$s"（%2$s）
+fictoria.ui.patrol.left_no_event=§e提示：实体未找到事件 "%1$s"，但已退出巡逻
+fictoria.ui.event_timeout=§c✘ 事件 "%1$s" 未在 %2$s tick 内生效（已退出巡逻，未卡死）
+fictoria.ui.switch.bag_full=§c切换异常：背包已满（但已退出巡逻，未卡死）
+fictoria.ui.switch.no_inventory=§c切换异常：无法访问背包（但已退出巡逻，未卡死）
+fictoria.ui.switch.incomplete=§c✘ 切换未完全生效：背包 %1$s 未按预期变化（但已退出巡逻）
+fictoria.ui.title=战术指令
+fictoria.ui.body.follow.on=§7正在指挥：§f%1$s §8| 状态：§a跟随中 §8| 骑乘：§b已启用
+fictoria.ui.body.follow.off=§7正在指挥：§f%1$s §8| 状态：§a跟随中 §8| 骑乘：§7未启用
+fictoria.ui.body.random.on=§7正在指挥：§f%1$s §8| 状态：§e自由活动 §8| 骑乘：§b已启用
+fictoria.ui.body.random.off=§7正在指挥：§f%1$s §8| 状态：§e自由活动 §8| 骑乘：§7未启用
+fictoria.ui.body.patrol.on=§7正在指挥：§f%1$s §8| 状态：§b巡逻守家中 §8| 骑乘：§b已启用
+fictoria.ui.body.patrol.off=§7正在指挥：§f%1$s §8| 状态：§b巡逻守家中 §8| 骑乘：§7未启用
+fictoria.ui.body.unknown.on=§7正在指挥：§f%1$s §8| 状态：§7未知 §8| 骑乘：§b已启用
+fictoria.ui.body.unknown.off=§7正在指挥：§f%1$s §8| 状态：§7未知 §8| 骑乘：§7未启用
+fictoria.ui.btn.follow=-跟随玩家-
+fictoria.ui.btn.random=-随机移动-
+fictoria.ui.btn.patrol=-巡逻守家-
+fictoria.ui.btn.ride_on=§b-骑乘模式-
+fictoria.ui.btn.ride_off=§8-解除骑乘-
+fictoria.ui.btn.keep_on=§a-启用区块离线加载-
+fictoria.ui.btn.keep_off=§c-关闭区块离线加载-
+fictoria.ui.btn.border_on=§a-边界显示 开-
+fictoria.ui.btn.border_off=§0-边界显示 关-
 
+fictoria.ui.btn.status.follow=§8【状态】§a跟随中
+fictoria.ui.btn.status.random=§8【状态】§e自由活动
+fictoria.ui.btn.status.patrol=§8【状态】§b巡逻守家中
+fictoria.ui.btn.status.unknown=§8【状态】§7未知
+fictoria.ui.command_ok.follow=§a✔ 指令已生效：跟随玩家
+fictoria.ui.command_ok.random=§a✔ 指令已生效：随机移动
+fictoria.ui.command_ok.patrol=§a✔ 指令已生效：巡逻守家
+fictoria.ui.command_ok.unknown=§a✔ 指令已生效
+fictoria.ui.already.follow=§7[状态] 该干员已是跟随玩家状态，无需切换
+fictoria.ui.already.random=§7[状态] 该干员已是随机移动状态，无需切换
+fictoria.ui.already.patrol=§7[状态] 该干员已是巡逻守家状态，无需切换
+fictoria.ui.already.unknown=§7[状态] 状态未变化，无需切换
+
+## 新手指南（field_manual）
+fictoria.manual.title=§0§l新手指南
+fictoria.manual.index_body=选一章来读。\n§7右击拿在手上的这本指南可以随时翻回来。§r
+fictoria.manual.close=§8关闭
+fictoria.manual.back=§e返回目录
+fictoria.manual.ch1.title=§l第一章  从第一个生命开始
+fictoria.manual.ch1.body=§e如何获取？§r\n· 创造模式：\n· 物品栏「装备 → 战术物品组」里有满的幻域球和各种模块；刷怪蛋在「物品」页。\n· 手持满的幻域球右键方块 → 她直接出现。\n· 生存模式：\n· 合成「心/Card_1」驯服：工作台里 3 颗绿宝石斜着摆，手持右键完成驯服。\n· 合成「幻域球（空）」可像宝可梦一样收回放置女仆：8 颗绿宝石围一圈，中间放一张卡牌。\n\n作为新人，你在第一次进入这个世界时，会自动赠予你一颗装好女仆的幻域球和新手指南。
+fictoria.manual.ch2.title=§l第二章  普通-女仆
+fictoria.manual.ch2.body=刚驯服时她是普通女仆，有多种功能。\n\n§e战斗§r\n· 手持任意剑、长矛、弓、弩右键女仆——她换上对应武器进入战斗。换装备时，她原来那把会掉在脚边，记得捡。\n· 长矛按近战戳刺使用，不能投掷。\n\n§e烹饪§r\n· 手持生食右键 → 进入烹饪模式，可连续烹饪，\n玩家潜行右键 → 取走做好的食物。\n· 注：在女仆闲置的空手状态下，背包中如有生食，也会自动进行烹饪哦。\n\n§e喂面包§r\n· 手持面包右键 → 她吃下。任何状态都能喂，坐着、战斗中、采集时都吃。\n· 吃下后 10 秒内获得：力量 II、生命提升 VI、伤害吸收 VI，并立刻回复一次生命。\n· 打架前喂一个，等于多一层护盾 + 多一截血条，很划算。\n\n§e农耕§r\n· 手持铁锄右键 → 进入农耕模式，她自己找附近的耕地干活，\n能种植和回收原版作物，包括南瓜、西瓜这类整块作物也能收。\n· 女仆具备使用骨粉的能力，且每隔一段时间，会自己制作骨粉。\n· 女仆踩在漏斗上时，背包物品会自动输入漏斗。\n\n§e采集§r\n· 手持镐右键 → 挖矿；手持斧右键 → 砍树。她会自己找附近的矿石/原木走过去开挖。\n· 挖出来的东西自动进她背包（背包满了掉在脚下）。\n· 要取货：直接右键（不用潜行）就能打开她的背包。\n· 要收工：潜行 + 右键 → 她停下、退出采集状态，工具还给你。\n· 砍树会把整棵连着的树干一起推倒（最多 96 格）。\n· 注：她走的路上如果有岩浆或深坑，会自己绕；实在到不了会站着等，不会破坏方块开路。\n\n§e穿甲/持盾§r\n· 空手、待命状态下，手持护甲/盾牌右键 → 她穿上（注：空手状态无法装备盾牌）\n· 如何卸甲：玩家潜行 + 手持 Maid Command 右键 → 把甲和盾取下来交给你。\n\n§e打开背包§r\n· 空手、待命状态下，玩家潜行+右键打开女仆背包\n· 女仆手持物品时，直接右键即可打开背包
+fictoria.manual.ch3.title=§l第三章  军械-女仆
+fictoria.manual.ch3.body=§e晋升§r\n· 空手、待命状态下，手持「War Cross」右键 → 晋升军械女仆。\n\n§e换武器§r\n手持模块右键即可换装：\n· 模块-M4A1：切换为M4A1步枪作战，为高频连发\n· 模块-GLOCK：切换为格洛克手枪作战，可发现隐藏的敌人\n· 模块-MOSSBERG：切换为莫斯伯格霰弹枪作战，可近距离群体攻击\n· 模块-AWP：切换为AWP狙击枪作战，可攻击超远距离的敌人\n· 模块-SWORD：切换为幻域光束剑作战，可近距离群体攻击\n换下来的旧武器会掉在脚边。\n\n§e限制§r\n· 军械形态无法穿甲，也无法装备原版武器、生食和锄头——只认枪械模块。\n想让她穿甲、做饭、种地，得先退回普通形态。\n\n§e降级§r\n· 空手、手持「Gentle Cross」右键 → 变回普通女仆。\n身上和背包里的装备会掉在脚下，注意捡。
+fictoria.manual.ch4.title=§l第四章  拓展功能
+fictoria.manual.ch4.body=§eMaid Command§r\n· 驯服时会给你一个。拿在手上，或者放进女仆的背包，她就会跟着你走。\n\n§e照明§r\n· 往她背包任意格放火把，女仆会发光！\n\n§e鞍§r\n· 把鞍放进女仆的马鞍位 → 玩家可以骑乘女仆。\n· 手持鞍右键女仆 → 抱起或放下她。\n\n§e骑乘载具§r\n· 指挥菜单里打开「骑乘」开关后，她会自己骑上 16 格内的马、驴、猪、羊驼，\n  跟随模式下会驱使它跟着你走。\n· 坐骑被地形卡住（约 1.5 秒没挪窝）且前方有高低坎时，会把坐骑传送到你身边，\n  她跟着一起过来；离你超过 40 格也会直接传送一次。\n· 你坐在船上时她会自己上船；跟随模式下她会划船跟着你 ——\n  各种木船、竹筏、带箱子的船都支持。\n· 跟随模式下她本人离你超过 38 格会被传送回来。坐在载具上时这一条不触发，\n  改成传送载具，免得把她从坐骑上拽下来。\n\n§e战术指挥§r\n· 潜行 + 左键女仆 → 弹出指挥菜单：跟随 / 随机移动 / 巡逻守家\n· 跟随模式：如同原版的猫狗一样跟随玩家，超出距离时传送到玩家身边。\n· 随机移动模式：女仆不受任何限制的，自由漫步。\n· 巡逻守家模式：启用后，女仆以当前所在格为中心，在半径36格以内巡逻，超出巡逻范围自动传送到中心格。
+fictoria.manual.ch5.title=§l第五章  幻域球
+fictoria.manual.ch5.body=幻域球是女仆的移动住所。\n\n§e收回§r\n· 手持空的绿球右键女仆 → 收进球里。\n背包 36 格、身上的装备、名字和血量状态一起存。\n\n§e放出§r\n· 手持满球右键方块 → 她出现在方块表面。\n放下后有 5 秒冷却，球会显示为 CD 状态。\n\n注：穿戴盔甲或盾牌的女仆，被幻域球重新放置后，盔甲或盾牌会收进背包。\n\n§e主人保险§r\n· 球上记着主人。不是主人的人拿到球，放不出来。\n新造出来的球主人记录是空的——谁放出来，谁就成为她的主人。
+fictoria.manual.ch6.title=§l第六章  合成表
+fictoria.manual.ch6.body=女仆有诸多相关物品，可不要搞混了哦！\n\n§e心/card_1§r\n绿宝石 ×3\n\n§e幻域球（空）§r\n绿宝石 ×8 + 卡牌 ×1（≈ 绿宝石 ×11）\n\n§e女仆刷怪蛋§r\n金锭 ×4 + 红石 ×1 + 绿宝石 ×1\n\n§eWar Cross§r\n钻石 1 + 金锭 4 + 绿宝石 2\n\n§eGentle Cross§r\n红石 1 + 木棍 4 + 金粒 2\n\n§e模块-M4A1§r\n红石块 1 + 烈焰棒 1 + 紫水晶 2 + 黑曜石 2\n\n§e模块-GLOCK§r\n木棍 1 + 红石 1 + 石头 1 + 铁锭 1\n\n§e模块-MOSSBERG§r\n红石块 1 + 烈焰棒 1 + TNT 2 + 黑曜石 3\n\n§e模块-AWP§r\n烈焰棒 1、紫水晶 2、黑曜石 1、望远镜 1、铁块 1 + 红石块 1\n\n§e模块-SWORD§r\n钻石剑 ×1
+
+## 幻域球与干员喊话
+fictoria.ball.recall_ok=§a回收成功，§e%1$s§a 秒后可再次放置
+fictoria.ball.cd_death=§c幻域球恢复中，还剩 §e%1$s§c 秒
+fictoria.ball.cd_normal=§c幻域球冷却中，剩余 §e%1$s§c 秒
+fictoria.ball.no_space=§c空间不足，无法放置干员
+fictoria.ball.data_broken=§c幻域球数据损坏
+fictoria.ball.not_owner=§c你不是该干员的主人
+fictoria.ball.spawn_fail=§c无法生成 %1$s
+fictoria.ball.placed=§a干员已放置！
+fictoria.ball.cannot_recall=§c此球无法回收该干员
+fictoria.ball.not_yours=§c这不是你的干员，无法回收
+fictoria.ball.death_lore=§c干员已自行撤回
+fictoria.ball.death_cd=§c干员已自行撤回，还需 §e%1$s§c 秒
+fictoria.maid.flee=§e<女仆酱> 主人笨蛋！我先溜啦！
+fictoria.maid.burn=§e<女仆酱> 烫死啦！呜呜呜~
+
+## 交互 / 护甲 / 盾 / 采集 / 套装
+fictoria.interact.shield_off=§7取下盾牌。
+fictoria.interact.armor_off=§7取下 %1$s 件盔甲。
+fictoria.interact.armor_stray=§7取下 %1$s 件残留盔甲。
+fictoria.interact.armor_none=§7她身上没有盔甲。
+fictoria.interact.form_switch=§7切换形态：%1$s 件装备已取下，掉在脚下。
+fictoria.interact.weapon_unsaved=§c这把武器存不下来
+fictoria.interact.hoe_unsaved=§c锄头存不下来（记录写不进去），这次没换。
+fictoria.shield.equipped=§7成功装载盾牌！
+fictoria.shield.offhand_fail=§c副手槽没接住这面盾，盾还留在你手上。
+fictoria.shield.no_weapon=§7她现在是待命/闲置状态，不持盾。先给她一把武器再装。
+fictoria.shield.already=§7她已经有一面盾牌了，先取下来再换。
+fictoria.equip.unknown_slot=§c这件盔甲我认不出该穿哪个部位（可以登记进 armor_table）
+fictoria.gather.tool_unsaved=§c这把工具存不下来
+fictoria.gather.stopped=§7她放下了手里的活。
+fictoria.kit.received=§a收到一份新手套装§7：右键方块放出女仆，右键手册查看指南
+fictoria.kit.reset=§7新手套装标记已清除，重进世界会重新发放。
+
+## 物品名（items/*.json 已删 display_name，改用这里的键）
+item.item:field_manual.name=§b§l§o欢迎来到-幻域Phantoria
+item.item:mode_awp.name=模块-AWP
+item.item:mode_glock.name=模块-GLOCK
+item.item:mode_m4a1.name=模块-M4A1
+item.item:mode_mossberg.name=模块-MOSSBERG
+item.item:mode_sword.name=模块-SWORD
+
+## 实体右击按钮（interact_text 是翻译键，之前 lang 里缺这两条 → 游戏里显示原始键名）
+action.interact.maid=交互
+action.interact.ride.maid=骑乘

@@ -94,7 +94,7 @@
           "riding": "controller.animation.dm_riding"
         },
         {
-          "sitting": "controller.animation.player.sit"
+          "sitting": "controller.animation.dm_state_sit"
         },
         { 
           "holding": "controller.animation.humanoid.holding"

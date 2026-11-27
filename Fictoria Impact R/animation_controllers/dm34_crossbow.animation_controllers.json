@@ -1,0 +1,31 @@
+{
+	"format_version": "1.10.0",
+	"animation_controllers": {
+		// V13：举弩由实体属性 dm34:aim 驱动，属性由 dm34/crossbow_aim.js 每 5 tick 维护。
+		// 动画层能拿到的 query 都表达不了"这一箭真的射出去了"：
+		//   has_target → 墙后照样为真；facing_target_to_range_attack / item_is_charged
+		//   → 引擎逐 tick 重试，值翻动，状态机被切成 hold↔default 高速互切（手臂鬼畜）。
+		// JS 侧规则：弩形态 && 有目标 → aim=true（打不到也一直举）；检测到自射的箭 → aim=false 约 0.3s。
+		// 两态之间只认这一个属性，值稳定，不存在抖动。
+		"controller.animation.dm34.crossbow": {
+			"initial_state": "default",
+			"states": {
+				"default": {
+					"blend_transition": 0.05,
+					"blend_via_shortest_path": true,
+					"transitions": [
+						{ "hold": "query.variant == 3 && query.property('dm34:aim')" }
+					]
+				},
+				"hold": {
+					"animations": [ "crossbow_hold" ],
+					"blend_transition": 0.05,
+					"blend_via_shortest_path": true,
+					"transitions": [
+						{ "default": "query.variant != 3 || !query.property('dm34:aim')" }
+					]
+				}
+			}
+		}
+	}
+}

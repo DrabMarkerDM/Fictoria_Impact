@@ -68,6 +68,11 @@ export const ENTITY_HIT_PRIORITY = {
     FICTORIA_UI: 100        // fictoria_ui.js（import 阶段，潜行+左键弹指挥菜单）
 };
 
+// ── afterEvents.entitySpawn ── 目前只有弩箭生成检测，彼此独立。
+export const SPAWN_PRIORITY = {
+    CROSSBOW_AIM: 100       // dm34/crossbow_aim.js 箭生成 → 女仆放下弩的窗口
+};
+
 // 通道定义。resolve 用函数包一层，避免加载早期访问 world.beforeEvents。
 const CHANNELS = [
     {
@@ -105,6 +110,12 @@ const CHANNELS = [
         label: "实体互击",
         eventLabel: "afterEvents.entityHitEntity",
         resolve: () => world.afterEvents.entityHitEntity
+    },
+    {
+        key: "entitySpawn",
+        label: "实体生成",
+        eventLabel: "afterEvents.entitySpawn",
+        resolve: () => world.afterEvents.entitySpawn
     }
 ];
 
@@ -185,6 +196,11 @@ export function registerDataDrivenHandler(name, handler, priority) {
 /** 实体互击（afterEvents.entityHitEntity） */
 export function registerEntityHitHandler(name, handler, priority) {
     return register("entityHit", name, handler, priority);
+}
+
+/** 实体生成（afterEvents.entitySpawn）：只读通知 */
+export function registerEntitySpawnHandler(name, handler, priority) {
+    return register("entitySpawn", name, handler, priority);
 }
 
 // 启动：必须在所有模块 import 完成后调用（main.js 的 init），幂等。

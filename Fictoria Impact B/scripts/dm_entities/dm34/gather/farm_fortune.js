@@ -23,10 +23,10 @@
  */
 
 import { ItemStack, system } from "@minecraft/server";
-import { variantOf } from "./maid_state.js";
-import { enchLevelOf } from "./enchant.js";
-import { storedFarmTool } from "./farm_store.js";
-import { forEachMaid } from "../common/core/maid_registry.js";
+import { variantOf } from "../core/maid_state.js";
+import { enchLevelOf } from "../inventory/enchant.js";
+import { storedFarmTool } from "../inventory/farm_store.js";
+import { forEachMaid } from "../../common/core/maid_registry.js";
 import { swingFarm, forgetFarmSwing, pruneFarmSwing } from "./farm_anim.js";
 
 /** 耕地态。与 interact_router / gather 里那套 variant 编号一致 */

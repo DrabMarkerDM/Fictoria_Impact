@@ -20,7 +20,13 @@ export const FEATURE_TYPES = {
     light: new Set(["player:dm3", "player:dm12", "player:asuna", "player:kirito",
         "player:dm48", "player:dm32", "player:dm51", "player:dm26",
         "player:dm61", "player:dm52", "player:dm56", "player:dm63",
-        "player:dm35", "player:dm50", "player:dm31", "player:dm45"]),
+        "player:dm35", "player:dm50", "player:dm31", "player:dm45",
+        "player:dm4", "player:dm59", "player:dm33", "player:dm24",
+        "player:dm8", "player:dm25", "player:dm49", "player:dm62",
+        "player:dm0", "player:dm46", "player:dm60", "player:dm41",
+        "player:dm28", "player:dm53", "player:dm22", "player:dm54",
+        "player:dm21", "player:dm6"]),
+
     /**
      * UI 侧「友方」全集（巡逻恢复 / shift+左键弹面板的判定）。
      * 初值只放两只女仆，是兜底：万一 fictoria_ball.js 没加载，dm34 的巡逻恢复照样能跑。

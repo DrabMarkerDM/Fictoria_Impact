@@ -1,7 +1,7 @@
 /* slot_io.js — 装备槽读写。命令优先（replaceitem 客户端才刷新），equippable 只做回读校验 */
 
 import { EnchantmentTypes, ItemStack } from "@minecraft/server";
-import { CONFIG } from "./config.js";
+import { CONFIG } from "../config.js";
 
 /** EquipmentSlot → replaceitem 的槽位名 */
 export const SLOT_ID = {

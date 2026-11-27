@@ -10,11 +10,11 @@
  */
 
 import { system } from "@minecraft/server";
-import { isHoeId, CONFIG } from "./config.js";
+import { isHoeId, CONFIG } from "../config.js";
 import {
     clearMainhand, deserializeItem, dropItemNear, makeItem, readMainhand, serializeItem, syncMainhand,
-} from "./slot_io.js";
-import { readObject, hasRaw, writeRaw, clearRaw } from "./record_store.js";
+} from "../core/slot_io.js";
+import { readObject, hasRaw, writeRaw, clearRaw } from "../core/record_store.js";
 
 const HOE_PROP = "dm34:hoe";      // JSON：{id, n, name, lore, ench, dmg}
 const GIVE_PROP = "dm34:hgive";   // 1 = 归还时给玩家（创造模式给的是复制品，记 0）
